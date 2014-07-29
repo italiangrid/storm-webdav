@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<logger name="org.eclipse.jetty" level="ERROR" />
+	
+	<logger name="org.italiangrid.utils.https.impl.canl.CANLListener" level="WARN" />
+
+	<!-- NORMALLY YOU SHOULD NOT EDIT BELOW THIS POINT -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date{ISO8601} [%.-16thread] %-5level %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="DEBUG">
+		<appender-ref ref="CONSOLE" />
+	</root>
+</configuration>

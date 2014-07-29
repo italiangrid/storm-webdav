@@ -1,0 +1,49 @@
+package org.italiangrid.storm.webdav.server;
+
+import org.eclipse.jetty.util.component.LifeCycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public enum JettyServerListener implements LifeCycle.Listener{
+
+	INSTANCE;
+	
+	public static final Logger log = LoggerFactory.getLogger(JettyServerListener.class);
+	
+	@Override
+	public void lifeCycleStarting(LifeCycle event) {
+
+		log.debug("Jetty server starting...");
+		
+	}
+
+	@Override
+	public void lifeCycleStarted(LifeCycle event) {
+
+		log.debug("Jetty server started.");
+		
+	}
+
+	@Override
+	public void lifeCycleFailure(LifeCycle event, Throwable cause) {
+
+		log.error("Jetty server failure: {}", cause.getMessage(), cause);
+		
+	}
+
+	@Override
+	public void lifeCycleStopping(LifeCycle event) {
+
+		log.debug("Jetty server stopping.");
+		
+	}
+
+	@Override
+	public void lifeCycleStopped(LifeCycle event) {
+
+		log.debug("Jetty server stopped.");
+		
+	}
+
+}
