@@ -22,7 +22,7 @@
 
 		<xmlrpc-api.version>0.0.18.rc1</xmlrpc-api.version>
 
-		<milton.version>2.6.2.0</milton.version>
+		<milton.version>2.6.2.2</milton.version>
 
 		<commons-lang.version>2.3</commons-lang.version>
 		<commons-cli.version>1.2</commons-cli.version>
@@ -31,14 +31,14 @@
 		<http-client.version>4.2.1</http-client.version>
 
 		<metrics.version>3.0.2</metrics.version>
-		
+
 		<!-- Keep this aligned with https-utils -->
 		<logback-access.version>1.0.9</logback-access.version>
-		
+
 		<shiro.version>1.2.3</shiro.version>
-		
+
 		<guava.version>17.0</guava.version>
-		
+
 		<owner-config.version>1.0.5.1</owner-config.version>
 
 	</properties>
@@ -75,6 +75,8 @@
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>${plugin.shade.version}</version>
 				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>
@@ -107,13 +109,13 @@
 			<artifactId>owner</artifactId>
 			<version>${owner-config.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-web</artifactId>
@@ -132,7 +134,7 @@
 			<artifactId>https-utils</artifactId>
 			<version>${https-utils.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-access</artifactId>
