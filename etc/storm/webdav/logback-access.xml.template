@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>  
+
+  <appender name="FILE"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${install.prefix}/var/log/storm/storm-webdav-server-access.log</File>
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${install.prefix}/var/log/storm/storm-webdav-server-access-%d{yyyy-MM-dd}.log</FileNamePattern>
+        </rollingPolicy>
+
+        <encoder>
+        	<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS'Z',UTC} %h %l %u %user "%r" %s %b</pattern>
+        </encoder>
+    </appender>
+
+  <appender-ref ref="FILE" />
+</configuration>

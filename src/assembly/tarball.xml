@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    
+	<id>server</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    
+   	<fileSets>
+   		<!-- Empty fileset to create empty directory -->
+        <fileSet>
+          <directory>src</directory>
+          <outputDirectory>/var/log/storm</outputDirectory>
+          <excludes>
+            <exclude>**/*</exclude>
+          </excludes>
+          <directoryMode>0750</directoryMode>
+        </fileSet>
+       	
+        <fileSet>
+          <directory>etc/storm/webdav</directory>
+          <outputDirectory>/etc/storm/webdav</outputDirectory>
+          <includes>
+          	<include>**/*</include>
+          </includes>
+          <excludes>
+            <exclude>logback.xml.template</exclude>
+            <exclude>logback-access.xml.template</exclude>
+          </excludes>
+          <directoryMode>0755</directoryMode>
+        </fileSet>   		
+   	</fileSets>
+   	
+   	<files>
+   		
+   		<file>
+        	<source>${sysconfig.template}</source>
+        	<outputDirectory>/etc/sysconfig</outputDirectory>
+        	<destName>storm-webdav</destName>
+        	<fileMode>0644</fileMode>
+        	<filtered>true</filtered>
+        </file>
+        
+        <file>
+        	<source>etc/init.d/storm-webdav.template</source>
+        	<outputDirectory>/etc/init.d</outputDirectory>
+        	<destName>storm-webdav</destName>
+        	<fileMode>0755</fileMode>
+        	<filtered>true</filtered>
+        </file>
+        
+        <file>
+        	<source>etc/storm/webdav/logback.xml.template</source>
+        	<outputDirectory>/etc/storm/webdav</outputDirectory>
+        	<destName>logback.xml</destName>
+        	<fileMode>0644</fileMode>
+        	<filtered>true</filtered>
+        </file>
+        
+        <file>
+        	<source>etc/storm/webdav/logback-access.xml.template</source>
+        	<outputDirectory>/etc/storm/webdav</outputDirectory>
+        	<destName>logback-access.xml</destName>
+        	<fileMode>0644</fileMode>
+        	<filtered>true</filtered>
+        </file>
+             
+        <file>
+        	<source>target/storm-webdav-server.jar</source>
+        	<outputDirectory>/usr/share/java/storm-webdav-server</outputDirectory>
+        	<fileMode>0755</fileMode>
+        </file>    
+   	</files>
+   	
+</assembly>

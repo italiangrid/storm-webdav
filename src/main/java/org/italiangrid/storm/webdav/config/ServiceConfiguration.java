@@ -9,8 +9,12 @@ public interface ServiceConfiguration {
 
 	public String getCertificatePath();
 	public String getPrivateKeyPath();
-	public String getTrustStoreDir();
-	public long getTrustStoreRefreshIntervalInSeconds();
+	public String getTrustAnchorsDir();
+	
+	public String getLogConfigurationPath();
+	public String getAccessLogConfigurationPath();
+	
+	public long getTrustAnchorsRefreshIntervalInSeconds();
 	
 	public int getMaxConnections();
 	

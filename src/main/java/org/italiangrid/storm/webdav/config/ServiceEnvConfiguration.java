@@ -5,8 +5,8 @@ package org.italiangrid.storm.webdav.config;
 
 
 public enum ServiceEnvConfiguration implements ServiceConfiguration {
-
 	INSTANCE;	
+	
 	
 	@Override
 	public int getHTTPSPort() {
@@ -29,13 +29,13 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
 	}
 
 	@Override
-	public String getTrustStoreDir() {
-		return ServiceConfigVariable.TRUST_STORE_DIR.getValue();
+	public String getTrustAnchorsDir() {
+		return ServiceConfigVariable.TRUST_ANCHORS_DIR.getValue();
 	}
 
 	@Override
-	public long getTrustStoreRefreshIntervalInSeconds() {
-		return Long.parseLong(ServiceConfigVariable.TRUST_STORE_REFRESH_INTERVAL.getValue());
+	public long getTrustAnchorsRefreshIntervalInSeconds() {
+		return Long.parseLong(ServiceConfigVariable.TRUST_ANCHORS_REFRESH_INTERVAL.getValue());
 	}
 
 	@Override
@@ -57,24 +57,33 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
 	public String getSAConfigDir() {
 		return ServiceConfigVariable.SA_CONFIG_DIR.getValue();
 	}
+
+	@Override
+	public String getLogConfigurationPath() {
+		return ServiceConfigVariable.LOG_CONFIGURATION.getValue();
+	}
+
+	@Override
+	public String getAccessLogConfigurationPath() {
+		return ServiceConfigVariable.ACCESS_LOG_CONFIGURATION.getValue();
+	}
 	
 }
-
-
 
 enum ServiceConfigVariable {
 	
 	HTTPS_PORT("8443"),
 	HTTP_PORT("8085"),
-	
 	CERTIFICATE_PATH("/etc/grid-security/storm-webdav/hostcert.pem"),
 	PRIVATE_KEY_PATH("/etc/grid-security/storm-webdav/hostkey.pem"),
-	TRUST_STORE_DIR("/etc/grid-security/certificates"),
-	TRUST_STORE_REFRESH_INTERVAL("86400"),
-	MAX_CONNECTIONS("1000"),
-	MAX_QUEUE_SIZE("1000"),
+	TRUST_ANCHORS_DIR("/etc/grid-security/certificates"),
+	TRUST_ANCHORS_REFRESH_INTERVAL("86400"),
+	MAX_CONNECTIONS("300"),
+	MAX_QUEUE_SIZE("900"),
 	CONNECTOR_MAX_IDLE_TIME("30000"),
-	SA_CONFIG_DIR("/etc/storm-webdav/sa");
+	SA_CONFIG_DIR("/etc/storm-webdav/sa"),
+	LOG_CONFIGURATION(null),
+	ACCESS_LOG_CONFIGURATION(null);
 	
 	private String defaultValue;
 	

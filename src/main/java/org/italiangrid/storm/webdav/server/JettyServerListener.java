@@ -14,35 +14,35 @@ public enum JettyServerListener implements LifeCycle.Listener{
 	@Override
 	public void lifeCycleStarting(LifeCycle event) {
 
-		log.debug("Jetty server starting...");
+		log.info("StoRM WebDAV server starting...");
 		
 	}
 
 	@Override
 	public void lifeCycleStarted(LifeCycle event) {
 
-		log.debug("Jetty server started.");
+		log.info("StoRM WebDAV server started.");
 		
 	}
 
 	@Override
 	public void lifeCycleFailure(LifeCycle event, Throwable cause) {
 
-		log.error("Jetty server failure: {}", cause.getMessage(), cause);
+		log.error("StoRM WebDAV server failure: {}", cause.getMessage(), cause);
 		
 	}
 
 	@Override
 	public void lifeCycleStopping(LifeCycle event) {
 
-		log.debug("Jetty server stopping.");
+		log.info("StoRM WebDAV server stopping.");
 		
 	}
 
 	@Override
 	public void lifeCycleStopped(LifeCycle event) {
 
-		log.debug("Jetty server stopped.");
+		log.info("StoRM WebDAV server stopped.");
 		
 	}
 

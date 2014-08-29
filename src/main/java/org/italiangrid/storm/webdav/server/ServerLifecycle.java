@@ -1,7 +1,7 @@
 package org.italiangrid.storm.webdav.server;
 
 
-public interface Lifecycle {
+public interface ServerLifecycle {
 	
 	public void start();
 	public void stop();

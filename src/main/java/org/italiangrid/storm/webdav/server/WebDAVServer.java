@@ -1,11 +1,13 @@
 package org.italiangrid.storm.webdav.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletContextListener;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -16,8 +18,10 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.italiangrid.storm.webdav.config.ConfigurationFactory;
+import org.italiangrid.storm.webdav.config.ConfigurationLogger;
+import org.italiangrid.storm.webdav.config.Constants;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
+import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.utils.https.JettyRunThread;
 import org.italiangrid.utils.https.SSLOptions;
@@ -26,14 +30,25 @@ import org.italiangrid.utils.https.impl.canl.CANLListener;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
+import ch.qos.logback.access.joran.JoranConfigurator;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
 import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
-public class WebDAVServer implements Lifecycle{
+@Component
+public class WebDAVServer implements ServerLifecycle{
 
 	public static final Logger log = LoggerFactory.getLogger(WebDAVServer.class);
 	
@@ -43,17 +58,58 @@ public class WebDAVServer implements Lifecycle{
 	private boolean started;
 
 	private Server jettyServer;
-	private ServiceConfiguration configuration;
 	
+	private final ServiceConfiguration configuration;
+	private final StorageAreaConfiguration saConfiguration;
+	
+	@Autowired
+	private ConfigurationLogger confLogger;
 	
 	private HandlerCollection handlers = new HandlerCollection();
 
-	public WebDAVServer(ServiceConfiguration conf) {
-
+	@Autowired
+	public WebDAVServer(ServiceConfiguration conf, StorageAreaConfiguration saConf) {
 		configuration = conf;
-		
+		saConfiguration = saConf;
 	}
 
+	
+	public synchronized void configureLogging(){
+		String loggingConf = configuration.getLogConfigurationPath();
+		
+		if (loggingConf == null || loggingConf.trim().isEmpty()){
+			log.info("Logging conf null or empty, skipping logging reconfiguration.");
+			return;
+		}
+		
+		File f = new File(loggingConf);
+		if (!f.exists() || !f.canRead()){
+			log.error("Error loading logging configuration: "
+				+ "{} does not exist or is not readable.", loggingConf);
+			return;
+		}
+		
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		JoranConfigurator configurator = new JoranConfigurator();
+
+		configurator.setContext(lc);
+		lc.reset();
+
+		try {
+			configurator.doConfigure(loggingConf);
+			StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+
+		} catch (JoranException e) {
+			failAndExit("Error setting up the logging system", e);
+
+		}
+		
+		log.info("Logging system reconfigured succesfully.");
+	}
+	
+	private void logConfiguration(){
+		confLogger.logConfiguration(log);
+	}
 	
 	@Override
 	public synchronized void start() {
@@ -62,6 +118,9 @@ public class WebDAVServer implements Lifecycle{
 			throw new IllegalStateException("Server already started");
 		}
 
+		// configureLogging();
+		logConfiguration();
+		
 		startServer();
 		started = true;
 	}
@@ -72,10 +131,10 @@ public class WebDAVServer implements Lifecycle{
 
 		options.setCertificateFile(configuration.getCertificatePath());
 		options.setKeyFile(configuration.getPrivateKeyPath());
-		options.setTrustStoreDirectory(configuration.getTrustStoreDir());
+		options.setTrustStoreDirectory(configuration.getTrustAnchorsDir());
 		options
 			.setTrustStoreRefreshIntervalInMsec(java.util.concurrent.TimeUnit.SECONDS
-				.toMillis(configuration.getTrustStoreRefreshIntervalInSeconds()));
+				.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds()));
 
 		options.setWantClientAuth(true);
 		options.setNeedClientAuth(true);
@@ -119,7 +178,14 @@ public class WebDAVServer implements Lifecycle{
 		jettyServer = ServerFactory.newServer(null, configuration.getHTTPSPort(),
 			getSSLOptions(), validator, maxConnections, maxRequestQueueSize);
 		
-		configureConnectors();
+		// HTTP connector
+		SelectChannelConnector httpConnector = new SelectChannelConnector();
+		httpConnector.setPort(configuration.getHTTPPort());
+		httpConnector.setMaxIdleTime(configuration.getConnectorMaxIdleTime());
+		httpConnector.setName(HTTP_CONNECTOR_NAME);
+		jettyServer.addConnector(httpConnector);
+		
+		
 		configureHandlers();
 		
 		jettyServer.setDumpAfterStart(false);
@@ -129,25 +195,25 @@ public class WebDAVServer implements Lifecycle{
 		jettyServer.addLifeCycleListener(JettyServerListener.INSTANCE);
 		
 
-	}
-
-	private void configureConnectors() {
-
-		SelectChannelConnector httpConnector = new SelectChannelConnector();
-		httpConnector.setPort(configuration.getHTTPPort());
-		httpConnector.setMaxIdleTime(configuration.getConnectorMaxIdleTime());
-		httpConnector.setName(HTTP_CONNECTOR_NAME);
-		jettyServer.addConnector(httpConnector);
+	}	
+	
+	private WebApplicationContext buildContext(){
+		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		context.setConfigLocation("org.italiangrid.storm.webdav.spring.web");
+		return context;
 		
 	}
 	
-	
-	private Handler configureStorageAreaHandler(String rootPath, String accessPoint){
+	private Handler configureStorageAreaHandler(StorageAreaInfo sa, String accessPoint){
 		
 		ServletHolder servlet = new ServletHolder(DefaultServlet.class);
 		
+		FilterHolder springSecurityFilter = new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain"));
+		
 		FilterHolder securityFilter = new FilterHolder(SecurityFilter.class);
 		FilterHolder miltonFilter = new FilterHolder(MiltonFilter.class);
+		
+		ServletContextListener springContextListener = new ContextLoaderListener(buildContext());
 		
 		WebAppContext ch = new WebAppContext();
 		
@@ -156,17 +222,22 @@ public class WebDAVServer implements Lifecycle{
 		ch.setThrowUnavailableOnStartupException(true);
 		ch.setCompactPath(true);
 		
-		ch.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", rootPath);
-		ch.setInitParameter(MiltonFilter.SA_ROOT_PATH, rootPath);
+		ch.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", sa.rootPath());
+		ch.setInitParameter(MiltonFilter.SA_ROOT_PATH, sa.rootPath());
 		
 		ch.setInitParameter("org.eclipse.jetty.servlet.Default.acceptRanges", "true");
 		ch.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "true");
 		ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
 		
+		ch.setAttribute(Constants.SA_CONF_KEY, sa);
+		
 		EnumSet<DispatcherType> dispatchFlags = EnumSet.of(DispatcherType.REQUEST);
 		ch.addServlet(servlet, "/*");
+		ch.addFilter(springSecurityFilter, "/*", dispatchFlags);
 		ch.addFilter(securityFilter, "/*", dispatchFlags);
 		ch.addFilter(miltonFilter, "/*", dispatchFlags);
+		
+		ch.addEventListener(springContextListener);
 		
 		return ch;
 		
@@ -177,7 +248,15 @@ public class WebDAVServer implements Lifecycle{
 		
 		RequestLogImpl rli = new RequestLogImpl();
 		rli.setQuiet(true);
-		rli.setResource("/access.xml");
+		String accessLogConf = configuration.getAccessLogConfigurationPath();
+		
+		if (accessLogConf == null || accessLogConf.trim().isEmpty()){
+			log.info("Access log configuration null or empty, keeping internal configuration.");
+			rli.setResource("/access.xml");
+		}else {
+			rli.setFileName(accessLogConf);
+		}
+		
 		handler.setRequestLog(rli);
 		return handler;
 	}
@@ -186,13 +265,12 @@ public class WebDAVServer implements Lifecycle{
 	
 	private void configureHandlers() throws MalformedURLException, IOException {	
 		
-		
-		List<StorageAreaInfo> sas = ConfigurationFactory.getSAConfiguration().getStorageAreaInfo();
+		List<StorageAreaInfo> sas = saConfiguration.getStorageAreaInfo();
 		
 		for (StorageAreaInfo sa: sas){
 			
 			for (String ap: sa.accessPoints()){
-				handlers.addHandler(configureStorageAreaHandler(sa.rootPath(), ap));
+				handlers.addHandler(configureStorageAreaHandler(sa, ap));
 			}
 			
 		}
