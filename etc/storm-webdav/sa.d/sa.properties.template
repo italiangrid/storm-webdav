@@ -11,7 +11,7 @@ rootPath=/tmp
 accessPoints=/sa
 
 # Comma separated list of VOMS VOs supported in this storage area
-vos=/atlas
+vos=testers.eu-emi.eu
 
 # Enables read access to users authenticated with an X.509 certificates.
 # Defaults to false, which means that all users need to authenticate with a VOMS proxy credential 
