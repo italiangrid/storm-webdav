@@ -14,12 +14,12 @@ STORM_WEBDAV_HTTPS_PORT=8443
 STORM_WEBDAV_HTTP_PORT=8085
 
 # Path to the service certificate.
-# Default: /etc/grid-security/storm/hostcert.pem
-STORM_WEBDAV_CERTIFICATE_PATH="/etc/grid-security/storm/hostcert.pem"
+# Default: /etc/grid-security/storm-webdav/hostcert.pem
+STORM_WEBDAV_CERTIFICATE_PATH="/etc/grid-security/storm-webdav/hostcert.pem"
 
 # Path to the service certificate private key.
-# Default: /etc/grid-security/storm/hostkey.pem
-STORM_WEBDAV_PRIVATE_KEY_PATH="/etc/grid-security/storm/hostkey.pem"
+# Default: /etc/grid-security/storm-webdav/hostkey.pem
+STORM_WEBDAV_PRIVATE_KEY_PATH="/etc/grid-security/storm-webdav/hostkey.pem"
 
 # Trust anchors directory
 # Default: /etc/grid-security/certificates
@@ -42,20 +42,20 @@ STORM_WEBDAV_MAX_QUEUE_SIZE=900
 STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME=30000
 
 # Storage area configuration directory
-# Default: /etc/storm/webdav
-STORM_WEBDAV_SA_CONFIG_DIR="/opt/storm-webdav/etc/storm/webdav/sa"
+# Default: /etc/storm-webdav
+STORM_WEBDAV_SA_CONFIG_DIR="/opt/storm-webdav/etc/storm-webdav/sa.d"
 
 # The webdav server jar. Do not change this unless you know what you are doing.
-STORM_WEBDAV_JAR="/opt/storm-webdav/usr/share/java/storm-webdav-server/storm-webdav-server.jar"
+STORM_WEBDAV_JAR="/opt/storm-webdav/usr/share/java/storm-webdav/storm-webdav-server.jar"
 
 # The StoRM webdav logfile. Do not change this unless you know what you are doing.
-STORM_WEBDAV_LOG="/opt/storm-webdav/var/log/storm/storm-webdav-server.log"
+STORM_WEBDAV_LOG="/opt/storm-webdav/var/log/storm-webdav/storm-webdav-server.log"
 
 # The StoRM wedav log configuration. Do not change this unless you know what you are doing.
-STORM_WEBDAV_LOG_CONFIGURATION="/opt/storm-webdav/etc/storm/webdav/logback.xml"
+STORM_WEBDAV_LOG_CONFIGURATION="/opt/storm-webdav/etc/storm-webdav/logback.xml"
 
 # The StoRM wedav access log configuration. Do not change this unless you know what you are doing.
-STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/opt/storm-webdav/etc/storm/webdav/logback-access.xml"
+STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/opt/storm-webdav/etc/storm-webdav/logback-access.xml"
 
 # StoRM WebDAV server debug option. Uncomment this (and restart the service)
 # if you want to attach a java debugger to the running server process

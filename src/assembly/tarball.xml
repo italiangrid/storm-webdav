@@ -14,7 +14,7 @@
    		<!-- Empty fileset to create empty directory -->
         <fileSet>
           <directory>src</directory>
-          <outputDirectory>/var/log/storm</outputDirectory>
+          <outputDirectory>/var/log/storm-webdav</outputDirectory>
           <excludes>
             <exclude>**/*</exclude>
           </excludes>
@@ -22,8 +22,8 @@
         </fileSet>
        	
         <fileSet>
-          <directory>etc/storm/webdav</directory>
-          <outputDirectory>/etc/storm/webdav</outputDirectory>
+          <directory>etc/storm-webdav</directory>
+          <outputDirectory>/etc/storm-webdav</outputDirectory>
           <includes>
           	<include>**/*</include>
           </includes>
@@ -54,16 +54,16 @@
         </file>
         
         <file>
-        	<source>etc/storm/webdav/logback.xml.template</source>
-        	<outputDirectory>/etc/storm/webdav</outputDirectory>
+        	<source>etc/storm-webdav/logback.xml.template</source>
+        	<outputDirectory>/etc/storm-webdav</outputDirectory>
         	<destName>logback.xml</destName>
         	<fileMode>0644</fileMode>
         	<filtered>true</filtered>
         </file>
         
         <file>
-        	<source>etc/storm/webdav/logback-access.xml.template</source>
-        	<outputDirectory>/etc/storm/webdav</outputDirectory>
+        	<source>etc/storm-webdav/logback-access.xml.template</source>
+        	<outputDirectory>/etc/storm-webdav</outputDirectory>
         	<destName>logback-access.xml</destName>
         	<fileMode>0644</fileMode>
         	<filtered>true</filtered>
@@ -71,7 +71,7 @@
              
         <file>
         	<source>target/storm-webdav-server.jar</source>
-        	<outputDirectory>/usr/share/java/storm-webdav-server</outputDirectory>
+        	<outputDirectory>/usr/share/java/storm-webdav</outputDirectory>
         	<fileMode>0755</fileMode>
         </file>    
    	</files>

@@ -10,17 +10,17 @@
 
 	<appender name="FILE"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${install.prefix}/var/log/storm/storm-webdav-server.log</File>
+        <File>${install.prefix}/var/log/storm-webdav/storm-webdav-server.log</File>
         <rollingPolicy
             class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${install.prefix}/var/log/storm/storm-webdav-server.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${install.prefix}/var/log/storm-webdav/storm-webdav-server.%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
 
         <encoder>
             <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS'Z',UTC} - %-5level [%.-16thread] [%logger{0}] - %msg%n</pattern>
         </encoder>
     </appender>
-   	
+	  	
 	<root level="INFO">
 		<appender-ref ref="FILE" />	
 	</root>

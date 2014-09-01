@@ -36,15 +36,15 @@ killproc_delay=5
 #  sets up environment for storm-webdav-server execution
 prepare_env() {
   export STORM_WEBDAV_JVM=${STORM_WEBDAV_JVM:-java}
-  export STORM_WEBDAV_JAR=${STORM_WEBDAV_JAR:-${prefix}/usr/share/java/storm-webdav-server/storm-webdav-server.jar}
+  export STORM_WEBDAV_JAR=${STORM_WEBDAV_JAR:-${prefix}/usr/share/java/storm-webdav/storm-webdav-server.jar}
   export STORM_WEBDAV_USER=${STORM_WEBDAV_USER:-storm}
-  export STORM_WEBDAV_LOG=${STORM_WEBDAV_LOG:-${prefix}/var/log/storm/storm-webdav-server.log}
+  export STORM_WEBDAV_LOG=${STORM_WEBDAV_LOG:-${prefix}/var/log/storm-webdav/storm-webdav-server.log}
 
   if [ ! -z "${STORM_WEBDAV_DEBUG}" ]; then
     export STORM_WEBDAV_JVM_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=${STORM_WEBDAV_DEBUG_PORT},suspend=${STORM_WEBDAV_SUSPEND} ${STORM_WEBDAV_JVM_OPTS}"
   fi
 
-  export STORM_WEBDAV_LOG_CONFIGURATION=${STORM_WEBDAV_LOG_CONFIGURATION:-${prefix}/etc/storm/webdav/logback.xml}
+  export STORM_WEBDAV_LOG_CONFIGURATION=${STORM_WEBDAV_LOG_CONFIGURATION:-${prefix}/etc/storm-webdav/logback.xml}
   export STORM_WEBDAV_JVM_OPTS="-Dlogback.configurationFile=${STORM_WEBDAV_LOG_CONFIGURATION} ${STORM_WEBDAV_JVM_OPTS}"
 }
 
