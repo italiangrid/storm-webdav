@@ -1,41 +1,22 @@
-# StoRM WebDAV service refactoring
+# The StoRM WebDAV service
 
-## Apporach
+The StoRM webdav service provides http/webdav access
+to resources shared on a filesystem.
 
-Use milton only for webdav methods.
-Use jetty code for everything else.
+## Build dependencies
 
-One servlet for storage area access point maps the context to the storage area
-root path.
+You will need:
 
-org.italiangrid.storm.webdav.fs.FilesystemAccess provides the low-level
-filesystem management logic, which is mediated by the milton code.
+- git
+- java 7
+- mvn 3
 
-## Configuration
+## Build instructions
 
-### Service
-Main service configuration is now defined via environment variables.
+```bash
+mvn package
+```
 
-See:
+## Running the service
 
-org.italiangrid.storm.webdav.config.ServiceConfiguration
-org.italiangrid.storm.webdav.config.ServiceEnvConfiguration
-
-### Storage areas
-
-Storage area configuration will be parsed from a directory (configurable via an
-environment variable).
-
-For each storage area a simple properties file is defined.
-So storage area CMS will have the cms.properties file.
-
-See: org.italiangrid.storm.webdav.config.StorageAreaInfo
-
-We use the owner library to parse properties:
-http://owner.aeonbits.org/
-
-Access policy configuration will be added here as well for the simple auhtz
-scenario we have now (readable for everybody, client-authentication, voms).
-
-
-
+TODO
