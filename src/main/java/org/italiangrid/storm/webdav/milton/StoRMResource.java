@@ -15,79 +15,95 @@ import java.io.File;
 import java.util.Date;
 
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 
-
-public abstract class StoRMResource implements Resource, PropFindableResource, MoveableResource{
+public abstract class StoRMResource implements Resource, PropFindableResource,
+	MoveableResource {
 
 	protected final StoRMResourceFactory resourceFactory;
 	protected final File file;
-	
+
 	public StoRMResource(StoRMResourceFactory factory, File f) {
+
 		resourceFactory = factory;
 		file = f;
 	}
-	
-	
+
 	@Override
 	public Date getCreateDate() {
+
 		return getModifiedDate();
 	}
 
 	@Override
 	public String getUniqueId() {
+
 		return file.getAbsolutePath();
 	}
 
 	@Override
 	public String getName() {
+
 		return file.getName();
 	}
 
 	@Override
 	public Object authenticate(String user, String password) {
+
 		return user;
 	}
 
 	@Override
 	public boolean authorise(Request request, Method method, Auth auth) {
+
 		return true;
 	}
 
 	@Override
 	public String getRealm() {
+
 		return null;
 	}
 
 	@Override
 	public Date getModifiedDate() {
+
 		return new Date(file.lastModified());
 	}
 
 	@Override
 	public String checkRedirect(Request request) throws NotAuthorizedException,
 		BadRequestException {
+
 		return null;
 	}
 
-	public File getFile(){
+	public File getFile() {
+
 		return file;
 	}
-	
-	public StoRMResourceFactory getResourceFactory(){
+
+	public StoRMResourceFactory getResourceFactory() {
+
 		return resourceFactory;
 	}
-	
-	public FilesystemAccess getFilesystemAccess(){
+
+	public FilesystemAccess getFilesystemAccess() {
+
 		return resourceFactory.getFilesystemAccess();
 	}
 
+	public ExtendedAttributesHelper getExtendedAttributesHelper() {
+
+		return resourceFactory.getExtendedAttributesHelper();
+	}
 
 	@Override
-	public void moveTo(CollectionResource rDest, String name) throws ConflictException,
-		NotAuthorizedException, BadRequestException {
-			
-			StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
-			getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
-		
-		}
+	public void moveTo(CollectionResource rDest, String name)
+		throws ConflictException, NotAuthorizedException, BadRequestException {
+
+		StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
+		getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
+
+	}
 }

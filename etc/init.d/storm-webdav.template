@@ -39,6 +39,7 @@ prepare_env() {
   export STORM_WEBDAV_JAR=${STORM_WEBDAV_JAR:-${prefix}/usr/share/java/storm-webdav/storm-webdav-server.jar}
   export STORM_WEBDAV_USER=${STORM_WEBDAV_USER:-storm}
   export STORM_WEBDAV_LOG=${STORM_WEBDAV_LOG:-${prefix}/var/log/storm-webdav/storm-webdav-server.log}
+  export STORM_WEBDAV_SUSPEND=${STORM_WEBDAV_SUSPEND:-n}
 
   if [ ! -z "${STORM_WEBDAV_DEBUG}" ]; then
     export STORM_WEBDAV_JVM_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=${STORM_WEBDAV_DEBUG_PORT},suspend=${STORM_WEBDAV_SUSPEND} ${STORM_WEBDAV_JVM_OPTS}"

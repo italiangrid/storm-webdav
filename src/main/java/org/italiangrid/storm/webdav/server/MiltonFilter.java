@@ -19,12 +19,16 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.italiangrid.storm.webdav.fs.FilesystemAccessFactory;
+import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MiltonFilter implements Filter {
 
 	public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);
@@ -41,17 +45,25 @@ public class MiltonFilter implements Filter {
 	private HttpManager miltonHTTPManager;
 
 	private ServletContext servletContext;
+	
+	private FilesystemAccess filesystemAccess;
+	
+	private ExtendedAttributesHelper attrsHelper;
 
-	enum WebDAVMethod {
-		PUT,DELETE, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY
+	
+	@Autowired
+	public MiltonFilter(FilesystemAccess fsAccess, ExtendedAttributesHelper attrsHelper) {
+		this.filesystemAccess = fsAccess;
+		this.attrsHelper = attrsHelper;
 	}
-
+	
 	private void initMiltonHTTPManager(ServletContext context) {
 
 		final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
 
 		final StoRMResourceFactory resourceFactory = new StoRMResourceFactory(
-			FilesystemAccessFactory.newFilesystemAccess(),
+			filesystemAccess,
+			attrsHelper,
 			servletContext.getInitParameter(SA_ROOT_PATH),
 			servletContext.getContextPath());
 
@@ -123,5 +135,5 @@ public class MiltonFilter implements Filter {
 	public void destroy() {
 
 	}
-
+	
 }

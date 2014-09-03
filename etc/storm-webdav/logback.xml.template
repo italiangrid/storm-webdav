@@ -8,6 +8,18 @@
 	<logger name="io.milton.config" level="WARN" />
 	<logger name="org.italiangrid.utils.https.impl.canl.CANLListener" level="WARN" />
 
+	<appender name="METRICS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${install.prefix}/var/log/storm-webdav/storm-webdav-server-metrics.log</File>
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${install.prefix}/var/log/storm-webdav/storm-webdav-server-metrics.%d{yyyy-MM-dd}.log</FileNamePattern>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS'Z',UTC} - %-5level [%.-16thread] [%logger{0}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+	
 	<appender name="FILE"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${install.prefix}/var/log/storm-webdav/storm-webdav-server.log</File>
@@ -20,6 +32,10 @@
             <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS'Z',UTC} - %-5level [%.-16thread] [%logger{0}] - %msg%n</pattern>
         </encoder>
     </appender>
+    
+	<logger name="storm-metrics-logger" level="INFO" additivity="false">
+		<appender-ref ref="METRICS"/>
+	</logger>
 	  	
 	<root level="INFO">
 		<appender-ref ref="FILE" />	

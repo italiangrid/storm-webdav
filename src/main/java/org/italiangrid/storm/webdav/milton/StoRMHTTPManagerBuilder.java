@@ -29,6 +29,7 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder{
     setEnableCookieAuth(false);
     setEnableDigestAuth(false);
     
+    
 	}
 
 }

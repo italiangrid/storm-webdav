@@ -6,16 +6,28 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.google.common.io.Files;
 
+@Component
 public class DefaultFSStrategy implements FilesystemAccess {
 
 	public static final Logger LOG = LoggerFactory.getLogger(DefaultFSStrategy.class);
 	
+	final ExtendedAttributesHelper attrsHelper;
+	
+	@Autowired
+	public DefaultFSStrategy(ExtendedAttributesHelper helper) {
+
+		attrsHelper = helper;
+	}
 	
 	@Override
 	public File mkdir(File parentDirectory, String dirName) {
@@ -79,8 +91,15 @@ public class DefaultFSStrategy implements FilesystemAccess {
 		
 		try {
 			
-			file.createNewFile();
-			IOUtils.copy(in, new FileOutputStream(file));
+			if (!file.createNewFile()){
+				LOG.warn("Create file on a file that already exists: {}", file.getAbsolutePath());
+			}
+			
+			Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
+			
+			IOUtils.copy(cis, new FileOutputStream(file));
+			attrsHelper.setChecksumAttribute(file, cis.getChecksumValue());
+			
 			return file;
 			
 		} catch (IOException e) {
@@ -88,5 +107,4 @@ public class DefaultFSStrategy implements FilesystemAccess {
 		}
 		
 	}
-
 }

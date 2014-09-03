@@ -5,7 +5,7 @@
 	
 	<logger name="org.eclipse.jetty" level="ERROR" />
 	<logger name="io.milton.config" level="WARN" />
-	<logger name="org.italiangrid.utils.https.impl.canl.CANLListener" level="WARN" />
+	<logger name="org.italiangrid.utils.https.impl.canl.CANLListener" level="INFO" />
 
 	<!-- NORMALLY YOU SHOULD NOT EDIT BELOW THIS POINT -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

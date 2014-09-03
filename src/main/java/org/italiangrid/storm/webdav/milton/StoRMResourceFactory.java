@@ -9,25 +9,31 @@ import io.milton.resource.Resource;
 import java.io.File;
 
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class StoRMResourceFactory implements ResourceFactory {
 
 	public static final Logger LOG = LoggerFactory
 		.getLogger(StoRMResourceFactory.class);
 
+
 	private final FilesystemAccess fs;
+	
+	private final ExtendedAttributesHelper attrsHelper;
 
 	private final File rootPath;
 	private final String contextPath;
 
-	public StoRMResourceFactory(FilesystemAccess fs, String root,
-		String contextPath) {
+	public StoRMResourceFactory(FilesystemAccess fs, ExtendedAttributesHelper attrsHelper,
+		String root, String contextPath) {
 
 		this.fs = fs;
 		this.rootPath = new File(root);
 		this.contextPath = contextPath;
+		this.attrsHelper = attrsHelper;
 	}
 
 	private String stripContextPath(String url) {
@@ -78,7 +84,10 @@ public class StoRMResourceFactory implements ResourceFactory {
 	}
 
 	public FilesystemAccess getFilesystemAccess() {
-
 		return fs;
+	}
+	
+	public ExtendedAttributesHelper getExtendedAttributesHelper(){
+		return attrsHelper;
 	}
 }
