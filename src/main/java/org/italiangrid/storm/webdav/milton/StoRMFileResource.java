@@ -123,6 +123,7 @@ public class StoRMFileResource extends StoRMResource implements
 	public void setProperty(QName name, Object value)
 		throws PropertySetException, NotAuthorizedException {
 
+		throw new NotImplementedException("StoRM WebDAV does not support setting DAV properties.");
 	}
 
 	@Override

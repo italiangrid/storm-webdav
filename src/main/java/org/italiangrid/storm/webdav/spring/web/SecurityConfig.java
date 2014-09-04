@@ -37,10 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		if (sa.anonymousReadEnabled() && sa.authenticatedReadEnabled()) {
 
 			http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
-				.authenticated();
+			.anonymous();
 
 			http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
-				.anonymous();
+				.authenticated();
 
 		} else if (sa.authenticatedReadEnabled()) {
 			http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())

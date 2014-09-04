@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContextListener;
 
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -309,7 +310,25 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
 		handlers.addHandler(configureLogRequestHandler());
 
-		jettyServer.setHandler(handlers);
+		RewriteHandler rh = new RewriteHandler();
+		
+		rh.setRewritePathInfo(true);
+		rh.setRewriteRequestURI(true);
+		
+		RewriteRegexRule dropLegacyWebDAV = new RewriteRegexRule();
+		dropLegacyWebDAV.setRegex("/webdav/(.*)");
+		dropLegacyWebDAV.setReplacement("/$1");
+		
+		RewriteRegexRule dropLegacyFileTransfer = new RewriteRegexRule();
+		dropLegacyFileTransfer.setRegex("/fileTransfer/(.*)");
+		dropLegacyFileTransfer.setReplacement("/$1");
+		
+		rh.addRule(dropLegacyWebDAV);
+		rh.addRule(dropLegacyFileTransfer);
+		
+		rh.setHandler(handlers);
+		
+		jettyServer.setHandler(rh);
 
 	}
 
