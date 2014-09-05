@@ -20,10 +20,10 @@ public class VOMSPreAuthDetailsSource
 	
 	private static final Logger logger = LoggerFactory.getLogger(VOMSPreAuthDetailsSource.class);
 	
-	private final VOMSAttributesExtractor attributesHelper;
+	private final List<VOMSAttributesExtractor> attributeHelpers;
 	
-	public VOMSPreAuthDetailsSource() {
-		attributesHelper = new DefaultVOMSAttributesExtractor();
+	public VOMSPreAuthDetailsSource(List<VOMSAttributesExtractor> attributeHelpers) {
+		this.attributeHelpers = attributeHelpers;
 	}
 	
 	@Override
@@ -35,7 +35,17 @@ public class VOMSPreAuthDetailsSource
 	
 	private Collection<? extends GrantedAuthority> getVOMSGrantedAuthorities(HttpServletRequest request){
 		
-		List<VOMSAttribute> attributes = attributesHelper.getAttributes(request);
+		List<VOMSAttribute> attributes = Collections.emptyList();
+		
+		for (VOMSAttributesExtractor attributesHelper: attributeHelpers){
+			
+			if (attributes.isEmpty()){
+				attributes = attributesHelper.getAttributes(request);
+			}else{
+				break;
+			}
+		}
+		
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		
 		for (VOMSAttribute a: attributes){

@@ -3,7 +3,7 @@
 STORM_WEBDAV_USER=storm
 
 # Java VM options
-STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=256m"
+STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=256m -Djava.io.tmpdir=/usr/share/storm-webdav/work"
 
 # HTTPS connector port
 # Default: 8443

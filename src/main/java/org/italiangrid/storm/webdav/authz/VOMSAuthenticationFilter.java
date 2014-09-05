@@ -23,7 +23,6 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 	private final ASN1ObjectIdentifier CN_OID = BC_STYLE.attrNameToOID("CN");
 	
 	public VOMSAuthenticationFilter(AuthenticationManager mgr) {
-		setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource());
 		setCheckForPrincipalChanges(true);
 		setInvalidateSessionOnPrincipalChange(true);
 		setContinueFilterChainOnUnsuccessfulAuthentication(true);

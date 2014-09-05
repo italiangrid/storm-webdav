@@ -1,8 +1,10 @@
 package org.italiangrid.storm.webdav.spring;
 
+import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailServiceBuilder;
+import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailsService;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.DefaultConfigurationLogger;
-import org.italiangrid.storm.webdav.config.SAConfigurationImpl;
+import org.italiangrid.storm.webdav.config.SAConfigurationParser;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceEnvConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -31,7 +33,7 @@ public class AppConfig {
 	@Bean
 	public StorageAreaConfiguration storageAreaConfiguration() {
 
-		return new SAConfigurationImpl(serviceConfiguration());
+		return new SAConfigurationParser(serviceConfiguration());
 	}
 
 	@Bean
@@ -67,4 +69,12 @@ public class AppConfig {
 
 		return new MetricRegistry();
 	}
+	
+	@Bean
+	public VOMSMapDetailsService vomsMapDetailService(){
+			
+		VOMSMapDetailServiceBuilder builder = new VOMSMapDetailServiceBuilder(serviceConfiguration());
+		return builder.build();
+	}
+	
 }

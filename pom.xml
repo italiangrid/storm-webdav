@@ -26,6 +26,7 @@
 
 		<commons-lang.version>2.3</commons-lang.version>
 		<commons-cli.version>1.2</commons-cli.version>
+		<commons-csv.version>1.0</commons-csv.version>
 
 		<http-core.version>4.2.2</http-core.version>
 		<http-client.version>4.2.1</http-client.version>
@@ -40,13 +41,16 @@
 		<guava.version>17.0</guava.version>
 
 		<owner-config.version>1.0.5.1</owner-config.version>
-		
+
+		<spring.version>4.1.0.RELEASE</spring.version>
 		<spring-security.version>3.2.5.RELEASE</spring-security.version>
-		
+
+
+
 		<!-- Default install prefix: keep it empty -->
 		<!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
 		<install.prefix></install.prefix>
-		
+
 		<webdav.main.class>org.italiangrid.storm.webdav.server.Main</webdav.main.class>
 
 	</properties>
@@ -75,7 +79,7 @@
 							<mainClass>${webdav.main.class}</mainClass>
 						</manifest>
 						<manifestEntries>
-						
+
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -87,7 +91,7 @@
 				<version>${plugin.shade.version}</version>
 				<configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
-					
+
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>
@@ -99,13 +103,14 @@
 						</filter>
 					</filters>
 					<transformers>
-						<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 							<manifestEntries>
-                    			<Main-Class>${webdav.main.class}</Main-Class>
-                    			<X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
-                    			<X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
-                    			<Implementation-Version>${project.version}</Implementation-Version>
-                  			</manifestEntries>
+								<Main-Class>${webdav.main.class}</Main-Class>
+								<X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
+								<X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
+								<Implementation-Version>${project.version}</Implementation-Version>
+							</manifestEntries>
 						</transformer>
 					</transformers>
 				</configuration>
@@ -118,16 +123,16 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>${plugin.assembly.version}</version>
 				<configuration>
 					<descriptors>
-                		<descriptor>src/assembly/tarball.xml</descriptor>
-              		</descriptors>
-              		<finalName>storm-webdav</finalName>
+						<descriptor>src/assembly/tarball.xml</descriptor>
+					</descriptors>
+					<finalName>storm-webdav</finalName>
 				</configuration>
 				<executions>
 					<execution>
@@ -168,22 +173,29 @@
 			<artifactId>https-utils</artifactId>
 			<version>${https-utils.version}</version>
 		</dependency>
- 
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		
+		
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-access</artifactId>
 			<version>${logback-access.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>${http-client.version}</version>
 			<exclusions>
 				<exclusion>
-          			<groupId>commons-logging</groupId>
-          			<artifactId>commons-logging</artifactId>
-        		</exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -191,6 +203,12 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>${commons-lang.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${commons-csv.version}</version>
 		</dependency>
 
 		<dependency>
@@ -211,16 +229,29 @@
 					<artifactId>milton-mail-server</artifactId>
 				</exclusion>
 				<exclusion>
-          			<groupId>commons-logging</groupId>
-          			<artifactId>commons-logging</artifactId>
-        		</exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
-			 <groupId>org.springframework.security</groupId>
-        	 <artifactId>spring-security-web</artifactId>
-        	 <version>${spring-security.version}</version>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring-security.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring-security.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 
 		<dependency>
@@ -241,44 +272,25 @@
 			<version>${commons-cli.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-			<version>1.1.4.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.10.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-client</artifactId>
-			<version>5.9.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-cypher-compiler-2.1</artifactId>
-			<version>2.1.2</version>
-		</dependency>
+
 	</dependencies>
 	<profiles>
 		<profile>
-      		<id>prod</id>
-      		<activation>
-      			<activeByDefault>true</activeByDefault>
-      		</activation>
-      		<properties>
-      			<install.prefix></install.prefix>
-      			<sysconfig.template>etc/sysconfig/storm-webdav.prod.template</sysconfig.template>
-      		</properties>
-    	</profile>
-    	<profile>
-    		<id>dev</id>
-      		<properties>
-      			<install.prefix>/opt/storm-webdav</install.prefix>
-      			<sysconfig.template>etc/sysconfig/storm-webdav.dev.template</sysconfig.template>
-      		</properties>
-    	</profile>
+			<id>prod</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<install.prefix></install.prefix>
+				<sysconfig.template>etc/sysconfig/storm-webdav.prod.template</sysconfig.template>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<install.prefix>/opt/storm-webdav</install.prefix>
+				<sysconfig.template>etc/sysconfig/storm-webdav.dev.template</sysconfig.template>
+			</properties>
+		</profile>
 	</profiles>
 </project>

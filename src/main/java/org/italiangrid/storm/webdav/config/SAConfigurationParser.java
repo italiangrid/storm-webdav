@@ -11,7 +11,7 @@ import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SAConfigurationImpl implements StorageAreaConfiguration {
+public class SAConfigurationParser implements StorageAreaConfiguration {
 
 	private final ServiceConfiguration serviceConfig;
 
@@ -19,12 +19,12 @@ public class SAConfigurationImpl implements StorageAreaConfiguration {
 
 	private List<StorageAreaInfo> saInfos;
 
-	public SAConfigurationImpl(ServiceConfiguration sc) {
+	public SAConfigurationParser(ServiceConfiguration sc) {
 
 		serviceConfig = sc;
 
 		final Logger log = LoggerFactory
-			.getLogger(SAConfigurationImpl.class);
+			.getLogger(SAConfigurationParser.class);
 		
 		final String saConfDir = serviceConfig.getSAConfigDir();
 

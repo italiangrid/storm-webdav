@@ -21,6 +21,7 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailsService;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.Constants;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
@@ -78,6 +79,9 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
 	@Autowired
 	private ConfigurationLogger confLogger;
+	
+	@Autowired
+	private VOMSMapDetailsService vomsMapDetailsService;
 
 	private HandlerCollection handlers = new HandlerCollection();
 	private ApplicationContext applicationContext;
@@ -263,6 +267,8 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 		ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
 
 		ch.setAttribute(Constants.SA_CONF_KEY, sa);
+		ch.setAttribute(Constants.SERVICE_CONF_KEY, configuration);
+		ch.setAttribute(Constants.VOMS_MAP_DS_KEY, vomsMapDetailsService);
 
 		EnumSet<DispatcherType> dispatchFlags = EnumSet.of(DispatcherType.REQUEST);
 		ch.addServlet(servlet, "/*");

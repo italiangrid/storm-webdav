@@ -23,4 +23,9 @@ public interface ServiceConfiguration {
 	public int getConnectorMaxIdleTime();
 	
 	public String getSAConfigDir();
+	
+	public boolean enableVOMSMapFiles();
+	
+	public String getVOMSMapFilesConfigDir();
+	
 }

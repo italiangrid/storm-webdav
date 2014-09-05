@@ -67,6 +67,16 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
 	public String getAccessLogConfigurationPath() {
 		return ServiceConfigVariable.ACCESS_LOG_CONFIGURATION.getValue();
 	}
+
+	@Override
+	public boolean enableVOMSMapFiles() {
+		return Boolean.parseBoolean(ServiceConfigVariable.VOMS_MAP_FILES_ENABLE.getValue());
+	}
+
+	@Override
+	public String getVOMSMapFilesConfigDir() {
+		return ServiceConfigVariable.VOMS_MAP_FILES_CONFIG_DIR.getValue();
+	}
 	
 }
 
@@ -81,9 +91,12 @@ enum ServiceConfigVariable {
 	MAX_CONNECTIONS("300"),
 	MAX_QUEUE_SIZE("900"),
 	CONNECTOR_MAX_IDLE_TIME("30000"),
-	SA_CONFIG_DIR("/etc/storm-webdav/sa"),
+	SA_CONFIG_DIR("/etc/storm-webdav/sa.d"),
 	LOG_CONFIGURATION(null),
-	ACCESS_LOG_CONFIGURATION(null);
+	ACCESS_LOG_CONFIGURATION(null),
+	VOMS_MAP_FILES_ENABLE("false"),
+	VOMS_MAP_FILES_CONFIG_DIR("/etc/storm-webdav/voms-mapfiles.d");
+	
 	
 	private String defaultValue;
 	
