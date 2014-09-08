@@ -85,7 +85,8 @@ public class VOMSMapDetailServiceBuilder {
 			}
 		}
 		
-		return new DefaultVOMSMapDetailsService(providers);
+		return new DefaultVOMSMapDetailsService(providers, 
+			serviceConf.getVOMSMapFilesRefreshIntervalInSeconds());
 	}
 	
 }

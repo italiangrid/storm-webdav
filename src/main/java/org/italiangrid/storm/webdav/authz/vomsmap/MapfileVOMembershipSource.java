@@ -22,22 +22,25 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 		.getLogger(MapfileVOMembershipSource.class);
 
 	private final String voName;
+	private final File mapFile;
 
-	private CSVParser parser;
-
-	public MapfileVOMembershipSource(String voName, File mapfile){
+	public MapfileVOMembershipSource(String voName, File mapFile){
 
 		Assert.hasText(voName);
-		Assert.notNull(mapfile);
+		Assert.notNull(mapFile);
 
 		this.voName = voName;
+		this.mapFile = mapFile;
+		
+	}
+
+	private CSVParser getParser(){
 		try {
-			parser = new CSVParser(new FileReader(mapfile), CSVFormat.DEFAULT);
+			return new CSVParser(new FileReader(mapFile), CSVFormat.DEFAULT);
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
-
 	
 	private boolean isValidCSVRecord(CSVRecord r){
 		
@@ -56,9 +59,13 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 	
 	@Override
 	public Set<String> getVOMembers() {
+		
+		long startTime = System.currentTimeMillis();
 
 		Set<String> subjects = new HashSet<String>();
 
+		CSVParser parser = getParser();
+		
 		try {
 
 			List<CSVRecord> records = parser.getRecords();
@@ -93,7 +100,12 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		
+		long totalTime = System.currentTimeMillis() - startTime;
 
+		logger.info("Parsing VO {} members from {} took {} msecs.", 
+			voName, mapFile, totalTime);
+		
 		return subjects;
 	}
 

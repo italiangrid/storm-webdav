@@ -82,6 +82,9 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 	
 	@Autowired
 	private VOMSMapDetailsService vomsMapDetailsService;
+	
+	@Autowired
+	private X509CertChainValidatorExt certChainValidator;
 
 	private HandlerCollection handlers = new HandlerCollection();
 	private ApplicationContext applicationContext;
@@ -178,36 +181,17 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
 	}
 
-	private X509CertChainValidatorExt buildValidator() {
-
-		SSLOptions options = getSSLOptions();
-
-		CANLListener l = new CANLListener();
-		CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
-
-		X509CertChainValidatorExt validator = builder
-			.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
-			.crlChecks(CrlCheckingMode.IF_VALID).ocspChecks(OCSPCheckingMode.IGNORE)
-			.lazyAnchorsLoading(false).storeUpdateListener(l)
-			.validationErrorListener(l)
-			.trustAnchorsDir(options.getTrustStoreDirectory())
-			.trustAnchorsUpdateInterval(options.getTrustStoreRefreshIntervalInMsec())
-			.build();
-
-		return validator;
-
-	}
 
 	private void configureJettyServer() throws MalformedURLException, IOException {
 
-		X509CertChainValidatorExt validator = buildValidator();
+
 
 		int maxConnections = configuration.getMaxConnections();
 
 		int maxRequestQueueSize = configuration.getMaxQueueSize();
 
 		jettyServer = ServerFactory.newServer(null, configuration.getHTTPSPort(),
-			getSSLOptions(), validator, maxConnections, maxRequestQueueSize);
+			getSSLOptions(), certChainValidator, maxConnections, maxRequestQueueSize);
 
 		// HTTP connector
 		SelectChannelConnector httpConnector = new SelectChannelConnector();
@@ -267,8 +251,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 		ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
 
 		ch.setAttribute(Constants.SA_CONF_KEY, sa);
-		ch.setAttribute(Constants.SERVICE_CONF_KEY, configuration);
-		ch.setAttribute(Constants.VOMS_MAP_DS_KEY, vomsMapDetailsService);
 
 		EnumSet<DispatcherType> dispatchFlags = EnumSet.of(DispatcherType.REQUEST);
 		ch.addServlet(servlet, "/*");

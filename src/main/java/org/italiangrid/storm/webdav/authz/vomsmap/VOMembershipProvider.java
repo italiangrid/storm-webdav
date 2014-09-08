@@ -8,6 +8,5 @@ public interface VOMembershipProvider {
 	
 	public boolean hasSubjectAsMember(String subject);
 	
-	public void refresh();
 	
 }

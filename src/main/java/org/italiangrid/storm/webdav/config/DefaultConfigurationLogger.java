@@ -25,6 +25,9 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
 		logger.info("Service private key path: {}",serviceConfiguration.getPrivateKeyPath());
 		logger.info("Trust anchors directory: {}", serviceConfiguration.getTrustAnchorsDir());
 		logger.info("Trust anchors refresh intervals (seconds): {}", serviceConfiguration.getTrustAnchorsRefreshIntervalInSeconds());
+		logger.info("VOMS Map files enabled: {}", serviceConfiguration.enableVOMSMapFiles());
+		logger.info("VOMS Map files configuration directory: {}", serviceConfiguration.getVOMSMapFilesConfigDir());
+		logger.info("VOMS Map files refresh interval (seconds): {}", serviceConfiguration.getVOMSMapFilesRefreshIntervalInSeconds());
 	}
 	
 	private void logSAConfiguration(Logger logger){

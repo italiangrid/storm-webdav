@@ -6,30 +6,39 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import org.italiangrid.storm.webdav.authz.DefaultVOMSAttributesExtractor;
-import org.italiangrid.storm.webdav.authz.VOMSAttributesExtractor;
+import org.italiangrid.storm.webdav.authz.VOMSAttributeCertificateAuthDetailsSource;
+import org.italiangrid.storm.webdav.authz.VOMSAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
 import org.italiangrid.storm.webdav.authz.VOMSPreAuthDetailsSource;
-import org.italiangrid.storm.webdav.authz.VOMSVOGrantedAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHTTPMethodMatcher;
-import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapAttributesExtractor;
+import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailsService;
 import org.italiangrid.storm.webdav.config.Constants;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.spring.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
+@Import(AppConfig.class)
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	ServletContext context;
+	
+	@Autowired
+	ServiceConfiguration serviceConfiguration;
+	
+	@Autowired
+	VOMSMapDetailsService vomsMapDetailsService;
 
 	private String getROVOAccessRule(Collection<String> vos) {
 
@@ -44,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				accessRule.append(",");
 			}
 
-			VOMSVOGrantedAuthority voAuthority = new VOMSVOGrantedAuthority(vo);
+			VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
 
 			accessRule.append(String.format("'%s'", voAuthority));
 
@@ -58,18 +67,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	protected VOMSAuthenticationFilter buildVOMSAuthenticationFilter(
 		VOMSAuthenticationProvider provider) {
+		
+		List<VOMSAuthDetailsSource> vomsHelpers = new ArrayList<VOMSAuthDetailsSource>();
 
-		List<VOMSAttributesExtractor> vomsHelpers = new ArrayList<VOMSAttributesExtractor>();
+		vomsHelpers.add(new VOMSAttributeCertificateAuthDetailsSource());
+		
+		if (serviceConfiguration.enableVOMSMapFiles() && vomsMapDetailsService != null) {
 
-		vomsHelpers.add(new DefaultVOMSAttributesExtractor());
-		ServiceConfiguration configuration = (ServiceConfiguration) context
-			.getAttribute(Constants.SERVICE_CONF_KEY);
-
-		if (configuration.enableVOMSMapFiles()) {
-
-			VOMSMapDetailsService vmds = (VOMSMapDetailsService) context
-				.getAttribute(Constants.VOMS_MAP_DS_KEY);
-			vomsHelpers.add(new VOMSMapAttributesExtractor(vmds));
+			vomsHelpers.add(new VOMSMapAuthDetailsSource(vomsMapDetailsService));
 
 		}
 
@@ -113,7 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		for (String vo : sa.vos()) {
 
-			VOMSVOGrantedAuthority voAuthority = new VOMSVOGrantedAuthority(vo);
+			VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
 
 			http.authorizeRequests().antMatchers("**")
 				.hasAuthority(voAuthority.getAuthority());

@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	
-	<logger name="org.italiangrid.storm.webdav" level="INFO" />
-	
-	<logger name="org.eclipse.jetty" level="ERROR" />
-	<logger name="io.milton.config" level="WARN" />
-	<logger name="org.italiangrid.utils.https.impl.canl.CANLListener" level="INFO" />
-
 	<!-- NORMALLY YOU SHOULD NOT EDIT BELOW THIS POINT -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>

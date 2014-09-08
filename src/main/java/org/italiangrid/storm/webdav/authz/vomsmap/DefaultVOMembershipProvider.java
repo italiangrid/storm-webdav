@@ -5,10 +5,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.springframework.util.Assert;
 
-public class DefaultVOMembershipProvider implements VOMembershipProvider {
+public class DefaultVOMembershipProvider implements VOMembershipProvider, Refreshable {
 
 	private final String voName;
 	private final VOMembershipSource membershipSource;
+	private long lastRefreshTimestamp = 0L;
 
 	protected ReentrantReadWriteLock refreshLock = new ReentrantReadWriteLock();
 
@@ -52,6 +53,8 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider {
 
 		refreshLock.writeLock().lock();
 
+		lastRefreshTimestamp = System.currentTimeMillis();
+		
 		try {
 			members = newMembers;
 
@@ -59,5 +62,13 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider {
 			refreshLock.writeLock().unlock();
 		}
 	}
+
+	@Override
+	public long getLastRefreshTime() {
+
+		return lastRefreshTimestamp;
+	}
+	
+	
 
 }

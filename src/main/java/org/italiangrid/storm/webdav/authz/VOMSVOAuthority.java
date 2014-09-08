@@ -3,7 +3,7 @@ package org.italiangrid.storm.webdav.authz;
 import org.springframework.security.core.GrantedAuthority;
 
 
-public class VOMSVOGrantedAuthority implements GrantedAuthority, Comparable<VOMSVOGrantedAuthority> {
+public class VOMSVOAuthority implements GrantedAuthority, Comparable<VOMSVOAuthority> {
 	
 	/**
 	 * 
@@ -12,7 +12,7 @@ public class VOMSVOGrantedAuthority implements GrantedAuthority, Comparable<VOMS
 	
 	private final String voAuthority;
 	
-	public VOMSVOGrantedAuthority(String vo) {
+	public VOMSVOAuthority(String vo) {
 		this.voAuthority = String.format("VO(%s)", vo);
 	}
 
@@ -22,7 +22,7 @@ public class VOMSVOGrantedAuthority implements GrantedAuthority, Comparable<VOMS
 	}
 
 	@Override
-	public int compareTo(VOMSVOGrantedAuthority that) {
+	public int compareTo(VOMSVOAuthority that) {
 		return voAuthority.compareTo(that.getAuthority());
 	}
 
@@ -45,7 +45,7 @@ public class VOMSVOGrantedAuthority implements GrantedAuthority, Comparable<VOMS
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VOMSVOGrantedAuthority other = (VOMSVOGrantedAuthority) obj;
+		VOMSVOAuthority other = (VOMSVOAuthority) obj;
 		if (voAuthority == null) {
 			if (other.voAuthority != null)
 				return false;

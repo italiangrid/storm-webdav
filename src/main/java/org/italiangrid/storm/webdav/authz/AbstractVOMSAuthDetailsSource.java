@@ -2,6 +2,7 @@ package org.italiangrid.storm.webdav.authz;
 
 import java.security.cert.X509Certificate;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -9,14 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.FormatMode;
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
-public abstract class AbstractVOMSAttributesExtractor implements
-	VOMSAttributesExtractor {
+public abstract class AbstractVOMSAuthDetailsSource implements
+	VOMSAuthDetailsSource {
 
 	public static final Logger logger = LoggerFactory
-		.getLogger(AbstractVOMSAttributesExtractor.class);
+		.getLogger(AbstractVOMSAuthDetailsSource.class);
 
-	protected AbstractVOMSAttributesExtractor() {
+	protected AbstractVOMSAuthDetailsSource() {
 
 	}
 
@@ -37,4 +39,12 @@ public abstract class AbstractVOMSAttributesExtractor implements
 		return null;
 	}
 
+	protected X500Principal getPrincipalFromRequest(HttpServletRequest request) {
+
+		X509Certificate[] chain = getClientCertificateChain(request);
+		if (chain != null) {
+			return ProxyUtils.getOriginalUserDN(chain);
+		}
+		return null;
+	}
 }

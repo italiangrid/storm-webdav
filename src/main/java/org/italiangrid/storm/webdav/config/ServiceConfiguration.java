@@ -28,4 +28,6 @@ public interface ServiceConfiguration {
 	
 	public String getVOMSMapFilesConfigDir();
 	
+	public long getVOMSMapFilesRefreshIntervalInSeconds();
+	
 }

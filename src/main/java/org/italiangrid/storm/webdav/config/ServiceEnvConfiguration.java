@@ -77,6 +77,11 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
 	public String getVOMSMapFilesConfigDir() {
 		return ServiceConfigVariable.VOMS_MAP_FILES_CONFIG_DIR.getValue();
 	}
+
+	@Override
+	public long getVOMSMapFilesRefreshIntervalInSeconds() {
+		return Long.parseLong(ServiceConfigVariable.VOMS_MAP_FILES_REFRESH_INTERVAL.getValue()); 
+	}
 	
 }
 
@@ -95,7 +100,8 @@ enum ServiceConfigVariable {
 	LOG_CONFIGURATION(null),
 	ACCESS_LOG_CONFIGURATION(null),
 	VOMS_MAP_FILES_ENABLE("false"),
-	VOMS_MAP_FILES_CONFIG_DIR("/etc/storm-webdav/voms-mapfiles.d");
+	VOMS_MAP_FILES_CONFIG_DIR("/etc/storm-webdav/voms-mapfiles.d"),
+	VOMS_MAP_FILES_REFRESH_INTERVAL("21600");
 	
 	
 	private String defaultValue;

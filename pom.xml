@@ -45,7 +45,7 @@
 		<spring.version>4.1.0.RELEASE</spring.version>
 		<spring-security.version>3.2.5.RELEASE</spring-security.version>
 
-
+		<voms-admin-api.version>2.0.2-SNAPSHOT</voms-admin-api.version>
 
 		<!-- Default install prefix: keep it empty -->
 		<!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
@@ -179,8 +179,8 @@
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-access</artifactId>
@@ -272,7 +272,24 @@
 			<version>${commons-cli.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.italiangrid</groupId>
+			<artifactId>voms-admin-api</artifactId>
+			<version>${voms-admin-api.version}</version>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>
+				spring-boot-starter-data-elasticsearch
+			</artifactId>
+			<version>1.1.4.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hornetq</artifactId>
+			<version>1.1.4.RELEASE</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
