@@ -61,7 +61,7 @@ STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/opt/storm-webdav/etc/storm-webdav/logbac
 STORM_WEBDAV_VO_MAP_FILES_ENABLE="false"
 
 # Where StoRM WebDAV should look for voms map files. 
-STORM_WEBDAV_VO_MAP_FILES_CONFIG_DIR="/opt/storm/etc/storm-webdav/voms-map-files"
+STORM_WEBDAV_VO_MAP_FILES_CONFIG_DIR="/opt/storm/etc/storm-webdav/vo-mapfiles.d"
 
 # VOMS map files refresh period (in seconds)
 STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL="21600"
