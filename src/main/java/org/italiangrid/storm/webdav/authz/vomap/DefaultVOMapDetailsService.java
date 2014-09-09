@@ -49,7 +49,9 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
       }
     };
 
-    scheduler.scheduleWithFixedDelay(refreshTask, 0L, refreshPeriodInSeconds,
+    scheduler.scheduleWithFixedDelay(refreshTask, 
+      refreshPeriodInSeconds, 
+      refreshPeriodInSeconds,
       TimeUnit.SECONDS);
 
   }
