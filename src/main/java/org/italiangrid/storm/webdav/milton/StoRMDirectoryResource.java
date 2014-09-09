@@ -15,71 +15,69 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+public class StoRMDirectoryResource extends StoRMResource implements
+  PutableResource, MakeCollectionableResource, DeletableResource {
 
-public class StoRMDirectoryResource extends StoRMResource implements PutableResource,MakeCollectionableResource, DeletableResource{
+  public StoRMDirectoryResource(StoRMResourceFactory factory, File f) {
 
-	public StoRMDirectoryResource(StoRMResourceFactory factory, File f) {
+    super(factory, f);
+  }
 
-		super(factory, f);
-	}
+  public File childrenFile(String filename) {
 
-	public File childrenFile(String filename){
-		return new File(getFile(), filename);
-	}
+    return new File(getFile(), filename);
+  }
 
-	@Override
-	public Resource child(String childName) throws NotAuthorizedException,
-		BadRequestException {
-		
-		File child = new File(getFile(), childName);
-		return getResourceFactory().getResource(null, child.getAbsolutePath());
-	}
+  @Override
+  public Resource child(String childName) throws NotAuthorizedException,
+    BadRequestException {
 
+    File child = new File(getFile(), childName);
+    return getResourceFactory().getResource(null, child.getAbsolutePath());
+  }
 
-	@Override
-	public List<? extends Resource> getChildren() throws NotAuthorizedException,
-		BadRequestException {
-		
-		List<StoRMResource> childResources = new ArrayList<StoRMResource>();
-		
-		for (File f: file.listFiles()){
-			if (f.isDirectory()){
-				childResources.add(new StoRMDirectoryResource(getResourceFactory(), f));
-			}else if (f.isFile()){
-				childResources.add(new StoRMFileResource(getResourceFactory(), f));
-			}
-		}
-		
-		return childResources;
-	}
+  @Override
+  public List<? extends Resource> getChildren() throws NotAuthorizedException,
+    BadRequestException {
 
+    List<StoRMResource> childResources = new ArrayList<StoRMResource>();
 
-	@Override
-	public CollectionResource createCollection(String dirName)
-		throws NotAuthorizedException, ConflictException, BadRequestException {
-		
-		File nd = getFilesystemAccess().mkdir(getFile(), dirName);
-		return new StoRMDirectoryResource(getResourceFactory(),nd); 
-	}
+    for (File f : file.listFiles()) {
+      if (f.isDirectory()) {
+        childResources.add(new StoRMDirectoryResource(getResourceFactory(), f));
+      } else if (f.isFile()) {
+        childResources.add(new StoRMFileResource(getResourceFactory(), f));
+      }
+    }
 
+    return childResources;
+  }
 
-	@Override
-	public void delete() throws NotAuthorizedException, ConflictException,
-		BadRequestException {
+  @Override
+  public CollectionResource createCollection(String dirName)
+    throws NotAuthorizedException, ConflictException, BadRequestException {
 
-		getFilesystemAccess().rm(getFile());
-		
-	}
+    File nd = getFilesystemAccess().mkdir(getFile(), dirName);
+    return new StoRMDirectoryResource(getResourceFactory(), nd);
+  }
 
-	@Override
-	public Resource createNew(String fileName, InputStream inputStream,
-		Long length, String contentType) throws IOException, ConflictException,
-		NotAuthorizedException, BadRequestException {
-		
-		File targetFile = new File(getFile(),fileName);
-		getFilesystemAccess().create(targetFile, inputStream);
-		
-		return new StoRMFileResource(getResourceFactory(), targetFile);
-	}
+  @Override
+  public void delete() throws NotAuthorizedException, ConflictException,
+    BadRequestException {
+
+    getFilesystemAccess().rm(getFile());
+
+  }
+
+  @Override
+  public Resource createNew(String fileName, InputStream inputStream,
+    Long length, String contentType) throws IOException, ConflictException,
+    NotAuthorizedException, BadRequestException {
+
+    File targetFile = new File(getFile(), fileName);
+    getFilesystemAccess().create(targetFile, inputStream);
+
+    return new StoRMFileResource(getResourceFactory(), targetFile);
+  }
 
 }

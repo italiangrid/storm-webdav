@@ -8,43 +8,38 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
 public class VOMSPreAuthDetailsSource
-	implements
-	AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
+  implements
+  AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
 
-	private static final Logger logger = LoggerFactory
-		.getLogger(VOMSPreAuthDetailsSource.class);
+  public final List<VOMSAuthDetailsSource> vomsAuthoritiesSources;
 
-	public final List<VOMSAuthDetailsSource> vomsAuthoritiesSources;
+  public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas) {
 
-	public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas) {
+    this.vomsAuthoritiesSources = vas;
+  }
 
-		this.vomsAuthoritiesSources = vas;
-	}
+  @Override
+  public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(
+    HttpServletRequest request) {
 
-	@Override
-	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(
-		HttpServletRequest request) {
+    return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
+      request, getVOMSGrantedAuthorities(request));
+  }
 
-		return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-			request, getVOMSGrantedAuthorities(request));
-	}
+  private Collection<? extends GrantedAuthority> getVOMSGrantedAuthorities(
+    HttpServletRequest request) {
 
-	private Collection<? extends GrantedAuthority> getVOMSGrantedAuthorities(
-		HttpServletRequest request) {
+    Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 
-		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+    for (VOMSAuthDetailsSource source : vomsAuthoritiesSources) {
+      authorities.addAll(source.getVOMSGrantedAuthorities(request));
+    }
 
-		for (VOMSAuthDetailsSource source : vomsAuthoritiesSources) {
-			authorities.addAll(source.getVOMSGrantedAuthorities(request));
-		}
-
-		return Collections.unmodifiableSet(authorities);
-	}
+    return Collections.unmodifiableSet(authorities);
+  }
 }

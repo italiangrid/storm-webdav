@@ -13,8 +13,8 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
 import org.italiangrid.storm.webdav.authz.VOMSPreAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHTTPMethodMatcher;
-import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapAuthDetailsSource;
-import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailsService;
+import org.italiangrid.storm.webdav.authz.vomap.VOMapAuthDetailsSource;
+import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.storm.webdav.config.Constants;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -27,103 +27,104 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@Import(AppConfig.class)
+// @Import(AppConfig.class)
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	ServletContext context;
-	
-	@Autowired
-	ServiceConfiguration serviceConfiguration;
-	
-	@Autowired
-	VOMSMapDetailsService vomsMapDetailsService;
+  @Autowired
+  ServletContext context;
 
-	private String getROVOAccessRule(Collection<String> vos) {
+  @Autowired
+  ServiceConfiguration serviceConfiguration;
 
-		StringBuilder accessRule = new StringBuilder();
+  @Autowired
+  VOMapDetailsService vomsMapDetailsService;
 
-		boolean first = true;
-		accessRule.append("hasAnyRole(");
+  private String getROVOAccessRule(Collection<String> vos) {
 
-		for (String vo : vos) {
+    StringBuilder accessRule = new StringBuilder();
 
-			if (!first) {
-				accessRule.append(",");
-			}
+    boolean first = true;
+    accessRule.append("hasAnyRole(");
 
-			VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
+    for (String vo : vos) {
 
-			accessRule.append(String.format("'%s'", voAuthority));
+      if (!first) {
+        accessRule.append(",");
+      }
 
-			first = false;
-		}
+      VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
 
-		accessRule.append(")");
+      accessRule.append(String.format("'%s'", voAuthority));
 
-		return accessRule.toString();
-	}
+      first = false;
+    }
 
-	protected VOMSAuthenticationFilter buildVOMSAuthenticationFilter(
-		VOMSAuthenticationProvider provider) {
-		
-		List<VOMSAuthDetailsSource> vomsHelpers = new ArrayList<VOMSAuthDetailsSource>();
+    accessRule.append(")");
 
-		vomsHelpers.add(new VOMSAttributeCertificateAuthDetailsSource());
-		
-		if (serviceConfiguration.enableVOMSMapFiles() && vomsMapDetailsService != null) {
+    return accessRule.toString();
+  }
 
-			vomsHelpers.add(new VOMSMapAuthDetailsSource(vomsMapDetailsService));
+  protected VOMSAuthenticationFilter buildVOMSAuthenticationFilter(
+    VOMSAuthenticationProvider provider) {
 
-		}
+    List<VOMSAuthDetailsSource> vomsHelpers = new ArrayList<VOMSAuthDetailsSource>();
 
-		VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(provider);
-		filter.setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource(
-			vomsHelpers));
-		return filter;
-	}
+    vomsHelpers.add(new VOMSAttributeCertificateAuthDetailsSource());
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+    if (serviceConfiguration.enableVOMapFiles()
+      && vomsMapDetailsService != null) {
 
-		VOMSAuthenticationProvider prov = new VOMSAuthenticationProvider();
+      vomsHelpers.add(new VOMapAuthDetailsSource(vomsMapDetailsService));
 
-		http.csrf().disable();
+    }
 
-		http.authenticationProvider(prov).addFilter(
-			buildVOMSAuthenticationFilter(prov));
+    VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(provider);
+    filter.setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource(
+      vomsHelpers));
+    return filter;
+  }
 
-		StorageAreaInfo sa = (StorageAreaInfo) context
-			.getAttribute(Constants.SA_CONF_KEY);
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
 
-		if (sa.anonymousReadEnabled() && sa.authenticatedReadEnabled()) {
+    VOMSAuthenticationProvider prov = new VOMSAuthenticationProvider();
 
-			String accessRule = String
-				.format("isAnonymous() or isAuthenticated() or %s",
-					getROVOAccessRule(sa.vos()));
+    http.csrf().disable();
 
-			http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
-				.access(accessRule);
+    http.authenticationProvider(prov).addFilter(
+      buildVOMSAuthenticationFilter(prov));
 
-		} else if (sa.authenticatedReadEnabled()) {
+    StorageAreaInfo sa = (StorageAreaInfo) context
+      .getAttribute(Constants.SA_CONF_KEY);
 
-			String accessRule = String.format("isAuthenticated() or %s",
-				getROVOAccessRule(sa.vos()));
+    if (sa.anonymousReadEnabled() && sa.authenticatedReadEnabled()) {
 
-			http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
-				.access(accessRule);
+      String accessRule = String
+        .format("isAnonymous() or isAuthenticated() or %s",
+          getROVOAccessRule(sa.vos()));
 
-		}
+      http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
+        .access(accessRule);
 
-		for (String vo : sa.vos()) {
+    } else if (sa.authenticatedReadEnabled()) {
 
-			VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
+      String accessRule = String.format("isAuthenticated() or %s",
+        getROVOAccessRule(sa.vos()));
 
-			http.authorizeRequests().antMatchers("**")
-				.hasAuthority(voAuthority.getAuthority());
-		}
+      http.authorizeRequests().requestMatchers(new ReadonlyHTTPMethodMatcher())
+        .access(accessRule);
 
-	}
+    }
+
+    for (String vo : sa.vos()) {
+
+      VOMSVOAuthority voAuthority = new VOMSVOAuthority(vo);
+
+      http.authorizeRequests().antMatchers("**")
+        .hasAuthority(voAuthority.getAuthority());
+    }
+
+  }
 
 }

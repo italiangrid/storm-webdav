@@ -13,90 +13,90 @@ import org.slf4j.LoggerFactory;
 
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-	private final ServiceConfiguration serviceConfig;
+  private final ServiceConfiguration serviceConfig;
 
-	private String PROPERTIES_FILENAME_SUFFIX = ".properties";
+  private String PROPERTIES_FILENAME_SUFFIX = ".properties";
 
-	private List<StorageAreaInfo> saInfos;
+  private List<StorageAreaInfo> saInfos;
 
-	public SAConfigurationParser(ServiceConfiguration sc) {
+  public SAConfigurationParser(ServiceConfiguration sc) {
 
-		serviceConfig = sc;
+    serviceConfig = sc;
 
-		final Logger log = LoggerFactory
-			.getLogger(SAConfigurationParser.class);
-		
-		final String saConfDir = serviceConfig.getSAConfigDir();
+    final Logger log = LoggerFactory.getLogger(SAConfigurationParser.class);
 
-		log.debug("Loading SA configuration from directory {}", saConfDir);
+    final String saConfDir = serviceConfig.getSAConfigDir();
 
-		File dir = new File(saConfDir);
-		directorySanityChecks(dir);
+    log.debug("Loading SA configuration from directory {}", saConfDir);
 
-		File[] saFiles = dir.listFiles(new FilenameFilter() {
+    File dir = new File(saConfDir);
+    directorySanityChecks(dir);
 
-			@Override
-			public boolean accept(File file, String name) {
+    File[] saFiles = dir.listFiles(new FilenameFilter() {
 
-				return (name.endsWith(PROPERTIES_FILENAME_SUFFIX));
-			}
-		});
+      @Override
+      public boolean accept(File file, String name) {
 
-		if (saFiles.length == 0) {
-			String msg = String
-				.format(
-					"No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
-					dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
-			throw new RuntimeException(msg);
-		}
+        return (name.endsWith(PROPERTIES_FILENAME_SUFFIX));
+      }
+    });
 
-		saInfos = new ArrayList<StorageAreaInfo>();
+    if (saFiles.length == 0) {
+      String msg = String
+        .format(
+          "No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
+          dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
+      throw new RuntimeException(msg);
+    }
 
-		for (File f : saFiles) {
+    saInfos = new ArrayList<StorageAreaInfo>();
 
-			Properties p = new Properties();
-			try {
-				p.load(new FileReader(f));
-			} catch (Exception e) {
-				throw new RuntimeException("Error loading properties: "
-					+ e.getMessage(), e);
-			}
+    for (File f : saFiles) {
 
-			OwnerStorageAreaInfo saInfo = ConfigFactory.create(
-				OwnerStorageAreaInfo.class, p);
-			saInfos.add(saInfo);
+      Properties p = new Properties();
+      try {
+        p.load(new FileReader(f));
+      } catch (Exception e) {
+        throw new RuntimeException("Error loading properties: "
+          + e.getMessage(), e);
+      }
 
-			log.debug("{} loaded: {}", f, saInfo);
-		}
-	}
+      OwnerStorageAreaInfo saInfo = ConfigFactory.create(
+        OwnerStorageAreaInfo.class, p);
+      saInfos.add(saInfo);
 
-	private void directorySanityChecks(File directory) {
+      log.debug("{} loaded: {}", f, saInfo);
+    }
+  }
 
-		if (!directory.exists())
-			throw new IllegalArgumentException(
-				"Storage area configuration directory does not exists: "
-					+ directory.getAbsolutePath());
+  private void directorySanityChecks(File directory) {
 
-		if (!directory.isDirectory())
-			throw new IllegalArgumentException(
-				"Storage area configuration directory is not a directory: "
-					+ directory.getAbsolutePath());
+    if (!directory.exists())
+      throw new IllegalArgumentException(
+        "Storage area configuration directory does not exists: "
+          + directory.getAbsolutePath());
 
-		if (!directory.canRead())
-			throw new IllegalArgumentException(
-				"Storage area configuration directory is not readable: "
-					+ directory.getAbsolutePath());
+    if (!directory.isDirectory())
+      throw new IllegalArgumentException(
+        "Storage area configuration directory is not a directory: "
+          + directory.getAbsolutePath());
 
-		if (!directory.canExecute())
-			throw new IllegalArgumentException(
-				"Storage area configuration directory is not traversable: "
-					+ directory.getAbsolutePath());
+    if (!directory.canRead())
+      throw new IllegalArgumentException(
+        "Storage area configuration directory is not readable: "
+          + directory.getAbsolutePath());
 
-	}
+    if (!directory.canExecute())
+      throw new IllegalArgumentException(
+        "Storage area configuration directory is not traversable: "
+          + directory.getAbsolutePath());
 
-	@Override
-	public List<StorageAreaInfo> getStorageAreaInfo() {
-		return saInfos;
-	}
+  }
+
+  @Override
+  public List<StorageAreaInfo> getStorageAreaInfo() {
+
+    return saInfos;
+  }
 
 }

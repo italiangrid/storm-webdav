@@ -2,8 +2,8 @@ package org.italiangrid.storm.webdav.spring;
 
 import java.util.concurrent.TimeUnit;
 
-import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailServiceBuilder;
-import org.italiangrid.storm.webdav.authz.vomsmap.VOMSMapDetailsService;
+import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailServiceBuilder;
+import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.DefaultConfigurationLogger;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -33,79 +34,84 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 @Configuration
 public class AppConfig {
 
-	@Bean
-	public ServiceConfiguration serviceConfiguration() {
+  @Bean
+  public ServiceConfiguration serviceConfiguration() {
 
-		return ServiceEnvConfiguration.INSTANCE;
-	}
+    return ServiceEnvConfiguration.INSTANCE;
+  }
 
-	@Bean
-	public StorageAreaConfiguration storageAreaConfiguration() {
+  @Bean
+  public StorageAreaConfiguration storageAreaConfiguration() {
 
-		return new SAConfigurationParser(serviceConfiguration());
-	}
+    return new SAConfigurationParser(serviceConfiguration());
+  }
 
-	@Bean
-	public ServerLifecycle webdavServer() {
+  @Bean
+  public ServerLifecycle webdavServer() {
 
-		return new WebDAVServer(serviceConfiguration(), storageAreaConfiguration());
-	}
+    return new WebDAVServer(serviceConfiguration(), storageAreaConfiguration());
+  }
 
-	@Bean
-	public ConfigurationLogger configurationLogger() {
+  @Bean
+  public ConfigurationLogger configurationLogger() {
 
-		return new DefaultConfigurationLogger(serviceConfiguration(),
-			storageAreaConfiguration());
-	}
+    return new DefaultConfigurationLogger(serviceConfiguration(),
+      storageAreaConfiguration());
+  }
 
-	@Bean
-	public ExtendedAttributesHelper extendedAttributesHelper() {
+  @Bean
+  public ExtendedAttributesHelper extendedAttributesHelper() {
 
-		return new DefaultExtendedFileAttributesHelper();
-	}
+    return new DefaultExtendedFileAttributesHelper();
+  }
 
-	@Bean
-	@Scope("prototype")
-	public FilesystemAccess filesystemAccess() {
+  @Bean
+  public FilesystemAccess filesystemAccess() {
 
-		return new MetricsFSStrategyWrapper(new DefaultFSStrategy(
-			extendedAttributesHelper()), metricRegistry());
+    return new MetricsFSStrategyWrapper(new DefaultFSStrategy(
+      extendedAttributesHelper()), metricRegistry());
 
-	}
+  }
 
-	@Bean
-	public MetricRegistry metricRegistry() {
+  @Bean
+  public MetricRegistry metricRegistry() {
 
-		return new MetricRegistry();
-	}
-	
-	@Bean
-	public VOMSMapDetailsService vomsMapDetailService(){
-			
-		VOMSMapDetailServiceBuilder builder = new VOMSMapDetailServiceBuilder(serviceConfiguration());
-		return builder.build();
-	}
-	
-	@Bean
-	public X509CertChainValidatorExt canlCertChainValidator(){
-		ServiceConfiguration configuration = serviceConfiguration();
-		
-		CANLListener l = new CANLListener();
-		CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
-		
-		long refreshInterval = TimeUnit
-			.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
-		
-		X509CertChainValidatorExt validator = builder
-			.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
-			.crlChecks(CrlCheckingMode.IF_VALID).ocspChecks(OCSPCheckingMode.IGNORE)
-			.lazyAnchorsLoading(false).storeUpdateListener(l)
-			.validationErrorListener(l)
-			.trustAnchorsDir(configuration.getTrustAnchorsDir())
-			.trustAnchorsUpdateInterval(refreshInterval)
-			.build();
-		
-		return validator;
-	}
-	
+    return new MetricRegistry();
+  }
+
+  @Bean
+  public HealthCheckRegistry healthCheckRegistry(){
+    return new HealthCheckRegistry();
+  }
+  
+  @Bean
+  public VOMapDetailsService vomsMapDetailService() {
+
+    VOMapDetailServiceBuilder builder = new VOMapDetailServiceBuilder(
+      serviceConfiguration());
+    return builder.build();
+  }
+
+  @Bean
+  public X509CertChainValidatorExt canlCertChainValidator() {
+
+    ServiceConfiguration configuration = serviceConfiguration();
+
+    CANLListener l = new CANLListener();
+    CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
+
+    long refreshInterval = TimeUnit.SECONDS.toMillis(configuration
+      .getTrustAnchorsRefreshIntervalInSeconds());
+
+    X509CertChainValidatorExt validator = builder
+      .namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
+      .crlChecks(CrlCheckingMode.IF_VALID).ocspChecks(OCSPCheckingMode.IGNORE)
+      .lazyAnchorsLoading(false).storeUpdateListener(l)
+      .validationErrorListener(l)
+      .trustAnchorsDir(configuration.getTrustAnchorsDir())
+      .trustAnchorsUpdateInterval(refreshInterval).build();
+
+    return validator;
+  }
+  
 }

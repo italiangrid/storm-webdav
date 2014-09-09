@@ -14,39 +14,39 @@ import org.slf4j.LoggerFactory;
 
 public class StoRMMiltonBehaviour implements Filter {
 
-	private static final Logger LOG = LoggerFactory
-		.getLogger(StoRMMiltonBehaviour.class);
+  private static final Logger LOG = LoggerFactory
+    .getLogger(StoRMMiltonBehaviour.class);
 
-	@Override
-	public void process(FilterChain chain, Request request, Response response) {
+  @Override
+  public void process(FilterChain chain, Request request, Response response) {
 
-		final HttpManager manager = chain.getHttpManager();
-		final Http11ResponseHandler responseHandler = manager.getResponseHandler();
+    final HttpManager manager = chain.getHttpManager();
+    final Http11ResponseHandler responseHandler = manager.getResponseHandler();
 
-		try {
+    try {
 
-			Request.Method method = request.getMethod();
-			Handler handler = manager.getMethodHandler(method);
+      Request.Method method = request.getMethod();
+      Handler handler = manager.getMethodHandler(method);
 
-			if (handler == null) {
-				responseHandler.respondMethodNotImplemented(
-					new PhantomResource(request.getAbsolutePath()), response, request);
-				return;
-			}
+      if (handler == null) {
+        responseHandler.respondMethodNotImplemented(
+          new PhantomResource(request.getAbsolutePath()), response, request);
+        return;
+      }
 
-			handler.process(manager, request, response);
-			if (response.getEntity() != null) {
-				manager.sendResponseEntity(response);
-			}
-		} catch (ResourceNotFound e) {
-			responseHandler.respondNotFound(response, request);
-		} catch (Throwable t) {
-			LOG.error(t.getMessage(), t);
-			responseHandler.respondServerError(request, response, t.getMessage());
-		} finally {
-			manager.closeResponse(response);
-		}
+      handler.process(manager, request, response);
+      if (response.getEntity() != null) {
+        manager.sendResponseEntity(response);
+      }
+    } catch (ResourceNotFound e) {
+      responseHandler.respondNotFound(response, request);
+    } catch (Throwable t) {
+      LOG.error(t.getMessage(), t);
+      responseHandler.respondServerError(request, response, t.getMessage());
+    } finally {
+      manager.closeResponse(response);
+    }
 
-	}
+  }
 
 }

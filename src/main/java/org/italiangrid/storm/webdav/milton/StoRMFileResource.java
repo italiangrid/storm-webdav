@@ -40,127 +40,130 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 public class StoRMFileResource extends StoRMResource implements
-	DeletableResource, CopyableResource, ReplaceableResource,
-	MultiNamespaceCustomPropertyResource, GetableResource {
+  DeletableResource, CopyableResource, ReplaceableResource,
+  MultiNamespaceCustomPropertyResource, GetableResource {
 
-	private static final FileNameMap MIME_TYPE_MAP = URLConnection
-		.getFileNameMap();
+  private static final FileNameMap MIME_TYPE_MAP = URLConnection
+    .getFileNameMap();
 
-	public static final String STORM_NAMESPACE_URI = "http://storm.italiangrid.org/2014/webdav";
-	public static final String PROPERTY_CHECKSUM = "Checksum";
+  public static final String STORM_NAMESPACE_URI = "http://storm.italiangrid.org/2014/webdav";
+  public static final String PROPERTY_CHECKSUM = "Checksum";
 
-	private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA = new ImmutableMap.Builder<QName, PropertyMetaData>()
-		.put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
-			new PropertyMetaData(READ_ONLY, String.class)).build();
+  private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA = new ImmutableMap.Builder<QName, PropertyMetaData>()
+    .put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
+      new PropertyMetaData(READ_ONLY, String.class)).build();
 
-	private static final Logger logger = LoggerFactory
-		.getLogger(StoRMFileResource.class);
+  private static final Logger logger = LoggerFactory
+    .getLogger(StoRMFileResource.class);
 
-	public StoRMFileResource(StoRMResourceFactory factory, File f) {
+  public StoRMFileResource(StoRMResourceFactory factory, File f) {
 
-		super(factory, f);
+    super(factory, f);
 
-	}
+  }
 
-	@Override
-	public void delete() throws NotAuthorizedException, ConflictException,
-		BadRequestException {
+  @Override
+  public void delete() throws NotAuthorizedException, ConflictException,
+    BadRequestException {
 
-		getFilesystemAccess().rm(getFile());
+    getFilesystemAccess().rm(getFile());
 
-	}
+  }
 
-	@Override
-	public void copyTo(CollectionResource toCollection, String name)
-		throws NotAuthorizedException, BadRequestException, ConflictException {
+  @Override
+  public void copyTo(CollectionResource toCollection, String name)
+    throws NotAuthorizedException, BadRequestException, ConflictException {
 
-		StoRMDirectoryResource dir = (StoRMDirectoryResource) toCollection;
-		File destFile = dir.childrenFile(name);
-		getFilesystemAccess().cp(getFile(), destFile);
+    StoRMDirectoryResource dir = (StoRMDirectoryResource) toCollection;
+    File destFile = dir.childrenFile(name);
+    getFilesystemAccess().cp(getFile(), destFile);
 
-	}
+  }
 
-	@Override
-	public void replaceContent(InputStream in, Long length)
-		throws BadRequestException, ConflictException, NotAuthorizedException {
+  @Override
+  public void replaceContent(InputStream in, Long length)
+    throws BadRequestException, ConflictException, NotAuthorizedException {
 
-		try {
-			Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
-			OutputStream os = new FileOutputStream(getFile());
+    try {
+      Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
+      OutputStream os = new FileOutputStream(getFile());
 
-			IOUtils.copy(cis, os);
-			IOUtils.closeQuietly(os);
+      IOUtils.copy(cis, os);
+      IOUtils.closeQuietly(os);
 
-			getExtendedAttributesHelper().setChecksumAttribute(getFile(),
-				cis.getChecksumValue());
+      getExtendedAttributesHelper().setChecksumAttribute(getFile(),
+        cis.getChecksumValue());
 
-		} catch (FileNotFoundException e) {
-			throw new ResourceNotFound(e);
-		} catch (IOException e) {
-			throw new StoRMWebDAVError(e);
-		}
-	}
+    } catch (FileNotFoundException e) {
+      throw new ResourceNotFound(e);
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
+    }
+  }
 
-	@Override
-	public Object getProperty(QName name) {
+  @Override
+  public Object getProperty(QName name) {
 
-		if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)) {
-			if (name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
-				try {
-					return getExtendedAttributesHelper().getChecksumAttribute(getFile());
-				} catch (IOException e) {
-					logger.warn("Errror getting checksum value for file: {}", getFile()
-						.getAbsolutePath(), e);
-					return null;
-				}
-			}
-		}
+    if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)) {
+      if (name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
+        try {
+          return getExtendedAttributesHelper().getChecksumAttribute(getFile());
+        } catch (IOException e) {
+          logger.warn("Errror getting checksum value for file: {}", getFile()
+            .getAbsolutePath(), e);
+          return null;
+        }
+      }
+    }
 
-		throw new StoRMWebDAVError("Unknown property: " + name);
-	}
+    throw new StoRMWebDAVError("Unknown property: " + name);
+  }
 
-	@Override
-	public void setProperty(QName name, Object value)
-		throws PropertySetException, NotAuthorizedException {
+  @Override
+  public void setProperty(QName name, Object value)
+    throws PropertySetException, NotAuthorizedException {
 
-		throw new NotImplementedException("StoRM WebDAV does not support setting DAV properties.");
-	}
+    throw new NotImplementedException(
+      "StoRM WebDAV does not support setting DAV properties.");
+  }
 
-	@Override
-	public PropertyMetaData getPropertyMetaData(QName name) {
+  @Override
+  public PropertyMetaData getPropertyMetaData(QName name) {
 
-		return PROPERTY_METADATA.get(name);
-	}
+    return PROPERTY_METADATA.get(name);
+  }
 
-	@Override
-	public List<QName> getAllPropertyNames() {
+  @Override
+  public List<QName> getAllPropertyNames() {
 
-		return PROPERTY_METADATA.keySet().asList();
-	}
+    return PROPERTY_METADATA.keySet().asList();
+  }
 
-	@Override
-	public void sendContent(OutputStream out, Range range,
-		Map<String, String> params, String contentType) throws IOException,
-		NotAuthorizedException, BadRequestException, NotFoundException {
+  @Override
+  public void sendContent(OutputStream out, Range range,
+    Map<String, String> params, String contentType) throws IOException,
+    NotAuthorizedException, BadRequestException, NotFoundException {
 
-		throw new NotImplementedException();
+    throw new NotImplementedException();
 
-	}
+  }
 
-	@Override
-	public Long getMaxAgeSeconds(Auth auth) {
-		return null;
-	}
+  @Override
+  public Long getMaxAgeSeconds(Auth auth) {
 
-	@Override
-	public String getContentType(String accepts) {
+    return null;
+  }
 
-		return MIME_TYPE_MAP.getContentTypeFor(getFile().getAbsolutePath());
-	}
+  @Override
+  public String getContentType(String accepts) {
 
-	@Override
-	public Long getContentLength() {
-		return getFile().length();
-	}
+    return MIME_TYPE_MAP.getContentTypeFor(getFile().getAbsolutePath());
+  }
+
+  @Override
+  public Long getContentLength() {
+
+    return getFile().length();
+  }
 
 }

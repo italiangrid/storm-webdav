@@ -12,28 +12,31 @@ import javax.servlet.ServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SecurityFilter implements Filter {
 
-	public static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
-	
-	@Override
-	public void destroy() {
-		log.debug("Destroying security filter.");
+  public static final Logger log = LoggerFactory
+    .getLogger(SecurityFilter.class);
 
-	}
+  @Override
+  public void destroy() {
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-		FilterChain chain) throws IOException, ServletException {
-		chain.doFilter(request, response);
+    log.debug("Destroying security filter.");
 
-	}
+  }
 
-	@Override
-	public void init(FilterConfig config) throws ServletException {
-		log.debug("Initializing security filter.");
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response,
+    FilterChain chain) throws IOException, ServletException {
 
-	}
+    chain.doFilter(request, response);
+
+  }
+
+  @Override
+  public void init(FilterConfig config) throws ServletException {
+
+    log.debug("Initializing security filter.");
+
+  }
 
 }

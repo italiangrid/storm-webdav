@@ -13,38 +13,38 @@ import eu.emi.security.authn.x509.impl.FormatMode;
 import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public abstract class AbstractVOMSAuthDetailsSource implements
-	VOMSAuthDetailsSource {
+  VOMSAuthDetailsSource {
 
-	public static final Logger logger = LoggerFactory
-		.getLogger(AbstractVOMSAuthDetailsSource.class);
+  public static final Logger logger = LoggerFactory
+    .getLogger(AbstractVOMSAuthDetailsSource.class);
 
-	protected AbstractVOMSAuthDetailsSource() {
+  protected AbstractVOMSAuthDetailsSource() {
 
-	}
+  }
 
-	protected X509Certificate[] getClientCertificateChain(
-		HttpServletRequest request) {
+  protected X509Certificate[] getClientCertificateChain(
+    HttpServletRequest request) {
 
-		X509Certificate[] chain = Utils.getCertificateChainFromRequest(request);
+    X509Certificate[] chain = Utils.getCertificateChainFromRequest(request);
 
-		if (chain != null && chain.length > 0) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Certificate chain in incoming request: {}",
-					CertificateUtils.format(chain, FormatMode.COMPACT_ONE_LINE));
-			}
-			return chain;
-		}
+    if (chain != null && chain.length > 0) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Certificate chain in incoming request: {}",
+          CertificateUtils.format(chain, FormatMode.COMPACT_ONE_LINE));
+      }
+      return chain;
+    }
 
-		logger.debug("No certificate chain in incoming request.");
-		return null;
-	}
+    logger.debug("No certificate chain in incoming request.");
+    return null;
+  }
 
-	protected X500Principal getPrincipalFromRequest(HttpServletRequest request) {
+  protected X500Principal getPrincipalFromRequest(HttpServletRequest request) {
 
-		X509Certificate[] chain = getClientCertificateChain(request);
-		if (chain != null) {
-			return ProxyUtils.getOriginalUserDN(chain);
-		}
-		return null;
-	}
+    X509Certificate[] chain = getClientCertificateChain(request);
+    if (chain != null) {
+      return ProxyUtils.getOriginalUserDN(chain);
+    }
+    return null;
+  }
 }

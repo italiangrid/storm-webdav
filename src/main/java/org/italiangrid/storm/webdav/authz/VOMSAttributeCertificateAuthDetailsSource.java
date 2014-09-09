@@ -24,73 +24,73 @@ import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
 public class VOMSAttributeCertificateAuthDetailsSource extends
-	AbstractVOMSAuthDetailsSource implements ValidationResultListener {
+  AbstractVOMSAuthDetailsSource implements ValidationResultListener {
 
-	public static final long VOMS_AA_VALIDATION_CACHE_LIFETIME = TimeUnit.MINUTES
-		.toMillis(5);
+  public static final long VOMS_AA_VALIDATION_CACHE_LIFETIME = TimeUnit.MINUTES
+    .toMillis(5);
 
-	private final VOMSACValidator vomsValidator;
+  private final VOMSACValidator vomsValidator;
 
-	public VOMSAttributeCertificateAuthDetailsSource() {
+  public VOMSAttributeCertificateAuthDetailsSource() {
 
-		X509CertChainValidatorExt wrappedValidator = new CertificateValidatorBuilder()
-			.lazyAnchorsLoading(false).ocspChecks(OCSPCheckingMode.IGNORE)
-			.crlChecks(CrlCheckingMode.IF_VALID).build();
+    X509CertChainValidatorExt wrappedValidator = new CertificateValidatorBuilder()
+      .lazyAnchorsLoading(false).ocspChecks(OCSPCheckingMode.IGNORE)
+      .crlChecks(CrlCheckingMode.IF_VALID).build();
 
-		X509CertChainValidatorExt aaCertChainValidator = new CachingCertificateValidator(
-			wrappedValidator, VOMS_AA_VALIDATION_CACHE_LIFETIME);
+    X509CertChainValidatorExt aaCertChainValidator = new CachingCertificateValidator(
+      wrappedValidator, VOMS_AA_VALIDATION_CACHE_LIFETIME);
 
-		vomsValidator = new DefaultVOMSValidator.Builder()
-			.certChainValidator(aaCertChainValidator).validationListener(this)
-			.build();
-	}
+    vomsValidator = new DefaultVOMSValidator.Builder()
+      .certChainValidator(aaCertChainValidator).validationListener(this)
+      .build();
+  }
 
-	protected List<VOMSAttribute> getAttributes(HttpServletRequest request) {
+  protected List<VOMSAttribute> getAttributes(HttpServletRequest request) {
 
-		Assert.notNull(request, "Cannot extract attributes from a null request!");
-		X509Certificate[] chain = getClientCertificateChain(request);
-		if (chain != null && chain.length > 0) {
-			return vomsValidator.validate(chain);
-		}
+    Assert.notNull(request, "Cannot extract attributes from a null request!");
+    X509Certificate[] chain = getClientCertificateChain(request);
+    if (chain != null && chain.length > 0) {
+      return vomsValidator.validate(chain);
+    }
 
-		return Collections.emptyList();
-	}
+    return Collections.emptyList();
+  }
 
-	@Override
-	public void notifyValidationResult(VOMSValidationResult result) {
+  @Override
+  public void notifyValidationResult(VOMSValidationResult result) {
 
-		if (!result.isValid())
-			logger.warn("VOMS attributes validation result: {}", result);
-		else
-			logger.debug("VOMS attributes validation result: {}", result);
+    if (!result.isValid())
+      logger.warn("VOMS attributes validation result: {}", result);
+    else
+      logger.debug("VOMS attributes validation result: {}", result);
 
-	}
+  }
 
-	@Override
-	public Collection<GrantedAuthority> getVOMSGrantedAuthorities(
-		HttpServletRequest request) {
+  @Override
+  public Collection<GrantedAuthority> getVOMSGrantedAuthorities(
+    HttpServletRequest request) {
 
-		List<VOMSAttribute> vomsAttrs = getAttributes(request);
+    List<VOMSAttribute> vomsAttrs = getAttributes(request);
 
-		if (vomsAttrs.isEmpty()) {
-			return Collections.emptyList();
-		}
+    if (vomsAttrs.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-		for (VOMSAttribute va : vomsAttrs) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Adding VO authority: {}", va.getVO());
-			}
-			authorities.add(new VOMSVOAuthority(va.getVO()));
-			for (String fqan: va.getFQANs()){
-				if (logger.isDebugEnabled()){
-					logger.debug("Adding FQAN authority: {}", fqan);
-				}
-				authorities.add(new VOMSFQANAuthority(fqan));
-			}
-		}
+    for (VOMSAttribute va : vomsAttrs) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Adding VO authority: {}", va.getVO());
+      }
+      authorities.add(new VOMSVOAuthority(va.getVO()));
+      for (String fqan : va.getFQANs()) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("Adding FQAN authority: {}", fqan);
+        }
+        authorities.add(new VOMSFQANAuthority(fqan));
+      }
+    }
 
-		return authorities;
-	}
+    return authorities;
+  }
 }

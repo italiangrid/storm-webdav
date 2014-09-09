@@ -18,92 +18,92 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 
 public abstract class StoRMResource implements Resource, PropFindableResource,
-	MoveableResource {
+  MoveableResource {
 
-	protected final StoRMResourceFactory resourceFactory;
-	protected final File file;
+  protected final StoRMResourceFactory resourceFactory;
+  protected final File file;
 
-	public StoRMResource(StoRMResourceFactory factory, File f) {
+  public StoRMResource(StoRMResourceFactory factory, File f) {
 
-		resourceFactory = factory;
-		file = f;
-	}
+    resourceFactory = factory;
+    file = f;
+  }
 
-	@Override
-	public Date getCreateDate() {
+  @Override
+  public Date getCreateDate() {
 
-		return getModifiedDate();
-	}
+    return getModifiedDate();
+  }
 
-	@Override
-	public String getUniqueId() {
+  @Override
+  public String getUniqueId() {
 
-		return file.getAbsolutePath();
-	}
+    return file.getAbsolutePath();
+  }
 
-	@Override
-	public String getName() {
+  @Override
+  public String getName() {
 
-		return file.getName();
-	}
+    return file.getName();
+  }
 
-	@Override
-	public Object authenticate(String user, String password) {
+  @Override
+  public Object authenticate(String user, String password) {
 
-		return user;
-	}
+    return user;
+  }
 
-	@Override
-	public boolean authorise(Request request, Method method, Auth auth) {
+  @Override
+  public boolean authorise(Request request, Method method, Auth auth) {
 
-		return true;
-	}
+    return true;
+  }
 
-	@Override
-	public String getRealm() {
+  @Override
+  public String getRealm() {
 
-		return null;
-	}
+    return null;
+  }
 
-	@Override
-	public Date getModifiedDate() {
+  @Override
+  public Date getModifiedDate() {
 
-		return new Date(file.lastModified());
-	}
+    return new Date(file.lastModified());
+  }
 
-	@Override
-	public String checkRedirect(Request request) throws NotAuthorizedException,
-		BadRequestException {
+  @Override
+  public String checkRedirect(Request request) throws NotAuthorizedException,
+    BadRequestException {
 
-		return null;
-	}
+    return null;
+  }
 
-	public File getFile() {
+  public File getFile() {
 
-		return file;
-	}
+    return file;
+  }
 
-	public StoRMResourceFactory getResourceFactory() {
+  public StoRMResourceFactory getResourceFactory() {
 
-		return resourceFactory;
-	}
+    return resourceFactory;
+  }
 
-	public FilesystemAccess getFilesystemAccess() {
+  public FilesystemAccess getFilesystemAccess() {
 
-		return resourceFactory.getFilesystemAccess();
-	}
+    return resourceFactory.getFilesystemAccess();
+  }
 
-	public ExtendedAttributesHelper getExtendedAttributesHelper() {
+  public ExtendedAttributesHelper getExtendedAttributesHelper() {
 
-		return resourceFactory.getExtendedAttributesHelper();
-	}
+    return resourceFactory.getExtendedAttributesHelper();
+  }
 
-	@Override
-	public void moveTo(CollectionResource rDest, String name)
-		throws ConflictException, NotAuthorizedException, BadRequestException {
+  @Override
+  public void moveTo(CollectionResource rDest, String name)
+    throws ConflictException, NotAuthorizedException, BadRequestException {
 
-		StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
-		getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
+    StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
+    getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
 
-	}
+  }
 }

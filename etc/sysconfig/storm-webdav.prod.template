@@ -57,14 +57,14 @@ STORM_WEBDAV_LOG_CONFIGURATION="/etc/storm-webdav/logback.xml"
 # The StoRM wedav access log configuration. Do not change this unless you know what you are doing.
 STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/etc/storm-webdav/logback-access.xml"
 
-# Enables/disables  support for VOMS map files
-STORM_WEBDAV_VOMS_MAP_FILES_ENABLE="false"
+# Enables/disables  support for VO map files
+STORM_WEBDAV_VO_MAP_FILES_ENABLE="false"
 
 # Where StoRM WebDAV should look for voms map files. 
-STORM_WEBDAV_VOMS_MAP_FILES_CONFIG_DIR="/etc/storm-webdav/voms-map-files"
+STORM_WEBDAV_VO_MAP_FILES_CONFIG_DIR="/etc/storm-webdav/voms-map-files"
 
 # VOMS map files refresh period (in seconds)
-STORM_WEBDAV_VOMS_MAP_FILES_REFRESH_INTERVAL="21600"
+STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL="21600"
 
 # StoRM WebDAV server debug option. Uncomment this (and restart the service)
 # if you want to attach a java debugger to the running server process

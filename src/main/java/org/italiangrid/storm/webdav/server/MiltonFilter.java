@@ -31,109 +31,109 @@ import org.springframework.stereotype.Component;
 @Component
 public class MiltonFilter implements Filter {
 
-	public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);
 
-	static final Set<String> WEBDAV_METHOD_SET = new HashSet<String>();
-	static final String SA_ROOT_PATH = "sa-root";
+  static final Set<String> WEBDAV_METHOD_SET = new HashSet<String>();
+  static final String SA_ROOT_PATH = "sa-root";
 
-	static {
-		for (WebDAVMethod m : WebDAVMethod.values()) {
-			WEBDAV_METHOD_SET.add(m.name());
-		}
-	}
+  static {
+    for (WebDAVMethod m : WebDAVMethod.values()) {
+      WEBDAV_METHOD_SET.add(m.name());
+    }
+  }
 
-	private HttpManager miltonHTTPManager;
+  private HttpManager miltonHTTPManager;
 
-	private ServletContext servletContext;
-	
-	private FilesystemAccess filesystemAccess;
-	
-	private ExtendedAttributesHelper attrsHelper;
+  private ServletContext servletContext;
 
-	
-	@Autowired
-	public MiltonFilter(FilesystemAccess fsAccess, ExtendedAttributesHelper attrsHelper) {
-		this.filesystemAccess = fsAccess;
-		this.attrsHelper = attrsHelper;
-	}
-	
-	private void initMiltonHTTPManager(ServletContext context) {
+  private FilesystemAccess filesystemAccess;
 
-		final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
+  private ExtendedAttributesHelper attrsHelper;
 
-		final StoRMResourceFactory resourceFactory = new StoRMResourceFactory(
-			filesystemAccess,
-			attrsHelper,
-			servletContext.getInitParameter(SA_ROOT_PATH),
-			servletContext.getContextPath());
+  @Autowired
+  public MiltonFilter(FilesystemAccess fsAccess,
+    ExtendedAttributesHelper attrsHelper) {
 
-		builder.setResourceFactory(resourceFactory);
+    this.filesystemAccess = fsAccess;
+    this.attrsHelper = attrsHelper;
+  }
 
-		miltonHTTPManager = builder.buildHttpManager();
+  private void initMiltonHTTPManager(ServletContext context) {
 
-	}
+    final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
 
-	@Override
-	public void init(FilterConfig config) throws ServletException {
+    final StoRMResourceFactory resourceFactory = new StoRMResourceFactory(
+      filesystemAccess, attrsHelper,
+      servletContext.getInitParameter(SA_ROOT_PATH),
+      servletContext.getContextPath());
 
-		servletContext = config.getServletContext();
-		initMiltonHTTPManager(servletContext);
+    builder.setResourceFactory(resourceFactory);
 
-	}
+    miltonHTTPManager = builder.buildHttpManager();
 
-	private boolean isWebDAVMethod(ServletRequest request) {
+  }
 
-		return WEBDAV_METHOD_SET.contains(((HttpServletRequest) request)
-			.getMethod());
-	}
+  @Override
+  public void init(FilterConfig config) throws ServletException {
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-		FilterChain chain) throws IOException, ServletException {
+    servletContext = config.getServletContext();
+    initMiltonHTTPManager(servletContext);
 
-		if (isWebDAVMethod(request)) {
-			doMilton((HttpServletRequest) request, (HttpServletResponse) response);
-		} else
-			chain.doFilter(request, response);
+  }
 
-	}
+  private boolean isWebDAVMethod(ServletRequest request) {
 
-	public void doMilton(HttpServletRequest request, HttpServletResponse response) {
+    return WEBDAV_METHOD_SET.contains(((HttpServletRequest) request)
+      .getMethod());
+  }
 
-		LOG.trace("doMilton: req: {}, res: {}", request, response);
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response,
+    FilterChain chain) throws IOException, ServletException {
 
-		try {
-			// Is this really needed?
-			MiltonServlet.setThreadlocals((HttpServletRequest) request,
-				(HttpServletResponse) response);
+    if (isWebDAVMethod(request)) {
+      doMilton((HttpServletRequest) request, (HttpServletResponse) response);
+    } else
+      chain.doFilter(request, response);
 
-			Request miltonReq = new io.milton.servlet.ServletRequest(request,
-				servletContext);
+  }
 
-			Response miltonRes = new io.milton.servlet.ServletResponse(response);
-			miltonHTTPManager.process(miltonReq, miltonRes);
+  public void doMilton(HttpServletRequest request, HttpServletResponse response) {
 
-		} finally {
+    LOG.trace("doMilton: req: {}, res: {}", request, response);
 
-			MiltonServlet.clearThreadlocals();
+    try {
+      // Is this really needed?
+      MiltonServlet.setThreadlocals((HttpServletRequest) request,
+        (HttpServletResponse) response);
 
-			try {
+      Request miltonReq = new io.milton.servlet.ServletRequest(request,
+        servletContext);
 
-				response.getOutputStream().flush();
-				response.flushBuffer();
+      Response miltonRes = new io.milton.servlet.ServletResponse(response);
+      miltonHTTPManager.process(miltonReq, miltonRes);
 
-			} catch (IOException e) {
-				LOG.error(e.getMessage(), e);
-				throw new RuntimeException(e.getMessage(), e);
-			}
+    } finally {
 
-		}
+      MiltonServlet.clearThreadlocals();
 
-	}
+      try {
 
-	@Override
-	public void destroy() {
+        response.getOutputStream().flush();
+        response.flushBuffer();
 
-	}
-	
+      } catch (IOException e) {
+        LOG.error(e.getMessage(), e);
+        throw new RuntimeException(e.getMessage(), e);
+      }
+
+    }
+
+  }
+
+  @Override
+  public void destroy() {
+
+  }
+
 }

@@ -6,35 +6,38 @@ import io.milton.http.AuthenticationHandler;
 import io.milton.http.Request;
 import io.milton.resource.Resource;
 
-
 public class NullAuthenticationHandler implements AuthenticationHandler {
 
-	public static final String STORM_USER = "storm";
+  public static final String STORM_USER = "storm";
 
-	@Override
-	public boolean supports(Resource r, Request request) {
-		return true;
-	}
+  @Override
+  public boolean supports(Resource r, Request request) {
 
-	@Override
-	public Object authenticate(Resource resource, Request request) {
-		return STORM_USER;
-	}
+    return true;
+  }
 
-	@Override
-	public void appendChallenges(Resource resource, Request request,
-		List<String> challenges) {
+  @Override
+  public Object authenticate(Resource resource, Request request) {
 
-	}
+    return STORM_USER;
+  }
 
-	@Override
-	public boolean isCompatible(Resource resource, Request request) {
-		return true;
-	}
+  @Override
+  public void appendChallenges(Resource resource, Request request,
+    List<String> challenges) {
 
-	@Override
-	public boolean credentialsPresent(Request request) {
-		return true;
-	}
+  }
+
+  @Override
+  public boolean isCompatible(Resource resource, Request request) {
+
+    return true;
+  }
+
+  @Override
+  public boolean credentialsPresent(Request request) {
+
+    return true;
+  }
 
 }

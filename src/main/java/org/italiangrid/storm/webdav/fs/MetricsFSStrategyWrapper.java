@@ -10,112 +10,112 @@ import static com.codahale.metrics.MetricRegistry.name;
 
 public class MetricsFSStrategyWrapper implements FilesystemAccess {
 
-	final FilesystemAccess delegate;
-	final MetricRegistry registry;
+  final FilesystemAccess delegate;
+  final MetricRegistry registry;
 
-	final Timer mkdirTimer;
-	final Timer rmTimer;
-	final Timer mvTimer;
-	final Timer cpTimer;
-	final Timer lsTimer;
-	final Timer createTimer;
+  final Timer mkdirTimer;
+  final Timer rmTimer;
+  final Timer mvTimer;
+  final Timer cpTimer;
+  final Timer lsTimer;
+  final Timer createTimer;
 
-	public MetricsFSStrategyWrapper(FilesystemAccess delegate,
-		MetricRegistry registry) {
+  public MetricsFSStrategyWrapper(FilesystemAccess delegate,
+    MetricRegistry registry) {
 
-		this.delegate = delegate;
-		this.registry = registry;
+    this.delegate = delegate;
+    this.registry = registry;
 
-		mkdirTimer = registry.timer(name(FilesystemAccess.class, "mkdir"));
-		rmTimer = registry.timer(name(FilesystemAccess.class, "rm"));
-		cpTimer = registry.timer(name(FilesystemAccess.class, "cp"));
-		lsTimer = registry.timer(name(FilesystemAccess.class, "ls"));
-		mvTimer = registry.timer(name(FilesystemAccess.class, "mv"));
-		createTimer = registry.timer(name(FilesystemAccess.class, "create"));
+    mkdirTimer = registry.timer(name(FilesystemAccess.class, "mkdir"));
+    rmTimer = registry.timer(name(FilesystemAccess.class, "rm"));
+    cpTimer = registry.timer(name(FilesystemAccess.class, "cp"));
+    lsTimer = registry.timer(name(FilesystemAccess.class, "ls"));
+    mvTimer = registry.timer(name(FilesystemAccess.class, "mv"));
+    createTimer = registry.timer(name(FilesystemAccess.class, "create"));
 
-	}
+  }
 
-	@Override
-	public File mkdir(File parentDirectory, String dirName) {
+  @Override
+  public File mkdir(File parentDirectory, String dirName) {
 
-		final Timer.Context context = mkdirTimer.time();
+    final Timer.Context context = mkdirTimer.time();
 
-		try {
+    try {
 
-			return delegate.mkdir(parentDirectory, dirName);
+      return delegate.mkdir(parentDirectory, dirName);
 
-		} finally {
+    } finally {
 
-			context.stop();
-		}
+      context.stop();
+    }
 
-	}
+  }
 
-	@Override
-	public boolean rm(File f) {
+  @Override
+  public boolean rm(File f) {
 
-		final Timer.Context context = rmTimer.time();
+    final Timer.Context context = rmTimer.time();
 
-		try {
-			return delegate.rm(f);
+    try {
+      return delegate.rm(f);
 
-		} finally {
-			context.stop();
-		}
+    } finally {
+      context.stop();
+    }
 
-	}
+  }
 
-	@Override
-	public void mv(File source, File dest) {
+  @Override
+  public void mv(File source, File dest) {
 
-		final Timer.Context context = mvTimer.time();
+    final Timer.Context context = mvTimer.time();
 
-		try {
-			delegate.mv(source, dest);
+    try {
+      delegate.mv(source, dest);
 
-		} finally {
-			context.stop();
-		}
+    } finally {
+      context.stop();
+    }
 
-	}
+  }
 
-	@Override
-	public void cp(File source, File dest) {
+  @Override
+  public void cp(File source, File dest) {
 
-		final Timer.Context context = cpTimer.time();
-		try {
+    final Timer.Context context = cpTimer.time();
+    try {
 
-			delegate.cp(source, dest);
+      delegate.cp(source, dest);
 
-		} finally {
-			context.stop();
-		}
+    } finally {
+      context.stop();
+    }
 
-	}
+  }
 
-	@Override
-	public File[] ls(File dir, int limit) {
+  @Override
+  public File[] ls(File dir, int limit) {
 
-		final Timer.Context context = lsTimer.time();
-		try {
-			return delegate.ls(dir, limit);
-		} finally {
+    final Timer.Context context = lsTimer.time();
+    try {
+      return delegate.ls(dir, limit);
+    } finally {
 
-			context.stop();
-		}
-	}
+      context.stop();
+    }
+  }
 
-	@Override
-	public File create(File file, InputStream in) {
+  @Override
+  public File create(File file, InputStream in) {
 
-		final Timer.Context context = createTimer.time();
-		try {
-			return delegate.create(file, in);
-		} finally {
+    final Timer.Context context = createTimer.time();
+    try {
+      return delegate.create(file, in);
+    } finally {
 
-			context.stop();
-		}
+      context.stop();
+    }
 
-	}
+  }
 
 }

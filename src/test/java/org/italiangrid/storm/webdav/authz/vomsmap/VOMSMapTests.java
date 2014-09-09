@@ -2,8 +2,8 @@ package org.italiangrid.storm.webdav.authz.vomsmap;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
+import org.italiangrid.storm.webdav.authz.vomap.MapfileVOMembershipSource;
+import org.junit.Assert;
 import org.junit.Test;
 
 

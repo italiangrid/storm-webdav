@@ -1,5 +1,5 @@
 <configuration>
-  <!-- always a good activate OnConsoleStatusListener -->  
+  <!-- always a good activate OnConsoleStatusListener -->
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
