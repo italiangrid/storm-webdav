@@ -7,6 +7,7 @@ import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -47,7 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -58,13 +58,18 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
 import com.codahale.metrics.Clock;
+import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.jetty8.InstrumentedHandler;
 import com.codahale.metrics.jetty8.InstrumentedQueuedThreadPool;
 import com.codahale.metrics.jetty8.InstrumentedSelectChannelConnector;
 import com.codahale.metrics.jetty8.InstrumentedSslSelectChannelConnector;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.codahale.metrics.servlets.MetricsServlet;
 import com.codahale.metrics.servlets.PingServlet;
 import com.codahale.metrics.servlets.ThreadDumpServlet;
@@ -178,6 +183,8 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     logConfiguration();
 
+    configureJVMMetrics();
+    
     // setupMetricsReporting();
 
     startServer();
@@ -316,10 +323,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     ch.addEventListener(springContextListener);
 
-    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, ch,
-      accessPoint);
-
-    return ih;
+    return ch;
 
   }
 
@@ -379,16 +383,26 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
         for (int i = 1; i < sa.accessPoints().size(); i++) {
           String otherAP = sa.accessPoints().get(i);
-          RewriteRegexRule rewriteAP = new RewriteRegexRule();
-          rewriteAP.setRegex(otherAP + "(/.*)?$");
-          rewriteAP.setReplacement(mainAccessPoint + "/$1");
-          rh.addRule(rewriteAP);
+          RedirectRegexRule redirectAP = new RedirectRegexRule();
+          redirectAP.setRegex(otherAP + "/(.*)?$");
+          redirectAP.setReplacement(mainAccessPoint + "/$1");
+          rh.addRule(redirectAP);
+
+          RedirectRegexRule redirectAP2 = new RedirectRegexRule();
+          redirectAP2.setRegex(otherAP + "$");
+          redirectAP2.setReplacement(mainAccessPoint);
+          rh.addRule(redirectAP2);
+
         }
       }
     }
 
     rh.setHandler(handlers);
-    jettyServer.setHandler(rh);
+    
+    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, rh, 
+      "storm.http.handler");
+    
+    jettyServer.setHandler(ih);
 
   }
 
@@ -411,6 +425,27 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     handlers.addHandler(ch);
 
+  }
+
+  private void registerMetricSet(String prefix, MetricSet metricSet) {
+
+    for (Entry<String, Metric> entry : metricSet.getMetrics().entrySet()) {
+      if (entry.getValue() instanceof MetricSet) {
+        registerMetricSet(prefix + "." + entry.getKey(),
+          (MetricSet) entry.getValue());
+      } else {
+        metricRegistry.register(prefix + "." + entry.getKey(),
+          (Metric) entry.getValue());
+      }
+    }
+
+  }
+
+  private void configureJVMMetrics() {
+
+    registerMetricSet("jvm.gc", new GarbageCollectorMetricSet());
+    registerMetricSet("jvm.memory", new MemoryUsageGaugeSet());
+    registerMetricSet("jvm.threads", new ThreadStatesGaugeSet());
   }
 
   private void failAndExit(String message, Throwable cause) {
