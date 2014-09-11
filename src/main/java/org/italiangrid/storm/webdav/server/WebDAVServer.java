@@ -50,6 +50,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.thymeleaf.TemplateEngine;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import ch.qos.logback.access.joran.JoranConfigurator;
@@ -112,6 +113,9 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   @Autowired
   private HealthCheckRegistry healthCheckRegistry;
+  
+  @Autowired
+  private TemplateEngine templateEngine;
 
   private HandlerCollection handlers = new HandlerCollection();
 
@@ -184,7 +188,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     logConfiguration();
 
     configureJVMMetrics();
-    
+
     // setupMetricsReporting();
 
     startServer();
@@ -277,6 +281,20 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   }
 
+  private Handler configureSAIndexHandler() {
+
+    ServletHolder servlet = new ServletHolder(new SAIndexServlet(
+      saConfiguration, templateEngine));
+    
+    WebAppContext ch = new WebAppContext();
+    ch.setWar("/");
+    ch.setContextPath("/");
+    ch.addServlet(servlet, "");
+    
+    return ch;
+
+  }
+
   private Handler configureStorageAreaHandler(StorageAreaInfo sa,
     String accessPoint) {
 
@@ -358,7 +376,10 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       handlers.addHandler(configureStorageAreaHandler(sa, mainAccessPoint));
     }
 
+    handlers.addHandler(configureSAIndexHandler());
+    
     handlers.addHandler(configureLogRequestHandler());
+    
 
     RewriteHandler rh = new RewriteHandler();
 
@@ -398,10 +419,10 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     }
 
     rh.setHandler(handlers);
-    
-    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, rh, 
+
+    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, rh,
       "storm.http.handler");
-    
+
     jettyServer.setHandler(ih);
 
   }

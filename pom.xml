@@ -17,6 +17,7 @@
     <plugin.jar.version>2.4</plugin.jar.version>
     <plugin.assembly.version>2.4</plugin.assembly.version>
     <plugin.shade.version>2.3</plugin.shade.version>
+    <plugin.license.version>1.9.0</plugin.license.version>
 
     <https-utils.version>0.3.2.rc2</https-utils.version>
     <milton.version>2.6.2.2</milton.version>
@@ -41,8 +42,8 @@
 
     <spring.version>4.1.0.RELEASE</spring.version>
     <spring-security.version>3.2.5.RELEASE</spring-security.version>
+    <thymeleaf.version>2.1.3.RELEASE</thymeleaf.version>
 
-    <voms-admin-api.version>2.0.2-SNAPSHOT</voms-admin-api.version>
 
     <!-- Default install prefix: keep it empty -->
     <!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
@@ -140,8 +141,37 @@
           </execution>
         </executions>
       </plugin>
-    </plugins>
 
+
+      <plugin>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <version>${plugin.license.version}</version>
+        <configuration>
+          <header>copyright.txt</header>
+          <excludes>
+            <exclude>**/*.md</exclude>
+            <exclude>.travis.yml</exclude>
+            <exclude>Makefile</exclude>
+            <exclude>.gitignore</exclude>
+            <exclude>spec/**</exclude>
+            <exclude>**/*.template</exclude>
+            <exclude>src/main/resources/templates/**</exclude>
+          </excludes>
+          <useDefaultExcludes>true</useDefaultExcludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-headers</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    
   </build>
 
   <dependencies>
@@ -176,19 +206,19 @@
       <artifactId>metrics-jvm</artifactId>
       <version>${metrics.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-jetty8</artifactId>
       <version>${metrics.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-servlets</artifactId>
       <version>${metrics.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.italiangrid</groupId>
       <artifactId>https-utils</artifactId>
@@ -276,6 +306,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.thymeleaf</groupId>
+      <artifactId>thymeleaf</artifactId>
+      <version>${thymeleaf.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.milton</groupId>
       <artifactId>milton-api</artifactId>
       <version>${milton.version}</version>
@@ -286,11 +322,7 @@
       <artifactId>commons-cli</artifactId>
       <version>${commons-cli.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-core</artifactId>
-      <version>2.2.0</version>
-    </dependency>
+
   </dependencies>
 
   <profiles>

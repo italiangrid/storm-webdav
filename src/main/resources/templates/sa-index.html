@@ -1,0 +1,24 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+<title>StoRM WebDAV service</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+
+</head>
+
+<body>
+	<header>Configured Storage areas</header>
+
+	<ul>
+		<li th:each="sa: ${saIndexMap}"><a href="/sa"
+			th:href="@{/webdav{ap}(ap=${sa.value})}" th:text="${sa.key}">fake</a>
+		</li>
+	</ul>
+</body>
+
+</html>

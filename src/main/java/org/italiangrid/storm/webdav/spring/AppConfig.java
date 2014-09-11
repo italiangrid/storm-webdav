@@ -22,6 +22,9 @@ import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -80,10 +83,11 @@ public class AppConfig {
   }
 
   @Bean
-  public HealthCheckRegistry healthCheckRegistry(){
+  public HealthCheckRegistry healthCheckRegistry() {
+
     return new HealthCheckRegistry();
   }
-  
+
   @Bean
   public VOMapDetailsService vomsMapDetailService() {
 
@@ -113,5 +117,21 @@ public class AppConfig {
 
     return validator;
   }
-  
+
+  @Bean
+  public TemplateEngine templateEngine() {
+
+    ClassLoaderTemplateResolver templateResolver = 
+      new ClassLoaderTemplateResolver();
+    
+    templateResolver.setPrefix("templates/");
+    templateResolver.setSuffix(".html");
+    // templateResolver.setTemplateMode("HTML");
+    
+    TemplateEngine engine = new TemplateEngine();
+    engine.setTemplateResolver(templateResolver);
+    
+    return engine;
+    
+  }
 }

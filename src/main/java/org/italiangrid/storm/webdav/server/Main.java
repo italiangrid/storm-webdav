@@ -19,11 +19,11 @@ public class Main {
       .getILoggerFactory());
 
     log.info("StoRM WebDAV server v. {}", Version.version());
-    
+
     @SuppressWarnings("resource")
     ApplicationContext context = new AnnotationConfigApplicationContext(
       AppConfig.class);
-    
+
     ServerLifecycle server = context.getBean(ServerLifecycle.class);
     server.start();
 
