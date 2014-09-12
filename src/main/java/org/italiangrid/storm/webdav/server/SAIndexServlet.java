@@ -16,8 +16,8 @@
 package org.italiangrid.storm.webdav.server;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -52,7 +52,7 @@ public class SAIndexServlet extends HttpServlet {
 
     this.saConfig = config;
     this.engine = engine;
-    saIndexMap = new HashMap<String, String>();
+    saIndexMap = new TreeMap<String, String>();
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       saIndexMap.put(sa.name(), sa.accessPoints().get(0));
     }

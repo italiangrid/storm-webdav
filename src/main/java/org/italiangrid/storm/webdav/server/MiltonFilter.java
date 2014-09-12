@@ -38,6 +38,7 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
+import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +113,7 @@ public class MiltonFilter implements Filter {
       chain.doFilter(request, response);
 
   }
-
+  
   public void doMilton(HttpServletRequest request, HttpServletResponse response) {
 
     LOG.trace("doMilton: req: {}, res: {}", request, response);
@@ -122,9 +123,8 @@ public class MiltonFilter implements Filter {
       MiltonServlet.setThreadlocals((HttpServletRequest) request,
         (HttpServletResponse) response);
 
-      Request miltonReq = new io.milton.servlet.ServletRequest(request,
-        servletContext);
-
+      Request miltonReq = new StoRMMiltonRequest(request, servletContext);
+      
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
       miltonHTTPManager.process(miltonReq, miltonRes);
 
