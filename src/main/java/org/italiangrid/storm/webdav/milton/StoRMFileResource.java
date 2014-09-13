@@ -181,4 +181,11 @@ public class StoRMFileResource extends StoRMResource implements
     return getFile().length();
   }
 
+  @Override
+  public String toString() {
+
+    return "StoRMFileResource [resourceFactory=" + resourceFactory + ", file="
+      + file + "]";
+  }
+
 }

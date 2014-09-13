@@ -37,7 +37,7 @@ public abstract class StoRMResource implements Resource, PropFindableResource,
 
   protected final StoRMResourceFactory resourceFactory;
   protected final File file;
-
+  
   public StoRMResource(StoRMResourceFactory factory, File f) {
 
     resourceFactory = factory;
@@ -121,4 +121,5 @@ public abstract class StoRMResource implements Resource, PropFindableResource,
     getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
 
   }
+
 }
