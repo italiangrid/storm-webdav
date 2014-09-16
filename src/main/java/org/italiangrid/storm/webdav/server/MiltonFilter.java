@@ -1,17 +1,17 @@
 /**
  * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.italiangrid.storm.webdav.server;
 
@@ -66,12 +66,15 @@ public class MiltonFilter implements Filter {
 
   private ExtendedAttributesHelper attrsHelper;
 
+  private PathResolver resolver;
+
   @Autowired
   public MiltonFilter(FilesystemAccess fsAccess,
-    ExtendedAttributesHelper attrsHelper) {
+    ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
 
     this.filesystemAccess = fsAccess;
     this.attrsHelper = attrsHelper;
+    this.resolver = resolver;
   }
 
   private void initMiltonHTTPManager(ServletContext context) {
@@ -79,9 +82,7 @@ public class MiltonFilter implements Filter {
     final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
 
     final StoRMResourceFactory resourceFactory = new StoRMResourceFactory(
-      filesystemAccess, attrsHelper,
-      servletContext.getInitParameter(SA_ROOT_PATH),
-      servletContext.getContextPath());
+      filesystemAccess, attrsHelper, resolver);
 
     builder.setResourceFactory(resourceFactory);
 
@@ -113,7 +114,7 @@ public class MiltonFilter implements Filter {
       chain.doFilter(request, response);
 
   }
-  
+
   public void doMilton(HttpServletRequest request, HttpServletResponse response) {
 
     LOG.trace("doMilton: req: {}, res: {}", request, response);
@@ -124,7 +125,7 @@ public class MiltonFilter implements Filter {
         (HttpServletResponse) response);
 
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
-      
+
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
       miltonHTTPManager.process(miltonReq, miltonRes);
 

@@ -30,6 +30,8 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.MetricsFSStrategyWrapper;
 import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.ResourceMapper;
 import org.italiangrid.storm.webdav.server.ServerLifecycle;
 import org.italiangrid.storm.webdav.server.WebDAVServer;
 import org.italiangrid.utils.https.impl.canl.CANLListener;
@@ -149,4 +151,10 @@ public class AppConfig {
     return engine;
     
   }
+  
+  @Bean
+  public PathResolver pathResolver() {
+    return new ResourceMapper(storageAreaConfiguration());
+  }
+  
 }

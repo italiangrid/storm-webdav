@@ -13,32 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.error;
+package org.italiangrid.storm.webdav.server;
 
 
-public class SameFileCopyError extends StoRMWebDAVError {
-
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1503156218876662642L;
-
-  public SameFileCopyError(String message) {
-
-    super(message);
-
-  }
-
-  public SameFileCopyError(Throwable cause) {
-
-    super(cause);
-
-  }
-
-  public SameFileCopyError(String message, Throwable cause) {
-
-    super(message, cause);
-
-  }
+public interface PathResolver {
+  
+  public String resolvePath(String pathInContext);
 
 }

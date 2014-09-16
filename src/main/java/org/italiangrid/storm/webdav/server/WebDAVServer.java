@@ -1,17 +1,17 @@
 /**
  * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.italiangrid.storm.webdav.server;
 
@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +28,6 @@ import javax.net.ssl.SSLContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContextListener;
 
-import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.Connector;
@@ -128,9 +126,12 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   @Autowired
   private HealthCheckRegistry healthCheckRegistry;
-  
+
   @Autowired
   private TemplateEngine templateEngine;
+
+  @Autowired
+  private PathResolver pathResolver;
 
   private HandlerCollection handlers = new HandlerCollection();
 
@@ -300,60 +301,68 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     ServletHolder servlet = new ServletHolder(new SAIndexServlet(
       saConfiguration, templateEngine));
-    
+
     WebAppContext ch = new WebAppContext();
     ch.setWar("/");
     ch.setContextPath("/");
     ch.addServlet(servlet, "");
-    
+
     return ch;
 
   }
 
-  private Handler configureStorageAreaHandler(StorageAreaInfo sa,
-    String accessPoint) {
-
-    ServletHolder servlet = new ServletHolder(DefaultServlet.class);
+  private Handler configureSAHandler() {
 
     FilterHolder springSecurityFilter = new FilterHolder(
       new DelegatingFilterProxy("springSecurityFilterChain"));
 
-    FilterHolder securityFilter = new FilterHolder(SecurityFilter.class);
     FilterHolder miltonFilter = new FilterHolder(new MiltonFilter(
-      applicationContext.getBean(FilesystemAccess.class), extendedAttrsHelper));
+      applicationContext.getBean(FilesystemAccess.class), extendedAttrsHelper,
+      pathResolver));
+
+    ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
+    ServletHolder pingServlet = new ServletHolder(PingServlet.class);
+    ServletHolder threadDumpServlet = new ServletHolder(ThreadDumpServlet.class);
+
+    PathResolver resolver = new ResourceMapper(saConfiguration);
+
+    ServletHolder servlet = new ServletHolder(new StoRMServlet(resolver));
+    ServletHolder index = new ServletHolder(new SAIndexServlet(saConfiguration,
+      templateEngine));
 
     WebAppContext ch = new WebAppContext();
-
-    ch.setContextPath(accessPoint);
+    ch.setContextPath("/");
     ch.setWar("/");
     ch.setThrowUnavailableOnStartupException(true);
     ch.setCompactPath(true);
-
-    ch.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase",
-      sa.rootPath());
-    ch.setInitParameter(MiltonFilter.SA_ROOT_PATH, sa.rootPath());
-
-    ch.setInitParameter("org.eclipse.jetty.servlet.Default.acceptRanges",
-      "true");
-    ch.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "true");
-    ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
 
     ch.setInitParameter("contextClass",
       AnnotationConfigWebApplicationContext.class.getName());
 
     ch.setInitParameter("contextConfigLocation", SecurityConfig.class.getName());
 
-    ch.setAttribute(Constants.SA_CONF_KEY, sa);
+    ch.setInitParameter("org.eclipse.jetty.servlet.Default.acceptRanges",
+      "true");
+    ch.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "true");
+    ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
+    ch.setInitParameter("org.eclipse.jetty.servlet.Default.gzip", "false");
 
     EnumSet<DispatcherType> dispatchFlags = EnumSet.of(DispatcherType.REQUEST);
-    ch.addServlet(servlet, "/*");
+
+    ch.addServlet(index, "");
+
     ch.addFilter(springSecurityFilter, "/*", dispatchFlags);
-    ch.addFilter(securityFilter, "/*", dispatchFlags);
     ch.addFilter(miltonFilter, "/*", dispatchFlags);
+
+    ch.addServlet(metricsServlet, "/status/metrics");
+    ch.addServlet(pingServlet, "/status/ping");
+    ch.addServlet(threadDumpServlet, "/status/threads");
+    ch.addServlet(servlet, "/*");
 
     ServletContextListener springContextListener = new MyLoaderListener(
       applicationContext);
 
+    ch.addEventListener(new MetricsContextListener(metricRegistry));
     ch.addEventListener(springContextListener);
 
     return ch;
@@ -384,17 +393,17 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     configureMetricsHandler();
 
-    List<StorageAreaInfo> sas = saConfiguration.getStorageAreaInfo();
+    // List<StorageAreaInfo> sas = saConfiguration.getStorageAreaInfo();
+    //
+    // for (StorageAreaInfo sa : sas) {
+    // String mainAccessPoint = sa.accessPoints().get(0);
+    // handlers.addHandler(configureStorageAreaHandler(sa, mainAccessPoint));
+    // }
 
-    for (StorageAreaInfo sa : sas) {
-      String mainAccessPoint = sa.accessPoints().get(0);
-      handlers.addHandler(configureStorageAreaHandler(sa, mainAccessPoint));
-    }
+    // handlers.addHandler(configureSAIndexHandler());
+    handlers.addHandler(configureSAHandler());
 
-    handlers.addHandler(configureSAIndexHandler());
-    
     handlers.addHandler(configureLogRequestHandler());
-    
 
     RewriteHandler rh = new RewriteHandler();
 
@@ -412,26 +421,26 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     rh.addRule(dropLegacyWebDAV);
     rh.addRule(dropLegacyFileTransfer);
 
-    for (StorageAreaInfo sa : sas) {
-      String mainAccessPoint = sa.accessPoints().get(0);
-
-      if (sa.accessPoints().size() > 1) {
-
-        for (int i = 1; i < sa.accessPoints().size(); i++) {
-          String otherAP = sa.accessPoints().get(i);
-          RedirectRegexRule redirectAP = new RedirectRegexRule();
-          redirectAP.setRegex(otherAP + "/(.*)?$");
-          redirectAP.setReplacement(mainAccessPoint + "/$1");
-          rh.addRule(redirectAP);
-
-          RedirectRegexRule redirectAP2 = new RedirectRegexRule();
-          redirectAP2.setRegex(otherAP + "$");
-          redirectAP2.setReplacement(mainAccessPoint);
-          rh.addRule(redirectAP2);
-
-        }
-      }
-    }
+    // for (StorageAreaInfo sa : sas) {
+    // String mainAccessPoint = sa.accessPoints().get(0);
+    //
+    // if (sa.accessPoints().size() > 1) {
+    //
+    // for (int i = 1; i < sa.accessPoints().size(); i++) {
+    // String otherAP = sa.accessPoints().get(i);
+    // RedirectRegexRule redirectAP = new RedirectRegexRule();
+    // redirectAP.setRegex(otherAP + "/(.*)?$");
+    // redirectAP.setReplacement(mainAccessPoint + "/$1");
+    // rh.addRule(redirectAP);
+    //
+    // RedirectRegexRule redirectAP2 = new RedirectRegexRule();
+    // redirectAP2.setRegex(otherAP + "$");
+    // redirectAP2.setReplacement(mainAccessPoint);
+    // rh.addRule(redirectAP2);
+    //
+    // }
+    // }
+    // }
 
     rh.setHandler(handlers);
 

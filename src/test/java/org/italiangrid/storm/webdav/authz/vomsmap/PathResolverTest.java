@@ -13,32 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.error;
+package org.italiangrid.storm.webdav.authz.vomsmap;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 
-public class SameFileCopyError extends StoRMWebDAVError {
+public class PathResolverTest {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1503156218876662642L;
+  @Test
+  public void test() {
 
-  public SameFileCopyError(String message) {
-
-    super(message);
-
-  }
-
-  public SameFileCopyError(Throwable cause) {
-
-    super(cause);
-
-  }
-
-  public SameFileCopyError(String message, Throwable cause) {
-
-    super(message, cause);
-
+    fail("Not yet implemented");
   }
 
 }
