@@ -112,6 +112,13 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
       .getValue());
   }
 
+  @Override
+  public boolean isAuthorizationDisabled() {
+    return Boolean.parseBoolean(ServiceConfigVariable.AUTHORIZATION_DISABLE
+      .getValue());
+    
+  }
+
 }
 
 enum ServiceConfigVariable {
@@ -123,7 +130,8 @@ enum ServiceConfigVariable {
     "300"), MAX_QUEUE_SIZE("900"), CONNECTOR_MAX_IDLE_TIME("30000"), SA_CONFIG_DIR(
     "/etc/storm-webdav/sa.d"), LOG_CONFIGURATION(null), ACCESS_LOG_CONFIGURATION(
     null), VO_MAP_FILES_ENABLE("false"), VO_MAP_FILES_CONFIG_DIR(
-    "/etc/storm-webdav/voms-mapfiles.d"), VO_MAP_FILES_REFRESH_INTERVAL("21600");
+    "/etc/storm-webdav/voms-mapfiles.d"), VO_MAP_FILES_REFRESH_INTERVAL("21600"),
+    AUTHORIZATION_DISABLE("false");
 
   private String defaultValue;
 

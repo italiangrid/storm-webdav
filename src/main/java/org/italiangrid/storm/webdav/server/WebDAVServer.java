@@ -35,7 +35,6 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -43,13 +42,12 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
-import org.italiangrid.storm.webdav.config.Constants;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.metrics.MetricsContextListener;
+import org.italiangrid.storm.webdav.metrics.StormMetricsReporter;
 import org.italiangrid.storm.webdav.spring.web.MyLoaderListener;
 import org.italiangrid.storm.webdav.spring.web.SecurityConfig;
 import org.italiangrid.utils.https.JettyRunThread;
@@ -75,7 +73,6 @@ import com.codahale.metrics.Clock;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.jetty8.InstrumentedHandler;
 import com.codahale.metrics.jetty8.InstrumentedQueuedThreadPool;
@@ -99,8 +96,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   public static final String HTTP_CONNECTOR_NAME = "storm-http";
   public static final String HTTPS_CONNECTOR_NAME = "storm-https";
-
-  public static final String METRICS_LOGGER_NAME = "storm-metrics-logger";
 
   private boolean started;
 
@@ -185,13 +180,11 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   private void setupMetricsReporting() {
 
-    final Slf4jReporter reporter = Slf4jReporter
-      .forRegistry(applicationContext.getBean(MetricRegistry.class))
-      .outputTo(LoggerFactory.getLogger(METRICS_LOGGER_NAME))
-      .convertRatesTo(TimeUnit.SECONDS)
-      .convertDurationsTo(TimeUnit.MILLISECONDS).build();
+    final StormMetricsReporter reporter = StormMetricsReporter.forRegistry(
+      metricRegistry).build();
 
     reporter.start(1, TimeUnit.MINUTES);
+
   }
 
   @Override
@@ -205,7 +198,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     configureJVMMetrics();
 
-    // setupMetricsReporting();
+    setupMetricsReporting();
 
     startServer();
     started = true;
@@ -297,20 +290,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   }
 
-  private Handler configureSAIndexHandler() {
-
-    ServletHolder servlet = new ServletHolder(new SAIndexServlet(
-      saConfiguration, templateEngine));
-
-    WebAppContext ch = new WebAppContext();
-    ch.setWar("/");
-    ch.setContextPath("/");
-    ch.addServlet(servlet, "");
-
-    return ch;
-
-  }
-
   private Handler configureSAHandler() {
 
     FilterHolder springSecurityFilter = new FilterHolder(
@@ -324,7 +303,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
     ServletHolder threadDumpServlet = new ServletHolder(ThreadDumpServlet.class);
 
-    PathResolver resolver = new ResourceMapper(saConfiguration);
+    PathResolver resolver = new DefaultPathResolver(saConfiguration);
 
     ServletHolder servlet = new ServletHolder(new StoRMServlet(resolver));
     ServletHolder index = new ServletHolder(new SAIndexServlet(saConfiguration,
@@ -391,18 +370,8 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   private void configureHandlers() throws MalformedURLException, IOException {
 
-    configureMetricsHandler();
-
-    // List<StorageAreaInfo> sas = saConfiguration.getStorageAreaInfo();
-    //
-    // for (StorageAreaInfo sa : sas) {
-    // String mainAccessPoint = sa.accessPoints().get(0);
-    // handlers.addHandler(configureStorageAreaHandler(sa, mainAccessPoint));
-    // }
-
-    // handlers.addHandler(configureSAIndexHandler());
+    handlers.addHandler(configureMetricsHandler());
     handlers.addHandler(configureSAHandler());
-
     handlers.addHandler(configureLogRequestHandler());
 
     RewriteHandler rh = new RewriteHandler();
@@ -421,27 +390,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     rh.addRule(dropLegacyWebDAV);
     rh.addRule(dropLegacyFileTransfer);
 
-    // for (StorageAreaInfo sa : sas) {
-    // String mainAccessPoint = sa.accessPoints().get(0);
-    //
-    // if (sa.accessPoints().size() > 1) {
-    //
-    // for (int i = 1; i < sa.accessPoints().size(); i++) {
-    // String otherAP = sa.accessPoints().get(i);
-    // RedirectRegexRule redirectAP = new RedirectRegexRule();
-    // redirectAP.setRegex(otherAP + "/(.*)?$");
-    // redirectAP.setReplacement(mainAccessPoint + "/$1");
-    // rh.addRule(redirectAP);
-    //
-    // RedirectRegexRule redirectAP2 = new RedirectRegexRule();
-    // redirectAP2.setRegex(otherAP + "$");
-    // redirectAP2.setReplacement(mainAccessPoint);
-    // rh.addRule(redirectAP2);
-    //
-    // }
-    // }
-    // }
-
     rh.setHandler(handlers);
 
     InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, rh,
@@ -451,7 +399,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   }
 
-  private void configureMetricsHandler() {
+  private Handler configureMetricsHandler() {
 
     ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
@@ -468,7 +416,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ch.addServlet(pingServlet, "/ping");
     ch.addServlet(threadDumpServlet, "/threads");
 
-    handlers.addHandler(ch);
+    return ch;
 
   }
 

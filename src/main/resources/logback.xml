@@ -18,16 +18,20 @@
 -->
 <configuration>
 
-  <logger name="org.italiangrid.storm.webdav" level="DEBUG"/>
-  <logger name="org.springframework.security" level="DEBUG"/>
-	<!-- NORMALLY YOU SHOULD NOT EDIT BELOW THIS POINT -->
+  <logger name="org.springframework" level="WARN"/>
+  <logger name="org.thymeleaf" level="WARN"/>
+  
+  <!-- 
+  <logger name="org.italiangrid.storm.webdav" level="DEBUG"/>  
+   -->
+	
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%date{ISO8601} %-5level [%.-16thread] - %msg%n</pattern>
+			<pattern>%date{ISO8601} %-5level [%.-16thread] %logger{0} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="CONSOLE" />
 	</root>
 </configuration>

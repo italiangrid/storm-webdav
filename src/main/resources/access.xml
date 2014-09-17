@@ -20,7 +20,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%h %l %u %user %date "%r" %s %b</pattern>
+      <pattern>%date{ISO8601} %h %l %u %user "%r" %s %b</pattern>
     </encoder>
   </appender>
 

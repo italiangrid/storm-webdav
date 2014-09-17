@@ -24,16 +24,16 @@ import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResourceMapper implements PathResolver {
+public class DefaultPathResolver implements PathResolver {
 
   private final StorageAreaConfiguration saConfig;
 
   private static final Logger logger = LoggerFactory
-    .getLogger(ResourceMapper.class);
+    .getLogger(DefaultPathResolver.class);
 
   private final HashMap<String, String> contextMap;
 
-  public ResourceMapper(StorageAreaConfiguration cfg) {
+  public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
     contextMap = new HashMap<String, String>();

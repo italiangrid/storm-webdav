@@ -46,5 +46,7 @@ public interface ServiceConfiguration {
   public String getVOMapFilesConfigDir();
 
   public long getVOMapFilesRefreshIntervalInSeconds();
+  
+  public boolean isAuthorizationDisabled();
 
 }

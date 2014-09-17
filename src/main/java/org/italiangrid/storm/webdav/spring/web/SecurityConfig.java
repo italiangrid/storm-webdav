@@ -100,7 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   protected void addAccessRules(HttpSecurity http) throws Exception {
-    
+
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
 
       for (String ap : sa.accessPoints()) {
@@ -122,8 +122,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
 
-    final List<GrantedAuthority> anonymousAccessPermissions = 
-      new ArrayList<GrantedAuthority>();
+    final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<GrantedAuthority>();
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
 
@@ -137,15 +136,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.csrf().disable();
 
-    http.authorizeRequests().accessDecisionManager(accessDecisionManager());
-
     http.authenticationProvider(prov).addFilter(
       buildVOMSAuthenticationFilter(prov));
 
     http.anonymous().authorities(anonymousAccessPermissions);
 
-    addAccessRules(http);
+    if (serviceConfiguration.isAuthorizationDisabled()) {
+    
+      http.authorizeRequests().anyRequest().permitAll();
 
+    } else {
+
+      http.authorizeRequests().accessDecisionManager(accessDecisionManager());
+      addAccessRules(http);
+
+    }
   }
 
 }
