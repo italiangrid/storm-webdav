@@ -19,7 +19,7 @@
     <plugin.shade.version>2.3</plugin.shade.version>
     <plugin.license.version>1.9.0</plugin.license.version>
 
-    <https-utils.version>0.3.2.rc2</https-utils.version>
+    <https-utils.version>0.3.5.rc1</https-utils.version>
     <milton.version>2.6.2.2</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
@@ -171,7 +171,7 @@
         </executions>
       </plugin>
     </plugins>
-    
+
   </build>
 
   <dependencies>
