@@ -13,8 +13,9 @@ accessPoints=/sa
 # Comma separated list of VOMS VOs supported in this storage area
 vos=testers.eu-emi.eu
 
-# Enables read access to users authenticated with an X.509 certificates.
-# Defaults to false, which means that all users need to authenticate with a VOMS proxy credential 
+# Enables read access to users authenticated with an X.509 certificate issued by
+# a trusted CA (users without VOMS credentials).
+# Defaults to false, which means that all users need to authenticate with a VOMS credential
 # authenticatedReadEnabled=false
 
 # Enables read access to anonymous users. Defaults to false. 

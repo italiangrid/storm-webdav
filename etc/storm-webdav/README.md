@@ -29,5 +29,5 @@ voms-mapfiles directory.
 command
 
 ```bash
-voms-admin --vo cms list-users > cms
+voms-admin --host voms.cern.ch --vo cms list-users > cms
 ```
