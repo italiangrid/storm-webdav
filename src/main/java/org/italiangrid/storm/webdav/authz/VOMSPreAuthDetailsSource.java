@@ -80,13 +80,16 @@ public class VOMSPreAuthDetailsSource
   
   private void addSAPermissions(Set<GrantedAuthority> authorities){
     
+    Set<GrantedAuthority> saPermissions = new HashSet<GrantedAuthority>();
+    
     for (GrantedAuthority auth: authorities){
       if (auth instanceof VOMSVOAuthority){
         VOMSVOAuthority voAuth = (VOMSVOAuthority) auth;
-        authorities.addAll(voPerms.get(voAuth.getVoName()));
+        saPermissions.addAll(voPerms.get(voAuth.getVoName()));
       }
     }
     
+    authorities.addAll(saPermissions);
     authorities.addAll(authenticatedPerms);
   }
   
