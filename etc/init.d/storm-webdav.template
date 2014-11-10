@@ -175,7 +175,8 @@ rh_status() {
   _current_status
   _status=$?
   if [ ${_status} -eq 0 ] || [ ${_status} -eq 1 ]; then
-    echo "${prog} is running."
+    local pid=$(cat $pidfile)
+    echo "${prog} (pid $pid) is running..."
   else
     echo "${prog} is stopped."
   fi
