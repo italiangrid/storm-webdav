@@ -33,4 +33,8 @@ public interface StorageAreaInfo {
   public Boolean anonymousReadEnabled();
 
   public Boolean authenticatedReadEnabled();
+  
+  public Boolean voMapEnabled();
+  
+  public Boolean voMapGrantsWritePermission();
 }

@@ -24,7 +24,7 @@ import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.AbstractVOMSAuthDetailsSource;
-import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOMapAuthority;
 import org.springframework.security.core.GrantedAuthority;
 
 public class VOMapAuthDetailsSource extends AbstractVOMSAuthDetailsSource {
@@ -52,7 +52,7 @@ public class VOMapAuthDetailsSource extends AbstractVOMSAuthDetailsSource {
       if (logger.isDebugEnabled()) {
         logger.debug("Adding VO authority: {}", voName);
       }
-      authorities.add(new VOMSVOAuthority(voName));
+      authorities.add(new VOMSVOMapAuthority(voName));
     }
 
     return authorities;

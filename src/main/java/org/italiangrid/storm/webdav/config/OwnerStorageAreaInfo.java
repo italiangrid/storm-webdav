@@ -40,5 +40,13 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @DefaultValue("false")
   public Boolean authenticatedReadEnabled();
+  
+  @Override
+  @DefaultValue("true")
+  public Boolean voMapEnabled();
+  
+  @Override
+  @DefaultValue("false")
+  public Boolean voMapGrantsWritePermission();
 
 }

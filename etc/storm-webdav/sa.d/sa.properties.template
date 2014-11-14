@@ -21,3 +21,9 @@ vos=testers.eu-emi.eu
 # Enables read access to anonymous users. Defaults to false. 
 # anonymousReadEnabled=false
 
+# Enables VO map files for this storage area. Defaults to true. 
+# voMapEnabled=true
+
+# VO map normally grants read-only access to storage area files. To grant 
+# write access set this flag to true. Defaults to false. 
+# voMapGrantsWriteAccess=false

@@ -43,6 +43,7 @@ public class VOMSPreAuthDetailsSource
   
   private final List<SAPermission> authenticatedPerms;
   private final Multimap<String, SAPermission> voPerms;
+  private final Multimap<String, SAPermission> voMapPerms;
   
   public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas, 
     StorageAreaConfiguration conf) {
@@ -53,19 +54,24 @@ public class VOMSPreAuthDetailsSource
     authenticatedPerms = new ArrayList<SAPermission>();
     
     voPerms = ArrayListMultimap.create();
+    voMapPerms = ArrayListMultimap.create();
     
     for (StorageAreaInfo sa: saConfig.getStorageAreaInfo()){
       
       for (String vo: sa.vos()){
         voPerms.put(vo, SAPermission.canRead(sa.name()));
         voPerms.put(vo, SAPermission.canWrite(sa.name()));
+        if (sa.voMapEnabled()){
+         voMapPerms.put(vo, SAPermission.canRead(sa.name()));
+         if (sa.voMapGrantsWritePermission()){
+           voMapPerms.put(vo, SAPermission.canWrite(sa.name()));
+         }
+        }
       }
       
       if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()){
         authenticatedPerms.add(SAPermission.canRead(sa.name()));
       }
-      
-      
     }
     
   }
@@ -86,6 +92,10 @@ public class VOMSPreAuthDetailsSource
       if (auth instanceof VOMSVOAuthority){
         VOMSVOAuthority voAuth = (VOMSVOAuthority) auth;
         saPermissions.addAll(voPerms.get(voAuth.getVoName()));
+      }
+      if (auth instanceof VOMSVOMapAuthority){
+        VOMSVOMapAuthority voMapAuth = (VOMSVOMapAuthority)auth;
+        saPermissions.addAll(voMapPerms.get(voMapAuth.getVoName()));
       }
     }
     
