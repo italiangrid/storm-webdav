@@ -18,6 +18,8 @@ package org.italiangrid.storm.webdav.authz;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,7 +39,11 @@ public class CopyMoveAuthzVoter implements
     .getLogger(CopyMoveAuthzVoter.class);
 
   private static final String DESTINATION = "Destination";
-
+  
+  private static final String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
+  private static final Pattern WEBDAV_PATH_PATTERN = Pattern
+    .compile(WEBDAV_PATH_REGEX);
+  
   final StorageAreaConfiguration saConfig;
 
   public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig) {
@@ -64,13 +70,23 @@ public class CopyMoveAuthzVoter implements
     return (method.equals("COPY") || method.equals("MOVE"));
 
   }
+  
+  private String dropSlashWebdavFromPath(String path){
+    Matcher m = WEBDAV_PATH_PATTERN.matcher(path);
+    
+    if (m.matches()){
+      return String.format("/%s", m.group(1));
+    }
+    
+    return path;
+  }
 
   private StorageAreaInfo getSAFromPath(String destinationURL)
     throws MalformedURLException {
 
     URL url = new URL(destinationURL);
 
-    String path = url.getPath();
+    String path = dropSlashWebdavFromPath(url.getPath());
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
@@ -100,6 +116,10 @@ public class CopyMoveAuthzVoter implements
 
       StorageAreaInfo sa = getSAFromPath(destination);
 
+      if (sa == null) {
+        return ACCESS_DENIED;
+      }
+      
       if (authentication.getAuthorities().contains(
         SAPermission.canWrite(sa.name()))) {
 
