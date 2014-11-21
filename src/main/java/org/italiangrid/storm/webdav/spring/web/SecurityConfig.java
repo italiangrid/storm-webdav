@@ -138,11 +138,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.authenticationProvider(prov).addFilter(
       buildVOMSAuthenticationFilter(prov));
-
-    http.anonymous().authorities(anonymousAccessPermissions);
+    
+    if (!anonymousAccessPermissions.isEmpty()){
+      http.anonymous().authorities(anonymousAccessPermissions);
+    }
 
     if (serviceConfiguration.isAuthorizationDisabled()) {
-    
+
       http.authorizeRequests().anyRequest().permitAll();
 
     } else {
