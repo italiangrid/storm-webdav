@@ -15,8 +15,9 @@
  */
 package org.italiangrid.storm.webdav.server;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import org.eclipse.jetty.util.URIUtil;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -31,12 +32,12 @@ public class DefaultPathResolver implements PathResolver {
   private static final Logger logger = LoggerFactory
     .getLogger(DefaultPathResolver.class);
 
-  private final HashMap<String, String> contextMap;
+  private final NavigableMap<String, String> contextMap;
 
   public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
-    contextMap = new HashMap<String, String>();
+    contextMap = new TreeMap<String, String>();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
@@ -60,9 +61,10 @@ public class DefaultPathResolver implements PathResolver {
   @Override
   public String resolvePath(String pathInContext) {
 
-    for (Map.Entry<String, String> e : contextMap.entrySet()) {
+    for (Map.Entry<String, String> e : contextMap.descendingMap().entrySet()) {
+      
       if (pathInContext.startsWith(e.getKey())) {
-
+        
         String resolvedPath = URIUtil.addPaths(e.getValue(),
           stripContextPath(e.getKey(), pathInContext));
 
