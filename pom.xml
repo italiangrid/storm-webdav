@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.italiangrid</groupId>
   <artifactId>storm-webdav-server</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>storm-webdav-server</name>
 
@@ -19,7 +19,7 @@
     <plugin.shade.version>2.3</plugin.shade.version>
     <plugin.license.version>1.9.0</plugin.license.version>
 
-    <https-utils.version>0.3.5.rc1</https-utils.version>
+    <https-utils.version>0.3.6</https-utils.version>
     <milton.version>2.6.2.2</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
