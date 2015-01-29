@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.italiangrid</groupId>
   <artifactId>storm-webdav-server</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>storm-webdav-server</name>
 
@@ -105,8 +105,6 @@
               implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
               <manifestEntries>
                 <Main-Class>${webdav.main.class}</Main-Class>
-                <X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
-                <X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
                 <Implementation-Version>${project.version}</Implementation-Version>
               </manifestEntries>
             </transformer>
@@ -211,6 +209,12 @@
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-jetty8</artifactId>
       <version>${metrics.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -223,6 +227,16 @@
       <groupId>org.italiangrid</groupId>
       <artifactId>https-utils</artifactId>
       <version>${https-utils.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
