@@ -27,8 +27,11 @@ import io.milton.resource.PropFindableResource;
 import io.milton.resource.Resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
+import org.italiangrid.storm.webdav.error.SameFileError;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 
@@ -37,7 +40,7 @@ public abstract class StoRMResource implements Resource, PropFindableResource,
 
   protected final StoRMResourceFactory resourceFactory;
   protected final File file;
-  
+
   public StoRMResource(StoRMResourceFactory factory, File f) {
 
     resourceFactory = factory;

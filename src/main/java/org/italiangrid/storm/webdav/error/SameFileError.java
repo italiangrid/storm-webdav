@@ -16,26 +16,26 @@
 package org.italiangrid.storm.webdav.error;
 
 
-public class SameFileCopyError extends StoRMWebDAVError {
+public class SameFileError extends StoRMWebDAVError {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1503156218876662642L;
 
-  public SameFileCopyError(String message) {
+  public SameFileError(String message) {
 
     super(message);
 
   }
 
-  public SameFileCopyError(Throwable cause) {
+  public SameFileError(Throwable cause) {
 
     super(cause);
 
   }
 
-  public SameFileCopyError(String message, Throwable cause) {
+  public SameFileError(String message, Throwable cause) {
 
     super(message, cause);
 

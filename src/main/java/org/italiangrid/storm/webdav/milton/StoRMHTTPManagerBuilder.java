@@ -17,7 +17,9 @@ package org.italiangrid.storm.webdav.milton;
 
 import io.milton.config.HttpManagerBuilder;
 import io.milton.http.AuthenticationHandler;
+import io.milton.http.Handler;
 import io.milton.http.http11.DefaultHttp11ResponseHandler.BUFFERING;
+import io.milton.http.webdav.MoveHandler;
 
 import com.google.common.collect.ImmutableList;
 
@@ -44,4 +46,20 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
 
   }
 
+  @Override
+  protected void afterInit() {
+
+    super.afterInit();
+    disableDeleteExistingBeforeMoveInMoveHandler();
+  }
+
+  
+  private void disableDeleteExistingBeforeMoveInMoveHandler() {
+
+    for (Handler h : getWebDavProtocol().getHandlers()) {
+      if (h instanceof MoveHandler) {
+        ((MoveHandler) h).setDeleteExistingBeforeMove(false);
+      }
+    }
+  }
 }
