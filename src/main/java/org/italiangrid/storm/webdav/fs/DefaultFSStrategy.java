@@ -80,6 +80,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
         throw new SameFileError("Source and destination files are the same");
       }
       
+      // Overwrites the destination, if it exists 
       Files.move(source, dest);
 
     } catch (IOException e) {
