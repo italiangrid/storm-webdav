@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.eclipse.jetty.util.URIUtil;
+
 import io.milton.servlet.ServletRequest;
 
 public class StoRMMiltonRequest extends ServletRequest {
@@ -47,4 +49,11 @@ public class StoRMMiltonRequest extends ServletRequest {
     return destHeaderValue;
   }
 
+  @Override
+  public String getAbsolutePath() {
+    // Compact URL using the Jetty logic, as Milton is confused
+    // by multiple slashes
+    return URIUtil.compactPath(super.getAbsolutePath());
+
+  }
 }
