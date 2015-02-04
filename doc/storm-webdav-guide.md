@@ -186,7 +186,7 @@ Signal Dispatcher id=4 state=RUNNABLE
 Get service metrics:
 
 ```
-# curl http://localhost:8085/status/metrics?pretty=y
+# curl http://localhost:8085/status/metrics?pretty=true
 {
   "version" : "3.0.0",
   "gauges" : {
