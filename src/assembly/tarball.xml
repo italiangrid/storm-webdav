@@ -37,6 +37,15 @@
     </fileSet>
 
     <fileSet>
+      <directory>src</directory>
+      <outputDirectory>/var/lib/storm-webdav/work</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+      <directoryMode>0750</directoryMode>
+    </fileSet>
+
+    <fileSet>
       <directory>etc/storm-webdav</directory>
       <outputDirectory>/etc/storm/webdav</outputDirectory>
       <includes>
