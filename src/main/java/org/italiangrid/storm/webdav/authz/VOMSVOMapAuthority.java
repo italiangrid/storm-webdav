@@ -52,4 +52,8 @@ public class VOMSVOMapAuthority implements GrantedAuthority,
     return authority.compareTo(o.authority);
   }
 
+  @Override
+  public String toString() {
+    return authority;
+  }
 }

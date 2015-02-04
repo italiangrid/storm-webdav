@@ -59,8 +59,8 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
     return null;
   }
 
-  public Object extractPrincipal(X509Certificate cert) {
-
+  protected String extractCN(X509Certificate cert) {
+    
     String[] cns = X500NameUtils.getAttributeValues(
       cert.getSubjectX500Principal(), CN_OID);
 
@@ -73,9 +73,12 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 
       return cn;
     }
-
-    logger
-      .warn("Failed to extract Principal from subject, will use the whole subject");
+    
+    return null;
+  }
+  
+  public Object extractPrincipal(X509Certificate cert) {
+    
     return cert.getSubjectDN().getName();
   }
 

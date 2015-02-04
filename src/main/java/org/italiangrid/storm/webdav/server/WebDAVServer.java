@@ -299,6 +299,8 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       applicationContext.getBean(FilesystemAccess.class), extendedAttrsHelper,
       pathResolver));
 
+    FilterHolder securityFilter = new FilterHolder(new LogRequestFilter());
+
     ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
     ServletHolder threadDumpServlet = new ServletHolder(ThreadDumpServlet.class);
@@ -331,6 +333,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ch.addServlet(index, "");
 
     ch.addFilter(springSecurityFilter, "/*", dispatchFlags);
+    ch.addFilter(securityFilter, "/*", dispatchFlags);
     ch.addFilter(miltonFilter, "/*", dispatchFlags);
 
     ch.addServlet(metricsServlet, "/status/metrics");
@@ -350,21 +353,23 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   private Handler configureLogRequestHandler() {
 
-    RequestLogHandler handler = new RequestLogHandler();
-
-    RequestLogImpl rli = new RequestLogImpl();
-    rli.setQuiet(true);
     String accessLogConf = configuration.getAccessLogConfigurationPath();
 
     if (accessLogConf == null || accessLogConf.trim().isEmpty()) {
-      log
-        .info("Access log configuration null or empty, keeping internal configuration.");
-      rli.setResource("/access.xml");
-    } else {
-      rli.setFileName(accessLogConf);
+      log.info("Access log configuration null or empty. Disabling access log.");
+      return null;
+
     }
 
+    RequestLogHandler handler = new RequestLogHandler();
+
+    RequestLogImpl rli = new RequestLogImpl();
+
+    rli.setQuiet(true);
+    rli.setFileName(accessLogConf);
+
     handler.setRequestLog(rli);
+
     return handler;
   }
 
@@ -372,7 +377,12 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     handlers.addHandler(configureMetricsHandler());
     handlers.addHandler(configureSAHandler());
-    handlers.addHandler(configureLogRequestHandler());
+
+    Handler requestLogHandler = configureLogRequestHandler();
+    
+    if (requestLogHandler != null) {
+      handlers.addHandler(requestLogHandler);
+    }
 
     RewriteHandler rh = new RewriteHandler();
 
