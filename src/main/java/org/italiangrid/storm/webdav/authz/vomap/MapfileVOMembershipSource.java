@@ -120,7 +120,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     long totalTime = System.currentTimeMillis() - startTime;
 
-    logger.info("Parsing VO {} members from {} took {} msecs.", voName,
+    logger.debug("Parsing VO {} members from {} took {} msecs.", voName,
       mapFile, totalTime);
 
     return subjects;

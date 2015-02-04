@@ -34,9 +34,7 @@
     <!-- Keep this aligned with https-utils -->
     <logback-access.version>1.0.9</logback-access.version>
 
-    <shiro.version>1.2.3</shiro.version>
-
-    <guava.version>17.0</guava.version>
+    <guava.version>18.0</guava.version>
 
     <owner-config.version>1.0.5.1</owner-config.version>
 

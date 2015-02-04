@@ -16,22 +16,19 @@
     limitations under the License.
 
 -->
-<configuration>
+<configuration scan="true">
 
-  <logger name="org.springframework" level="WARN"/>
-  <logger name="org.thymeleaf" level="WARN"/>
+  <logger name="org.italiangrid.storm.webdav" 
+    level="${storm.debug.webdav.level:-INFO}"/>  
   
-  <!-- 
-  <logger name="org.italiangrid.storm.webdav" level="DEBUG"/>  
-   -->
 	
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%date{ISO8601} %-5level [%.-16thread] %logger{0} - %msg%n</pattern>
+			<pattern>%date{ISO8601} %-5level [%.16thread] -- %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<root level="INFO">
+	<root level="${storm.debug.root.level:-WARN}">
 		<appender-ref ref="CONSOLE" />
 	</root>
 </configuration>

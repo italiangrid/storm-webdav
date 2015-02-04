@@ -23,14 +23,18 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityFilter implements Filter {
+public class LogRequestFilter implements Filter {
 
   public static final Logger log = LoggerFactory
-    .getLogger(SecurityFilter.class);
+    .getLogger(LogRequestFilter.class);
 
   @Override
   public void destroy() {
@@ -42,9 +46,22 @@ public class SecurityFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response,
     FilterChain chain) throws IOException, ServletException {
-
+    
     chain.doFilter(request, response);
 
+    SecurityContext ctxt = SecurityContextHolder.getContext();
+    HttpServletRequest req = (HttpServletRequest) request;
+
+    HttpServletResponse res = (HttpServletResponse) response;
+
+    String resMsg = String.format("%s %s %s %d [user:<%s>, authorities:<%s>]",
+      req.getRemoteAddr(),
+      req.getMethod(), req.getRequestURI(),
+      res.getStatus(),
+      ctxt.getAuthentication().getName(), ctxt.getAuthentication()
+        .getAuthorities());
+
+    log.info(resMsg);
   }
 
   @Override
