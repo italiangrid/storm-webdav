@@ -21,4 +21,4 @@ mvn package
 
 ## Running the service
 
-TODO
+See [StoRM WebDAV installation & operation guide](doc/storm-webdav-guide.md)
