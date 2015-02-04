@@ -24,7 +24,7 @@ import io.milton.http.Response;
 import io.milton.http.http11.Http11ResponseHandler;
 
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
-import org.italiangrid.storm.webdav.error.SameFileCopyError;
+import org.italiangrid.storm.webdav.error.SameFileError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class StoRMMiltonBehaviour implements Filter {
       }
     } catch (ResourceNotFound e) {
       responseHandler.respondNotFound(response, request);
-    } catch (SameFileCopyError e) {
+    } catch (SameFileError e) {
       responseHandler.respondForbidden(null, response, request);
 
     } catch (Throwable t) {
