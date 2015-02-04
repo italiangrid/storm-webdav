@@ -47,6 +47,9 @@
     <!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
     <install.prefix></install.prefix>
 
+    <!-- Template for the sysconfig file -->
+    <sysconfig.template>etc/sysconfig/storm-webdav.template</sysconfig.template>
+
     <webdav.main.class>org.italiangrid.storm.webdav.server.Main</webdav.main.class>
 
   </properties>
@@ -344,14 +347,12 @@
       </activation>
       <properties>
         <install.prefix></install.prefix>
-        <sysconfig.template>etc/sysconfig/storm-webdav.prod.template</sysconfig.template>
       </properties>
     </profile>
     <profile>
       <id>dev</id>
       <properties>
         <install.prefix>/opt/storm-webdav</install.prefix>
-        <sysconfig.template>etc/sysconfig/storm-webdav.dev.template</sysconfig.template>
       </properties>
     </profile>
   </profiles>

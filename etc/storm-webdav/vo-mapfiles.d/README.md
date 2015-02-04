@@ -32,7 +32,7 @@ is put in the voms-mapfiles.d directory.
 command
 
 ```bash
-voms-admin --vo cms list-users > /etc/storm-webdav/vo-mapfiles.d/cms.vomap
+voms-admin --vo cms list-users > /etc/storm/webdav/vo-mapfiles.d/cms.vomap
 ```
 
 *N.B.:* Ensure that vo map files are readable by the user that runs the StORM
