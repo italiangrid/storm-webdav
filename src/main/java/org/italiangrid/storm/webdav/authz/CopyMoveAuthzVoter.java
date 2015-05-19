@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -45,10 +46,13 @@ public class CopyMoveAuthzVoter implements
     .compile(WEBDAV_PATH_REGEX);
   
   final StorageAreaConfiguration saConfig;
-
-  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig) {
+  final PathResolver pathResolver;
+  
+  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig,
+    PathResolver pathResolver) {
 
     this.saConfig = saConfig;
+    this.pathResolver = pathResolver;
   }
 
   @Override
@@ -85,18 +89,8 @@ public class CopyMoveAuthzVoter implements
     throws MalformedURLException {
 
     URL url = new URL(destinationURL);
-
-    String path = dropSlashWebdavFromPath(url.getPath());
-
-    for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
-      for (String ap : sa.accessPoints()) {
-        if (path.startsWith(ap)) {
-          return sa;
-        }
-      }
-    }
-
-    return null;
+    String pathInContext = dropSlashWebdavFromPath(url.getPath());
+    return pathResolver.resolveStorageArea(pathInContext);
   }
 
   @Override

@@ -33,6 +33,7 @@ import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,11 +62,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   VOMapDetailsService vomsMapDetailsService;
+  
+  @Autowired
+  PathResolver pathResolver;
 
   @Bean
   public AccessDecisionVoter<FilterInvocation> customVoter() {
 
-    return new CopyMoveAuthzVoter(saConfiguration);
+    return new CopyMoveAuthzVoter(saConfiguration, pathResolver);
   }
 
   @Bean
