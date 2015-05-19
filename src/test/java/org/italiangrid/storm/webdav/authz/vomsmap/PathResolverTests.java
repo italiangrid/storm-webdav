@@ -13,6 +13,7 @@ import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -27,7 +28,8 @@ public class PathResolverTests {
    */
   private static Map<String, String> input;
 
-  static {
+  @BeforeClass
+  public static void init() {
 
     input = new HashMap<String, String>();
     input.put("test.vo.bis", "testers.eu-emi.eu");
@@ -36,7 +38,10 @@ public class PathResolverTests {
     input.put("test12", "test.vo");
     input.put("12test.", "testers.eu-emi.eu");
     input.put("12test", "test.vo");
-
+    input.put("1", "testers.eu-emi.eu");
+    input.put("12", "test.vo");
+    input.put(".", "testers.eu-emi.eu");
+    input.put(".1", "test.vo");
   }
 
   PathResolver pathResolver;
@@ -73,32 +78,32 @@ public class PathResolverTests {
   }
 
   @Test
-  public void checkPathResolver() {
+  public void checkResolvedRootPath() {
 
     for (String name : input.keySet()) {
 
       String pathToTest = "/".concat(name).concat("/testdir");
       String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
         .concat("/testdir");
-
-      checkResolvedRootPath(pathToTest, expectedRootPath);
-      checkResolvedStorageArea(pathToTest, expectedRootPath);
-
+      
+      String rootPath = pathResolver.resolvePath(pathToTest);
+      Assert.assertEquals(expectedRootPath, rootPath);
     }
 
   }
+  
+  @Test
+  public void checkResolvedStorageArea() {
 
-  private void checkResolvedRootPath(String pathToTest, String expectedRootPath) {
+    for (String name : input.keySet()) {
 
-    String rootPath = pathResolver.resolvePath(pathToTest);
-    Assert.assertEquals(expectedRootPath, rootPath);
-  }
-
-  private void checkResolvedStorageArea(String pathToTest,
-    String expectedRootPath) {
-
-    StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
-    Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
+      String pathToTest = "/".concat(name).concat("/testdir");
+      String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
+        .concat("/testdir");
+      
+      StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
+      Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
+    }
   }
 
 }
