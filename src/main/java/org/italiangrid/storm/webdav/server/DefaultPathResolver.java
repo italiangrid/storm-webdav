@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import org.eclipse.jetty.util.URIUtil;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,18 +33,18 @@ public class DefaultPathResolver implements PathResolver {
   private static final Logger logger = LoggerFactory
     .getLogger(DefaultPathResolver.class);
 
-  private final NavigableMap<String, String> contextMap;
+  private final NavigableMap<String, StorageAreaInfo> contextMap;
 
   public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
-    contextMap = new TreeMap<String, String>();
+    contextMap = new TreeMap<String, StorageAreaInfo>();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
         logger.debug("Adding path mapping for sa {}: {} -> {}", sa.name(), ap,
           sa.rootPath());
-        contextMap.put(ap, sa.rootPath());
+        contextMap.put(ap, sa);
       }
     }
 
@@ -61,11 +62,11 @@ public class DefaultPathResolver implements PathResolver {
   @Override
   public String resolvePath(String pathInContext) {
 
-    for (Map.Entry<String, String> e : contextMap.descendingMap().entrySet()) {
+    for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
       
       if (pathInContext.startsWith(e.getKey())) {
         
-        String resolvedPath = URIUtil.addPaths(e.getValue(),
+        String resolvedPath = URIUtil.addPaths(e.getValue().rootPath(),
           stripContextPath(e.getKey(), pathInContext));
 
         if (logger.isDebugEnabled()) {
@@ -77,6 +78,24 @@ public class DefaultPathResolver implements PathResolver {
       }
     }
 
+    return null;
+  }
+
+  @Override
+  public StorageAreaInfo resolveStorageArea(String pathInContext) {
+
+    for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
+      
+      if (pathInContext.startsWith(e.getKey())) {
+        
+        if (logger.isDebugEnabled()) {
+          logger.debug("{} matches with access point {}. Resolved storage area name: {}",
+            pathInContext, e.getKey(), e.getValue().name());
+        }
+
+        return e.getValue();
+      }
+    }
     return null;
   }
 
