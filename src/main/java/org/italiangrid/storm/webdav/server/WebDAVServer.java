@@ -300,7 +300,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       pathResolver));
 
     FilterHolder securityFilter = new FilterHolder(new LogRequestFilter());
-    FilterHolder checksumFilter = new FilterHolder(new ChecksumFilter());
     
     ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
@@ -335,7 +334,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     ch.addFilter(springSecurityFilter, "/*", dispatchFlags);
     ch.addFilter(securityFilter, "/*", dispatchFlags);
-    ch.addFilter(checksumFilter, "/*", dispatchFlags);
     ch.addFilter(miltonFilter, "/*", dispatchFlags);
 
     ch.addServlet(metricsServlet, "/status/metrics");
