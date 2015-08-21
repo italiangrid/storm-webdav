@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
-import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,31 +39,32 @@ public class StoRMServlet extends DefaultServlet {
     .getLogger(StoRMServlet.class);
 
   final PathResolver pathResolver;
-  final DefaultExtendedFileAttributesHelper extFileAttrHelper;
-    
-  public StoRMServlet(PathResolver resolver) {
+  final ExtendedAttributesHelper extAttributesHelper;
+
+  public StoRMServlet(PathResolver resolver,
+    ExtendedAttributesHelper attributesHelper) {
 
     pathResolver = resolver;
-    extFileAttrHelper = new DefaultExtendedFileAttributesHelper();
+    extAttributesHelper = attributesHelper;
   }
 
   @Override
   public Resource getResource(String pathInContext) {
 
     try {
-      
+
       String resolvedPath = pathResolver.resolvePath(pathInContext);
 
-      if (resolvedPath == null){
+      if (resolvedPath == null) {
         return null;
       }
-      
+
       File f = new File(resolvedPath);
-      
+
       if (!f.exists()) {
         return null;
       }
-      
+
       return Resource.newResource(f);
     } catch (IOException e) {
       logger.error("Error resolving resource {}: {}.", pathInContext,
@@ -77,36 +78,48 @@ public class StoRMServlet extends DefaultServlet {
     throws ServletException, IOException {
 
     super.doGet(request, response);
-    
-    //add checksum header if response is success
+
+    addChecksumHeader(request, response);
+
+  }
+
+  private void addChecksumHeader(HttpServletRequest request,
+    HttpServletResponse response) {
+
     int status = response.getStatus();
-    
+
     if (status == HttpServletResponse.SC_OK
       || status == HttpServletResponse.SC_PARTIAL_CONTENT) {
-      
-      logger.debug("Retrieving checksum as digest");
-      
-      Resource f = getResource(request.getPathInfo());
-      
+
+      logger.debug("Retrieving checksum value ...");
+
       try {
 
-        String aName = DefaultExtendedFileAttributesHelper.STORM_ADLER32_CHECKSUM_ATTR_NAME;
-        String cValue = extFileAttrHelper.getExtendedFileAttributeValue(f.getFile(), aName);
+        File f = getResource(request.getPathInfo()).getFile();
+
+        String cValue = extAttributesHelper.getChecksumAttribute(f);
+
+        logger.debug("Checksum value for file {} is '{}'", f, cValue);
 
         if (!cValue.isEmpty()) {
-        
+
           response.setHeader("Digest", "adler32=" + cValue);
+
         }
-        
+
       } catch (IOException e) {
-        
-        logger.error("Unable to get file checksum value: %s", e.getMessage());
-        
+
+        logger.error("Unable to retrieve file checksum value: {}",
+          e.getMessage());
+        e.printStackTrace();
+
       }
-      
-      
+
+    } else {
+
+      logger
+        .debug("Checksum value not computed cause response status is not successful");
+
     }
-    
-    
   }
 }
