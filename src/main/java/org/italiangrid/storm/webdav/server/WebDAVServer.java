@@ -45,7 +45,6 @@ import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
-import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.metrics.MetricsContextListener;
 import org.italiangrid.storm.webdav.metrics.StormMetricsReporter;
@@ -301,15 +300,14 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       pathResolver));
 
     FilterHolder securityFilter = new FilterHolder(new LogRequestFilter());
+    FilterHolder checksumFilter = new FilterHolder(new ChecksumFilter(
+      extendedAttrsHelper, pathResolver));
     
     ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
     ServletHolder threadDumpServlet = new ServletHolder(ThreadDumpServlet.class);
 
-    PathResolver resolver = new DefaultPathResolver(saConfiguration);
-    ExtendedAttributesHelper attributesHelper = new DefaultExtendedFileAttributesHelper(); 
-
-    ServletHolder servlet = new ServletHolder(new StoRMServlet(resolver, attributesHelper));
+    ServletHolder servlet = new ServletHolder(new StoRMServlet(pathResolver));
     ServletHolder index = new ServletHolder(new SAIndexServlet(saConfiguration,
       templateEngine));
 
@@ -336,6 +334,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     ch.addFilter(springSecurityFilter, "/*", dispatchFlags);
     ch.addFilter(securityFilter, "/*", dispatchFlags);
+    ch.addFilter(checksumFilter, "/*", dispatchFlags);
     ch.addFilter(miltonFilter, "/*", dispatchFlags);
 
     ch.addServlet(metricsServlet, "/status/metrics");
