@@ -92,24 +92,34 @@ public class ChecksumFilter implements Filter {
       return;
     }
     
+    String checksumValue;
+
     try {
 
-      String checksumValue = attributeHelper.getChecksumAttribute(f);
-
-      logger.debug("Checksum value for file {} is '{}'", f, checksumValue);
-
-      if (!checksumValue.isEmpty()) {
-
-        response.setHeader("Digest", "adler32=" + checksumValue);
-
-      }
+      checksumValue = attributeHelper.getChecksumAttribute(f);
 
     } catch (IOException e) {
 
       logger.error("Unable to retrieve file checksum value: {}",
         e.getMessage(), e);
-
+      return;
     }
+
+    if (checksumValue == null) {
+
+      logger.error("Retrieved null file checksum value");
+      return;
+
+    } else if (checksumValue.isEmpty()) {
+
+      logger.error("Retrieved empty file checksum value");
+      return;
+    }
+
+    String content = "adler32=" + checksumValue;
+    response.setHeader("Digest", content);
+
+    logger.debug("Added response header 'Digest: {}'", content);
 
   }
 
