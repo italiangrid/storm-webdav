@@ -37,22 +37,23 @@ public class StoRMServlet extends DefaultServlet {
 
   public StoRMServlet(PathResolver resolver) {
 
-    this.pathResolver = resolver;
+    pathResolver = resolver;
+
   }
 
   @Override
   public Resource getResource(String pathInContext) {
 
     try {
-      
+
       String resolvedPath = pathResolver.resolvePath(pathInContext);
 
-      if (resolvedPath == null){
+      if (resolvedPath == null) {
         return null;
       }
-      
+
       File f = new File(resolvedPath);
-      
+
       if (!f.exists()) {
         return null;
       }
