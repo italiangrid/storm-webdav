@@ -10,14 +10,12 @@ to resources shared on a filesystem.
 You will need:
 
 - git
-- java 7
-- mvn 3
+- java 8
+- maven 3
 
 ## Build instructions
 
-```bash
-mvn package
-```
+    mvn package
 
 ## Running the service
 
