@@ -16,12 +16,9 @@
 package org.italiangrid.storm.webdav.server;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StoRMServlet extends DefaultServlet {
 
@@ -29,9 +26,6 @@ public class StoRMServlet extends DefaultServlet {
    * 
    */
   private static final long serialVersionUID = 4204673943980786498L;
-
-  private static final Logger logger = LoggerFactory
-    .getLogger(StoRMServlet.class);
 
   final PathResolver pathResolver;
 
@@ -43,26 +37,19 @@ public class StoRMServlet extends DefaultServlet {
 
   @Override
   public Resource getResource(String pathInContext) {
+    String resolvedPath = pathResolver.resolvePath(pathInContext);
 
-    try {
-
-      String resolvedPath = pathResolver.resolvePath(pathInContext);
-
-      if (resolvedPath == null) {
-        return null;
-      }
-
-      File f = new File(resolvedPath);
-
-      if (!f.exists()) {
-        return null;
-      }
-
-      return Resource.newResource(f);
-    } catch (IOException e) {
-      logger.error("Error resolving resource {}: {}.", pathInContext,
-        e.getMessage(), e);
+    if (resolvedPath == null) {
       return null;
     }
+
+    File f = new File(resolvedPath);
+
+    if (!f.exists()) {
+      return null;
+    }
+
+    return Resource.newResource(f);
+
   }
 }

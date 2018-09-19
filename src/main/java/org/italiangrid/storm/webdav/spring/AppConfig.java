@@ -34,7 +34,7 @@ import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.ServerLifecycle;
 import org.italiangrid.storm.webdav.server.WebDAVServer;
-import org.italiangrid.utils.https.impl.canl.CANLListener;
+import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -116,7 +116,7 @@ public class AppConfig {
 
     ServiceConfiguration configuration = serviceConfiguration();
 
-    CANLListener l = new CANLListener();
+    CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
     CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
 
     long refreshInterval = TimeUnit.SECONDS.toMillis(configuration

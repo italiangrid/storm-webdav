@@ -34,7 +34,7 @@ import com.codahale.metrics.Timer;
 
 public class StormMetricsReporter extends ScheduledReporter {
 
-  public static final String METRICS_LOGGER_NAME = "storm-metrics-logger";
+  public static final String METRICS_LOGGER_NAME = "storm-metrics-LOG";
   
   private static final Logger logger = LoggerFactory
     .getLogger(METRICS_LOGGER_NAME);

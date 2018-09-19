@@ -24,7 +24,6 @@ import java.util.EnumSet;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContextListener;
 
@@ -32,15 +31,17 @@ import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -50,8 +51,8 @@ import org.italiangrid.storm.webdav.metrics.MetricsContextListener;
 import org.italiangrid.storm.webdav.metrics.StormMetricsReporter;
 import org.italiangrid.storm.webdav.spring.web.MyLoaderListener;
 import org.italiangrid.storm.webdav.spring.web.SecurityConfig;
-import org.italiangrid.utils.https.JettyRunThread;
-import org.italiangrid.utils.https.SSLOptions;
+import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
+import org.italiangrid.utils.jetty.ThreadPoolBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -63,21 +64,11 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.thymeleaf.TemplateEngine;
 
-import ch.qos.logback.access.jetty.RequestLogImpl;
-import ch.qos.logback.access.joran.JoranConfigurator;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-
-import com.codahale.metrics.Clock;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.jetty8.InstrumentedHandler;
-import com.codahale.metrics.jetty8.InstrumentedQueuedThreadPool;
-import com.codahale.metrics.jetty8.InstrumentedSelectChannelConnector;
-import com.codahale.metrics.jetty8.InstrumentedSslSelectChannelConnector;
+import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
+import com.codahale.metrics.jetty9.InstrumentedHandler;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
@@ -85,14 +76,17 @@ import com.codahale.metrics.servlets.MetricsServlet;
 import com.codahale.metrics.servlets.PingServlet;
 import com.codahale.metrics.servlets.ThreadDumpServlet;
 
+import ch.qos.logback.access.jetty.RequestLogImpl;
+import ch.qos.logback.access.joran.JoranConfigurator;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.impl.PEMCredential;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 
 @Component
 public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
-  public static final Logger log = LoggerFactory.getLogger(WebDAVServer.class);
+  public static final Logger LOG = LoggerFactory.getLogger(WebDAVServer.class);
 
   public static final String HTTP_CONNECTOR_NAME = "storm-http";
   public static final String HTTPS_CONNECTOR_NAME = "storm-https";
@@ -108,9 +102,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
   private ConfigurationLogger confLogger;
 
   @Autowired
-  private VOMapDetailsService vomsMapDetailsService;
-
-  @Autowired
   private X509CertChainValidatorExt certChainValidator;
 
   @Autowired
@@ -118,9 +109,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   @Autowired
   private MetricRegistry metricRegistry;
-
-  @Autowired
-  private HealthCheckRegistry healthCheckRegistry;
 
   @Autowired
   private TemplateEngine templateEngine;
@@ -144,14 +132,14 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     String loggingConf = configuration.getLogConfigurationPath();
 
     if (loggingConf == null || loggingConf.trim().isEmpty()) {
-      log.info("Logging conf null or empty, skipping logging reconfiguration.");
+      LOG.info("Logging conf null or empty, skipping logging reconfiguration.");
       return;
     }
 
     File f = new File(loggingConf);
     if (!f.exists() || !f.canRead()) {
-      log.error("Error loading logging configuration: "
-        + "{} does not exist or is not readable.", loggingConf);
+      LOG.error("Error loading logging configuration: " + "{} does not exist or is not readable.",
+          loggingConf);
       return;
     }
 
@@ -170,18 +158,17 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     }
 
-    log.info("Logging system reconfigured succesfully.");
+    LOG.info("Logging system reconfigured succesfully.");
   }
 
   private void logConfiguration() {
 
-    confLogger.logConfiguration(log);
+    confLogger.logConfiguration(LOG);
   }
 
   private void setupMetricsReporting() {
 
-    final StormMetricsReporter reporter = StormMetricsReporter.forRegistry(
-      metricRegistry).build();
+    final StormMetricsReporter reporter = StormMetricsReporter.forRegistry(metricRegistry).build();
 
     reporter.start(1, TimeUnit.MINUTES);
 
@@ -204,81 +191,65 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     started = true;
   }
 
-  private SSLOptions getSSLOptions() {
 
-    SSLOptions options = new SSLOptions();
+  private ThreadPool configureThreadPool() {
 
-    options.setCertificateFile(configuration.getCertificatePath());
-    options.setKeyFile(configuration.getPrivateKeyPath());
-    options.setTrustStoreDirectory(configuration.getTrustAnchorsDir());
-    options
-      .setTrustStoreRefreshIntervalInMsec(java.util.concurrent.TimeUnit.SECONDS
-        .toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds()));
-
-    options.setWantClientAuth(true);
-    options.setNeedClientAuth(true);
-
-    return options;
-
+    return ThreadPoolBuilder.instance()
+        .withMaxRequestQueueSize(configuration.getMaxQueueSize())
+        .withMaxThreads(configuration.getMaxConnections())
+        .withMinThreads(5)
+        .registry(metricRegistry)
+        .build();
   }
 
-  private void configureThreadPool(Server server) {
+  private ServerConnector configureTLSConnector(Server server)
+      throws KeyStoreException, CertificateException, IOException {
 
-    InstrumentedQueuedThreadPool tp = new InstrumentedQueuedThreadPool(
-      metricRegistry);
+    TLSServerConnectorBuilder connectorBuilder =
+        TLSServerConnectorBuilder.instance(server, certChainValidator);
 
-    tp.setMinThreads(5);
-    tp.setMaxThreads(configuration.getMaxConnections());
-    tp.setMaxQueued(configuration.getMaxQueueSize());
-    tp.setMaxIdleTimeMs(configuration.getConnectorMaxIdleTimeInMsec());
+    ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
+      .withWantClientAuth(true)
+      .withNeedClientAuth(true)
+      .withCertificateFile(configuration.getCertificatePath())
+      .withCertificateKeyFile(configuration.getPrivateKeyPath())
+      .metricName("storm-https.connection")
+      .metricRegistry(metricRegistry)
+      .build();
 
-    server.setThreadPool(tp);
+    // Re-enable instrumentation
+    connector.setName(HTTPS_CONNECTOR_NAME);
 
+    return connector;
   }
 
-  private void configureSSLConnector(Server server) throws KeyStoreException,
-    CertificateException, IOException {
+  private ServerConnector configurePlainConnector(Server server) {
 
-    SSLOptions options = getSSLOptions();
-    PEMCredential serviceCredentials = new PEMCredential(options.getKeyFile(),
-      options.getCertificateFile(), options.getKeyPassword());
+    HttpConfiguration plainConnectorConfig = new HttpConfiguration();
+    plainConnectorConfig.setSendDateHeader(false);
+    plainConnectorConfig.setSendServerVersion(false);
 
-    SSLContext sslContext = SocketFactoryCreator.getSSLContext(
-      serviceCredentials, certChainValidator, null);
+    plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
 
-    SslContextFactory factory = new SslContextFactory();
-    factory.setSslContext(sslContext);
+    InstrumentedConnectionFactory connFactory =
+        new InstrumentedConnectionFactory(new HttpConnectionFactory(plainConnectorConfig),
+            metricRegistry.timer("storm-http.connection"));
 
-    factory.setWantClientAuth(true);
-    factory.setNeedClientAuth(true);
+    ServerConnector connector = new ServerConnector(jettyServer, connFactory);
 
-    Connector connector = new InstrumentedSslSelectChannelConnector(
-      metricRegistry, configuration.getHTTPSPort(), factory,
-      Clock.defaultClock());
+    connector.setName(HTTP_CONNECTOR_NAME);
+    connector.setPort(configuration.getHTTPPort());
 
-    server.addConnector(connector);
+    return connector;
   }
 
-  private void configurePlainConnector(Server server) {
+  private void configureJettyServer()
+      throws MalformedURLException, IOException, KeyStoreException, CertificateException {
 
-    InstrumentedSelectChannelConnector httpConnector = new InstrumentedSelectChannelConnector(
-      metricRegistry, configuration.getHTTPPort(), Clock.defaultClock());
+    jettyServer = new Server(configureThreadPool());
 
-    httpConnector.setMaxIdleTime(configuration.getConnectorMaxIdleTimeInMsec());
-    httpConnector.setName(HTTP_CONNECTOR_NAME);
-    server.addConnector(httpConnector);
-  }
-
-  private void configureJettyServer() throws MalformedURLException,
-    IOException, KeyStoreException, CertificateException {
-
-    jettyServer = new Server();
-    jettyServer.setSendServerVersion(false);
-    jettyServer.setSendDateHeader(false);
-
-    configureThreadPool(jettyServer);
-    configureSSLConnector(jettyServer);
-    configurePlainConnector(jettyServer);
+    ServerConnector tlsConnector = configureTLSConnector(jettyServer);
+    ServerConnector plainConnector = configurePlainConnector(jettyServer);
 
     configureHandlers();
 
@@ -288,28 +259,29 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     jettyServer.addLifeCycleListener(JettyServerListener.INSTANCE);
 
+    jettyServer.setConnectors(new Connector[] {tlsConnector, plainConnector});
+
   }
 
   private Handler configureSAHandler() {
 
-    FilterHolder springSecurityFilter = new FilterHolder(
-      new DelegatingFilterProxy("springSecurityFilterChain"));
+    FilterHolder springSecurityFilter =
+        new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain"));
 
-    FilterHolder miltonFilter = new FilterHolder(new MiltonFilter(
-      applicationContext.getBean(FilesystemAccess.class), extendedAttrsHelper,
-      pathResolver));
+    FilterHolder miltonFilter =
+        new FilterHolder(new MiltonFilter(applicationContext.getBean(FilesystemAccess.class),
+            extendedAttrsHelper, pathResolver));
 
     FilterHolder securityFilter = new FilterHolder(new LogRequestFilter());
-    FilterHolder checksumFilter = new FilterHolder(new ChecksumFilter(
-      extendedAttrsHelper, pathResolver));
-    
+    FilterHolder checksumFilter =
+        new FilterHolder(new ChecksumFilter(extendedAttrsHelper, pathResolver));
+
     ServletHolder metricsServlet = new ServletHolder(MetricsServlet.class);
     ServletHolder pingServlet = new ServletHolder(PingServlet.class);
     ServletHolder threadDumpServlet = new ServletHolder(ThreadDumpServlet.class);
 
     ServletHolder servlet = new ServletHolder(new StoRMServlet(pathResolver));
-    ServletHolder index = new ServletHolder(new SAIndexServlet(saConfiguration,
-      templateEngine));
+    ServletHolder index = new ServletHolder(new SAIndexServlet(saConfiguration, templateEngine));
 
     WebAppContext ch = new WebAppContext();
     ch.setContextPath("/");
@@ -317,13 +289,11 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ch.setThrowUnavailableOnStartupException(true);
     ch.setCompactPath(true);
 
-    ch.setInitParameter("contextClass",
-      AnnotationConfigWebApplicationContext.class.getName());
+    ch.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
 
     ch.setInitParameter("contextConfigLocation", SecurityConfig.class.getName());
 
-    ch.setInitParameter("org.eclipse.jetty.servlet.Default.acceptRanges",
-      "true");
+    ch.setInitParameter("org.eclipse.jetty.servlet.Default.acceptRanges", "true");
     ch.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "true");
     ch.setInitParameter("org.eclipse.jetty.servlet.Default.aliases", "false");
     ch.setInitParameter("org.eclipse.jetty.servlet.Default.gzip", "false");
@@ -342,8 +312,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ch.addServlet(threadDumpServlet, "/status/threads");
     ch.addServlet(servlet, "/*");
 
-    ServletContextListener springContextListener = new MyLoaderListener(
-      applicationContext);
+    ServletContextListener springContextListener = new MyLoaderListener(applicationContext);
 
     ch.addEventListener(new MetricsContextListener(metricRegistry));
     ch.addEventListener(springContextListener);
@@ -357,7 +326,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     String accessLogConf = configuration.getAccessLogConfigurationPath();
 
     if (accessLogConf == null || accessLogConf.trim().isEmpty()) {
-      log.info("Access log configuration null or empty. Disabling access log.");
+      LOG.info("Access LOG configuration null or empty. Disabling access LOG.");
       return null;
 
     }
@@ -380,7 +349,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     handlers.addHandler(configureSAHandler());
 
     Handler requestLogHandler = configureLogRequestHandler();
-    
+
     if (requestLogHandler != null) {
       handlers.addHandler(requestLogHandler);
     }
@@ -403,8 +372,10 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     rh.setHandler(handlers);
 
-    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, rh,
-      "storm.http.handler");
+    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry,
+        "storm.http.handler");
+    
+    ih.setHandler(rh);
 
     jettyServer.setHandler(ih);
 
@@ -435,11 +406,9 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     for (Entry<String, Metric> entry : metricSet.getMetrics().entrySet()) {
       if (entry.getValue() instanceof MetricSet) {
-        registerMetricSet(prefix + "." + entry.getKey(),
-          (MetricSet) entry.getValue());
+        registerMetricSet(prefix + "." + entry.getKey(), (MetricSet) entry.getValue());
       } else {
-        metricRegistry.register(prefix + "." + entry.getKey(),
-          (Metric) entry.getValue());
+        metricRegistry.register(prefix + "." + entry.getKey(), (Metric) entry.getValue());
       }
     }
 
@@ -454,7 +423,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   private void failAndExit(String message, Throwable cause) {
 
-    log.error("{}:{}", message, cause.getMessage(), cause);
+    LOG.error("{}:{}", message, cause.getMessage(), cause);
     System.exit(1);
   }
 
@@ -462,8 +431,9 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     try {
       configureJettyServer();
-      JettyRunThread rt = new JettyRunThread(jettyServer);
-      rt.start();
+
+      jettyServer.start();
+      jettyServer.join();
 
     } catch (Exception e) {
       failAndExit("Error configuring Jetty server", e);
@@ -487,8 +457,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
   }
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext)
-    throws BeansException {
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
     this.applicationContext = applicationContext;
 
