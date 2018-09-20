@@ -13,30 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.server;
+package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
+import org.italiangrid.storm.webdav.server.PathResolver;
 
+//@WebServlet(urlPatterns = "/", initParams = {@WebInitParam(name = "acceptRanges", value = "true"),
+//    @WebInitParam(name = "dirAllowed", value = "true"),
+//    @WebInitParam(name = "aliases", value = "false"), @WebInitParam(name = "gzip", value = "false"),
+//    @WebInitParam(name = "etags", value = "true")})
 public class StoRMServlet extends DefaultServlet {
 
   /**
    * 
    */
   private static final long serialVersionUID = 4204673943980786498L;
-
+  
   final PathResolver pathResolver;
-
+  
   public StoRMServlet(PathResolver resolver) {
-
     pathResolver = resolver;
-
+    
   }
+  
 
   @Override
   public Resource getResource(String pathInContext) {
+    
+    
+    
     String resolvedPath = pathResolver.resolvePath(pathInContext);
 
     if (resolvedPath == null) {
@@ -51,5 +64,17 @@ public class StoRMServlet extends DefaultServlet {
 
     return Resource.newResource(f);
 
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+  }
+
+  @Override
+  protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    resp.setHeader("Allow", "GET,HEAD,OPTIONS");
   }
 }

@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.spring.web;
+package org.italiangrid.storm.webdav.server.util;
 
-import javax.servlet.ServletContext;
+public class Version {
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.ContextLoaderListener;
+  private Version() {
 
-@Component
-public class MyLoaderListener extends ContextLoaderListener {
-
-  private ApplicationContext parentContext;
-
-  public MyLoaderListener(ApplicationContext ctxt) {
-
-    parentContext = ctxt;
   }
 
-  @Override
-  protected ApplicationContext loadParentContext(ServletContext servletContext) {
+  public static String version() {
 
-    return parentContext;
+    String version = Version.class.getPackage().getImplementationVersion();
+    if (version == null) {
+      return "N/A";
+    }
+    return version;
   }
 
 }

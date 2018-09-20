@@ -15,6 +15,10 @@
  */
 package org.italiangrid.storm.webdav.fs.attrs;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,8 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.List;
-
-import org.springframework.util.Assert;
 
 public class DefaultExtendedFileAttributesHelper implements
   ExtendedAttributesHelper {
@@ -51,8 +53,8 @@ public class DefaultExtendedFileAttributesHelper implements
   public void setExtendedFileAttribute(File f, String attributeName,
     String attributeValue) throws IOException {
 
-    Assert.notNull(f);
-    Assert.hasText(attributeName);
+    checkNotNull(f);
+    checkArgument(!isNullOrEmpty(attributeName));
 
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
@@ -70,9 +72,9 @@ public class DefaultExtendedFileAttributesHelper implements
   public String getExtendedFileAttributeValue(File f, String attributeName)
     throws IOException {
 
-    Assert.notNull(f);
-    Assert.hasText(attributeName);
-
+    checkNotNull(f);
+    checkArgument(!isNullOrEmpty(attributeName));
+    
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 
@@ -89,7 +91,8 @@ public class DefaultExtendedFileAttributesHelper implements
   @Override
   public List<String> getExtendedFileAttributeNames(File f) throws IOException {
 
-    Assert.notNull(f);
+    checkNotNull(f);
+    
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 
@@ -122,7 +125,8 @@ public class DefaultExtendedFileAttributesHelper implements
   @Override
   public boolean fileSupportsExtendedAttributes(File f) throws IOException {
 
-    Assert.notNull(f);
+    checkNotNull(f);
+    
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 

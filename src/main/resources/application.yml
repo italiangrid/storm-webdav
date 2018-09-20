@@ -1,0 +1,11 @@
+spring:
+  main:
+    banner-mode: "off"
+
+server:
+  jetty:
+    accesslog:
+      append: true
+      enabled: ${STORM_WEBDAV_SERVER_ACCESS_LOG_ENABLED:false}
+      log-latency: true
+      filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log} 

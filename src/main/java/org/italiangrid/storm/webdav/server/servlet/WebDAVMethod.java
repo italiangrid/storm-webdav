@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.spring.web;
+package org.italiangrid.storm.webdav.server.servlet;
 
-import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
-
-public class MessageSecurityWebApplicationInitializer extends
-  AbstractSecurityWebApplicationInitializer {
-
+public enum WebDAVMethod {
+  OPTIONS, PUT, DELETE, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK
 }

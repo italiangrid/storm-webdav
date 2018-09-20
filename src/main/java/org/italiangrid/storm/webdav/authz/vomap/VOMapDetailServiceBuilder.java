@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.authz.vomap;
 
+import static java.util.Collections.emptySet;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashSet;
@@ -71,7 +73,7 @@ public class VOMapDetailServiceBuilder {
 
     if (!serviceConf.enableVOMapFiles()) {
       logger.info("VOMS Map files disabled.");
-      return null;
+      return new DefaultVOMapDetailsService(emptySet(), 0);
     }
 
     File configDir = new File(serviceConf.getVOMapFilesConfigDir());

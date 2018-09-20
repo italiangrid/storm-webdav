@@ -46,12 +46,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.web.context.ServletContextAware;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
 
-  @Autowired
   ServletContext context;
 
   @Autowired
@@ -62,7 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   VOMapDetailsService vomsMapDetailsService;
-  
+
   @Autowired
   PathResolver pathResolver;
 
@@ -75,8 +75,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public AccessDecisionManager accessDecisionManager() {
 
-    @SuppressWarnings("rawtypes")
-    List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
+    List<AccessDecisionVoter<?>> voters =
+        new ArrayList<>();
+    
     voters.add(new WebExpressionVoter());
     voters.add(customVoter());
 
@@ -84,22 +85,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   protected VOMSAuthenticationFilter buildVOMSAuthenticationFilter(
-    VOMSAuthenticationProvider provider) {
+      VOMSAuthenticationProvider provider) {
 
     List<VOMSAuthDetailsSource> vomsHelpers = new ArrayList<VOMSAuthDetailsSource>();
 
     vomsHelpers.add(new VOMSAttributeCertificateAuthDetailsSource());
 
-    if (serviceConfiguration.enableVOMapFiles()
-      && vomsMapDetailsService != null) {
+    if (serviceConfiguration.enableVOMapFiles() && vomsMapDetailsService != null) {
 
       vomsHelpers.add(new VOMapAuthDetailsSource(vomsMapDetailsService));
 
     }
 
     VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(provider);
-    filter.setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource(
-      vomsHelpers, saConfiguration));
+    filter
+      .setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource(vomsHelpers, saConfiguration));
     return filter;
   }
 
@@ -109,16 +109,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
       for (String ap : sa.accessPoints()) {
 
-        String writeAccessRule = String.format(
-          "hasRole('%s') and hasRole('%s')", SAPermission.canRead(sa.name())
-            .getAuthority(), SAPermission.canWrite(sa.name()).getAuthority());
+        String writeAccessRule = String.format("hasRole('%s') and hasRole('%s')",
+            SAPermission.canRead(sa.name()).getAuthority(),
+            SAPermission.canWrite(sa.name()).getAuthority());
 
         http.authorizeRequests()
           .requestMatchers(new ReadonlyHTTPMethodMatcher(ap + "/**"))
           .hasAuthority(SAPermission.canRead(sa.name()).getAuthority());
 
-        http.authorizeRequests().antMatchers(ap + "/**")
-          .access(writeAccessRule);
+        http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
       }
     }
   }
@@ -140,10 +139,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.csrf().disable();
 
-    http.authenticationProvider(prov).addFilter(
-      buildVOMSAuthenticationFilter(prov));
-    
-    if (!anonymousAccessPermissions.isEmpty()){
+    http.authenticationProvider(prov).addFilter(buildVOMSAuthenticationFilter(prov));
+
+    if (!anonymousAccessPermissions.isEmpty()) {
       http.anonymous().authorities(anonymousAccessPermissions);
     }
 
@@ -157,6 +155,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       addAccessRules(http);
 
     }
+  }
+
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    context = servletContext;
   }
 
 }

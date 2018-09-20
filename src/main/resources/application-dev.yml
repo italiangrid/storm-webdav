@@ -1,0 +1,4 @@
+server:
+  jetty:
+    accesslog:
+      enabled: false

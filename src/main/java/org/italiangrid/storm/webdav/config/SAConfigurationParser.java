@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.aeonbits.owner.ConfigFactory;
+import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
         .format(
           "No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
           dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
-      throw new RuntimeException(msg);
+      throw new StoRMIntializationError(msg);
     }
 
     saInfos = new ArrayList<StorageAreaInfo>();
@@ -72,8 +73,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
       try {
         p.load(new FileReader(f));
       } catch (Exception e) {
-        throw new RuntimeException("Error loading properties: "
-          + e.getMessage(), e);
+        throw new StoRMIntializationError("Error reading properties: " + e.getMessage(), e);
       }
 
       OwnerStorageAreaInfo saInfo = ConfigFactory.create(
@@ -87,22 +87,22 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
   private void directorySanityChecks(File directory) {
 
     if (!directory.exists())
-      throw new IllegalArgumentException(
-        "Storage area configuration directory does not exists: "
+      throw new StoRMIntializationError(
+        "Storage area configuration directory does not exist: "
           + directory.getAbsolutePath());
 
     if (!directory.isDirectory())
-      throw new IllegalArgumentException(
+      throw new StoRMIntializationError(
         "Storage area configuration directory is not a directory: "
           + directory.getAbsolutePath());
 
     if (!directory.canRead())
-      throw new IllegalArgumentException(
+      throw new StoRMIntializationError(
         "Storage area configuration directory is not readable: "
           + directory.getAbsolutePath());
 
     if (!directory.canExecute())
-      throw new IllegalArgumentException(
+      throw new StoRMIntializationError(
         "Storage area configuration directory is not traversable: "
           + directory.getAbsolutePath());
 

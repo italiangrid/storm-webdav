@@ -15,6 +15,10 @@
  */
 package org.italiangrid.storm.webdav.authz.vomap;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,7 +31,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
 import eu.emi.security.authn.x509.impl.OpensslNameUtils;
 
@@ -41,9 +44,9 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
   public MapfileVOMembershipSource(String voName, File mapFile) {
 
-    Assert.hasText(voName);
-    Assert.notNull(mapFile);
-
+    checkNotNull(mapFile);
+    checkArgument(!isNullOrEmpty(voName));
+    
     this.voName = voName;
     this.mapFile = mapFile;
 

@@ -13,12 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.italiangrid.storm.webdav.server;
-
-import io.milton.http.HttpManager;
-import io.milton.http.Request;
-import io.milton.http.Response;
-import io.milton.servlet.MiltonServlet;
+package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -37,14 +32,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
-import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
 import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
+import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+import io.milton.http.HttpManager;
+import io.milton.http.Request;
+import io.milton.http.Response;
+import io.milton.servlet.MiltonServlet;
+
 public class MiltonFilter implements Filter {
 
   public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);

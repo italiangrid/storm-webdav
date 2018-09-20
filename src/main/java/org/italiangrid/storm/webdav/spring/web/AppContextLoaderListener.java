@@ -13,14 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.server;
+package org.italiangrid.storm.webdav.spring.web;
 
-public interface ServerLifecycle {
+import javax.servlet.ServletContext;
 
-  public void start();
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.ContextLoaderListener;
 
-  public void stop();
+public class AppContextLoaderListener extends ContextLoaderListener {
 
-  public boolean isStarted();
+  private ApplicationContext parentContext;
+
+  public AppContextLoaderListener(ApplicationContext ctxt) {
+
+    parentContext = ctxt;
+  }
+
+  @Override
+  protected ApplicationContext loadParentContext(ServletContext servletContext) {
+
+    return parentContext;
+  }
 
 }

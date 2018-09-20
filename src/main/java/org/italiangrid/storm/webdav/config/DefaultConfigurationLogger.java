@@ -16,7 +16,9 @@
 package org.italiangrid.storm.webdav.config;
 
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DefaultConfigurationLogger implements ConfigurationLogger {
 
   final ServiceConfiguration serviceConfiguration;

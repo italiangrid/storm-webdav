@@ -19,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailServiceBuilder;
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
-import org.italiangrid.storm.webdav.config.ConfigurationLogger;
-import org.italiangrid.storm.webdav.config.DefaultConfigurationLogger;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceEnvConfiguration;
@@ -32,12 +30,11 @@ import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.italiangrid.storm.webdav.server.ServerLifecycle;
-import org.italiangrid.storm.webdav.server.WebDAVServer;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -54,28 +51,14 @@ public class AppConfig {
 
   @Bean
   public ServiceConfiguration serviceConfiguration() {
-
     return ServiceEnvConfiguration.INSTANCE;
   }
 
   @Bean
   public StorageAreaConfiguration storageAreaConfiguration() {
-
     return new SAConfigurationParser(serviceConfiguration());
   }
 
-  @Bean
-  public ServerLifecycle webdavServer() {
-
-    return new WebDAVServer(serviceConfiguration(), storageAreaConfiguration());
-  }
-
-  @Bean
-  public ConfigurationLogger configurationLogger() {
-
-    return new DefaultConfigurationLogger(serviceConfiguration(),
-      storageAreaConfiguration());
-  }
 
   @Bean
   public ExtendedAttributesHelper extendedAttributesHelper() {
@@ -84,10 +67,11 @@ public class AppConfig {
   }
 
   @Bean
+  @Primary
   public FilesystemAccess filesystemAccess() {
 
-    return new MetricsFSStrategyWrapper(new DefaultFSStrategy(
-      extendedAttributesHelper()), metricRegistry());
+    return new MetricsFSStrategyWrapper(new DefaultFSStrategy(extendedAttributesHelper()),
+        metricRegistry());
 
   }
 
@@ -106,8 +90,7 @@ public class AppConfig {
   @Bean
   public VOMapDetailsService vomsMapDetailService() {
 
-    VOMapDetailServiceBuilder builder = new VOMapDetailServiceBuilder(
-      serviceConfiguration());
+    VOMapDetailServiceBuilder builder = new VOMapDetailServiceBuilder(serviceConfiguration());
     return builder.build();
   }
 
@@ -119,16 +102,19 @@ public class AppConfig {
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
     CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
 
-    long refreshInterval = TimeUnit.SECONDS.toMillis(configuration
-      .getTrustAnchorsRefreshIntervalInSeconds());
+    long refreshInterval =
+        TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    X509CertChainValidatorExt validator = builder
-      .namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
-      .crlChecks(CrlCheckingMode.IF_VALID).ocspChecks(OCSPCheckingMode.IGNORE)
-      .lazyAnchorsLoading(false).storeUpdateListener(l)
-      .validationErrorListener(l)
-      .trustAnchorsDir(configuration.getTrustAnchorsDir())
-      .trustAnchorsUpdateInterval(refreshInterval).build();
+    X509CertChainValidatorExt validator =
+        builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
+          .crlChecks(CrlCheckingMode.IF_VALID)
+          .ocspChecks(OCSPCheckingMode.IGNORE)
+          .lazyAnchorsLoading(false)
+          .storeUpdateListener(l)
+          .validationErrorListener(l)
+          .trustAnchorsDir(configuration.getTrustAnchorsDir())
+          .trustAnchorsUpdateInterval(refreshInterval)
+          .build();
 
     return validator;
   }
@@ -136,23 +122,22 @@ public class AppConfig {
   @Bean
   public TemplateEngine templateEngine() {
 
-    ClassLoaderTemplateResolver templateResolver = 
-      new ClassLoaderTemplateResolver();
-    
+    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
     templateResolver.setPrefix("templates/");
     templateResolver.setSuffix(".html");
     // templateResolver.setTemplateMode("HTML");
-    
+
     TemplateEngine engine = new TemplateEngine();
     engine.setTemplateResolver(templateResolver);
-    
+
     return engine;
-    
+
   }
-  
+
   @Bean
   public PathResolver pathResolver() {
     return new DefaultPathResolver(storageAreaConfiguration());
   }
-  
+
 }

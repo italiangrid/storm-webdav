@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.server;
+package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ChecksumFilter implements Filter {
 
@@ -39,6 +40,7 @@ public class ChecksumFilter implements Filter {
   
   public static final Logger logger = LoggerFactory.getLogger(ChecksumFilter.class);
   
+  @Autowired
   public ChecksumFilter(ExtendedAttributesHelper attributeHelper,
     PathResolver resolver) {
 

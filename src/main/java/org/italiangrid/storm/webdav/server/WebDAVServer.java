@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.ServletContextListener;
 
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
@@ -49,7 +48,11 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.metrics.MetricsContextListener;
 import org.italiangrid.storm.webdav.metrics.StormMetricsReporter;
-import org.italiangrid.storm.webdav.spring.web.MyLoaderListener;
+import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
+import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
+import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
+import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
+import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.spring.web.SecurityConfig;
 import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
 import org.italiangrid.utils.jetty.ThreadPoolBuilder;
@@ -59,7 +62,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.thymeleaf.TemplateEngine;
@@ -83,8 +85,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
-@Component
-public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
+public class WebDAVServer implements ApplicationContextAware {
 
   public static final Logger LOG = LoggerFactory.getLogger(WebDAVServer.class);
 
@@ -174,7 +175,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
   }
 
-  @Override
+  
   public synchronized void start() {
 
     if (started) {
@@ -195,11 +196,11 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
   private ThreadPool configureThreadPool() {
 
     return ThreadPoolBuilder.instance()
-        .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-        .withMaxThreads(configuration.getMaxConnections())
-        .withMinThreads(5)
-        .registry(metricRegistry)
-        .build();
+      .withMaxRequestQueueSize(configuration.getMaxQueueSize())
+      .withMaxThreads(configuration.getMaxConnections())
+      .withMinThreads(5)
+      .registry(metricRegistry)
+      .build();
   }
 
   private ServerConnector configureTLSConnector(Server server)
@@ -217,7 +218,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       .metricRegistry(metricRegistry)
       .build();
 
-    // Re-enable instrumentation
     connector.setName(HTTPS_CONNECTOR_NAME);
 
     return connector;
@@ -257,7 +257,7 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     jettyServer.setDumpBeforeStop(false);
     jettyServer.setStopAtShutdown(true);
 
-    jettyServer.addLifeCycleListener(JettyServerListener.INSTANCE);
+    // jettyServer.addLifeCycleListener(JettyServerListener.INSTANCE);
 
     jettyServer.setConnectors(new Connector[] {tlsConnector, plainConnector});
 
@@ -312,10 +312,11 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
     ch.addServlet(threadDumpServlet, "/status/threads");
     ch.addServlet(servlet, "/*");
 
-    ServletContextListener springContextListener = new MyLoaderListener(applicationContext);
+    // ServletContextListener springContextListener = new
+    // AppContextLoaderListener(applicationContext);
 
     ch.addEventListener(new MetricsContextListener(metricRegistry));
-    ch.addEventListener(springContextListener);
+    // ch.addEventListener(springContextListener);
 
     return ch;
 
@@ -372,9 +373,8 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
 
     rh.setHandler(handlers);
 
-    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry,
-        "storm.http.handler");
-    
+    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, "storm.http.handler");
+
     ih.setHandler(rh);
 
     jettyServer.setHandler(ih);
@@ -439,21 +439,6 @@ public class WebDAVServer implements ServerLifecycle, ApplicationContextAware {
       failAndExit("Error configuring Jetty server", e);
     }
 
-  }
-
-  @Override
-  public synchronized void stop() {
-
-    if (!started) {
-      throw new IllegalStateException("Server not started");
-    }
-
-  }
-
-  @Override
-  public synchronized boolean isStarted() {
-
-    return started;
   }
 
   @Override

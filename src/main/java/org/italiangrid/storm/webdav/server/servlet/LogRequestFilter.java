@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.server;
+package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.IOException;
 
@@ -38,9 +38,6 @@ public class LogRequestFilter implements Filter {
 
   @Override
   public void destroy() {
-
-    log.debug("Destroying security filter.");
-
   }
 
   @Override
@@ -66,9 +63,6 @@ public class LogRequestFilter implements Filter {
 
   @Override
   public void init(FilterConfig config) throws ServletException {
-
-    log.debug("Initializing security filter.");
-
   }
 
 }
