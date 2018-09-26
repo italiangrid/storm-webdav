@@ -15,17 +15,22 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.util.Objects.isNull;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import org.eclipse.jetty.util.URIUtil;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class DefaultPathResolver implements PathResolver {
 
@@ -58,9 +63,10 @@ public class DefaultPathResolver implements PathResolver {
     }
   }
 
+
   @Override
   public String resolvePath(String pathInContext) {
-    
+
     if (isNull(pathInContext)) {
       return null;
     }
@@ -69,15 +75,15 @@ public class DefaultPathResolver implements PathResolver {
 
       if (pathInContext.startsWith(e.getKey())) {
 
-        String resolvedPath =
-            URIUtil.addPaths(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
+        Path resolvedPath =
+            Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
 
         if (logger.isDebugEnabled()) {
           logger.debug("{} matches with access point {}. Resolved path: {}", pathInContext,
               e.getKey(), resolvedPath);
         }
 
-        return resolvedPath;
+        return resolvedPath.toAbsolutePath().toString();
       }
     }
 
@@ -101,5 +107,20 @@ public class DefaultPathResolver implements PathResolver {
     }
     return null;
   }
+
+  @Override
+  public boolean pathExists(String pathInContext) {
+    String resolvedPath = resolvePath(pathInContext);
+
+    if (isNull(resolvedPath)) {
+      return false;
+    }
+
+    return Files.exists(Paths.get(resolvedPath), NOFOLLOW_LINKS);
+  }
+
+
+  
+
 
 }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.List;
 
@@ -131,6 +132,17 @@ public class DefaultExtendedFileAttributesHelper implements
       f.toPath(), UserDefinedFileAttributeView.class);
 
     return (faView != null);
+  }
+
+  @Override
+  public void setChecksumAttribute(Path p, String checksumValue) throws IOException {
+    setChecksumAttribute(p.toFile(), checksumValue);
+    
+  }
+
+  @Override
+  public String getChecksumAttribute(Path p) throws IOException {
+    return getChecksumAttribute(p);
   }
 
 }

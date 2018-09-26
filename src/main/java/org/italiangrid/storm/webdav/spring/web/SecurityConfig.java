@@ -35,6 +35,8 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.ErrorPage;
+import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -46,6 +48,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.context.ServletContextAware;
 
 @Configuration
@@ -65,7 +68,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Autowired
   PathResolver pathResolver;
-
+  
+  @Bean
+  public static ErrorPageRegistrar securityErrorPageRegistrar() {
+    return registry -> registry
+      .addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
+  }
+  
   @Bean
   public AccessDecisionVoter<FilterInvocation> customVoter() {
 
@@ -109,7 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
       for (String ap : sa.accessPoints()) {
 
-        String writeAccessRule = String.format("hasRole('%s') and hasRole('%s')",
+        String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
             SAPermission.canRead(sa.name()).getAuthority(),
             SAPermission.canWrite(sa.name()).getAuthority());
 
@@ -153,10 +162,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
       http.authorizeRequests().accessDecisionManager(accessDecisionManager());
       addAccessRules(http);
+      http.authorizeRequests().antMatchers("/errors/**").permitAll();
 
     }
   }
 
+  
   @Override
   public void setServletContext(ServletContext servletContext) {
     context = servletContext;

@@ -9,3 +9,9 @@ server:
       enabled: ${STORM_WEBDAV_SERVER_ACCESS_LOG_ENABLED:false}
       log-latency: true
       filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log} 
+
+tpc:
+  tlsProtocol: ${STORM_WEBDAV_SERVER_TPC_TLS_PROTOCOL:TLSv1.2}
+  maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:200}
+  verifyChecksum: ${STORM_WEBDAV_SERVER_VERIFY_CHECKSUM:true}
+  

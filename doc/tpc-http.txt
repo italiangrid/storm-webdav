@@ -1,0 +1,262 @@
+CERN RFC				                    Adrien Devresse
+Request for Comments: CERN-20140222	                    Alejandro A. Ayllon
+Category: Draft 1                                 
+ISSN: 0                                                     Febrary 2014
+ 
+
+
+                         
+
+COPY Method for HTTP
+
+
+Abstract
+
+   A complete data transfer system based on the the Hypertext Transfer 
+   Protocol (HTTP) requires a feature to do a server to server resource 
+   replication similar to the FXP feature of the FTP(rfc959) protocol.
+   This RFC extend the standard WebDav(RFC-2518) COPY method for a server to
+   server resource replication usage. It aims to be 100% backward compatible 
+   with the HTTP1.1(rfc2616) and with the WebDav standard.
+
+
+Status of This Memo
+
+   RFC from CERN and WLCG, created for the purpose of the HTTP Ecosystem 
+   project.
+
+Copyright Notice
+
+   Copyright (c) 2014 CERN and the persons identified as the
+   document authors.  All rights reserved.
+
+
+   1. Introduction .....................................................
+   2. The COPY Method ................................................
+      2.1. Associated HTTP Header fields .............................
+      2.2. Return codes ..............................................
+   3. COPY Method example, PULL Mode .................................
+      ................................................................      
+   4. COPY Method example, PUSH Mode .................................
+      ................................................................
+   5. Advertising Support in OPTIONS .................................
+      5.2. Example OPTIONS Request and Response .......................
+   6. Comments .........................................
+   
+
+
+
+1. Introduction 
+
+	This standard aims to support a server to server resource replication
+	mechanism based on the Hypertext Transfer Protocol (HTTP) supporting 
+	both of a PULL and PUSH transfer method. It aimes to be 100% compatible 
+	with existing HTTP standard and implementation.
+	This standard tries to takes into consideration the possible problems
+	of credential delegation, multi-source copy and resources overwrite.
+
+
+1.2 Requirements
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", 
+"SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", 
+and "OPTIONAL" in this document are to be interpreted as 
+described in RFC 2119 [34].
+
+An implementation is not compliant if it fails 
+to satisfy one or more of the MUST or REQUIRED level requirements for 
+the protocols it implements. An implementation that satisfies all the MUST 
+or REQUIRED level and all the SHOULD level requirements for its protocols 
+is said to be "unconditionally compliant"; one that satisfies all the MUST 
+level requirements but not all the SHOULD level requirements for its 
+protocols is said to be "conditionally compliant." 
+
+
+2 The COPY Method
+
+The COPY method request a resource replication operation for the specified 
+entity as source or destination. The COPY method affects the resource 
+identified by the Request-URI. The server receiving the COPY method is 
+responsible of the treatment of it.
+
+ If the request passes through a cache and the Request-URI identifies 
+one or more currently cached entities, those entries SHOULD be
+treated as stale. Responses to this method are not cacheable. 
+
+COPY is idempotent but not safe as defined by rfc-2616
+
+A server supporting the modethod COPY MAY support the WebDav RFC(rfc2616)
+
+2.1 Associated header fields
+
+2.1.1 Destination Request header :
+
+The Destination Request header field is used to specify the destination of a replication operation. 
+The field of this header MUST be an absolute URI. If this header is present the
+Request-URI identify the source of the replication (PUSH Method).
+
+Destination       = "Destination" ":" absoluteURI(rfc2616-section3.1)
+
+2.1.2 Source Request header :
+
+The Source Request header field is used to specify the source of a 
+replication operation. The field of this header MUST be an absolute URI.
+If this header is present the Request-URI identify the destination 
+of the replication (PULL Method). 
+
+Source       = "Source" ":" absoluteURI(rfc2616-section3.1)
+
+2.1.2 Copy-Header Request header :
+
+The content of the Copy-Header Request header MUST be used as a header for any 
+request issue by the server proceeding to the resource replication. 
+
+Copy-Header       = "Copy-Header" ":" "HeaderKey:HeaderValue"
+
+If a server "A" receiving a COPY Request with a "Copy-Header" header,
+as specified previously, need to execute any HTTP queries to a server
+ "B" in order to complete the COPY operation.
+ALL of these HTTP queries MUST include the following header
+
+"HeaderKey" : "HeaderValue"
+
+
+2.1.3 Overwrite Request header :
+
+Same definition than WebDav(RFC-2518 10.6) Standard.
+
+Overwrite Value MUST be "T" by default. 
+If a server "A" receiving a COPY Request with a "Overwrite" header,
+as specified previously, need to execute any HTTP queries in order to complete
+the COPY operation.
+ALL of these HTTP queries MUST include the Overwrite header
+
+
+Overwrite = "Overwrite" ":" ("T" | "F")
+
+
+
+2.2 Return Codes :
+
+   In addition to the general status codes possible, the following
+   status codes have specific applicability to COPY:
+
+   201 (Created) - The source resource was successfully copied.  The
+   COPY operation resulted in the creation of a new resource.
+
+   202 (Accepted) - Request accepted, MUST NOT BE answered excepted if the 
+	client requested transfer monitoring informations via the 
+        HTTP Content-Type negociation. 
+	IF the client requested Monitoring information, please use the 
+        multi-part content rfc1341 to deliver it.
+
+   204 (No Content) - The source resource was successfully copied to a
+   preexisting destination resource.
+
+   207 (Multi-Status) - Support for the  WebDav(RFC-2518 10.6)
+
+   30X (Redirections) - All redirections code MUST be supported by the client.
+
+   403 (Forbidden) - The operation is forbidden.  A special case for
+   COPY could be that the source and destination resources are the same
+   resource.
+
+   409 (Conflict) - A resource cannot be created at the destination
+   until one or more intermediate parent resources have been created.
+
+   412 (Precondition Failed) - A precondition header check failed, e.g.,
+   the Overwrite header is "F" and the destination URL is already mapped
+   to a resource.
+
+
+3. COPY Method example, PULL Mode 
+
+    Successful replication of the resource http://www.example.com/rfc.txt to
+      http://www.example.org/copy.txt by a PULL operation
+
+   [client to server request]
+
+   COPY /copy.txt HTTP/1.1
+   Host: www.example.org
+   Source: http://www.example.com/rfc.txt
+   Copy-Header: Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+   Copy-Header: If-Match: "737060cd8c284d8af7ad3082f209582d"
+
+   [server to server request]
+
+   GET /rfc.txt HTTP/1.1
+   Host: www.example.com
+   Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+   If-Match: "737060cd8c284d8af7ad3082f209582d"
+
+   [server to client response]
+
+   HTTP/1.1 201 Created
+   
+
+
+   
+
+
+4. COPY Method example, PUSH Mode .................................
+
+    Succefull replication of the resource http://www.example.com/rfc.txt to
+      http://www.example.org/copy.txt by a PUSH operation
+
+   [client to server request]
+
+   COPY /rfc.txt HTTP/1.1
+   Host: www.example.com
+   Destination: http://www.example.org/copy.txt
+   Copy-Header: Authorization: AWS AKIAIOSFODNN7EXAMPLE:frJIUN8DYpKDtOLCwo//yllqDzg=
+   Copy-Header: If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT
+
+   [server to server request]
+
+   PUT /copy.txt HTTP/1.1
+   Host: www.example.org
+   Authorization: AWS AKIAIOSFODNN7EXAMPLE:frJIUN8DYpKDtOLCwo//yllqDzg=
+   If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT
+
+   [server to client response]
+
+   HTTP/1.1 201 Created
+
+5. Advertising Support in OPTIONS
+
+
+   A server SHOULD advertise its support for the COPY method by adding it
+   to the listing of allowed methods in the "Allow" OPTIONS response
+   header defined in HTTP/1.1.
+
+5.2. Example OPTIONS Request and Response
+
+
+   [request]
+
+   OPTIONS /example/buddies.xml HTTP/1.1
+   Host: www.example.com
+
+   [response]
+
+   HTTP/1.1 200 OK
+   Allow: GET, PUT, POST, OPTIONS, HEAD, DELETE, COPY
+
+   The examples show a server that supports OPTION.
+
+
+6. Comments 
+
+Why Both mode PUSH and PULL and introduce Source header ?
+
+A support for both PULL and PUSH method allow a COPY compatible server
+ to execute server to server replications with any non compatible HTTP server.
+It is a major advantage to be able to migrate data from and to heterogenous 
+architectures ( Cloud Storage, Distributed Storage System, ... ).
+
+Why use copy and not PUT with a specialized header ?
+
+Because it's not backward compatible.
+A client supporting this "third party put" can't know if a server support this 
+feature or not. If the server does not, it can lead to side effect where 
+non-excepted resources are created server side.

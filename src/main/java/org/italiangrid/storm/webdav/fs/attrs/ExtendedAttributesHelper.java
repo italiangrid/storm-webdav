@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.fs.attrs;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public interface ExtendedAttributesHelper {
@@ -29,10 +30,15 @@ public interface ExtendedAttributesHelper {
 
   public List<String> getExtendedFileAttributeNames(File f) throws IOException;
 
+  public void setChecksumAttribute(Path p, String checksumValue)
+    throws IOException;
+  
   public void setChecksumAttribute(File f, String checksumValue)
     throws IOException;
 
   public String getChecksumAttribute(File f) throws IOException;
+  
+  public String getChecksumAttribute(Path p) throws IOException;
 
   public boolean fileSupportsExtendedAttributes(File f) throws IOException;
 }

@@ -1,0 +1,65 @@
+version: "3"
+
+volumes:
+  trustanchors:
+  cabundle:
+  storage:
+
+services:
+  trust:
+    image: indigoiam/trustanchors
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+
+  webdav:
+    image: italiangrid/storm-webdav:latest
+    dns_search: example
+    ports:
+      - "9443:8443"
+      - "10044:1044"
+
+    depends_on:
+      - trust
+
+    environment:
+      TZ: UTC
+      CERT_DIR: /certs
+      DEBUG: y
+
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/certs/:/certs:ro
+      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ./assets/etc/storm/webdav:/etc/storm/webdav
+      - ${HOME}/git/storm-webdav:/code:ro
+      
+    networks:
+      default:
+        aliases:
+          - storm.example
+
+  ts:
+    image: italiangrid/storm-testsuite 
+    environment:
+      TZ: UTC 
+      TS_NO_WAIT: 1
+      TS_NO_CLONE: 1
+      TESTSUITE_SUITE: webdav
+      STORM_DAV_HOST: storm.example
+
+    depends_on:
+      - webdav 
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ${HOME}/git/storm-testsuite:/home/tester/storm-testsuite
+
+    entrypoint: sleep infinity
+
+    networks:
+      default:

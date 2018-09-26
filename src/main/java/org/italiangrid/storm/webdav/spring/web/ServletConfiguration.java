@@ -3,6 +3,7 @@ package org.italiangrid.storm.webdav.spring.web;
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
+import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -11,6 +12,8 @@ import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
+import org.italiangrid.storm.webdav.tpc.TransferFilter;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +30,8 @@ public class ServletConfiguration {
 
   static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
   static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 2000;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 3000;
+  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 3000;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 4000;
 
 
   @Bean
@@ -41,6 +45,17 @@ public class ServletConfiguration {
   }
 
   @Bean
+  FilterRegistrationBean<ChecksumFilter> checksumFilter(ExtendedAttributesHelper helper,
+      PathResolver resolver) {
+    FilterRegistrationBean<ChecksumFilter> filter =
+        new FilterRegistrationBean<>(new ChecksumFilter(helper, resolver));
+
+    filter.addUrlPatterns("/*");
+    filter.setOrder(CHECKSUM_FILTER_ORDER);
+    return filter;
+  }
+
+  @Bean
   FilterRegistrationBean<MiltonFilter> miltonFilter(FilesystemAccess fsAccess,
       ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
@@ -50,15 +65,15 @@ public class ServletConfiguration {
     return miltonFilter;
   }
 
+  
   @Bean
-  FilterRegistrationBean<ChecksumFilter> checksumFilter(ExtendedAttributesHelper helper,
-      PathResolver resolver) {
-    FilterRegistrationBean<ChecksumFilter> filter =
-        new FilterRegistrationBean<>(new ChecksumFilter(helper, resolver));
-
-    filter.addUrlPatterns("/*");
-    filter.setOrder(CHECKSUM_FILTER_ORDER);
-    return filter;
+  FilterRegistrationBean<TransferFilter> tpcFilter(FilesystemAccess fs,
+      ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client, ThirdPartyCopyProperties props) {
+    FilterRegistrationBean<TransferFilter> tpcFilter = 
+        new FilterRegistrationBean<>(new TransferFilter(client, resolver, props.isVerifyChecksum()));
+    tpcFilter.addUrlPatterns("/*");
+    tpcFilter.setOrder(TPC_FILTER_ORDER);
+    return tpcFilter;
   }
 
   @Bean

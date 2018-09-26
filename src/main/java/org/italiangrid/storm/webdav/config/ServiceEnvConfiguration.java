@@ -51,8 +51,7 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
   @Override
   public long getTrustAnchorsRefreshIntervalInSeconds() {
 
-    return Long.parseLong(ServiceConfigVariable.TRUST_ANCHORS_REFRESH_INTERVAL
-      .getValue());
+    return Long.parseLong(ServiceConfigVariable.TRUST_ANCHORS_REFRESH_INTERVAL.getValue());
   }
 
   @Override
@@ -70,8 +69,7 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
   @Override
   public int getConnectorMaxIdleTimeInMsec() {
 
-    return Integer.parseInt(ServiceConfigVariable.CONNECTOR_MAX_IDLE_TIME
-      .getValue());
+    return Integer.parseInt(ServiceConfigVariable.CONNECTOR_MAX_IDLE_TIME.getValue());
   }
 
   @Override
@@ -95,8 +93,7 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
   @Override
   public boolean enableVOMapFiles() {
 
-    return Boolean.parseBoolean(ServiceConfigVariable.VO_MAP_FILES_ENABLE
-      .getValue());
+    return Boolean.parseBoolean(ServiceConfigVariable.VO_MAP_FILES_ENABLE.getValue());
   }
 
   @Override
@@ -108,19 +105,18 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
   @Override
   public long getVOMapFilesRefreshIntervalInSeconds() {
 
-    return Long.parseLong(ServiceConfigVariable.VO_MAP_FILES_REFRESH_INTERVAL
-      .getValue());
+    return Long.parseLong(ServiceConfigVariable.VO_MAP_FILES_REFRESH_INTERVAL.getValue());
   }
 
   @Override
   public boolean isAuthorizationDisabled() {
 
-    return Boolean.parseBoolean(ServiceConfigVariable.AUTHORIZATION_DISABLE
-      .getValue());
+    return Boolean.parseBoolean(ServiceConfigVariable.AUTHORIZATION_DISABLE.getValue());
 
   }
 
 }
+
 
 enum ServiceConfigVariable {
 
@@ -161,11 +157,17 @@ enum ServiceConfigVariable {
   public String getValue() {
 
     String val = System.getenv(getEnvKey());
+
     if (val == null) {
-      return defaultValue;
+      val = System.getProperty(getEnvKey());
+
     }
 
-    return val;
+    if (val == null) {
+      return defaultValue;
+    } else {
+      return val;
+    }
   }
 
 }

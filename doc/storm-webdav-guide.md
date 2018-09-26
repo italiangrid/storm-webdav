@@ -233,11 +233,3 @@ For backward compatibility with the StoRM Gridhttps also
 `https://hostname:8443/webdav/sa` and `http://hostname:8085/webdav/sa` will
 work, but it's not needed anymore to specify the `webdav` prefix when issuing
 requests to the service.
-
-
-
-
-
-
-
-

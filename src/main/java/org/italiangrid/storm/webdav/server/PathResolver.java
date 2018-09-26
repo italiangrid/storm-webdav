@@ -18,10 +18,14 @@ package org.italiangrid.storm.webdav.server;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 
 
+
+
 public interface PathResolver {
   
-  public String resolvePath(String pathInContext);
+  String resolvePath(String pathInContext);
   
-  public StorageAreaInfo resolveStorageArea(String pathInContext);
+  StorageAreaInfo resolveStorageArea(String pathInContext);
+  
+  boolean pathExists(String pathInContext);
 
 }

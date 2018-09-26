@@ -1,0 +1,101 @@
+*** Settings ***
+Resource    common/storage_areas.robot
+Resource    common/credentials.robot
+Resource    common/davix.robot
+Resource    common/curl.robot
+Resource    test/variables.robot
+
+Test Setup  Default Setup
+Test Teardown   Default Teardown
+
+*** Keywords ***
+Default Setup
+    Default VOMS credential
+
+Default Teardown
+    Unset VOMS credential
+
+Get works Setup
+    Default Setup
+    Create Test File   get_test
+
+Get works Teardown
+    Default Teardown
+    Remove Test File   get_test
+
+Put works Setup
+    Default Setup
+    Create Temporary File   put_test   123456789
+
+Put works Teardown
+    Default Teardown
+    Remove Temporary File   put_test
+
+Rm works Setup
+    Default Setup
+    Create Test File   rm_test
+
+Rm works Teardown
+    Default Setup
+    Remove Test File   rm_test
+
+Mkdir works Teardown
+    Default Teardown
+    Remove Test Directory   mkdir_test
+
+Partial Get Works Setup
+    Default Setup
+    Create Test File   pget_test   1x2y456789
+
+Partial Get Works Teardown
+    Default Setup
+    Remove Test File   pget_test
+
+*** Test cases ***
+
+Get works
+    [Tags]   voms  get
+    [Setup]   Get works Setup
+    Davix Get Success   ${davs.endpoint}/${sa.default}/get_test
+    [Teardown]   Get works Teardown
+
+Get returns 404 for file that does not exist
+    [Tags]   voms  get
+    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/does_not_exist
+    Should Contain  ${out}   404
+    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/does_not_exist/also
+    Should Contain  ${out}   404
+
+Put works
+    [Tags]  voms  put
+    [Setup]  Put works Setup
+    Davix Put Success  ${TEMPDIR}/put_test  ${davs.endpoint}/${sa.default}/put_test
+    Davix Get Success  ${davs.endpoint}/${sa.default}/put_test
+    Remove File   put_test
+    [Teardown]  Put works Teardown
+
+Rm works
+    [Tags]  voms  rm
+    [Setup]  Rm works Setup
+    Davix Get Success   ${davs.endpoint}/${sa.default}/rm_test
+    Davix Rm Success   ${davs.endpoint}/${sa.default}/rm_test
+    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/rm_test
+    Should Contain  ${out}   404
+    [Teardown]   Rm works teardown
+
+Mkdir works
+    [Tags]  voms  Mkdir
+    ## There's a bug in Davix which returns 0 even if the mkdir call fails
+    ## Davix Mkdir Success   ${davs.endpoint}/${sa.default}/mkdir_test
+    ${rc}  ${out}  Curl Voms MKCOL Success   ${davs.endpoint}/${sa.default}/mkdir_test
+    [Teardown]   Mkdir works teardown
+
+Partial Get works
+    [Tags]  voms  get  partial
+    [Setup]  Partial Get Works Setup
+    ${opts}  Set Variable  -H "Range: 0-3" ${curl.opts.default}
+    ${rc}  ${out}  Curl Voms Get Success   ${davs.endpoint}/${sa.default}/pget_test  ${opts}
+    Should Contain  ${out}  1x2y  
+    Should Contain  ${out}  Content-Length: 4
+    [Teardown]  Partial Get Works Teardown
+

@@ -34,14 +34,12 @@
     <commons-lang.version>2.3</commons-lang.version>
     <commons-cli.version>1.2</commons-cli.version>
     <commons-csv.version>1.0</commons-csv.version>
+    <jimfs.version>1.1</jimfs.version>
 
     <http-core.version>4.2.2</http-core.version>
     <http-client.version>4.2.1</http-client.version>
 
     <metrics.version>4.0.0</metrics.version>
-
-    <!-- Keep this aligned with https-utils -->
-    <logback-access.version>1.0.9</logback-access.version>
 
     <guava.version>20.0</guava.version>
 
@@ -53,9 +51,6 @@
 
     <!-- Template for the sysconfig file -->
     <sysconfig.template>etc/sysconfig/storm-webdav.template</sysconfig.template>
-
-    <webdav.main.class>org.italiangrid.storm.webdav.server.Main</webdav.main.class>
-
   </properties>
 
   <build>
@@ -75,7 +70,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -126,12 +121,17 @@
   </build>
 
   <dependencies>
-
+    <dependency>
+      <groupId>com.google.jimfs</groupId>
+      <artifactId>jimfs</artifactId>
+      <version>${jimfs.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
       <exclusions>
-        <!-- Exclude the Tomcat dependency -->
+        <!-- Exclude this to make failure reporting work -->
         <exclusion>
           <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-api</artifactId>
@@ -157,7 +157,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
@@ -178,7 +177,6 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -260,7 +258,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -346,7 +343,6 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <profiles>

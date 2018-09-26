@@ -13,6 +13,7 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
@@ -143,6 +144,10 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   @Override
   protected void postProcessWebAppContext(WebAppContext context) {
     context.setCompactPath(true);
+    
+    ErrorHandler eh = new ErrorHandler();
+    eh.setShowStacks(false);
+    context.setErrorHandler(eh);
   }
 
   @Override
