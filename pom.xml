@@ -45,6 +45,9 @@
 
     <owner-config.version>1.0.5.1</owner-config.version>
     
+    <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
+    <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
+    
     <!-- Default install prefix: keep it empty -->
     <!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
     <install.prefix></install.prefix>
@@ -157,6 +160,19 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.security.oauth</groupId>
+      <artifactId>spring-security-oauth2</artifactId>
+      <version>${spring-security-oauth2.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>${nimbus-jose-jwt.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
