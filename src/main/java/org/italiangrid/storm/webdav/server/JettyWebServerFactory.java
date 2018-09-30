@@ -61,10 +61,13 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
-
+    
+    connectorBuilder.httpConfiguration().setSendServerVersion(false);
+    connectorBuilder.httpConfiguration().setSendDateHeader(false);
+    
     ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
       .withWantClientAuth(true)
-      .withNeedClientAuth(true)
+      .withNeedClientAuth(configuration.requireClientCertificateAuthentication())
       .withCertificateFile(configuration.getCertificatePath())
       .withCertificateKeyFile(configuration.getPrivateKeyPath())
       .metricName("storm-https.connection")
@@ -148,6 +151,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     ErrorHandler eh = new ErrorHandler();
     eh.setShowStacks(false);
     context.setErrorHandler(eh);
+    
   }
 
   @Override
@@ -161,6 +165,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       throw new StoRMWebDAVError(e);
     }
 
+    
     server.setDumpAfterStart(false);
     server.setDumpBeforeStop(false);
     server.setStopAtShutdown(true);

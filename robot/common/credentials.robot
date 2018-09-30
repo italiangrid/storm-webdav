@@ -6,6 +6,10 @@ Library  VOMSHelperLibrary
 
 ${cred.voms.use_os}   True
 
+## Where the testsuite should look for an OAuth 
+## access token
+${cred.oauth.env_var_name}  IAM_ACCESS_TOKEN
+
 ## Embedded VOMS proxies
 ${cred.voms.1}   assets/certs/voms.1 
 ${cred.voms.2}   assets/certs/voms.2

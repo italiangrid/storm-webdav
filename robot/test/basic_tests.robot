@@ -98,4 +98,3 @@ Partial Get works
     Should Contain  ${out}  1x2y  
     Should Contain  ${out}  Content-Length: 4
     [Teardown]  Partial Get Works Teardown
-

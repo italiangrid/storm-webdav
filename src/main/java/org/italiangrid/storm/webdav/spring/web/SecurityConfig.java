@@ -34,11 +34,14 @@ import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.UnanimousBased;
@@ -46,15 +49,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.context.ServletContextAware;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 @Configuration
 @EnableWebSecurity
-@EnableAuthorizationServer
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
 
   ServletContext context;
@@ -71,10 +78,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Autowired
   PathResolver pathResolver;
   
+  @Autowired
+  JwtAuthenticationConverter authConverter;
+  
+  
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+  String trustedOAuthIssuer;
+   
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
     return registry -> registry
       .addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
+  }
+  
+  
+  @Bean
+  public HttpFirewall allowWebDAVMethodsFirewall() {
+    
+    StrictHttpFirewall firewall = new StrictHttpFirewall();
+    List<String> allowedMethods = Lists.newArrayList();
+    
+    for (HttpMethod m: HttpMethod.values()) {
+      allowedMethods.add(m.name());
+    }
+    
+    for (WebDAVMethod m: WebDAVMethod.values()) {
+      allowedMethods.add(m.name());
+    }
+    
+    firewall.setAllowedHttpMethods(allowedMethods);
+    return firewall;
   }
   
   @Bean
@@ -165,7 +198,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       http.authorizeRequests().accessDecisionManager(accessDecisionManager());
       addAccessRules(http);
       http.authorizeRequests().antMatchers("/errors/**").permitAll();
-
+    }
+    
+    if (!Strings.isNullOrEmpty(trustedOAuthIssuer)) {
+      http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
     }
   }
 

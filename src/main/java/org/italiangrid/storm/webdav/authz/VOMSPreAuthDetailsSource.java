@@ -15,6 +15,10 @@
  */
 package org.italiangrid.storm.webdav.authz;
 
+import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.authz.SAPermission.canRead;
+import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,87 +37,86 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class VOMSPreAuthDetailsSource
-  implements
-  AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
+public class VOMSPreAuthDetailsSource implements
+    AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
 
   public final List<VOMSAuthDetailsSource> vomsAuthoritiesSources;
-  
+
   private final StorageAreaConfiguration saConfig;
-  
+
   private final List<SAPermission> authenticatedPerms;
   private final Multimap<String, SAPermission> voPerms;
   private final Multimap<String, SAPermission> voMapPerms;
-  
-  public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas, 
-    StorageAreaConfiguration conf) {
+
+  public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas, StorageAreaConfiguration conf) {
 
     this.vomsAuthoritiesSources = vas;
     this.saConfig = conf;
-    
+
     authenticatedPerms = new ArrayList<SAPermission>();
-    
+
     voPerms = ArrayListMultimap.create();
     voMapPerms = ArrayListMultimap.create();
-    
-    for (StorageAreaInfo sa: saConfig.getStorageAreaInfo()){
-      
-      for (String vo: sa.vos()){
-        voPerms.put(vo, SAPermission.canRead(sa.name()));
-        voPerms.put(vo, SAPermission.canWrite(sa.name()));
-        if (sa.voMapEnabled()){
-         voMapPerms.put(vo, SAPermission.canRead(sa.name()));
-         if (sa.voMapGrantsWritePermission()){
-           voMapPerms.put(vo, SAPermission.canWrite(sa.name()));
-         }
+
+    for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
+      if (!isNull(sa.vos())) {
+        for (String vo : sa.vos()) {
+          voPerms.put(vo, canRead(sa.name()));
+          voPerms.put(vo, canWrite(sa.name()));
+          if (sa.voMapEnabled()) {
+            voMapPerms.put(vo, canRead(sa.name()));
+            if (sa.voMapGrantsWritePermission()) {
+              voMapPerms.put(vo, canWrite(sa.name()));
+            }
+          }
         }
       }
-      
-      if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()){
+
+      if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()) {
         authenticatedPerms.add(SAPermission.canRead(sa.name()));
       }
     }
-    
+
   }
 
   @Override
   public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(
-    HttpServletRequest request) {
+      HttpServletRequest request) {
 
-    return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-      request, getVOMSGrantedAuthorities(request));
+    return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(request,
+        getVOMSGrantedAuthorities(request));
   }
-  
-  private void addSAPermissions(Set<GrantedAuthority> authorities){
-    
+
+  private void addSAPermissions(Set<GrantedAuthority> authorities) {
+
     Set<GrantedAuthority> saPermissions = new HashSet<GrantedAuthority>();
-    
-    for (GrantedAuthority auth: authorities){
-      if (auth instanceof VOMSVOAuthority){
+
+    for (GrantedAuthority auth : authorities) {
+      if (auth instanceof VOMSVOAuthority) {
         VOMSVOAuthority voAuth = (VOMSVOAuthority) auth;
         saPermissions.addAll(voPerms.get(voAuth.getVoName()));
       }
-      if (auth instanceof VOMSVOMapAuthority){
-        VOMSVOMapAuthority voMapAuth = (VOMSVOMapAuthority)auth;
+      if (auth instanceof VOMSVOMapAuthority) {
+        VOMSVOMapAuthority voMapAuth = (VOMSVOMapAuthority) auth;
         saPermissions.addAll(voMapPerms.get(voMapAuth.getVoName()));
       }
     }
-    
+
     authorities.addAll(saPermissions);
     authorities.addAll(authenticatedPerms);
   }
-  
+
   private Collection<? extends GrantedAuthority> getVOMSGrantedAuthorities(
-    HttpServletRequest request) {
+      HttpServletRequest request) {
 
     Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 
     for (VOMSAuthDetailsSource source : vomsAuthoritiesSources) {
       authorities.addAll(source.getVOMSGrantedAuthorities(request));
     }
-    
+
     addSAPermissions(authorities);
-    
+
     return Collections.unmodifiableSet(authorities);
   }
 }

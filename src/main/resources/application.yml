@@ -1,6 +1,12 @@
 spring:
   main:
     banner-mode: "off"
+    
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${STORM_WEBDAV_OAUTH_TRUSTED_ISSUER:}
 
 server:
   jetty:
@@ -10,6 +16,7 @@ server:
       log-latency: true
       filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log} 
 
+  
 tpc:
   tlsProtocol: ${STORM_WEBDAV_SERVER_TPC_TLS_PROTOCOL:TLSv1.2}
   maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:200}

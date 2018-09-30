@@ -48,5 +48,7 @@ public interface ServiceConfiguration {
   public long getVOMapFilesRefreshIntervalInSeconds();
   
   public boolean isAuthorizationDisabled();
+  
+  public boolean requireClientCertificateAuthentication();
 
 }

@@ -6,10 +6,12 @@ Library    OperatingSystem
 ${sa.1}   test.vo
 ${sa.2}   noauth
 ${sa.3}   auth
+${sa.4}   oauth
 
 ${sa.default}   ${sa.1}
 ${sa.noauth}    ${sa.2}
 ${sa.auth}      ${sa.3}
+${sa.oauth}     ${sa.4}
 
 ${storage.root}   /storage
 

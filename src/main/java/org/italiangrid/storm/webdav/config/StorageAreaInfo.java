@@ -29,6 +29,8 @@ public interface StorageAreaInfo {
   public List<String> accessPoints();
 
   public Set<String> vos();
+  
+  public Set<String> orgs();
 
   public Boolean anonymousReadEnabled();
 
@@ -37,4 +39,6 @@ public interface StorageAreaInfo {
   public Boolean voMapEnabled();
   
   public Boolean voMapGrantsWritePermission();
+  
+  public Boolean orgsGrantWritePermission();
 }

@@ -55,8 +55,6 @@ import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -149,22 +147,6 @@ public class AppConfig implements TransferConstants {
           .build();
 
     return validator;
-  }
-
-  @Bean
-  public TemplateEngine templateEngine() {
-
-    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-
-    templateResolver.setPrefix("templates/");
-    templateResolver.setSuffix(".html");
-    // templateResolver.setTemplateMode("HTML");
-
-    TemplateEngine engine = new TemplateEngine();
-    engine.setTemplateResolver(templateResolver);
-
-    return engine;
-
   }
 
   @Bean

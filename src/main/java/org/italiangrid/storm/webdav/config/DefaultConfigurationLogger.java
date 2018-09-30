@@ -52,12 +52,17 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
       serviceConfiguration.getTrustAnchorsDir());
     logger.info("Trust anchors refresh intervals (seconds): {}",
       serviceConfiguration.getTrustAnchorsRefreshIntervalInSeconds());
+    
+    logger.info("Client certificate authentication required: {}", 
+        serviceConfiguration.requireClientCertificateAuthentication());
+    
     logger.info("VOMS Map files enabled: {}",
       serviceConfiguration.enableVOMapFiles());
     logger.info("VOMS Map files configuration directory: {}",
       serviceConfiguration.getVOMapFilesConfigDir());
     logger.info("VOMS Map files refresh interval (seconds): {}",
       serviceConfiguration.getVOMapFilesRefreshIntervalInSeconds());
+    
     if (serviceConfiguration.isAuthorizationDisabled()) {
       logger
         .warn("\n\n\nAuthorization is DISABLED! "

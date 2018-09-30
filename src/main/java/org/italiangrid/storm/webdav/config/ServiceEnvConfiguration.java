@@ -115,6 +115,13 @@ public enum ServiceEnvConfiguration implements ServiceConfiguration {
 
   }
 
+  @Override
+  public boolean requireClientCertificateAuthentication() {
+
+    return Boolean
+      .parseBoolean(ServiceConfigVariable.REQUIRE_CLIENT_CERTIFICATE_AUTHENTICATION.getValue());
+  }
+
 }
 
 
@@ -135,7 +142,8 @@ enum ServiceConfigVariable {
   VO_MAP_FILES_ENABLE("false"),
   VO_MAP_FILES_CONFIG_DIR("/etc/storm/webdav/voms-mapfiles.d"),
   VO_MAP_FILES_REFRESH_INTERVAL("21600"),
-  AUTHORIZATION_DISABLE("false");
+  AUTHORIZATION_DISABLE("false"),
+  REQUIRE_CLIENT_CERTIFICATE_AUTHENTICATION("true");
 
   private String defaultValue;
 

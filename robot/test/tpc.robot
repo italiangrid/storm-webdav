@@ -41,6 +41,15 @@ Overwrite header recognized Teardown
     Default Teardown
     Remove Test File   tpc_test
 
+Local pull copy works oauth and https Setup
+    Default Setup
+    Create Test File   tpc_test_oauth_https  content=Hello World!  sa=${sa.oauth}
+
+Local pull copy works oauth and https Teardown
+    Default Teardown
+    Remove Test File   tpc_test_oauth_https
+    Remove Test File   tpc_test_oauth_https  ${sa.oauth}
+
 *** Test cases ***
 
 Local pull copy works
@@ -70,3 +79,13 @@ Overwrite header recognized
     ${rc}  ${out}  Curl Voms Pull COPY Failure  ${dest}  ${src}  ${opts}
     Should Contain  ${out}   412
     [Teardown]  Overwrite header recognized Teardown
+
+Local pull copy works oauth and https
+    [Tags]  oauth  tpc
+    [Setup]  Local pull copy works oauth and https Setup
+    ${dest}  DAVS URL  tpc_test_oauth_https
+    ${src}   DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
+    ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
+    ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
+    Davix Get Success   ${dest}
+    [Teardown]  Local pull copy works oauth and https Teardown
