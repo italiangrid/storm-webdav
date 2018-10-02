@@ -1,122 +1,117 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.italiangrid.storm.webdav.authz;
 
-import static java.util.Objects.isNull;
-import static org.italiangrid.storm.webdav.authz.SAPermission.canRead;
-import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
-import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
+import org.italiangrid.voms.VOMSAttribute;
+import org.italiangrid.voms.ac.VOMSACValidator;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
-public class VOMSPreAuthDetailsSource implements
-    AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
+public class VOMSPreAuthDetailsSource
+    implements AuthenticationDetailsSource<HttpServletRequest, VOMSAuthenticationDetails> {
 
-  public final List<VOMSAuthDetailsSource> vomsAuthoritiesSources;
+  private final AuthorizationPolicyService policyService;
+  private final VOMSACValidator validator;
+  private final VOMapDetailsService voMapDetailsService;
 
-  private final StorageAreaConfiguration saConfig;
-
-  private final List<SAPermission> authenticatedPerms;
-  private final Multimap<String, SAPermission> voPerms;
-  private final Multimap<String, SAPermission> voMapPerms;
-
-  public VOMSPreAuthDetailsSource(List<VOMSAuthDetailsSource> vas, StorageAreaConfiguration conf) {
-
-    this.vomsAuthoritiesSources = vas;
-    this.saConfig = conf;
-
-    authenticatedPerms = new ArrayList<SAPermission>();
-
-    voPerms = ArrayListMultimap.create();
-    voMapPerms = ArrayListMultimap.create();
-
-    for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
-      if (!isNull(sa.vos())) {
-        for (String vo : sa.vos()) {
-          voPerms.put(vo, canRead(sa.name()));
-          voPerms.put(vo, canWrite(sa.name()));
-          if (sa.voMapEnabled()) {
-            voMapPerms.put(vo, canRead(sa.name()));
-            if (sa.voMapGrantsWritePermission()) {
-              voMapPerms.put(vo, canWrite(sa.name()));
-            }
-          }
-        }
-      }
-
-      if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()) {
-        authenticatedPerms.add(SAPermission.canRead(sa.name()));
-      }
-    }
-
+  public VOMSPreAuthDetailsSource(VOMSACValidator vomsValidator,
+      AuthorizationPolicyService policyService, VOMapDetailsService voMapDetailsService) {
+    this.policyService = policyService;
+    this.validator = vomsValidator;
+    this.voMapDetailsService = voMapDetailsService;
   }
 
   @Override
-  public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(
-      HttpServletRequest request) {
+  public VOMSAuthenticationDetails buildDetails(HttpServletRequest request) {
 
-    return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(request,
-        getVOMSGrantedAuthorities(request));
+    Set<GrantedAuthority> authorities = Sets.newHashSet();
+
+    List<VOMSAttribute> attributes = getAttributes(request);
+
+    authorities.addAll(getAuthoritiesFromAttributes(attributes));
+    
+    if (attributes.isEmpty()) {
+      authorities.addAll(getAuthoritiesFromVoMapFiles(request));
+    }
+    
+    authorities.addAll(policyService.getSAPermissions(authorities));
+
+    return new VOMSAuthenticationDetails(request, authorities, attributes);
+
+  }
+  
+  
+  protected Set<GrantedAuthority> getAuthoritiesFromVoMapFiles(HttpServletRequest request) {
+    
+    Optional<X500Principal> principal = Utils.getX500PrincipalFromRequest(request);
+
+    if (!principal.isPresent()) {
+      return Collections.emptySet();
+    }
+
+    LinkedHashSet<GrantedAuthority> authorities = new LinkedHashSet<>();
+
+    for (String voName : voMapDetailsService.getPrincipalVOs(principal.get())) {
+      authorities.add(new VOMSVOMapAuthority(voName));
+    }
+    
+    return authorities;
   }
 
-  private void addSAPermissions(Set<GrantedAuthority> authorities) {
+  protected Set<GrantedAuthority> getAuthoritiesFromAttributes(List<VOMSAttribute> attributes) {
+    if (attributes.isEmpty()) {
+      return Collections.emptySet();
+    }
 
-    Set<GrantedAuthority> saPermissions = new HashSet<GrantedAuthority>();
+    LinkedHashSet<GrantedAuthority> authorities = new LinkedHashSet<>();
 
-    for (GrantedAuthority auth : authorities) {
-      if (auth instanceof VOMSVOAuthority) {
-        VOMSVOAuthority voAuth = (VOMSVOAuthority) auth;
-        saPermissions.addAll(voPerms.get(voAuth.getVoName()));
-      }
-      if (auth instanceof VOMSVOMapAuthority) {
-        VOMSVOMapAuthority voMapAuth = (VOMSVOMapAuthority) auth;
-        saPermissions.addAll(voMapPerms.get(voMapAuth.getVoName()));
+    for (VOMSAttribute va : attributes) {
+      authorities.add(new VOMSVOAuthority(va.getVO()));
+      for (String fqan : va.getFQANs()) {
+        authorities.add(new VOMSFQANAuthority(fqan));
       }
     }
 
-    authorities.addAll(saPermissions);
-    authorities.addAll(authenticatedPerms);
+    return authorities;
   }
 
-  private Collection<? extends GrantedAuthority> getVOMSGrantedAuthorities(
-      HttpServletRequest request) {
+  protected List<VOMSAttribute> getAttributes(HttpServletRequest request) {
 
-    Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+    Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
 
-    for (VOMSAuthDetailsSource source : vomsAuthoritiesSources) {
-      authorities.addAll(source.getVOMSGrantedAuthorities(request));
+    if (chain.isPresent()) {
+      if (chain.get().length > 0) {
+        return validator.validate(chain.get());
+      }
     }
 
-    addSAPermissions(authorities);
-
-    return Collections.unmodifiableSet(authorities);
+    return Collections.emptyList();
   }
+
 }

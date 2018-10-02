@@ -1,17 +1,17 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.italiangrid.storm.webdav.spring.web;
 
@@ -22,21 +22,17 @@ import javax.servlet.ServletContext;
 
 import org.italiangrid.storm.webdav.authz.CopyMoveAuthzVoter;
 import org.italiangrid.storm.webdav.authz.SAPermission;
-import org.italiangrid.storm.webdav.authz.VOMSAttributeCertificateAuthDetailsSource;
-import org.italiangrid.storm.webdav.authz.VOMSAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
-import org.italiangrid.storm.webdav.authz.VOMSPreAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHTTPMethodMatcher;
-import org.italiangrid.storm.webdav.authz.vomap.VOMapAuthDetailsSource;
-import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +53,6 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.context.ServletContextAware;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 @Configuration
@@ -73,43 +68,46 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   StorageAreaConfiguration saConfiguration;
 
   @Autowired
-  VOMapDetailsService vomsMapDetailsService;
+  PathResolver pathResolver;
 
   @Autowired
-  PathResolver pathResolver;
-  
-  @Autowired
   JwtAuthenticationConverter authConverter;
-  
-  
-  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-  String trustedOAuthIssuer;
-   
+
+  @Autowired
+  OAuthProperties oauthProperties;
+
+  @Autowired
+  VOMSAuthenticationProvider vomsProvider;
+
+  @Autowired
+  @Qualifier("vomsAuthenticationFilter")
+  VOMSAuthenticationFilter vomsFilter;
+
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
     return registry -> registry
       .addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
   }
-  
-  
+
+
   @Bean
   public HttpFirewall allowWebDAVMethodsFirewall() {
-    
+
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     List<String> allowedMethods = Lists.newArrayList();
-    
-    for (HttpMethod m: HttpMethod.values()) {
+
+    for (HttpMethod m : HttpMethod.values()) {
       allowedMethods.add(m.name());
     }
-    
-    for (WebDAVMethod m: WebDAVMethod.values()) {
+
+    for (WebDAVMethod m : WebDAVMethod.values()) {
       allowedMethods.add(m.name());
     }
-    
+
     firewall.setAllowedHttpMethods(allowedMethods);
     return firewall;
   }
-  
+
   @Bean
   public AccessDecisionVoter<FilterInvocation> customVoter() {
 
@@ -119,33 +117,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Bean
   public AccessDecisionManager accessDecisionManager() {
 
-    List<AccessDecisionVoter<?>> voters =
-        new ArrayList<>();
-    
+    List<AccessDecisionVoter<?>> voters = new ArrayList<>();
+
     voters.add(new WebExpressionVoter());
     voters.add(customVoter());
 
     return new UnanimousBased(voters);
   }
 
-  protected VOMSAuthenticationFilter buildVOMSAuthenticationFilter(
-      VOMSAuthenticationProvider provider) {
-
-    List<VOMSAuthDetailsSource> vomsHelpers = new ArrayList<VOMSAuthDetailsSource>();
-
-    vomsHelpers.add(new VOMSAttributeCertificateAuthDetailsSource());
-
-    if (serviceConfiguration.enableVOMapFiles() && vomsMapDetailsService != null) {
-
-      vomsHelpers.add(new VOMapAuthDetailsSource(vomsMapDetailsService));
-
-    }
-
-    VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(provider);
-    filter
-      .setAuthenticationDetailsSource(new VOMSPreAuthDetailsSource(vomsHelpers, saConfiguration));
-    return filter;
-  }
 
   protected void addAccessRules(HttpSecurity http) throws Exception {
 
@@ -179,11 +158,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       }
     }
 
-    VOMSAuthenticationProvider prov = new VOMSAuthenticationProvider();
-
     http.csrf().disable();
 
-    http.authenticationProvider(prov).addFilter(buildVOMSAuthenticationFilter(prov));
+    http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 
     if (!anonymousAccessPermissions.isEmpty()) {
       http.anonymous().authorities(anonymousAccessPermissions);
@@ -199,13 +176,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       addAccessRules(http);
       http.authorizeRequests().antMatchers("/errors/**").permitAll();
     }
-    
-    if (!Strings.isNullOrEmpty(trustedOAuthIssuer)) {
+
+    if (!oauthProperties.getIssuers().isEmpty()) {
       http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
     }
   }
 
-  
+
   @Override
   public void setServletContext(ServletContext servletContext) {
     context = servletContext;

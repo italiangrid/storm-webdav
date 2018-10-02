@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.italiangrid.storm.webdav.tpc;
 
 import static java.lang.String.format;
@@ -151,8 +166,37 @@ public class TransferFilterSupport implements TransferConstants {
     response.sendError(BAD_REQUEST.value(), msg);
   }
 
-  protected boolean validLocalPath(HttpServletRequest request, HttpServletResponse response)
+
+  protected boolean validLocalSourcePath(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
+    String servletPath = request.getServletPath();
+
+    Optional<String> pathInfo = Optional.ofNullable(request.getPathInfo());
+
+    if (!pathInfo.isPresent() || pathInfo.get().trim().length() == 0) {
+      invalidRequest(response, "Null or empty local path information!");
+      return false;
+    }
+
+    if (!pathInfo.get().startsWith("/")) {
+      invalidRequest(response, "Invalid local path: " + pathInfo.get());
+      return false;
+    }
+
+    Path localPath = Paths.get(servletPath, pathInfo.get());
+
+    if (!resolver.pathExists(localPath.toString())) {
+      notFound(response, "Not found: " + localPath.toString());
+      return false;
+    }
+
+    return true;
+  }
+
+
+
+  protected boolean validLocalDestinationPath(HttpServletRequest request,
+      HttpServletResponse response) throws IOException {
 
     String servletPath = request.getServletPath();
 
@@ -185,7 +229,6 @@ public class TransferFilterSupport implements TransferConstants {
     return true;
   }
 
-
   protected boolean validRequest(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
@@ -193,10 +236,7 @@ public class TransferFilterSupport implements TransferConstants {
     Optional<String> dest = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
     Optional<String> overwrite = Optional.ofNullable(request.getHeader(OVERWRITE_HEADER));
     Optional<String> checksum = Optional.ofNullable(request.getHeader(REQUIRE_CHECKSUM_HEADER));
-
-    if (!validLocalPath(request, response)) {
-      return false;
-    }
+    Optional<String> credential = Optional.ofNullable(request.getHeader(CREDENTIAL_HEADER));
 
     if (source.isPresent() && dest.isPresent()) {
       invalidRequest(response, "Source and Destination headers are both present!");
@@ -212,6 +252,14 @@ public class TransferFilterSupport implements TransferConstants {
     if (dest.isPresent() && !validTransferURI(request.getHeader(DESTINATION_HEADER))) {
       invalidRequest(response, format("Invalid %s header: %s", DESTINATION_HEADER,
           request.getHeader(DESTINATION_HEADER)));
+      return false;
+    }
+
+    if (source.isPresent() && !validLocalDestinationPath(request, response)) {
+      return false;
+    }
+
+    if (dest.isPresent() && !validLocalSourcePath(request, response)) {
       return false;
     }
 
@@ -250,6 +298,11 @@ public class TransferFilterSupport implements TransferConstants {
             format("Invalid %s header value: %s", REQUIRE_CHECKSUM_HEADER, val));
         return false;
       }
+    }
+    
+    if (credential.isPresent() && !CREDENTIAL_HEADER_NONE_VALUE.equals(credential.get())) {
+      invalidRequest(response, "Unsupported Credential header value: " + credential.get());
+      return false;
     }
 
     return true;

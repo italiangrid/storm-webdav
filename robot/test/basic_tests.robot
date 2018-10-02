@@ -51,6 +51,17 @@ Partial Get Works Teardown
     Default Setup
     Remove Test File   pget_test
 
+Partial Put Works Setup
+    Default Setup
+    Create Temporary File  pput0_test   0000000000
+    Create Temporary File  pput1_test   1111111111
+
+Partial Put Works Teardown
+    Default Teardown
+    Remove Test File  pput_test
+    Remove Temporary File  pput0_test
+    Remove Temporary File  pput1_test
+
 *** Test cases ***
 
 Get works
@@ -98,3 +109,12 @@ Partial Get works
     Should Contain  ${out}  1x2y  
     Should Contain  ${out}  Content-Length: 4
     [Teardown]  Partial Get Works Teardown
+
+Partial Put works
+    [Tags]  voms  put  partial  bice
+    [Setup]  Partial Put Works Setup
+    ${opts}  Set Variable  -H "Content-Range: bytes=0-3/*" ${curl.opts.default}
+    ${dest}  DAVS Url  pput_test
+    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput0_test  ${dest}  
+    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
+    [Teardown]  Partial Put Works Teardown

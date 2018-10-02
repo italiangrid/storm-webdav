@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,12 @@
 package org.italiangrid.storm.webdav.milton;
 
 import static io.milton.property.PropertySource.PropertyAccessibility.READ_ONLY;
-import io.milton.http.Auth;
-import io.milton.http.Range;
-import io.milton.http.exceptions.BadRequestException;
-import io.milton.http.exceptions.ConflictException;
-import io.milton.http.exceptions.NotAuthorizedException;
-import io.milton.http.exceptions.NotFoundException;
-import io.milton.property.PropertySource.PropertyMetaData;
-import io.milton.property.PropertySource.PropertySetException;
-import io.milton.resource.CollectionResource;
-import io.milton.resource.CopyableResource;
-import io.milton.resource.DeletableResource;
-import io.milton.resource.GetableResource;
-import io.milton.resource.MultiNamespaceCustomPropertyResource;
-import io.milton.resource.ReplaceableResource;
+import static java.util.Objects.isNull;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,32 +32,48 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
-public class StoRMFileResource extends StoRMResource implements
-  DeletableResource, CopyableResource, ReplaceableResource,
-  MultiNamespaceCustomPropertyResource, GetableResource {
+import io.milton.http.Auth;
+import io.milton.http.Range;
+import io.milton.http.exceptions.BadRequestException;
+import io.milton.http.exceptions.ConflictException;
+import io.milton.http.exceptions.NotAuthorizedException;
+import io.milton.http.exceptions.NotFoundException;
+import io.milton.http.http11.PartialllyUpdateableResource;
+import io.milton.property.PropertySource.PropertyMetaData;
+import io.milton.property.PropertySource.PropertySetException;
+import io.milton.resource.CollectionResource;
+import io.milton.resource.CopyableResource;
+import io.milton.resource.DeletableResource;
+import io.milton.resource.GetableResource;
+import io.milton.resource.MultiNamespaceCustomPropertyResource;
+import io.milton.resource.ReplaceableResource;
 
-  private static final FileNameMap MIME_TYPE_MAP = URLConnection
-    .getFileNameMap();
+public class StoRMFileResource extends StoRMResource
+    implements DeletableResource, CopyableResource, ReplaceableResource,
+    MultiNamespaceCustomPropertyResource, GetableResource, PartialllyUpdateableResource {
+
+  private static final FileNameMap MIME_TYPE_MAP = URLConnection.getFileNameMap();
 
   public static final String STORM_NAMESPACE_URI = "http://storm.italiangrid.org/2014/webdav";
   public static final String PROPERTY_CHECKSUM = "Checksum";
 
-  private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA = new ImmutableMap.Builder<QName, PropertyMetaData>()
-    .put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
-      new PropertyMetaData(READ_ONLY, String.class)).build();
+  private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA =
+      new ImmutableMap.Builder<QName, PropertyMetaData>()
+        .put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
+            new PropertyMetaData(READ_ONLY, String.class))
+        .build();
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(StoRMFileResource.class);
+  private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
 
   public StoRMFileResource(StoRMResourceFactory factory, File f) {
 
@@ -78,8 +82,7 @@ public class StoRMFileResource extends StoRMResource implements
   }
 
   @Override
-  public void delete() throws NotAuthorizedException, ConflictException,
-    BadRequestException {
+  public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
 
     getFilesystemAccess().rm(getFile());
 
@@ -87,7 +90,7 @@ public class StoRMFileResource extends StoRMResource implements
 
   @Override
   public void copyTo(CollectionResource toCollection, String name)
-    throws NotAuthorizedException, BadRequestException, ConflictException {
+      throws NotAuthorizedException, BadRequestException, ConflictException {
 
     StoRMDirectoryResource dir = (StoRMDirectoryResource) toCollection;
     File destFile = dir.childrenFile(name);
@@ -97,20 +100,77 @@ public class StoRMFileResource extends StoRMResource implements
 
   @Override
   public void replaceContent(InputStream in, Long length)
-    throws BadRequestException, ConflictException, NotAuthorizedException {
+      throws BadRequestException, ConflictException, NotAuthorizedException {
 
     try {
+
       Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
-      OutputStream os = new FileOutputStream(getFile());
 
-      IOUtils.copy(cis, os);
-      IOUtils.closeQuietly(os);
+      if (RangeCopyHelper.rangeCopy(cis, getFile(), 0, length) != length) {
+        throw new StoRMWebDAVError("Incomplete copy error!");
+      }
 
-      getExtendedAttributesHelper().setChecksumAttribute(getFile(),
-        cis.getChecksumValue());
+      getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());
 
     } catch (FileNotFoundException e) {
       throw new ResourceNotFound(e);
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
+    }
+  }
+
+  protected void validateRange(Range range) {
+    long fileSize = getFile().length();
+
+    if (isNull(range.getStart())) {
+      throw new StoRMWebDAVError("Invalid range: range start not defined");
+    }
+
+    if (range.getStart() >= fileSize) {
+      throw new StoRMWebDAVError("Invalid range: range start out of bounds");
+    }
+
+    if (!isNull(range.getFinish()) && range.getFinish() > fileSize) {
+      throw new StoRMWebDAVError("Invalid range: range end out of bounds");
+    }
+  }
+
+  @Override
+  public void replacePartialContent(Range range, InputStream in) {
+
+    validateRange(range);
+
+    long rangeStart = range.getStart();
+    long rangeEnd = getFile().length();
+
+    if (!isNull(range.getFinish()) && range.getFinish() < rangeEnd) {
+      rangeEnd = range.getFinish();
+    }
+
+    long rangeLength = rangeEnd - rangeStart;
+
+    try {
+      RangeCopyHelper.rangeCopy(in, getFile(), rangeStart, rangeLength);
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
+    }
+
+    // Need to update the checksum...
+    calculateChecksum();
+  }
+
+
+  protected void calculateChecksum() {
+    try (Adler32ChecksumInputStream cis =
+        new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(getFile())))) {
+
+      byte[] buffer = new byte[8192];
+
+      while (cis.read(buffer) != -1) {
+      }
+
+      getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());
+      
     } catch (IOException e) {
       throw new StoRMWebDAVError(e);
     }
@@ -124,8 +184,7 @@ public class StoRMFileResource extends StoRMResource implements
         try {
           return getExtendedAttributesHelper().getChecksumAttribute(getFile());
         } catch (IOException e) {
-          logger.warn("Errror getting checksum value for file: {}", getFile()
-            .getAbsolutePath(), e);
+          logger.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
           return null;
         }
       }
@@ -136,10 +195,9 @@ public class StoRMFileResource extends StoRMResource implements
 
   @Override
   public void setProperty(QName name, Object value)
-    throws PropertySetException, NotAuthorizedException {
+      throws PropertySetException, NotAuthorizedException {
 
-    throw new NotImplementedException(
-      "StoRM WebDAV does not support setting DAV properties.");
+    throw new NotImplementedException("StoRM WebDAV does not support setting DAV properties.");
   }
 
   @Override
@@ -155,9 +213,9 @@ public class StoRMFileResource extends StoRMResource implements
   }
 
   @Override
-  public void sendContent(OutputStream out, Range range,
-    Map<String, String> params, String contentType) throws IOException,
-    NotAuthorizedException, BadRequestException, NotFoundException {
+  public void sendContent(OutputStream out, Range range, Map<String, String> params,
+      String contentType)
+      throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 
     throw new NotImplementedException();
 
@@ -184,8 +242,9 @@ public class StoRMFileResource extends StoRMResource implements
   @Override
   public String toString() {
 
-    return "StoRMFileResource [resourceFactory=" + resourceFactory + ", file="
-      + file + "]";
+    return "StoRMFileResource [resourceFactory=" + resourceFactory + ", file=" + file + "]";
   }
+
+
 
 }

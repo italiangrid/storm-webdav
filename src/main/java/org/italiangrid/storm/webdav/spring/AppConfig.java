@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,17 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.time.Clock;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -35,11 +40,11 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailServiceBuilder;
-import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
+import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
-import org.italiangrid.storm.webdav.config.ServiceEnvConfiguration;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.DefaultFSStrategy;
@@ -47,6 +52,12 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.MetricsFSStrategyWrapper;
 import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
+import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
+import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
+import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
+import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
+import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
@@ -55,9 +66,12 @@ import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
+import com.google.common.collect.Maps;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -69,24 +83,35 @@ import eu.emi.security.authn.x509.impl.PEMCredential;
 @Configuration
 public class AppConfig implements TransferConstants {
 
+  @Bean
+  public Clock systemClock() {
+    return Clock.systemDefaultZone();
+  }
+  
+  @Bean
+  public SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
+      AuthorizationPolicyService policyService) {
+    return new DefaultJwtTokenIssuer(Clock.systemDefaultZone(), props.getAuthzServer(),
+        policyService);
+  }
 
   @Bean
-  public PEMCredential serviceCredential()
+  public TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
+      SignedJwtTokenIssuer tokenIssuer, Clock clock) {
+    return new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
+  }
+
+  @Bean
+  public PEMCredential serviceCredential(ServiceConfiguration conf)
       throws KeyStoreException, CertificateException, IOException {
-    ServiceConfiguration conf = serviceConfiguration();
 
     return new PEMCredential(conf.getPrivateKeyPath(), conf.getCertificatePath(), null);
   }
 
 
   @Bean
-  public ServiceConfiguration serviceConfiguration() {
-    return ServiceEnvConfiguration.INSTANCE;
-  }
-
-  @Bean
-  public StorageAreaConfiguration storageAreaConfiguration() {
-    return new SAConfigurationParser(serviceConfiguration());
+  public StorageAreaConfiguration storageAreaConfiguration(ServiceConfiguration conf) {
+    return new SAConfigurationParser(conf);
   }
 
 
@@ -117,17 +142,10 @@ public class AppConfig implements TransferConstants {
     return new HealthCheckRegistry();
   }
 
-  @Bean
-  public VOMapDetailsService vomsMapDetailService() {
-
-    VOMapDetailServiceBuilder builder = new VOMapDetailServiceBuilder(serviceConfiguration());
-    return builder.build();
-  }
+  
 
   @Bean
-  public X509CertChainValidatorExt canlCertChainValidator() {
-
-    ServiceConfiguration configuration = serviceConfiguration();
+  public X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
 
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
     CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
@@ -150,21 +168,28 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public PathResolver pathResolver() {
-    return new DefaultPathResolver(storageAreaConfiguration());
+  public PathResolver pathResolver(ServiceConfiguration conf) {
+    return new DefaultPathResolver(storageAreaConfiguration(conf));
+  }
+
+
+  @Bean
+  public ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
+    ScheduledExecutorService es = new ScheduledThreadPoolExecutor(4);
+    return es;
   }
 
   @Bean
-  public CloseableHttpClient transferClient(ThirdPartyCopyProperties props)
-      throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException,
-      CertificateException, IOException {
+  public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
+      ServiceConfiguration conf) throws NoSuchAlgorithmException, KeyManagementException,
+      KeyStoreException, CertificateException, IOException {
 
-    PEMCredential serviceCredential = serviceCredential();
+    PEMCredential serviceCredential = serviceCredential(conf);
 
-    SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator());
+    SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
 
     SSLContext ctx = SSLContext.getInstance(props.getTlsProtocol());
-    
+
     ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
@@ -180,8 +205,30 @@ public class AppConfig implements TransferConstants {
     PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
     cm.setMaxTotal(props.getMaxConnections());
 
+    ConnectionConfig connectionConfig =
+        ConnectionConfig.custom().setBufferSize(props.getHttpClientSocketBufferSize()).build();
 
-    return HttpClients.custom().setConnectionManager(cm).build();
+    return HttpClients.custom()
+      .setConnectionManager(cm)
+      .setDefaultConnectionConfig(connectionConfig)
+      .build();
+  }
+
+
+  @Bean
+  public JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps) {
+
+    Map<String, JwtDecoder> decoders = Maps.newHashMap();
+
+    props.getIssuers().forEach(i -> {
+      decoders.put(i.getIssuer(), JwtDecoders.fromOidcIssuerLocation(i.getIssuer()));
+    });
+
+    LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
+    decoders.put(sProps.getAuthzServer().getIssuer(), d);
+
+    return new CompositeJwtDecoder(decoders);
+
   }
 }
 

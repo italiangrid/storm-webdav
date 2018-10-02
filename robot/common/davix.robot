@@ -9,6 +9,13 @@ ${davix.opts.voms}   -P grid
 ${davix.opts.oauth}   -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
 
 *** Keywords ***
+Davix Push Copy Success  [Arguments]  ${src}  ${dst}  ${opts}=${davix.opts.voms}
+    ${output}  Execute and Check Success  davix-cp ${opts} ${src} ${dst}
+    [Return]  ${output}
+
+Davix Push Copy Failure  [Arguments]  ${src}  ${dst}  ${opts}=${davix.opts.voms}
+    ${output}  Execute and Check Failure  davix-cp ${opts} ${src} ${dst}
+    [Return]  ${output}
 
 Davix Get Success  [Arguments]   ${url}   ${opts}=${davix.opts.voms}
     ${output}   Execute and Check Success   davix-get ${opts} ${url}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.authz;
 
+import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.utils.UrlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -33,23 +36,19 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
-public class CopyMoveAuthzVoter implements
-  AccessDecisionVoter<FilterInvocation> {
+public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation> {
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(CopyMoveAuthzVoter.class);
+  private static final Logger logger = LoggerFactory.getLogger(CopyMoveAuthzVoter.class);
 
   private static final String DESTINATION = "Destination";
-  
+
   private static final String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
-  private static final Pattern WEBDAV_PATH_PATTERN = Pattern
-    .compile(WEBDAV_PATH_REGEX);
-  
+  private static final Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);
+
   final StorageAreaConfiguration saConfig;
   final PathResolver pathResolver;
-  
-  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig,
-    PathResolver pathResolver) {
+
+  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig, PathResolver pathResolver) {
 
     this.saConfig = saConfig;
     this.pathResolver = pathResolver;
@@ -74,19 +73,18 @@ public class CopyMoveAuthzVoter implements
     return (method.equals("COPY") || method.equals("MOVE"));
 
   }
-  
-  private String dropSlashWebdavFromPath(String path){
+
+  private String dropSlashWebdavFromPath(String path) {
     Matcher m = WEBDAV_PATH_PATTERN.matcher(path);
-    
-    if (m.matches()){
+
+    if (m.matches()) {
       return String.format("/%s", m.group(1));
     }
-    
+
     return path;
   }
 
-  private StorageAreaInfo getSAFromPath(String destinationURL)
-    throws MalformedURLException {
+  private StorageAreaInfo getSAFromPath(String destinationURL) throws MalformedURLException {
 
     URL url = new URL(destinationURL);
     String pathInContext = dropSlashWebdavFromPath(url.getPath());
@@ -95,7 +93,7 @@ public class CopyMoveAuthzVoter implements
 
   @Override
   public int vote(Authentication authentication, FilterInvocation filter,
-    Collection<ConfigAttribute> attributes) {
+      Collection<ConfigAttribute> attributes) {
 
     if (!isCopyOrMoveRequest(filter.getRequest())) {
       return ACCESS_ABSTAIN;
@@ -106,6 +104,11 @@ public class CopyMoveAuthzVoter implements
       return ACCESS_ABSTAIN;
     }
 
+    if (COPY.name().equals(filter.getRequest().getMethod())
+        && UrlHelper.isRemoteUrl(destination)) {
+      return ACCESS_ABSTAIN;
+    }
+
     try {
 
       StorageAreaInfo sa = getSAFromPath(destination);
@@ -113,22 +116,19 @@ public class CopyMoveAuthzVoter implements
       if (sa == null) {
         return ACCESS_DENIED;
       }
-      
-      if (authentication.getAuthorities().contains(
-        SAPermission.canWrite(sa.name()))) {
+
+      if (authentication.getAuthorities().contains(SAPermission.canWrite(sa.name()))) {
 
         return ACCESS_GRANTED;
       }
 
       if (logger.isDebugEnabled()) {
-        logger
-          .debug(
-            "Access denied. Principal does not have write permissions on "
-            + "storage area {}",
+        logger.debug(
+            "Access denied. Principal does not have write permissions on " + "storage area {}",
             sa.name());
 
       }
-      
+
       return ACCESS_DENIED;
 
     } catch (MalformedURLException e) {

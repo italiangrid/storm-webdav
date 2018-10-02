@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,6 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.server.PathResolver;
 
-//@WebServlet(urlPatterns = "/", initParams = {@WebInitParam(name = "acceptRanges", value = "true"),
-//    @WebInitParam(name = "dirAllowed", value = "true"),
-//    @WebInitParam(name = "aliases", value = "false"), @WebInitParam(name = "gzip", value = "false"),
-//    @WebInitParam(name = "etags", value = "true")})
 public class StoRMServlet extends DefaultServlet {
 
   /**

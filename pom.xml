@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.italiangrid</groupId>
   <artifactId>storm-webdav-server</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>storm-webdav-server</name>
 
@@ -50,19 +50,13 @@
 
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
-    
-    <!-- Default install prefix: keep it empty -->
-    <!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
-    <install.prefix></install.prefix>
-
-    <!-- Template for the sysconfig file -->
-    <sysconfig.template>etc/sysconfig/storm-webdav.template</sysconfig.template>
   </properties>
 
   <build>
     <finalName>${project.name}</finalName>
 
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -75,6 +69,18 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
       </plugin>
 
       <plugin>
@@ -104,14 +110,21 @@
           <header>copyright.txt</header>
           <excludes>
             <exclude>**/*.md</exclude>
-            <exclude>.travis.yml</exclude>
+            <exclude>**/*.yml</exclude>
             <exclude>Makefile</exclude>
             <exclude>.gitignore</exclude>
             <exclude>spec/**</exclude>
             <exclude>**/*.template</exclude>
             <exclude>src/main/resources/templates/**</exclude>
+            <exclude>robot/**</exclude>
+            <exclude>compose/**</exclude>
+            <exclude>docker/**</exclude>
+            <exclude>src/test/resources/**</exclude>
+            <exclude>Jenkinsfile</exclude>
+            <exclude>src/main/resources/META-INF/spring.factories</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
+          <strictCheck>true</strictCheck>
         </configuration>
         <executions>
           <execution>
@@ -180,37 +193,25 @@
       <artifactId>spring-security-oauth2-autoconfigure</artifactId>
       <version>${spring-boot.version}</version>
     </dependency>
-    
-    
-    <!-- 
-    <dependency>
-      <groupId>org.springframework.security.oauth</groupId>
-      <artifactId>spring-security-oauth2</artifactId>
-      <version>${spring-security-oauth2.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <version>${nimbus-jose-jwt.version}</version>
-    </dependency>
-     -->
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
       <scope>runtime</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
@@ -294,13 +295,6 @@
       </exclusions>
     </dependency>
 
-    <!-- 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    -->
-     
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-access</artifactId>
@@ -386,22 +380,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>prod</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <install.prefix></install.prefix>
-      </properties>
-    </profile>
-    <profile>
-      <id>dev</id>
-      <properties>
-        <install.prefix>/opt/storm-webdav</install.prefix>
-      </properties>
-    </profile>
-  </profiles>
 </project>

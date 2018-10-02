@@ -1,7 +1,25 @@
+/**
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.italiangrid.storm.webdav.test.tpc.http;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -9,9 +27,9 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
+import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import com.google.common.collect.ImmutableMultimap;
@@ -29,7 +47,7 @@ public class ClientTestSupport {
 
   public static final String AUTHORIZATION_HEADER = "Authorization";
   public static final String AUTHORIZATION_HEADER_VALUE = "Bearer 12345";
-  
+
   public static final Multimap<String, String> HEADER_MAP =
       new ImmutableMultimap.Builder<String, String>()
         .put(AUTHORIZATION_HEADER, AUTHORIZATION_HEADER_VALUE)
@@ -47,7 +65,12 @@ public class ClientTestSupport {
   @Mock
   GetTransferRequest req;
 
-  @InjectMocks
+  @Mock
+  ScheduledExecutorService es;
+
+  @Mock
+  ScheduledFuture sf;
+  
   HttpTransferClient client;
 
   @Captor
@@ -64,4 +87,10 @@ public class ClientTestSupport {
 
     return Jimfs.newFileSystem(fsConfig);
   }
+
+  @Before
+  public void setup() throws IOException {
+    client = new HttpTransferClient(httpClient, resolver, eah, es, 1, 4096);
+  }
+
 }

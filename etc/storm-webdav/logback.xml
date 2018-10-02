@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+  <logger name="org.italiangrid.storm.webdav" level="INFO" />
+  <!--
+  <logger name="org.italiangrid.storm.webdav.server.JettyWebServerFactory" level="WARN"/>
+  -->
+
+  <appender name="METRICS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/log/storm/webdav/storm-webdav-server-metrics.log</File>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server-metrics.%d{yyyy-MM-dd}.log</FileNamePattern>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/log/storm/webdav/storm-webdav-server.log</File>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server.%d{yyyy-MM-dd}.log</FileNamePattern>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="storm-metrics-logger" level="INFO" additivity="false">
+    <appender-ref ref="METRICS"/>
+  </logger>
+  
+  <root level="WARN">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

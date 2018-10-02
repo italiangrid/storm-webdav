@@ -1,0 +1,29 @@
+# This is an example of StoRM WebDAV storage area configuration
+
+# Name of the storage area
+name=sa
+
+# Root path for the storage area. Files will be served from this path, which must exist and
+# must be accessible from the user that runs the storm webdav service
+rootPath=/tmp
+
+# Comma separated list of storage area access points. 
+accessPoints=/sa
+
+# Comma separated list of VOMS VOs supported in this storage area
+vos=testers.eu-emi.eu
+
+# Enables read access to users authenticated with an X.509 certificate issued by
+# a trusted CA (users without VOMS credentials).
+# Defaults to false, which means that all users need to authenticate with a VOMS credential
+# authenticatedReadEnabled=false
+
+# Enables read access to anonymous users. Defaults to false. 
+# anonymousReadEnabled=false
+
+# Enables VO map files for this storage area. Defaults to true. 
+# voMapEnabled=true
+
+# VO map normally grants read-only access to storage area files. To grant 
+# write access set this flag to true. Defaults to false. 
+# voMapGrantsWriteAccess=false

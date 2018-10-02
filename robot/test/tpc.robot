@@ -50,6 +50,15 @@ Local pull copy works oauth and https Teardown
     Remove Test File   tpc_test_oauth_https
     Remove Test File   tpc_test_oauth_https  ${sa.oauth}
 
+Local push copy works Setup
+    Default Setup
+    Create Test File   tpc_test_push  content=Hello World!
+
+Local push copy works Teardown
+    Default Teardown
+    Remove Test File  tpc_test_push
+    Remove Test File  tpc_test_push  ${sa.oauth}
+
 *** Test cases ***
 
 Local pull copy works
@@ -89,3 +98,13 @@ Local pull copy works oauth and https
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
     Davix Get Success   ${dest}
     [Teardown]  Local pull copy works oauth and https Teardown
+
+Local push copy works
+    [Tags]  voms  oauth  tpc  push
+    [Setup]  Local push copy works Setup
+    ${dst}  DAVS URL  tpc_test_push  sa=${sa.oauth}
+    ${src}  DAVS URL  tpc_test_push
+    ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
+    ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
+    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    [Teardown]  Local push copy works Teardown

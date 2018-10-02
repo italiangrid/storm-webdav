@@ -2,3 +2,9 @@ server:
   jetty:
     accesslog:
       enabled: false
+
+storm:
+  sa:
+    config-dir: src/test/resources/conf/sa.d
+  tls:
+    trust-anchors-dir: src/test/resources/trust-anchors

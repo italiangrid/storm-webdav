@@ -1,57 +1,40 @@
+/**
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.italiangrid.storm.webdav.tpc.http;
 
-import static java.lang.String.format;
-import static org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper.extractAdler32DigestFromResponse;
-
 import java.io.IOException;
-import java.util.Optional;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
-import org.italiangrid.storm.webdav.tpc.transfer.TransferStatusCallback;
-import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 
-public class GetResponseHandler implements org.apache.http.client.ResponseHandler<Boolean> {
+public class GetResponseHandler extends ResponseHandlerSupport implements org.apache.http.client.ResponseHandler<Boolean> {
 
-  final TransferStatusCallback statusCallback;
   final StormCountingOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
 
-  final boolean verifyChecksum;
+  public GetResponseHandler(StormCountingOutputStream fs,
+      ExtendedAttributesHelper ah) {
 
-  public GetResponseHandler(boolean verifyChecksum, StormCountingOutputStream fs,
-      TransferStatusCallback cb, ExtendedAttributesHelper ah) {
-    this.verifyChecksum = verifyChecksum;
-    statusCallback = cb;
     fileStream = fs;
     attributesHelper = ah;
-  }
-
-  private void checkResponseStatus(StatusLine sl) throws HttpResponseException {
-    if (sl.getStatusCode() >= 300) {
-      throw new HttpResponseException(sl.getStatusCode(), sl.getReasonPhrase());
-    }
-  }
-
-  private void verifyChecksum(HttpResponse response, Adler32ChecksumOutputStream checkedStream) {
-    Optional<String> checksum = extractAdler32DigestFromResponse(response);
-
-    if (!checksum.isPresent()) {
-
-      throw new ChecksumVerificationError("Digest header not found in response");
-
-    } else if (!checkedStream.getChecksumValue().equals(checksum.get())) {
-
-      throw new ChecksumVerificationError(
-          format("Adler32 checksum verification error: expected=%s actual=%s", checksum.get(),
-              checkedStream.getChecksumValue()));
-    }
   }
 
   @Override
@@ -68,14 +51,10 @@ public class GetResponseHandler implements org.apache.http.client.ResponseHandle
       if (entity != null) {
 
         entity.writeTo(checkedStream);
-
-        if (verifyChecksum) {
-          verifyChecksum(response, checkedStream);
-        }
-
         attributesHelper.setChecksumAttribute(fileStream.getPath(),
             checkedStream.getChecksumValue());
       }
+
       return true;
 
     } finally {

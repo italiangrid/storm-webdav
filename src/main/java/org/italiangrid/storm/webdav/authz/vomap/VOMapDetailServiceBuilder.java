@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,7 @@ public class VOMapDetailServiceBuilder {
 
   private static final String VOMAPFILE_SUFFIX = ".vomap";
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(VOMapDetailServiceBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(VOMapDetailServiceBuilder.class);
 
   private final ServiceConfiguration serviceConf;
 
@@ -48,24 +47,22 @@ public class VOMapDetailServiceBuilder {
   private void directorySanityChecks(File directory) {
 
     if (!directory.exists())
-      throw new IllegalArgumentException(
-        "VOMS map files configuration directory does not exists: "
-          + directory.getAbsolutePath());
+      throw new VOMapFilesConfigurationError(
+          "VOMS map files configuration directory does not exists: " + directory.getAbsolutePath());
 
     if (!directory.isDirectory())
-      throw new IllegalArgumentException(
-        "VOMS map files configuration directory is not a directory: "
-          + directory.getAbsolutePath());
+      throw new VOMapFilesConfigurationError(
+          "VOMS map files configuration directory is not a directory: "
+              + directory.getAbsolutePath());
 
     if (!directory.canRead())
-      throw new IllegalArgumentException(
-        "VOMS map files configuration directory is not readable: "
-          + directory.getAbsolutePath());
+      throw new VOMapFilesConfigurationError(
+          "VOMS map files configuration directory is not readable: " + directory.getAbsolutePath());
 
     if (!directory.canExecute())
-      throw new IllegalArgumentException(
-        "VOMS map files configuration directory is not traversable: "
-          + directory.getAbsolutePath());
+      throw new VOMapFilesConfigurationError(
+          "VOMS map files configuration directory is not traversable: "
+              + directory.getAbsolutePath());
 
   }
 
@@ -90,33 +87,31 @@ public class VOMapDetailServiceBuilder {
     });
 
     if (files.length == 0) {
-      logger.warn(
-        "No mapfiles found in {}. Was looking for files ending in {}",
-        VOMAPFILE_SUFFIX);
-      return null;
+      logger.warn("No mapfiles found in {}. Was looking for files ending in {}", configDir,
+          VOMAPFILE_SUFFIX);
+      return new DefaultVOMapDetailsService(emptySet(), 0);
     }
-    
-    
+
+
 
     Set<VOMembershipProvider> providers = new HashSet<VOMembershipProvider>();
     for (File f : files) {
       try {
         String voName = FilenameUtils.removeExtension(f.getName());
-        
-        VOMembershipProvider prov = new DefaultVOMembershipProvider(
-          voName, new MapfileVOMembershipSource(voName, f));
+
+        VOMembershipProvider prov =
+            new DefaultVOMembershipProvider(voName, new MapfileVOMembershipSource(voName, f));
 
         providers.add(prov);
 
       } catch (Throwable t) {
-        logger.error("Error parsing mapfile {}: {}", f.getAbsolutePath(),
-          t.getMessage(), t);
+        logger.error("Error parsing mapfile {}: {}", f.getAbsolutePath(), t.getMessage(), t);
         continue;
       }
     }
 
     return new DefaultVOMapDetailsService(providers,
-      serviceConf.getVOMapFilesRefreshIntervalInSeconds());
+        serviceConf.getVOMapFilesRefreshIntervalInSeconds());
   }
 
 }

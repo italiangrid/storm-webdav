@@ -10,6 +10,8 @@ ${davs.port}   8443
 ${dav.endpoint}   http://${dav.host}:${dav.port}
 ${davs.endpoint}  https://${dav.host}:${davs.port}
 
+${token.endpoint}  https://${dav.host}:${davs.port}/oauth/token
+
 *** Keywords ***
 
 DAVS URL  [Arguments]  ${path}  ${sa}=${sa.default}

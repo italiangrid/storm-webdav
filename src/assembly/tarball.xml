@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE xml>
 <!--
 
-    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,6 +16,7 @@
     limitations under the License.
 
 -->
+<!DOCTYPE xml>
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
@@ -37,6 +37,7 @@
       <directoryMode>0750</directoryMode>
     </fileSet>
 
+    <!-- Empty fileset to create empty directory -->
     <fileSet>
       <directory>src</directory>
       <outputDirectory>var/lib/storm-webdav/work</outputDirectory>
@@ -52,29 +53,22 @@
       <includes>
         <include>**/*</include>
       </includes>
-      <excludes>
-        <exclude>logback.xml.template</exclude>
-        <exclude>logback-access.xml.template</exclude>
-      </excludes>
       <directoryMode>0755</directoryMode>
     </fileSet>
   </fileSets>
 
   <files>
     <file>
-      <source>${sysconfig.template}</source>
+      <source>etc/sysconfig/storm-webdav</source>
       <outputDirectory>etc/sysconfig</outputDirectory>
-      <destName>storm-webdav</destName>
       <fileMode>0644</fileMode>
-      <filtered>true</filtered>
     </file>
 
     <file>
-      <source>etc/init.d/storm-webdav.template</source>
+      <source>etc/init.d/storm-webdav</source>
       <outputDirectory>etc/init.d</outputDirectory>
       <destName>storm-webdav</destName>
       <fileMode>0755</fileMode>
-      <filtered>true</filtered>
     </file>
 
     <file>

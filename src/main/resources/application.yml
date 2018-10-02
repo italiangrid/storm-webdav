@@ -1,12 +1,6 @@
 spring:
   main:
     banner-mode: "off"
-    
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${STORM_WEBDAV_OAUTH_TRUSTED_ISSUER:}
 
 server:
   jetty:
@@ -19,6 +13,50 @@ server:
   
 tpc:
   tlsProtocol: ${STORM_WEBDAV_SERVER_TPC_TLS_PROTOCOL:TLSv1.2}
-  maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:200}
-  verifyChecksum: ${STORM_WEBDAV_SERVER_VERIFY_CHECKSUM:true}
+  maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:50}
+  verifyChecksum: ${STORM_WEBDAV_SERVER_TPC_VERIFY_CHECKSUM:false}
+  reportDelaySecs: ${STORM_WEBDAV_SERVER_TPC_REPORT_DELAY_SECS:1}
+  httpClientSocketBufferSize: ${STORM_WEBDAV_SERVER_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
+  localFileBufferSize: ${STORM_WEBDAV_SERVER_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
+
+oauth:
+  issuers:
+    - name: iam-test
+      issuer: https://iam-test.indigo-datacloud.eu/
+
+storm:
+  authz:
+    disabled: false
+    
+  connector:
+    port:  ${STORM_WEBDAV_HTTP_PORT:8085}
+    securePort: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    maxConnections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
+    maxQueueSize:  ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
+    maxIdleTimeMsec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    
+  tls:
+    certificatePath: ${STORM_WEBDAV_CERTIFICATE_PATH:/etc/grid-security/storm-webdav/hostcert.pem}
+    privateKeyPath: ${STORM_WEBDAV_PRIVATE_KEY_PATH:/etc/grid-security/storm-webdav/hostkey.pem}
+    trustAnchorsDir: ${STORM_WEBDAV_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
+    trustAnchorsRefreshIntervalSecs: ${STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL:86400}
+    requireClientCert: ${STORM_WEBDAV_REQUIRE_CLIENT_CERT:true}
   
+  sa:
+    configDir: ${STORM_WEBDAV_SA_CONFIG_DIR:/etc/storm/webdav/sa.d}
+  
+  voMapFiles:
+    configDir: ${STORM_WEBDAV_VO_MAP_FILES_CONFIG_DIR:/etc/storm/webdav/vo-mapfiles.d}
+    enabled: ${STORM_WEBDAV_VO_MAP_FILES_ENABLE:false}
+    refreshIntervalSec: ${STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL:21600}
+  
+  authz-server:
+    enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:true}
+    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${random.uuid}}
+    secret: ${STORM_WEBDAV_AUTHZ_SERVER_SECRET:${random.value}}
+    max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
+  
+  voms:
+    cache:
+      enabled: ${STORM_WEBDAV_VOMS_CACHE_ENABLE:true}
+      entry-lifetime-sec: ${STORM_WEBDAV_VOMS_CACHE_ENTRY_LIFETIME_SEC:300}

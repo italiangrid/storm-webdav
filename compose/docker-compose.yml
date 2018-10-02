@@ -4,13 +4,36 @@ volumes:
   trustanchors:
   cabundle:
   storage:
+  hostcert:
+  saconfig:
+  mapfilesconfig:
 
 services:
   trust:
-    image: indigoiam/trustanchors
+    image: indigoiam/trustanchors:latest
     volumes:
       - trustanchors:/etc/grid-security/certificates
       - cabundle:/etc/pki
+    # environment:
+      # FORCE_TRUST_ANCHORS_UPDATE: 1
+
+  webdav-setup:
+    image: italiangrid/storm-webdav:latest
+    environment:
+      TZ: UTC
+
+    volumes:
+      - ./assets/certs/:/certs:ro 
+      - ./assets/scripts:/scripts:ro
+      - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
+      - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
+      - hostcert:/etc/grid-security/storm-webdav
+      - saconfig:/etc/storm/webdav/sa.d
+      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - storage:/storage
+
+    entrypoint:
+      - /scripts/setup.sh
 
   webdav:
     image: italiangrid/storm-webdav:latest
@@ -21,45 +44,53 @@ services:
 
     depends_on:
       - trust
+      - webdav-setup
 
     environment:
       TZ: UTC
-      CERT_DIR: /certs
-      DEBUG: y
-
+      STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
 
     volumes:
+      - storage:/storage
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./assets/certs/:/certs:ro
-      - ./assets/vomsdir:/etc/grid-security/vomsdir
-      - ./assets/etc/storm/webdav:/etc/storm/webdav
+      - hostcert:/etc/grid-security/storm-webdav
+      - saconfig:/etc/storm/webdav/sa.d
+      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
+      - ./assets/scripts:/scripts:ro
       - ${HOME}/git/storm-webdav:/code:ro
-      
+
+    entrypoint:
+      - /scripts/run.sh
+
     networks:
       default:
         aliases:
           - storm.example
 
   ts:
-    image: italiangrid/storm-testsuite 
+    image: italiangrid/storm-webdav-ts:latest
     environment:
-      TZ: UTC 
-      TS_NO_WAIT: 1
-      TS_NO_CLONE: 1
-      TESTSUITE_SUITE: webdav
-      STORM_DAV_HOST: storm.example
+      - IAM_ACCESS_TOKEN
+      - TZ=UTC 
+      - DAV_HOST=storm.example
 
     depends_on:
       - webdav 
 
     volumes:
+      - storage:/storage
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
+      - ./assets/vomses:/etc/vomses:ro
       - ./assets/vomsdir:/etc/grid-security/vomsdir
-      - ${HOME}/git/storm-testsuite:/home/tester/storm-testsuite
+      - ./assets/scripts:/scripts:ro
+      - ./assets/usercerts/:/usercerts:ro
+      - ${HOME}/git/storm-webdav:/code:ro
 
-    entrypoint: sleep infinity
+    entrypoint: 
+      - /scripts/wait-and-run-testsuite.sh
 
     networks:
       default:

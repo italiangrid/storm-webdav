@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.italiangrid.storm.webdav.server;
 
 import java.io.IOException;
@@ -61,10 +76,10 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
-    
+
     connectorBuilder.httpConfiguration().setSendServerVersion(false);
     connectorBuilder.httpConfiguration().setSendDateHeader(false);
-    
+
     ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
       .withWantClientAuth(true)
       .withNeedClientAuth(configuration.requireClientCertificateAuthentication())
@@ -76,6 +91,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     connector.setName(HTTPS_CONNECTOR_NAME);
     server.addConnector(connector);
+    LOG.info("Configured TLS connector on port: {}", configuration.getHTTPSPort());
   }
 
   private void configurePlainConnector(Server server) {
@@ -96,6 +112,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     connector.setPort(configuration.getHTTPPort());
 
     server.addConnector(connector);
+    LOG.info("Configured plain HTTP connector on port: {}", configuration.getHTTPPort());
   }
 
   private void configureRewritedHandler(Server server) throws MalformedURLException, IOException {
@@ -147,11 +164,11 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   @Override
   protected void postProcessWebAppContext(WebAppContext context) {
     context.setCompactPath(true);
-    
+
     ErrorHandler eh = new ErrorHandler();
     eh.setShowStacks(false);
     context.setErrorHandler(eh);
-    
+
   }
 
   @Override
@@ -165,12 +182,12 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       throw new StoRMWebDAVError(e);
     }
 
-    
+
     server.setDumpAfterStart(false);
     server.setDumpBeforeStop(false);
     server.setStopAtShutdown(true);
   }
-  
+
   @PostConstruct
   protected void after() {
     confLogger.logConfiguration(LOG);
