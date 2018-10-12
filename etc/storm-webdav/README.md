@@ -7,14 +7,13 @@ The logging configuration is monitored by the StoRM WebDAV service, so changes
 will be applied to the logging configuration without the need to restart the
 service.
 
-The logback-access.xml file is used to configure the service access log, and
-should be normally left unchanged.
-
 ## Storage areas configuration
+
 Storage area configuration lives in the `sa.d` directory.
 For more information see the README.md file there.
 
 ## VOMS map files configuration
+
 VOMS map files contains the list of VO members as obtained by running the
 voms-admin list-users command.
 
