@@ -250,6 +250,29 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Valid
   public static class VOMSProperties {
     
+    
+    public static class VOMSTrustStoreProperties {
+      
+      String dir;
+      
+      int refreshIntervalSec;
+
+      public String getDir() {
+        return dir;
+      }
+
+      public void setDir(String dir) {
+        this.dir = dir;
+      }
+
+      public int getRefreshIntervalSec() {
+        return refreshIntervalSec;
+      }
+
+      public void setRefreshIntervalSec(int refreshIntervalSec) {
+        this.refreshIntervalSec = refreshIntervalSec;
+      }
+    }
     @Valid
     public static class VOMSCacheProperties {
 
@@ -276,6 +299,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
 
     VOMSCacheProperties cache;
+    VOMSTrustStoreProperties trustStore;
 
     public VOMSCacheProperties getCache() {
       return cache;
@@ -285,6 +309,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
       this.cache = cache;
     }
 
+    public VOMSTrustStoreProperties getTrustStore() {
+      return trustStore;
+    }
+
+    public void setTrustStore(VOMSTrustStoreProperties trustStore) {
+      this.trustStore = trustStore;
+    }
   }
 
   private AuthorizationProperties authz;

@@ -57,6 +57,10 @@ storm:
     max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
   
   voms:
+    trust-store:
+      dir:  ${STORM_WEBDAV_VOMS_TRUST_STORE_DIR:/etc/grid-security/vomsdir}
+      refresh-interval-sec: ${STORM_WEBDAV_VOMS_TRUST_STORE_REFRESH_INTERVAL_SEC:43200}
+      
     cache:
       enabled: ${STORM_WEBDAV_VOMS_CACHE_ENABLE:true}
       entry-lifetime-sec: ${STORM_WEBDAV_VOMS_CACHE_ENTRY_LIFETIME_SEC:300}

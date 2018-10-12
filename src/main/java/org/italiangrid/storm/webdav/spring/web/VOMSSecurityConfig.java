@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.spring.web;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
@@ -23,9 +24,11 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
 import org.italiangrid.storm.webdav.authz.VOMSPreAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailServiceBuilder;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.server.util.VOMSValidationListener;
+import org.italiangrid.storm.webdav.server.util.VOMSListener;
 import org.italiangrid.voms.ac.VOMSACValidator;
 import org.italiangrid.voms.ac.impl.DefaultVOMSValidator;
+import org.italiangrid.voms.store.VOMSTrustStore;
+import org.italiangrid.voms.store.VOMSTrustStores;
 import org.italiangrid.voms.util.CachingCertificateValidator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -48,8 +51,16 @@ public class VOMSSecurityConfig {
           TimeUnit.SECONDS.toMillis(props.getVoms().getCache().getEntryLifetimeSec()));
     }
 
+    VOMSListener listener = new VOMSListener();
+
+    VOMSTrustStore trustStore =
+        VOMSTrustStores.newTrustStore(Arrays.asList(props.getVoms().getTrustStore().getDir()),
+            TimeUnit.SECONDS.toMillis(props.getVoms().getTrustStore().getRefreshIntervalSec()),
+            listener);
+
     return new DefaultVOMSValidator.Builder().certChainValidator(certVal)
-      .validationListener(new VOMSValidationListener())
+      .validationListener(listener)
+      .trustStore(trustStore)
       .build();
   }
 
@@ -57,7 +68,7 @@ public class VOMSSecurityConfig {
   VOMSAuthenticationProvider vomsAuthenticationProvider() {
     return new VOMSAuthenticationProvider();
   }
-  
+
   @Bean
   VOMSPreAuthDetailsSource vomsDetailsSource(VOMSACValidator validator,
       AuthorizationPolicyService ps, VOMapDetailServiceBuilder builder) {
@@ -66,8 +77,6 @@ public class VOMSSecurityConfig {
 
   @Bean
   VOMSAuthenticationFilter vomsAuthenticationFilter(VOMSPreAuthDetailsSource ds) {
-
-
     VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(vomsAuthenticationProvider());
     filter.setAuthenticationDetailsSource(ds);
     return filter;
