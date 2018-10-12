@@ -8,6 +8,9 @@ storm:
     config-dir: src/test/resources/conf/sa.d
   tls:
     trust-anchors-dir: src/test/resources/trust-anchors
+    certificate-path: src/test/resources/hostcert/hostcert.pem
+    private-key-path: src/test/resources/hostcert/hostkey.pem
+    
   voms:
     trust-store:
       dir: src/test/resources/vomsdir
