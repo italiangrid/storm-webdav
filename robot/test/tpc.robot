@@ -8,7 +8,24 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
+*** Variables ***
+
+${remote.dav.host}             ${dav.host}
+${remote.dav.port}             ${dav.port}
+${remote.davs.port}            ${davs.port}
+${remote.davs.endpoint}        https://${remote.dav.host}:${remote.davs.port}
+${remote.dav.endpoint}         http://${remote.dav.host}:${remote.dav.port}
+
 *** Keywords ***
+
+Remote DAVS URL  [Arguments]  ${path}  ${sa}=${sa.default}
+    ${sa_path}  Normalize Path  /${sa}/${path}
+    [Return]  ${remote.davs.endpoint}${sa_path}
+
+Remote DAV URL  [Arguments]  ${path}  ${sa}=${sa.noauth}
+    ${sa_path}  Normalize Path  /${sa}/${path}
+    [Return]  ${remote.dav.endpoint}${sa_path}
+
 Default Setup
     Default VOMS credential
 
@@ -65,7 +82,7 @@ Local pull copy works
     [Tags]   voms  tpc
     [Setup]  Local pull copy works Setup
     ${dest}  DAVS URL  tpc_test
-    ${src}  DAV URL  tpc_test
+    ${src}  Remote DAV URL  tpc_test
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
     [Teardown]  Local pull copy works Teardown
@@ -74,7 +91,7 @@ Local pull copy works https
     [Tags]   voms  tpc
     [Setup]  Local pull copy works https Setup
     ${dest}  DAVS URL  tpc_test_https
-    ${src}  DAVS URL  tpc_test_https  sa=${sa.auth}
+    ${src}  Remote DAVS URL  tpc_test_https  sa=${sa.auth}
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
     [Teardown]  Local pull copy works https Teardown
@@ -83,7 +100,7 @@ Overwrite header recognized
     [Tags]   voms  tpc
     [Setup]  Overwrite header recognized Setup
     ${dest}  DAVS URL  tpc_test
-    ${src}  DAV URL  tpc_test
+    ${src}  Remote DAV URL  tpc_test
     ${opts}  Set Variable  -H "Overwrite: F" ${curl.opts.default} 
     ${rc}  ${out}  Curl Voms Pull COPY Failure  ${dest}  ${src}  ${opts}
     Should Contain  ${out}   412
@@ -93,7 +110,7 @@ Local pull copy works oauth and https
     [Tags]  oauth  tpc
     [Setup]  Local pull copy works oauth and https Setup
     ${dest}  DAVS URL  tpc_test_oauth_https
-    ${src}   DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
+    ${src}   Remote DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
     Davix Get Success   ${dest}
@@ -102,7 +119,7 @@ Local pull copy works oauth and https
 Local push copy works
     [Tags]  voms  oauth  tpc  push
     [Setup]  Local push copy works Setup
-    ${dst}  DAVS URL  tpc_test_push  sa=${sa.oauth}
+    ${dst}  Remote DAVS URL  tpc_test_push  sa=${sa.oauth}
     ${src}  DAVS URL  tpc_test_push
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}

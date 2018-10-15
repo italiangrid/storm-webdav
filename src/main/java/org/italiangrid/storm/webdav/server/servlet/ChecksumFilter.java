@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.server.servlet;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -84,27 +86,24 @@ public class ChecksumFilter implements Filter {
     }
     
     logger.debug("Retrieving checksum value ...");
+    String requestPath = format("%s%s", request.getServletPath(), request.getPathInfo());
 
-    String pathResolved = resolver.resolvePath(request.getPathInfo());
+    String pathResolved = resolver.resolvePath(requestPath);
       
     if (pathResolved == null) {
-        
-      logger.debug("Unable to resolve {} to a file", request.getPathInfo());
+      logger.debug("Unable to resolve path {} to a local file", requestPath);
       return;
-        
     }
 
     File f = new File(pathResolved);
     
     if (!f.exists()) {
-     
       logger.debug("File {} doesn't exist", f);
       return;
       
     }
 
     if (f.isDirectory()) {
-
       logger.debug("{} is a directory: no checksum value to retrieve", f);
       return;
     }

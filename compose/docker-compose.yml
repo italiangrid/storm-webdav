@@ -40,7 +40,7 @@ services:
     dns_search: example
     ports:
       - "9443:8443"
-      - "10044:1044"
+      - "9444:1044"
 
     depends_on:
       - trust
@@ -49,6 +49,8 @@ services:
     environment:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
+      STORM_WEBDAV_HOSTNAME_0: storm.example
+      DEBUG: y
 
     volumes:
       - storage:/storage
@@ -68,6 +70,7 @@ services:
       default:
         aliases:
           - storm.example
+          - storm-alias.example
 
   ts:
     image: italiangrid/storm-webdav-ts:latest
@@ -75,6 +78,7 @@ services:
       - IAM_ACCESS_TOKEN
       - TZ=UTC 
       - DAV_HOST=storm.example
+      - REMOTE_DAV_HOST=storm-alias.example
 
     depends_on:
       - webdav 
@@ -89,8 +93,10 @@ services:
       - ./assets/usercerts/:/usercerts:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
+    # entrypoint:  sleep infinity
+    #
     entrypoint: 
-      - /scripts/wait-and-run-testsuite.sh
+     - /scripts/wait-and-run-testsuite.sh
 
     networks:
       default:
