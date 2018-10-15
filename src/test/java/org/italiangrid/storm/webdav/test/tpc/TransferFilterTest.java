@@ -75,6 +75,12 @@ public class TransferFilterTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(chain).doFilter(request, response);
     reset(chain);
+    
+ // Local destination header
+    when(request.getHeader(DESTINATION_HEADER)).thenReturn("https://localhost/some/local/file");
+    filter.doFilter(request, response, chain);
+    verify(chain).doFilter(request, response);
+    reset(chain);
 
 
     // Remote source header

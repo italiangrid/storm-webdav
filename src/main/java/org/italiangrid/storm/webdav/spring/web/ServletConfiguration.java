@@ -27,6 +27,7 @@ import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -80,12 +81,13 @@ public class ServletConfiguration {
     return miltonFilter;
   }
 
-  
+
   @Bean
   FilterRegistrationBean<TransferFilter> tpcFilter(FilesystemAccess fs,
-      ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client, ThirdPartyCopyProperties props) {
-    FilterRegistrationBean<TransferFilter> tpcFilter = 
-        new FilterRegistrationBean<>(new TransferFilter(client, resolver, props.isVerifyChecksum()));
+      ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client,
+      ThirdPartyCopyProperties props, LocalURLService lus) {
+    FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
+        new TransferFilter(client, resolver, lus, props.isVerifyChecksum()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

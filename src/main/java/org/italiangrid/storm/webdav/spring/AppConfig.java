@@ -61,6 +61,8 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -229,6 +231,12 @@ public class AppConfig implements TransferConstants {
 
     return new CompositeJwtDecoder(decoders);
 
+  }
+  
+  @Bean
+  public LocalURLService localUrlService(ServiceConfigurationProperties props) {
+    props.getHostnames().removeIf(String::isEmpty);
+    return new StaticHostListLocalURLService(props.getHostnames());
   }
 }
 

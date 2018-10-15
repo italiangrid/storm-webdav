@@ -19,7 +19,6 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.italiangrid.storm.webdav.tpc.utils.UrlHelper.isRemoteUrl;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -50,10 +49,14 @@ public class TransferFilterSupport implements TransferConstants {
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
 
   protected final PathResolver resolver;
+  protected final LocalURLService localURLService;
   protected final boolean verifyChecksum;
 
-  protected TransferFilterSupport(PathResolver resolver, boolean verifyChecksum) {
+
+  protected TransferFilterSupport(PathResolver resolver, LocalURLService lus,
+      boolean verifyChecksum) {
     this.resolver = resolver;
+    this.localURLService = lus;
     this.verifyChecksum = verifyChecksum;
   }
 
@@ -66,8 +69,8 @@ public class TransferFilterSupport implements TransferConstants {
     Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
     Optional<String> dest = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
 
-    return (source.isPresent() && isRemoteUrl(source.get()))
-        || (dest.isPresent() && isRemoteUrl(dest.get()));
+    return (source.isPresent() && !localURLService.isLocalURL(source.get()))
+        || (dest.isPresent() && !localURLService.isLocalURL(dest.get()));
 
   }
 
@@ -299,7 +302,7 @@ public class TransferFilterSupport implements TransferConstants {
         return false;
       }
     }
-    
+
     if (credential.isPresent() && !CREDENTIAL_HEADER_NONE_VALUE.equals(credential.get())) {
       invalidRequest(response, "Unsupported Credential header value: " + credential.get());
       return false;

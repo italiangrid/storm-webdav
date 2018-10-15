@@ -45,6 +45,7 @@ public class ClientTest extends ClientTestSupport {
   @Rule
   public TemporaryFolder storage = new TemporaryFolder();
 
+  @SuppressWarnings("unchecked")
   @Before
   public void setup() throws IOException {
 

@@ -50,8 +50,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   final TransferClient client;
 
-  public TransferFilter(TransferClient c, PathResolver resolver, boolean verifyChecksum) {
-    super(resolver, verifyChecksum);
+  public TransferFilter(TransferClient c, PathResolver resolver, LocalURLService lus,
+      boolean verifyChecksum) {
+    super(resolver, lus, verifyChecksum);
     client = c;
   }
 

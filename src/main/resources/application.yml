@@ -3,14 +3,16 @@ spring:
     banner-mode: "off"
 
 server:
+  error:
+    whitelabel:
+      enabled: false
   jetty:
     accesslog:
       append: true
       enabled: ${STORM_WEBDAV_SERVER_ACCESS_LOG_ENABLED:false}
       log-latency: true
-      filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log} 
+      filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log}
 
-  
 tpc:
   tlsProtocol: ${STORM_WEBDAV_SERVER_TPC_TLS_PROTOCOL:TLSv1.2}
   maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:50}
@@ -25,9 +27,13 @@ oauth:
       issuer: https://iam-test.indigo-datacloud.eu/
 
 storm:
+  hostnames:
+    - ${STORM_WEBDAV_HOSTNAME_0:${server.address}}
+    - ${STORM_WEBDAV_HOSTNAME_1:}
+
   authz:
     disabled: false
-    
+
   connector:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
     securePort: ${STORM_WEBDAV_HTTPS_PORT:8443}

@@ -68,6 +68,7 @@ public class ClientTestSupport {
   @Mock
   ScheduledExecutorService es;
 
+  @SuppressWarnings("rawtypes")
   @Mock
   ScheduledFuture sf;
   

@@ -62,6 +62,14 @@ Partial Put Works Teardown
     Remove Temporary File  pput0_test
     Remove Temporary File  pput1_test
 
+Single Test File Setup  [Arguments]  ${file_name}
+    Default Setup
+    Create Test File  ${file_name}
+
+Local copy works teardown  [Arguments]  ${file_name}
+    Remove Test File  ${file_name}
+    Remove Test File  ${file_name}.copy
+
 *** Test cases ***
 
 Get works
@@ -111,10 +119,19 @@ Partial Get works
     [Teardown]  Partial Get Works Teardown
 
 Partial Put works
-    [Tags]  voms  put  partial  bice
+    [Tags]  voms  put  partial  
     [Setup]  Partial Put Works Setup
     ${opts}  Set Variable  -H "Content-Range: bytes=0-3/*" ${curl.opts.default}
     ${dest}  DAVS Url  pput_test
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput0_test  ${dest}  
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
     [Teardown]  Partial Put Works Teardown
+
+Local Copy works
+    [Tags]  voms  copy  porenghi
+    [Setup]  Single Test File Setup   test_local_copy
+    ${src}  DAVS Url   test_local_copy
+    ${rc}  ${out}  Curl Voms Push COPY Success  https://storm.example/test.vo/test_local_copy.copy  ${src}
+    Davix Get Success   ${src} 
+    Davix Get Success   ${src}.copy  
+    [Teardown]  Local copy works teardown  test_local_copy

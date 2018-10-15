@@ -15,9 +15,12 @@
  */
 package org.italiangrid.storm.webdav.config;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -246,15 +249,15 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
       this.maxTokenLifetimeSec = maxTokenLifetimeSec;
     }
   }
-  
+
   @Valid
   public static class VOMSProperties {
-    
-    
+
+
     public static class VOMSTrustStoreProperties {
-      
+
       String dir;
-      
+
       int refreshIntervalSec;
 
       public String getDir() {
@@ -278,7 +281,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
       boolean enabled;
 
-      @Positive(message="The VOMS cache entry lifetime must be a positive integer")
+      @Positive(message = "The VOMS cache entry lifetime must be a positive integer")
       int entryLifetimeSec;
 
       public boolean isEnabled() {
@@ -331,6 +334,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private AuthorizationServerProperties authzServer;
 
   private VOMSProperties voms;
+
+  @NotEmpty
+  private List<String> hostnames;
 
   public AuthorizationProperties getAuthz() {
     return authz;
@@ -503,9 +509,17 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return voms;
   }
 
-
   public void setVoms(VOMSProperties voms) {
     this.voms = voms;
   }
 
+
+  public List<String> getHostnames() {
+    return hostnames;
+  }
+
+
+  public void setHostnames(List<String> hostnames) {
+    this.hostnames = hostnames;
+  }
 }

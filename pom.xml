@@ -109,6 +109,8 @@
         <configuration>
           <header>copyright.txt</header>
           <excludes>
+            <exclude>etc/**</exclude>
+            <exclude>**/.factorypath</exclude>
             <exclude>**/*.md</exclude>
             <exclude>**/*.yml</exclude>
             <exclude>Makefile</exclude>

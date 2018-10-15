@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.italiangrid.storm.webdav.tpc.utils.UrlHelper;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -47,11 +47,14 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
 
   final StorageAreaConfiguration saConfig;
   final PathResolver pathResolver;
+  final LocalURLService localURLservice;
 
-  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig, PathResolver pathResolver) {
+  public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig, PathResolver pathResolver,
+      LocalURLService lus) {
 
     this.saConfig = saConfig;
     this.pathResolver = pathResolver;
+    this.localURLservice = lus;
   }
 
   @Override
@@ -105,7 +108,7 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
     }
 
     if (COPY.name().equals(filter.getRequest().getMethod())
-        && UrlHelper.isRemoteUrl(destination)) {
+        && !localURLservice.isLocalURL(destination)) {
       return ACCESS_ABSTAIN;
     }
 

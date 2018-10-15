@@ -31,6 +31,7 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.server.ErrorPage;
@@ -83,6 +84,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Qualifier("vomsAuthenticationFilter")
   VOMSAuthenticationFilter vomsFilter;
 
+  @Autowired
+  LocalURLService localURLService;
+  
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
     return registry -> registry
@@ -111,7 +115,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Bean
   public AccessDecisionVoter<FilterInvocation> customVoter() {
 
-    return new CopyMoveAuthzVoter(saConfiguration, pathResolver);
+    return new CopyMoveAuthzVoter(saConfiguration, pathResolver, localURLService);
   }
 
   @Bean
