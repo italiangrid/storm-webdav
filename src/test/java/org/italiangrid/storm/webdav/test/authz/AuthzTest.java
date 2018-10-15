@@ -49,8 +49,8 @@ public class AuthzTest {
   }
 
   @Test
-  public void writeAccessAsAnonymousLeadsTo403() throws Exception {
-    mvc.perform(put("/test/file")).andExpect(status().isForbidden());
+  public void writeAccessAsAnonymousLeadsTo401() throws Exception {
+    mvc.perform(put("/test/file")).andExpect(status().isUnauthorized());
   }
 
 }
