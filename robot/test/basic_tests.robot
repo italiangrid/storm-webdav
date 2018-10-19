@@ -66,10 +66,15 @@ Single Test File Setup  [Arguments]  ${file_name}
     Default Setup
     Create Test File  ${file_name}
 
+Single Test File Teardown  [Arguments]  ${file_name}
+    Default Teardown
+    Remove Test File  ${file_name}
+
 Local copy works teardown  [Arguments]  ${file_name}
+    Default Teardown
     Remove Test File  ${file_name}
     Remove Test File  ${file_name}.copy
-
+    
 *** Test cases ***
 
 Get works
@@ -128,10 +133,18 @@ Partial Put works
     [Teardown]  Partial Put Works Teardown
 
 Local Copy works
-    [Tags]  voms  copy  porenghi
+    [Tags]  voms  copy
     [Setup]  Single Test File Setup   test_local_copy
     ${src}  DAVS Url   test_local_copy
     ${rc}  ${out}  Curl Voms Push COPY Success  https://storm.example/test.vo/test_local_copy.copy  ${src}
     Davix Get Success   ${src} 
     Davix Get Success   ${src}.copy  
     [Teardown]  Local copy works teardown  test_local_copy
+
+Post not allowed on content
+    [Tags]  voms  post
+    [Setup]  Single Test File Setup   test_post_not_allowed
+    ${url}  DAVS Url   test_post_not_allowed
+    ${rc}  ${out}  Curl Voms Post Failure  ${url}
+    Should Contain  ${out}  405 Method Not Allowed
+    [Teardown]   Single Test File Teardown  test_post_not_allowed

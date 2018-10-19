@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
@@ -64,7 +65,7 @@ public class JwtIssuerTest {
 
   public static final int MAX_TOKEN_LIFETIME_SEC = 43200;
 
-  public static final Instant NOW = Instant.now();
+  public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
 
   public static final Instant EXPIRATION_INSTANT =
       NOW.plusSeconds(MAX_TOKEN_LIFETIME_SEC).truncatedTo(ChronoUnit.SECONDS);
@@ -74,6 +75,12 @@ public class JwtIssuerTest {
   
   public static final Instant VOMS_EXPIRATION_INSTANT_LATE =
       EXPIRATION_INSTANT.plusSeconds(100).truncatedTo(ChronoUnit.SECONDS);
+  
+  public static final Instant REQUESTED_EXPIRATION_INSTANT_EARLY = 
+      NOW.plusSeconds(50).truncatedTo(ChronoUnit.SECONDS);
+  
+  public static final Instant REQUESTED_EXPIRATION_INSTANT_LATE = 
+      EXPIRATION_INSTANT.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
 
   Clock fixedClock = Clock.fixed(NOW, ZoneId.systemDefault());
 
@@ -166,9 +173,37 @@ public class JwtIssuerTest {
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY)); 
+  }
+  
+  @Test
+  public void tokenIssuerLimitsTokenValidtyWithRequestedLifetime() throws ParseException {
+    SAPermission canReadTest = SAPermission.canRead("test");
+    SAPermission canWriteTest = SAPermission.canWrite("test");
+    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
+    when(req.getLifetime()).thenReturn(50L);
     
+    SignedJWT jwt = issuer.createAccessToken(req, authn);
+    assertThat(jwt, notNullValue());
+    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
+    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(REQUESTED_EXPIRATION_INSTANT_EARLY));  
   }
 
 
+  @Test
+  public void tokenIssuerIgnoresRequestedLifetimeWhenExceedsInternalLimit() throws ParseException {
+    SAPermission canReadTest = SAPermission.canRead("test");
+    SAPermission canWriteTest = SAPermission.canWrite("test");
+    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
+    when(req.getLifetime()).thenReturn(TimeUnit.DAYS.toSeconds(10));
+    
+    SignedJWT jwt = issuer.createAccessToken(req, authn);
+    assertThat(jwt, notNullValue());
+    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
+    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));  
+  }
 }

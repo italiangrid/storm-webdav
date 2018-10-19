@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
 import org.italiangrid.storm.webdav.authz.CopyMoveAuthzVoter;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
@@ -39,9 +40,11 @@ import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.UnanimousBased;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -86,11 +89,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Autowired
   LocalURLService localURLService;
-  
+
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
-    return registry -> registry
-      .addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
+    return registry -> registry.addErrorPages(
+        new ErrorPage(RequestRejectedException.class, "/errors/400"),
+        new ErrorPage(InsufficientAuthenticationException.class, "/errors/401"),
+        new ErrorPage(HttpStatus.BAD_REQUEST, "/errors/400"),
+        new ErrorPage(HttpStatus.UNAUTHORIZED, "/errors/401"),
+        new ErrorPage(HttpStatus.FORBIDDEN, "/errors/403"),
+        new ErrorPage(HttpStatus.NOT_FOUND, "/errors/404"),
+        new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, "/errors/405"));
+
   }
 
 
@@ -178,12 +188,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
       http.authorizeRequests().accessDecisionManager(accessDecisionManager());
       addAccessRules(http);
-      http.authorizeRequests().antMatchers("/errors/**").permitAll();
+
     }
 
     if (!oauthProperties.getIssuers().isEmpty()) {
       http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
     }
+
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/errors/**").permitAll();
+    http.authorizeRequests()
+      .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
+          "/.well-known/openid-configuration")
+      .permitAll();
+    http.exceptionHandling().accessDeniedPage("/errors/403");
+    http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
   }
 
 

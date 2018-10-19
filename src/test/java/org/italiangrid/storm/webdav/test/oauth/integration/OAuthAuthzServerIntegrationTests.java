@@ -56,8 +56,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WithAnonymousUser
 public class OAuthAuthzServerIntegrationTests {
 
-  public static final Instant NOW = Instant.now();
-  public static final Instant NOW_PLUS_100_SECS = NOW.plusSeconds(100);
+  public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
+  
   public static final String GRANT_TYPE = "grant_type";
   public static final String CLIENT_CREDENTIALS = "client_credentials";
   public static final String CUSTOM_GRANT_TYPE = "my_own_grant_type";
@@ -110,12 +110,12 @@ public class OAuthAuthzServerIntegrationTests {
   }
 
   @Test
-  @WithMockVOMSUser(acExpirationSecs=200)
+  @WithMockVOMSUser(acExpirationSecs = 200)
   public void postSupportedForAuthenticatedVomsUsers() throws Exception {
     mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token").exists())
-      .andExpect(jsonPath("$.expires_in", is(199)))
+      .andExpect(jsonPath("$.expires_in", is(200)))
       .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
 
@@ -129,6 +129,30 @@ public class OAuthAuthzServerIntegrationTests {
       .andExpect(jsonPath("$.error", is(UNSUPPORTED_GRANT_TYPE)))
       .andExpect(jsonPath("$.error_description", is("Invalid grant type: " + CUSTOM_GRANT_TYPE)))
       .andDo(print());
+  }
+
+  @Test
+  @WithMockVOMSUser
+  public void requestedLifetimeHonoured() throws Exception {
+    mvc
+    .perform(
+        post("/oauth/token").content(format("%s&lifetime=50", CONTENT)).contentType(APPLICATION_FORM_URLENCODED))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.access_token").exists())
+      .andExpect(jsonPath("$.expires_in", is(50)))
+      .andExpect(jsonPath("$.token_type", is("Bearer")));
+  }
+  
+  @Test
+  @WithMockVOMSUser(acExpirationSecs = 200)
+  public void requestedLifetimeLimited() throws Exception {
+    mvc
+    .perform(
+        post("/oauth/token").content(format("%s&lifetime=200000", CONTENT)).contentType(APPLICATION_FORM_URLENCODED))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.access_token").exists())
+      .andExpect(jsonPath("$.expires_in", is(200)))
+      .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
 
 }

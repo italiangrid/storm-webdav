@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
@@ -29,6 +30,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ErrorHandler;
+import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.MetricRegistry;
@@ -161,12 +164,55 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     setThreadPool(configureThreadPool());
   }
 
+
+  private void addJettyErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
+    if (errorHandler instanceof ErrorPageErrorHandler) {
+      ErrorPageErrorHandler handler = (ErrorPageErrorHandler) errorHandler;
+      for (ErrorPage errorPage : errorPages) {
+        if (errorPage.isGlobal()) {
+          handler.addErrorPage(ErrorPageErrorHandler.GLOBAL_ERROR_PAGE, errorPage.getPath());
+        } else {
+          if (errorPage.getExceptionName() != null) {
+            handler.addErrorPage(errorPage.getExceptionName(), errorPage.getPath());
+          } else {
+            handler.addErrorPage(errorPage.getStatusCode(), errorPage.getPath());
+          }
+        }
+      }
+    }
+  }
+
+//  private Configuration getMimeTypeConfiguration() {
+//    return new AbstractConfiguration() {
+//
+//      @Override
+//      public void configure(WebAppContext context) throws Exception {
+//        MimeTypes mimeTypes = context.getMimeTypes();
+//        for (MimeMappings.Mapping mapping : getMimeMappings()) {
+//          mimeTypes.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
+//        }
+//      }
+//
+//    };
+//  }
+
+//  protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
+//      ServletContextInitializer... initializers) {
+//    List<Configuration> configurations = new ArrayList<>();
+//    configurations.add(getServletContextInitializerConfiguration(webAppContext, initializers));
+//    configurations.addAll(getConfigurations());
+//    configurations.add(getMimeTypeConfiguration());
+//    return configurations.toArray(new Configuration[0]);
+//  }
+
   @Override
   protected void postProcessWebAppContext(WebAppContext context) {
     context.setCompactPath(true);
 
-    ErrorHandler eh = new ErrorHandler();
+    ErrorPageErrorHandler eh = new ErrorPageErrorHandler();
+
     eh.setShowStacks(false);
+    addJettyErrorPages(eh, getErrorPages());
     context.setErrorHandler(eh);
 
   }

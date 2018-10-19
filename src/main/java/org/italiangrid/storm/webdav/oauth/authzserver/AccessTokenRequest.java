@@ -33,6 +33,8 @@ public class AccessTokenRequest {
   @Size(max = 256, message = SCOPE_TOO_LONG)
   private String scope;
 
+  private Long lifetime;
+  
   public String getGrant_type() {
     return grant_type;
   }
@@ -49,4 +51,11 @@ public class AccessTokenRequest {
     this.scope = scope;
   }
 
+  public Long getLifetime() {
+    return lifetime;
+  }
+
+  public void setLifetime(Long lifetime) {
+    this.lifetime = lifetime;
+  }
 }

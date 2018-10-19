@@ -3,23 +3,24 @@ spring:
     banner-mode: "off"
 
 server:
+  address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
     whitelabel:
       enabled: false
   jetty:
     accesslog:
       append: true
-      enabled: ${STORM_WEBDAV_SERVER_ACCESS_LOG_ENABLED:false}
+      enabled: ${STORM_WEBDAV_ACCESS_LOG_ENABLED:false}
       log-latency: true
-      filename: ${STORM_WEBDAV_SERVER_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log}
+      filename: ${STORM_WEBDAV_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log}
 
 tpc:
-  tlsProtocol: ${STORM_WEBDAV_SERVER_TPC_TLS_PROTOCOL:TLSv1.2}
-  maxConnections: ${STORM_WEBDAV_SERVER_TPC_MAX_CONNECTIONS:50}
-  verifyChecksum: ${STORM_WEBDAV_SERVER_TPC_VERIFY_CHECKSUM:false}
-  reportDelaySecs: ${STORM_WEBDAV_SERVER_TPC_REPORT_DELAY_SECS:1}
-  httpClientSocketBufferSize: ${STORM_WEBDAV_SERVER_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
-  localFileBufferSize: ${STORM_WEBDAV_SERVER_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
+  tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
+  maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
+  verifyChecksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
+  reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:1}
+  httpClientSocketBufferSize: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
+  localFileBufferSize: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
 
 oauth:
   issuers:
@@ -30,6 +31,8 @@ storm:
   hostnames:
     - ${STORM_WEBDAV_HOSTNAME_0:${server.address}}
     - ${STORM_WEBDAV_HOSTNAME_1:}
+    - ${STORM_WEBDAV_HOSTNAME_2:}
+    - ${STORM_WEBDAV_HOSTNAME_3:}
 
   authz:
     disabled: false
@@ -58,7 +61,7 @@ storm:
   
   authz-server:
     enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:true}
-    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${random.uuid}}
+    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.securePort}}
     secret: ${STORM_WEBDAV_AUTHZ_SERVER_SECRET:${random.value}}
     max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
   

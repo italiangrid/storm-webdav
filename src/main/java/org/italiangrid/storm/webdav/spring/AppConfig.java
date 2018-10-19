@@ -58,6 +58,7 @@ import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
+import org.italiangrid.storm.webdav.oauth.authzserver.web.AuthzServerMetadata;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
@@ -89,12 +90,11 @@ public class AppConfig implements TransferConstants {
   public Clock systemClock() {
     return Clock.systemDefaultZone();
   }
-  
+
   @Bean
   public SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
-      AuthorizationPolicyService policyService) {
-    return new DefaultJwtTokenIssuer(Clock.systemDefaultZone(), props.getAuthzServer(),
-        policyService);
+      AuthorizationPolicyService policyService, Clock clock) {
+    return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService);
   }
 
   @Bean
@@ -144,7 +144,7 @@ public class AppConfig implements TransferConstants {
     return new HealthCheckRegistry();
   }
 
-  
+
 
   @Bean
   public X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
@@ -232,11 +232,20 @@ public class AppConfig implements TransferConstants {
     return new CompositeJwtDecoder(decoders);
 
   }
-  
+
   @Bean
   public LocalURLService localUrlService(ServiceConfigurationProperties props) {
     props.getHostnames().removeIf(String::isEmpty);
     return new StaticHostListLocalURLService(props.getHostnames());
+  }
+
+  @Bean
+  public AuthzServerMetadata metadata(ServiceConfigurationProperties props) {
+    AuthzServerMetadata md = new AuthzServerMetadata();
+    md.setIssuer(props.getAuthzServer().getIssuer());
+    String tokenEndpoint = String.format("%s/oauth/token", props.getAuthzServer().getIssuer());
+    md.setTokenEndpoint(tokenEndpoint);
+    return md;
   }
 }
 

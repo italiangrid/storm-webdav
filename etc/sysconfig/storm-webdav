@@ -2,8 +2,16 @@
 # Default: storm
 STORM_WEBDAV_USER=storm
 
-# Java VM options
+# JVM options
 STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m -Djava.io.tmpdir=/var/lib/storm-webdav/work"
+
+# StoRM webdav will bind on this address
+STORM_WEBDAV_SERVER_ADDRESS="0.0.0.0"
+
+# In order to handle tpc requests, webdav needs to know for which hostnames
+# is handling requests (and possibly any alias)
+# STORM_WEBDAV_HOSTNAME_0="localhost"
+# STORM_WEBDAV_HOSTNAME_1="alias.for.localhost"
 
 # HTTPS connector port
 # Default: 8443
@@ -51,11 +59,14 @@ STORM_WEBDAV_JAR="/usr/share/java/storm-webdav/storm-webdav-server.jar"
 # The StoRM webdav logfile. Do not change this unless you know what you are doing.
 STORM_WEBDAV_LOG="/var/log/storm/webdav/storm-webdav-server.log"
 
-# The StoRM wedav logging configuration. Do not change this unless you know what you are doing.
+# The StoRM webdav logging configuration. Do not change this unless you know what you are doing.
 STORM_WEBDAV_LOG_CONFIGURATION="/etc/storm/webdav/logback.xml"
 
-# The StoRM wedav access log configuration. Do not change this unless you know what you are doing.
-STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/etc/storm/webdav/logback-access.xml"
+# Whether the StoRM webdav access log should be enabled. Do not change this unless you know what you are doing.
+STORM_WEBDAV_ACCESS_LOG_ENABLE="true"
+
+# The StoRM webdav access log location. Do not change this unless you know what you are doing.
+STORM_WEBDAV_ACCESS_LOG_LOCATION="/var/log/storm/webdav/storm-webdav-server-access.log"
 
 # Enables/disables  support for VO map files
 STORM_WEBDAV_VO_MAP_FILES_ENABLE="false"
@@ -78,3 +89,9 @@ STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL="21600"
 # debugger connects to the debugging port specified with the STORM_WEBDAV_DEBUG_PORT
 # option
 # STORM_WEBDAV_DEBUG_SUSPEND="y"
+
+# Max number of active third party copy connections
+STORM_WEBDAV_TPC_MAX_CONNECTIONS="50"
+
+# Proactively verify checksums in third party copy
+STORM_WEBDAV_TPC_VERIFY_CHECKSUM="false"

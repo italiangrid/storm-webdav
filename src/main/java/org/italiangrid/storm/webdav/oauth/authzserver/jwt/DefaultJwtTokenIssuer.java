@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
 import java.time.Clock;
@@ -80,19 +81,29 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     return Optional.empty();
   }
 
-  protected Date computeTokenExpirationTimestamp(Authentication authentication) {
+  protected Date computeTokenExpirationTimestamp(AccessTokenRequest request,
+      Authentication authentication) {
 
-    Instant defaultExpiration = clock.instant().plusSeconds(properties.getMaxTokenLifetimeSec());
+    Optional<Instant> requestedExpiration = Optional.empty();
+
+    Instant now = clock.instant();
+    Instant defaultExpiration = now.plusSeconds(properties.getMaxTokenLifetimeSec());
     Instant expiration = defaultExpiration;
+
+    if (!isNull(request.getLifetime()) && request.getLifetime() > 0) {
+      requestedExpiration = Optional.of(now.plusSeconds(request.getLifetime()));
+    }
+
+    if (requestedExpiration.isPresent() && requestedExpiration.get().isBefore(expiration)) {
+      expiration = requestedExpiration.get();
+    }
 
     Optional<Instant> acExpiration = vomsAcExpiration(authentication);
 
-    if (acExpiration.isPresent()) {
-      if (acExpiration.get().isBefore(defaultExpiration)) {
-        expiration = acExpiration.get();
-      }
+    if (acExpiration.isPresent() && acExpiration.get().isBefore(expiration)) {
+      expiration = acExpiration.get();
     }
-    
+
     return Date.from(expiration);
   }
 
@@ -105,7 +116,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     claimsSet.issuer(properties.getIssuer());
     claimsSet.audience(properties.getIssuer());
     claimsSet.subject(authentication.getName());
-    claimsSet.expirationTime(computeTokenExpirationTimestamp(authentication));
+    claimsSet.expirationTime(computeTokenExpirationTimestamp(request, authentication));
     claimsSet.claim(CLAIM_AUTHORITIES,
         authorities.stream().map(Object::toString).collect(toList()));
 
