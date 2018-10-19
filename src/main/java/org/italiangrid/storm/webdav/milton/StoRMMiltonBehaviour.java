@@ -15,23 +15,24 @@
  */
 package org.italiangrid.storm.webdav.milton;
 
+import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
+import org.italiangrid.storm.webdav.error.ResourceNotFound;
+import org.italiangrid.storm.webdav.error.SameFileError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.milton.http.Filter;
 import io.milton.http.FilterChain;
 import io.milton.http.Handler;
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
 import io.milton.http.Response;
+import io.milton.http.Response.Status;
 import io.milton.http.http11.Http11ResponseHandler;
-
-import org.italiangrid.storm.webdav.error.ResourceNotFound;
-import org.italiangrid.storm.webdav.error.SameFileError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StoRMMiltonBehaviour implements Filter {
 
-  private static final Logger LOG = LoggerFactory
-    .getLogger(StoRMMiltonBehaviour.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StoRMMiltonBehaviour.class);
 
   @Override
   public void process(FilterChain chain, Request request, Response response) {
@@ -45,8 +46,8 @@ public class StoRMMiltonBehaviour implements Filter {
       Handler handler = manager.getMethodHandler(method);
 
       if (handler == null) {
-        responseHandler.respondMethodNotImplemented(
-          new PhantomResource(request.getAbsolutePath()), response, request);
+        responseHandler.respondMethodNotImplemented(new PhantomResource(request.getAbsolutePath()),
+            response, request);
         return;
       }
 
@@ -54,18 +55,18 @@ public class StoRMMiltonBehaviour implements Filter {
       if (response.getEntity() != null) {
         manager.sendResponseEntity(response);
       }
+    } catch (DiskQuotaExceeded e) {
+      // responseHandler does not support sending insufficient storage
+      response.sendError(Status.SC_INSUFFICIENT_STORAGE, e.getMessage());
     } catch (ResourceNotFound e) {
       responseHandler.respondNotFound(response, request);
     } catch (SameFileError e) {
       responseHandler.respondForbidden(null, response, request);
-
     } catch (Throwable t) {
       LOG.error(t.getMessage(), t);
       responseHandler.respondServerError(request, response, t.getMessage());
     } finally {
       manager.closeResponse(response);
     }
-
   }
-
 }

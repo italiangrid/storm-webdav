@@ -9,8 +9,12 @@ server:
       enabled: false
   jetty:
     accesslog:
+      retention-period: ${STORM_WEBDAV_ACCESS_LOG_RETENTION_PERIOD:90}
+      date-format: yyyy-MM-dd HH:mm:ss.SSS
+      extended-format: false
+      file-date-format: yyyy-MM-dd
       append: true
-      enabled: ${STORM_WEBDAV_ACCESS_LOG_ENABLED:false}
+      enabled: ${STORM_WEBDAV_ACCESS_LOG_ENABLE:false}
       log-latency: true
       filename: ${STORM_WEBDAV_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log}
 

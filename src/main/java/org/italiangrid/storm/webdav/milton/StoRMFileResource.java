@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
+import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
@@ -67,6 +68,8 @@ public class StoRMFileResource extends StoRMResource
   public static final String STORM_NAMESPACE_URI = "http://storm.italiangrid.org/2014/webdav";
   public static final String PROPERTY_CHECKSUM = "Checksum";
 
+  public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
+
   private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA =
       new ImmutableMap.Builder<QName, PropertyMetaData>()
         .put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
@@ -86,6 +89,15 @@ public class StoRMFileResource extends StoRMResource
 
     getFilesystemAccess().rm(getFile());
 
+  }
+
+  protected void handleIOException(IOException e) {
+    
+    if (DISK_QUOTA_EXCEEDED.equals(e.getMessage())) {
+      throw new DiskQuotaExceeded(e.getMessage(), e);
+    }
+    
+    throw new StoRMWebDAVError(e.getMessage(),e);
   }
 
   @Override
@@ -115,7 +127,7 @@ public class StoRMFileResource extends StoRMResource
     } catch (FileNotFoundException e) {
       throw new ResourceNotFound(e);
     } catch (IOException e) {
-      throw new StoRMWebDAVError(e);
+      handleIOException(e);
     }
   }
 
@@ -152,7 +164,8 @@ public class StoRMFileResource extends StoRMResource
     try {
       RangeCopyHelper.rangeCopy(in, getFile(), rangeStart, rangeLength);
     } catch (IOException e) {
-      throw new StoRMWebDAVError(e);
+
+      handleIOException(e);
     }
 
     // Need to update the checksum...
@@ -170,7 +183,7 @@ public class StoRMFileResource extends StoRMResource
       }
 
       getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());
-      
+
     } catch (IOException e) {
       throw new StoRMWebDAVError(e);
     }
@@ -244,7 +257,5 @@ public class StoRMFileResource extends StoRMResource
 
     return "StoRMFileResource [resourceFactory=" + resourceFactory + ", file=" + file + "]";
   }
-
-
 
 }
