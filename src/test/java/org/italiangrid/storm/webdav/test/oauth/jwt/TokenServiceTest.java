@@ -44,7 +44,7 @@ import com.nimbusds.jwt.SignedJWT;
 @RunWith(MockitoJUnitRunner.class)
 public class TokenServiceTest {
 
-  public static final Instant NOW = Instant.now();
+  public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
   public static final Instant NOW_PLUS_100_SECS = NOW.plusSeconds(100);
 
   public static final String JWT_SERIALIZED_FORM = "shagdfhdgj.dsadhgjagsdjad.dasdgdhadjsagdh";
