@@ -10,13 +10,14 @@ server:
   jetty:
     accesslog:
       retention-period: ${STORM_WEBDAV_ACCESS_LOG_RETENTION_PERIOD:90}
-      date-format: yyyy-MM-dd HH:mm:ss.SSS
+      date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
       extended-format: false
-      file-date-format: yyyy-MM-dd
+      file-date-format: yyyyMMdd
       append: true
       enabled: ${STORM_WEBDAV_ACCESS_LOG_ENABLE:false}
       log-latency: true
       filename: ${STORM_WEBDAV_ACCESS_LOG_LOCATION:/var/log/storm/webdav/storm-webdav-server-access.log}
+      time-zone: ${STORM_WEBDAV_ACCESS_LOG_TIMEZONE:UTC} 
 
 tpc:
   tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
