@@ -68,6 +68,10 @@ STORM_WEBDAV_ACCESS_LOG_ENABLE="true"
 # The StoRM webdav access log location. Do not change this unless you know what you are doing.
 STORM_WEBDAV_ACCESS_LOG_LOCATION="/var/log/storm/webdav/storm-webdav-server-access.log"
 
+# Access log retention period (in days)
+# Default: 90
+# STORM_WEBDAV_ACCESS_LOG_RETENTION_PERIOD=90
+
 # Enables/disables  support for VO map files
 STORM_WEBDAV_VO_MAP_FILES_ENABLE="false"
 
@@ -95,3 +99,31 @@ STORM_WEBDAV_TPC_MAX_CONNECTIONS="50"
 
 # Proactively verify checksums in third party copy
 STORM_WEBDAV_TPC_VERIFY_CHECKSUM="false"
+
+# Enables the OAuth authorization server, used to issue bearer tokens
+# to clients presenting a VOMS credential
+# Default: true
+# STORM_WEBDAV_AUTHZ_SERVER_ENABLE="false"
+
+# The issuer setting for the token
+# Default: https://${STORM_WEBDAV_HOSTNAME_0}:${STORM_WEBDAV_HTTPS_PORT}
+# STORM_WEBDAV_AUTHZ_SERVER_ISSUER="https://storm.example:8443"
+
+# Maximum token lifetime in seconds
+# Default: 43200
+# STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC="43200"
+
+# The WebDAV authz server secret
+# This secret is used to sign bearer tokens, so if you have multiple
+# instances of storm-webdav serving for the same VOs, you should use
+# the same secret
+# IMPORTANT: set this in production, do not rely on the default random
+# value as that will cause problems across service restarts
+#
+# Default: a random string
+# STORM_WEBDAV_AUTHZ_SERVER_SECRET="areasonablesecretlongerthan256bits"
+
+# Should StoRM WebDAV always require a valid client certificate on the HTTPS endpoint?
+# Default: true
+# Set to 'false' if you want token-based authentication to work (and thus third-party copy)
+# STORM_WEBDAV_REQUIRE_CLIENT_CERT="false"
