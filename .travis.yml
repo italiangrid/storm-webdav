@@ -13,4 +13,4 @@ cache:
 notifications:
   slack:
     rooms:
-      secure: blgZrsUiJDCkT8yjP3qxxZJawcLtAW5U2x3eJ7qWozrgNs7F8yvdyf/J+581tDLy1yDV1X2sOak0YxuPQriJBsznaeR+hV2mTiE8tXXy+Qepvcvg/sQ+ElCSQTbd3cMRxupzifC8eYZj5rADhZNPDhRNrbqCmtN9bLBeu4QNPlo=
+      secure: OKe5lIcTQOeUaoS+6NImoIjceaN5IGR1a2w3PEl+tkRYygVnaPdwDtXAUr+WtdU+X8tfFudCTNd8xpcAsfFHXK9+TwvFi4Qk3ODGRF37iPe+pWUtdkb7TtjKP+Rkq19hFse24+kH2EojYAFagn6rulurZfJCeqJtnV3P8MyJe/c=
