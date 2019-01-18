@@ -17,6 +17,9 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.done;
+import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
+import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.inProgress;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -38,17 +41,21 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatusCallback;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.italiangrid.storm.webdav.tpc.utils.CountingFileEntity;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,12 +64,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class HttpTransferClient implements TransferClient, DisposableBean {
 
+  public static final Logger LOG = LoggerFactory.getLogger(HttpTransferClient.class);
+  
   final PathResolver resolver;
   final ExtendedAttributesHelper attributesHelper;
   final CloseableHttpClient httpClient;
   final ScheduledExecutorService executorService;
   final int reportDelaySec;
   final int localFileBufferSize;
+
+  private void reportStatus(TransferStatusCallback cb, TransferRequest req, TransferStatus s) {
+    req.setTransferStatus(s);
+    cb.reportStatus(req, s);
+  }
 
   @Autowired
   public HttpTransferClient(CloseableHttpClient client, PathResolver pr,
@@ -93,7 +107,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     return get;
   }
 
-  HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) {
+  HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) throws IOException {
 
     HttpPut put = new HttpPut(request.remoteURI());
 
@@ -101,13 +115,14 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       put.addHeader(h.getKey(), h.getValue());
     }
 
-    put.setEntity(cfe);
+    BufferedHttpEntity bhe = new BufferedHttpEntity(cfe);
+    put.setEntity(bhe);
 
     return put;
   }
 
   CountingFileEntity prepareFileEntity(String path) {
-    
+
     checkNotNull(path, "Impossible path resolution error");
 
     Path p = Paths.get(path);
@@ -125,7 +140,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
       Path p = Paths.get(path);
 
-      if (!Files.exists(p)) {
+      if (!p.toFile().exists()) {
         p = Files.createFile(p);
       }
 
@@ -139,31 +154,32 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     }
   }
 
+
   @Override
-  public void handle(GetTransferRequest request, TransferStatusCallback status) {
+  public void handle(GetTransferRequest request, TransferStatusCallback cb) {
 
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
     HttpGet get = prepareRequest(request);
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(() -> {
-      status.reportStatus(TransferStatus.inProgress(os.getCount()));
+      reportStatus(cb, request, inProgress(os.getCount()));
     }, reportDelaySec, reportDelaySec, TimeUnit.SECONDS);
 
     try {
 
-      httpClient.execute(get, new GetResponseHandler(os, attributesHelper));
+      httpClient.execute(get, new GetResponseHandler(request, os, attributesHelper));
 
       reportTask.cancel(true);
-      status.reportStatus(TransferStatus.done(os.getCount()));
+      reportStatus(cb, request, done(os.getCount()));
 
     } catch (HttpResponseException e) {
-      status.reportStatus(TransferStatus.error(format("Error fetching %s: %d %s",
+      reportStatus(cb, request, error(format("Error fetching %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
     } catch (ClientProtocolException e) {
-      status.reportStatus(TransferStatus
-        .error(format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+      reportStatus(cb, request,
+          error(format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
     } catch (Throwable e) {
-      status.reportStatus(TransferStatus.error(format("%s while fetching %s: %s",
+      reportStatus(cb, request, error(format("%s while fetching %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
       if (!reportTask.isCancelled()) {
@@ -172,8 +188,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     }
   }
 
-  protected void checkOverwrite(PutTransferRequest request)
-      throws ClientProtocolException, IOException {
+  protected void checkOverwrite(PutTransferRequest request) throws IOException {
     if (!request.overwrite()) {
       HttpHead head = new HttpHead(request.remoteURI());
       for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
@@ -181,8 +196,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       }
       CloseableHttpResponse response = httpClient.execute(head);
       if (response.getStatusLine().getStatusCode() == 200) {
-        throw new TransferError(
-            "Remote file exists and overwrite is false");
+        throw new TransferError("Remote file exists and overwrite is false");
       } else if (response.getStatusLine().getStatusCode() != 404) {
         throw new TransferError(format("Error checking if remote file exists: %d %s",
             response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
@@ -191,29 +205,36 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   @Override
-  public void handle(PutTransferRequest request, TransferStatusCallback status) {
-    
-    CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
-    
-    HttpPut put = prepareRequest(request, cfe);
+  public void handle(PutTransferRequest request, TransferStatusCallback cb) {
 
-    ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(() -> {
-      status.reportStatus(TransferStatus.inProgress(cfe.getCount()));
-    }, reportDelaySec, reportDelaySec, TimeUnit.SECONDS);
+    CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
+
+    HttpPut put = null;
+
+    try {
+      put = prepareRequest(request, cfe);
+    } catch (IOException e) {
+      reportStatus(cb, request,
+          error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+    }
+
+    ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(
+        () -> reportStatus(cb, request, inProgress(cfe.getCount())), reportDelaySec, reportDelaySec,
+        TimeUnit.SECONDS);
 
     try {
       checkOverwrite(request);
       httpClient.execute(put, new PutResponseHandler());
       reportTask.cancel(true);
-      status.reportStatus(TransferStatus.done(10));
+      reportStatus(cb, request, done(10)); // Why 10??
     } catch (HttpResponseException e) {
-      status.reportStatus(TransferStatus.error(format("Error pushing %s: %d %s",
+      reportStatus(cb, request, error(format("Error pushing %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
     } catch (ClientProtocolException e) {
-      status.reportStatus(TransferStatus
-        .error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+      reportStatus(cb, request,
+          error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     } catch (Throwable e) {
-      status.reportStatus(TransferStatus.error(format("%s while pushing %s: %s",
+      reportStatus(cb, request, error(format("%s while pushing %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
       if (!reportTask.isCancelled()) {

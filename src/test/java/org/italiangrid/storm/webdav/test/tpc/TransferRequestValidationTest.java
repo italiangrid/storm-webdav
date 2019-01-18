@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.tpc;
 
+import static java.util.Collections.emptyEnumeration;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -28,6 +29,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +45,10 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     when(request.getServletPath()).thenReturn(SERVLET_PATH);
     when(request.getPathInfo()).thenReturn(LOCAL_PATH);
     when(request.getMethod()).thenReturn(COPY.name());
+    when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
+    
     
   }
 
@@ -140,10 +144,20 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   @Test
   public void invalidCredentialHeader() throws IOException, ServletException {
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("whatever");
+    when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("gridsite");
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_BAD_REQUEST));
-    assertThat(error.getValue(), is("Unsupported Credential header value: whatever")); 
-  }  
+    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite")); 
+  }
+  
+  @Test
+  public void noneCredentialHeaderAccepted() throws IOException, ServletException {
+    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("none");
+    filter.doFilter(request, response, chain);
+    verify(response).setStatus(httpStatus.capture());
+   
+    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED)); 
+  }
 }

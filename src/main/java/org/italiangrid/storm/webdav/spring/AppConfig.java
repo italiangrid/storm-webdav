@@ -65,6 +65,7 @@ import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
+import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -155,7 +156,7 @@ public class AppConfig implements TransferConstants {
     long refreshInterval =
         TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    X509CertChainValidatorExt validator =
+    return
         builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
           .crlChecks(CrlCheckingMode.IF_VALID)
           .ocspChecks(OCSPCheckingMode.IGNORE)
@@ -166,7 +167,6 @@ public class AppConfig implements TransferConstants {
           .trustAnchorsUpdateInterval(refreshInterval)
           .build();
 
-    return validator;
   }
 
   @Bean
@@ -177,8 +177,7 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
-    ScheduledExecutorService es = new ScheduledThreadPoolExecutor(4);
-    return es;
+    return new ScheduledThreadPoolExecutor(4);
   }
 
   @Bean
@@ -213,6 +212,7 @@ public class AppConfig implements TransferConstants {
     return HttpClients.custom()
       .setConnectionManager(cm)
       .setDefaultConnectionConfig(connectionConfig)
+      .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
       .build();
   }
 

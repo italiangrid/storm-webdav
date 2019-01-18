@@ -16,10 +16,13 @@
 package org.italiangrid.storm.webdav.tpc.transfer;
 
 import java.net.URI;
+import java.util.Optional;
 
 import com.google.common.collect.Multimap;
 
 public interface TransferRequest {
+  
+  String uuid();
   
   String path();
   
@@ -31,4 +34,9 @@ public interface TransferRequest {
   
   boolean overwrite();
   
+  Optional<TransferStatus> lastTransferStatus();
+  
+  void setTransferStatus(TransferStatus status);
+  
+  String statusString();
 }

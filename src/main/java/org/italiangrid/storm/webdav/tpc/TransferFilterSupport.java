@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
+import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.slf4j.Logger;
@@ -162,10 +164,12 @@ public class TransferFilterSupport implements TransferConstants {
   }
 
   protected void notFound(HttpServletResponse response, String msg) throws IOException {
+    LOG.warn("Not found: {}", msg);
     response.sendError(HttpStatus.NOT_FOUND.value(), msg);
   }
 
   protected void invalidRequest(HttpServletResponse response, String msg) throws IOException {
+    LOG.warn("Invalid request: {}", msg);
     response.sendError(BAD_REQUEST.value(), msg);
   }
 
@@ -189,7 +193,7 @@ public class TransferFilterSupport implements TransferConstants {
     Path localPath = Paths.get(servletPath, pathInfo.get());
 
     if (!resolver.pathExists(localPath.toString())) {
-      notFound(response, "Not found: " + localPath.toString());
+      notFound(response, "Local source path not found: " + localPath.toString());
       return false;
     }
 
@@ -271,11 +275,8 @@ public class TransferFilterSupport implements TransferConstants {
 
       String val = overwrite.get();
 
-      if (val.trim().length() == 0) {
-        invalidOverwrite = true;
-      } else if (val.trim().length() > 1) {
-        invalidOverwrite = true;
-      } else if (!"T".equalsIgnoreCase(val) && !"F".equalsIgnoreCase(val)) {
+      if (val.trim().length() == 0 || val.trim().length() > 1
+          || (!"T".equalsIgnoreCase(val) && !"F".equalsIgnoreCase(val))) {
         invalidOverwrite = true;
       }
 
@@ -290,9 +291,8 @@ public class TransferFilterSupport implements TransferConstants {
       boolean invalidChecksum = false;
 
       String val = checksum.get();
-      if (val.trim().length() == 0) {
-        invalidChecksum = true;
-      } else if (!"true".equals(val) && !"false".equals(val)) {
+
+      if (val.trim().length() == 0 || (!"true".equals(val) && !"false".equals(val))) {
         invalidChecksum = true;
       }
 
@@ -311,26 +311,30 @@ public class TransferFilterSupport implements TransferConstants {
     return true;
   }
 
-  public void handleChecksumVerificationError(ChecksumVerificationError e,
+  public void handleChecksumVerificationError(TransferRequest req, ChecksumVerificationError e,
       HttpServletResponse response) throws IOException {
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    req.setTransferStatus(error(e.getMessage()));
   }
 
-  public void handleTransferError(TransferError e, HttpServletResponse response)
-      throws IOException {
+  public void handleTransferError(TransferRequest req, TransferError e,
+      HttpServletResponse response) throws IOException {
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    req.setTransferStatus(error(e.getMessage()));
   }
 
-  public void handleClientProtocolException(ClientProtocolException e, HttpServletResponse response)
-      throws IOException {
+  public void handleClientProtocolException(TransferRequest req, ClientProtocolException e,
+      HttpServletResponse response) throws IOException {
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %s", e.getMessage()));
+    req.setTransferStatus(error(e.getMessage()));
   }
 
-  public void handleHttpResponseException(HttpResponseException e, HttpServletResponse response)
-      throws IOException {
+  public void handleHttpResponseException(TransferRequest req, HttpResponseException e,
+      HttpServletResponse response) throws IOException {
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
+    req.setTransferStatus(error(e.getMessage()));
   }
 
 }

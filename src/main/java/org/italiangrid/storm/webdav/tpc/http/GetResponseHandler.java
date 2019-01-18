@@ -23,16 +23,20 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 
-public class GetResponseHandler extends ResponseHandlerSupport implements org.apache.http.client.ResponseHandler<Boolean> {
+public class GetResponseHandler extends ResponseHandlerSupport
+    implements org.apache.http.client.ResponseHandler<Boolean> {
 
+  final GetTransferRequest request;
   final StormCountingOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
 
-  public GetResponseHandler(StormCountingOutputStream fs,
+  public GetResponseHandler(GetTransferRequest req, StormCountingOutputStream fs,
       ExtendedAttributesHelper ah) {
 
+    request = req;
     fileStream = fs;
     attributesHelper = ah;
   }

@@ -29,7 +29,9 @@ import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
+import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +55,7 @@ public class ServletConfiguration {
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
     FilterRegistrationBean<LogRequestFilter> logRequestFilter =
-        new FilterRegistrationBean<LogRequestFilter>(new LogRequestFilter());
+        new FilterRegistrationBean<>(new LogRequestFilter());
 
     logRequestFilter.addUrlPatterns("/*");
     logRequestFilter.setOrder(LOG_REQ_FILTER_ORDER);
@@ -61,6 +63,7 @@ public class ServletConfiguration {
   }
 
   @Bean
+  @ConditionalOnProperty(name="storm.checksum-filter.enabled", havingValue="true")
   FilterRegistrationBean<ChecksumFilter> checksumFilter(ExtendedAttributesHelper helper,
       PathResolver resolver) {
     FilterRegistrationBean<ChecksumFilter> filter =
@@ -85,9 +88,12 @@ public class ServletConfiguration {
   @Bean
   FilterRegistrationBean<TransferFilter> tpcFilter(FilesystemAccess fs,
       ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client,
-      ThirdPartyCopyProperties props, LocalURLService lus) {
+      ThirdPartyCopyProperties props, LocalURLService lus, MetricRegistry registry) {
+
+    TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
+
     FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(client, resolver, lus, props.isVerifyChecksum()));
+        new TransferFilter(metricsClient, resolver, lus, props.isVerifyChecksum()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
@@ -113,9 +119,8 @@ public class ServletConfiguration {
     stormServlet.addInitParameter("aliases", "false");
     stormServlet.addInitParameter("gzip", "false");
 
-    saConfig.getStorageAreaInfo().forEach(i -> {
-      i.accessPoints().forEach(m -> stormServlet.addUrlMappings(m + "/*", m));
-    });
+    saConfig.getStorageAreaInfo()
+      .forEach(i -> i.accessPoints().forEach(m -> stormServlet.addUrlMappings(m + "/*", m)));
 
     return stormServlet;
   }

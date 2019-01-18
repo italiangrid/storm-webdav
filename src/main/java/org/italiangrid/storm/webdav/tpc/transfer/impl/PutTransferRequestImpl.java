@@ -15,13 +15,15 @@
  */
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
+import static java.lang.String.format;
+
 import java.net.URI;
 
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 
 import com.google.common.collect.Multimap;
 
-public class PutTransferRequestImpl extends TransferRequestImpl implements PutTransferRequest{
+public class PutTransferRequestImpl extends TransferRequestImpl implements PutTransferRequest {
 
   public PutTransferRequestImpl(String path, URI uri, Multimap<String, String> xferHeaders,
       boolean verifyChecksum, boolean overwrite) {
@@ -30,8 +32,12 @@ public class PutTransferRequestImpl extends TransferRequestImpl implements PutTr
 
   @Override
   public String toString() {
-    return "PutTransferRequest [path=" + path + ", uri=" + uri + ", xferHeaders=" + xferHeaders
-        + ", verifyChecksum=" + verifyChecksum + ", overwrite=" + overwrite + "]";
+    return "PutTransferRequest [uuid=" + uuid + ", path=" + path + ", uri=" + uri + ", xferHeaders="
+        + xferHeaders + ", verifyChecksum=" + verifyChecksum + ", overwrite=" + overwrite + "]";
   }
 
+  @Override
+  public String statusString() {
+    return format("Push xfer request %s status: %s", uuid, lastTransferStatus());
+  }
 }

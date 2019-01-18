@@ -221,15 +221,9 @@ The service logs live in the `/var/log/storm/webdav` directory.
 
 - `storm-webdav-server.log` provides the main service log
 - `storm-webdav-server-access.log` provides an http access log
-- `storm-webdav-server-metrics.log` provides a metrics log, similar to the StoRM backend heartbeat
 
 ### Access points
 
 By default a storage area named `sa` is accessible at the URL
 `https://hostname:8443/sa` or, if anonymous access is granted, at
 `http://hostname:8085/sa`
-
-For backward compatibility with the StoRM Gridhttps also
-`https://hostname:8443/webdav/sa` and `http://hostname:8085/webdav/sa` will
-work, but it's not needed anymore to specify the `webdav` prefix when issuing
-requests to the service.

@@ -30,6 +30,19 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("storm")
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
+  public static class ChecksumFilterProperties {
+
+    boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
   public static class AuthorizationProperties {
 
     boolean disabled = false;
@@ -323,6 +336,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private AuthorizationProperties authz;
 
+  private ChecksumFilterProperties checksumFilter;
+
   private ConnectorProperties connector;
 
   private TLSProperties tls;
@@ -522,4 +537,15 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   public void setHostnames(List<String> hostnames) {
     this.hostnames = hostnames;
   }
+
+
+  public ChecksumFilterProperties getChecksumFilter() {
+    return checksumFilter;
+  }
+
+
+  public void setChecksumFilter(ChecksumFilterProperties checksumFilter) {
+    this.checksumFilter = checksumFilter;
+  }
+
 }

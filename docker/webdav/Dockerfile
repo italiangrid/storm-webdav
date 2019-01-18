@@ -3,9 +3,12 @@ FROM centos:6
 RUN \
   yum -y install epel-release redhat-lsb-core wget git tar && \
   yum update -y && \
-  yum install -y gfal2-all davix attr acl storm-webdav nc python python-setup-tools python-pip && \
-  pip install robotframework && pip install --upgrade robotframework-httplibrary && \
-  pip install enum34 && \
+  yum install -y gfal2-all davix attr acl storm-webdav nc python34 && \
+  yum install -y python34-devel && \
+  yum install -y python34-setuptools && \
+  python3 /usr/lib/python3.4/site-packages/easy_install.py pip && \
+  pip3 install --upgrade pip && \
+  pip3 install robotframework && pip3 install --upgrade robotframework-httplibrary && \
   yum install -y java-1.8.0-openjdk-devel && \
   rpm --import http://repository.egi.eu/sw/production/umd/UMD-RPM-PGP-KEY && \
   yum install -y http://repository.egi.eu/sw/production/umd/4/sl6/x86_64/updates/umd-release-4.1.3-1.el6.noarch.rpm && \

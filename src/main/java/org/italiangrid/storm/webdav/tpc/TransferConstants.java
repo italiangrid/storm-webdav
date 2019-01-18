@@ -21,12 +21,13 @@ import com.google.common.collect.ImmutableSet;
 
 public interface TransferConstants {
 
+  String CLIENT_INFO_HEADER = "ClientInfo";
   String SOURCE_HEADER = "Source";
   String DESTINATION_HEADER = "Destination";
   String OVERWRITE_HEADER = "Overwrite";
   String REQUIRE_CHECKSUM_HEADER = "RequireChecksumVerification";
   String CREDENTIAL_HEADER = "Credential";
-  
+
   String CREDENTIAL_HEADER_NONE_VALUE = "none";
 
   String TRANSFER_HEADER = "TransferHeader";

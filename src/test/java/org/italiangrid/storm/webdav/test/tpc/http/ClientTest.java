@@ -69,7 +69,7 @@ public class ClientTest extends ClientTestSupport {
   @Test
   public void testClientCorrectlyBuildsHttpRequestNoHeaders() throws IOException {
 
-    client.handle(req, s -> {
+    client.handle(req, (r, s) -> {
     });
 
     verify(httpClient).execute(getRequest.capture(),
@@ -81,13 +81,13 @@ public class ClientTest extends ClientTestSupport {
     assertThat(httpGetReq.getAllHeaders(), arrayWithSize(0));
 
   }
-  
+
   @Test
   public void testClientCorrectlyBuildsHttpRequestWithHeaders() throws IOException {
 
     when(req.transferHeaders()).thenReturn(HEADER_MAP);
-    
-    client.handle(req, s -> {
+
+    client.handle(req, (r, s) -> {
     });
 
     verify(httpClient).execute(getRequest.capture(),
@@ -97,7 +97,8 @@ public class ClientTest extends ClientTestSupport {
 
     assertThat(httpGetReq.getURI(), is(HTTP_URI_URI));
     assertThat(httpGetReq.getAllHeaders(), arrayWithSize(1));
-    assertThat(httpGetReq.getHeaders(AUTHORIZATION_HEADER)[0].getValue(), is(AUTHORIZATION_HEADER_VALUE));
+    assertThat(httpGetReq.getHeaders(AUTHORIZATION_HEADER)[0].getValue(),
+        is(AUTHORIZATION_HEADER_VALUE));
 
   }
 

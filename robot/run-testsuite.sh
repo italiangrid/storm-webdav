@@ -22,14 +22,14 @@ REMOTE_DAV_HOST=${REMOTE_DAV_HOST:-${DAV_HOST:-localhost}}
 
 REPORTS_DIR=${REPORTS_DIR:-reports}
 
-PYBOT_ARGS=${PYBOT_ARGS:-}
+ROBOT_ARGS=${ROBOT_ARGS:-}
 
 DEFAULT_ARGS="--pythonpath .:common --variable dav.host:${DAV_HOST} --variable remote.dav.host:${REMOTE_DAV_HOST} -d ${REPORTS_DIR}"
 
 ARGS=${DEFAULT_ARGS}
 
-if [ -n "${PYBOT_ARGS}" ]; then
-  ARGS="${ARGS} ${PYBOT_ARGS}"
+if [ -n "${ROBOT_ARGS}" ]; then
+  ARGS="${ARGS} ${ROBOT_ARGS}"
 fi
 
-pybot ${ARGS} test 
+robot ${ARGS} test 

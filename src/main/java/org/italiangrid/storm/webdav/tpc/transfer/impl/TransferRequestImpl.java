@@ -16,12 +16,17 @@
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
 import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 
 import com.google.common.collect.Multimap;
 
 public abstract class TransferRequestImpl implements TransferRequest {
+
+  final String uuid;
 
   final String path;
 
@@ -33,9 +38,12 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   final boolean overwrite;
 
+  private Optional<TransferStatus> lastTransferStatus = Optional.empty();
+
   TransferRequestImpl(String path, URI uri, Multimap<String, String> xferHeaders,
       boolean verifyChecksum, boolean overwrite) {
 
+    this.uuid = UUID.randomUUID().toString();
     this.path = path;
     this.uri = uri;
     this.xferHeaders = xferHeaders;
@@ -68,5 +76,18 @@ public abstract class TransferRequestImpl implements TransferRequest {
     return overwrite;
   }
 
+  @Override
+  public void setTransferStatus(TransferStatus status) {
+    this.lastTransferStatus = Optional.of(status);
+  }
 
+  @Override
+  public Optional<TransferStatus> lastTransferStatus() {
+    return lastTransferStatus;
+  }
+
+  @Override
+  public String uuid() {
+    return uuid;
+  }
 }

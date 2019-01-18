@@ -29,6 +29,7 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.Slf4jRequestLog;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -42,6 +43,8 @@ import org.italiangrid.utils.jetty.ThreadPoolBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.ServerProperties.Jetty.Accesslog;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
@@ -56,6 +59,8 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 @Component
 public class JettyWebServerFactory extends JettyServletWebServerFactory
     implements JettyServerCustomizer {
+  
+  public static final String STORM_REQUEST_LOGGER_NAME = JettyWebServerFactory.class.getPackage().getName()+".RequestLog";
 
   public static final Logger LOG = LoggerFactory.getLogger(JettyWebServerFactory.class);
 
@@ -64,6 +69,9 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   final ServiceConfiguration configuration;
   final StorageAreaConfiguration saConf;
+
+  @Autowired
+  ServerProperties serverProperties;
 
   @Autowired
   MetricRegistry metricRegistry;
@@ -118,7 +126,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     LOG.info("Configured plain HTTP connector on port: {}", configuration.getHTTPPort());
   }
 
-  private void configureRewritedHandler(Server server) throws MalformedURLException, IOException {
+  private void configureRewriteHandler(Server server) throws MalformedURLException, IOException {
 
     RewriteHandler rh = new RewriteHandler();
 
@@ -164,6 +172,32 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     setThreadPool(configureThreadPool());
   }
 
+  private void customizeAccessLog(Server server) {
+    Slf4jRequestLog log = new Slf4jRequestLog();
+    
+    log.setLoggerName(STORM_REQUEST_LOGGER_NAME);
+
+    final Accesslog accessLog = serverProperties.getJetty().getAccesslog();
+
+    if (accessLog.isExtendedFormat()) {
+      log.setExtended(true);
+    }
+
+    if (accessLog.getDateFormat() != null) {
+      log.setLogDateFormat(accessLog.getDateFormat());
+    }
+    if (accessLog.getLocale() != null) {
+      log.setLogLocale(accessLog.getLocale());
+    }
+    if (accessLog.getTimeZone() != null) {
+      log.setLogTimeZone(accessLog.getTimeZone().getID());
+    }
+
+    log.setLogServer(accessLog.isLogServer());
+    log.setLogLatency(accessLog.isLogLatency());
+
+    server.setRequestLog(log);
+  }
 
   private void addJettyErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
     if (errorHandler instanceof ErrorPageErrorHandler) {
@@ -181,29 +215,6 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       }
     }
   }
-
-//  private Configuration getMimeTypeConfiguration() {
-//    return new AbstractConfiguration() {
-//
-//      @Override
-//      public void configure(WebAppContext context) throws Exception {
-//        MimeTypes mimeTypes = context.getMimeTypes();
-//        for (MimeMappings.Mapping mapping : getMimeMappings()) {
-//          mimeTypes.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
-//        }
-//      }
-//
-//    };
-//  }
-
-//  protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
-//      ServletContextInitializer... initializers) {
-//    List<Configuration> configurations = new ArrayList<>();
-//    configurations.add(getServletContextInitializerConfiguration(webAppContext, initializers));
-//    configurations.addAll(getConfigurations());
-//    configurations.add(getMimeTypeConfiguration());
-//    return configurations.toArray(new Configuration[0]);
-//  }
 
   @Override
   protected void postProcessWebAppContext(WebAppContext context) {
@@ -223,15 +234,17 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     configurePlainConnector(server);
     try {
       configureTLSConnector(server);
-      configureRewritedHandler(server);
+      configureRewriteHandler(server);
     } catch (KeyStoreException | CertificateException | IOException e) {
       throw new StoRMWebDAVError(e);
     }
 
-
     server.setDumpAfterStart(false);
     server.setDumpBeforeStop(false);
     server.setStopAtShutdown(true);
+
+    customizeAccessLog(server);
+
   }
 
   @PostConstruct

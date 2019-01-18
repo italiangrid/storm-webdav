@@ -24,7 +24,7 @@ import java.util.Optional;
 
 public class TransferStatus {
 
-  enum Status {
+  public enum Status {
     STARTED,
     ERROR,
     DONE
@@ -91,5 +91,18 @@ public class TransferStatus {
     }
 
     return builder.toString();
+  }
+  
+  @Override
+  public String toString() {
+   
+    StringBuilder builder  = new StringBuilder();
+   builder.append(status);
+   if (errorMessage.isPresent()) {
+     builder.append(" : ");
+     builder.append(errorMessage.get());
+   }
+   
+   return builder.toString();
   }
 }

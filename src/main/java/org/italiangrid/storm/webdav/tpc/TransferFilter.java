@@ -38,13 +38,18 @@ import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequestBuilder;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequestBuilder;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
+import org.italiangrid.storm.webdav.tpc.utils.ClientInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class TransferFilter extends TransferFilterSupport implements Filter {
+
+  public static final String XFER_ID_KEY = "tpc.xferId";
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilter.class);
 
@@ -75,16 +80,34 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+
+
   protected void handleCopy(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    if (validRequest(request, response)) {
-      Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
-      if (source.isPresent()) {
-        handlePullCopy(request, response);
-      } else {
-        handlePushCopy(request, response);
+    setupLoggingContext(request);
+
+    try {
+
+      if (validRequest(request, response)) {
+        Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
+        if (source.isPresent()) {
+          handlePullCopy(request, response);
+        } else {
+          handlePushCopy(request, response);
+        }
       }
+
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  private void setupLoggingContext(HttpServletRequest request) {
+    Optional<String> clientInfoHeader = Optional.ofNullable(request.getHeader(CLIENT_INFO_HEADER));
+
+    if (clientInfoHeader.isPresent()) {
+      ClientInfo.fromHeaderString(clientInfoHeader.get()).addToMDC();
     }
   }
 
@@ -95,12 +118,42 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   }
 
 
-  protected void reportProgress(TransferStatus s, HttpServletResponse r) {
+  protected void reportProgress(TransferRequest request, TransferStatus s, HttpServletResponse r) {
     try {
       r.getWriter().write(s.asPerfMarker());
       r.getWriter().flush();
     } catch (IOException e) {
       LOG.warn("I/O error writing perf marker: {}. Swallowing it", e.getMessage(), e);
+    }
+  }
+
+  protected void logTransferStart(GetTransferRequest req) {
+    LOG.info("Pull third-party transfer requested: Source: {}, Destination: {}", req.remoteURI(),
+        req.path());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("{}", req);
+    }
+  }
+
+  protected void logTransferStart(PutTransferRequest req) {
+    LOG.info("Push third-party transfer requested: Source: {}, Destination: {}", req.path(),
+        req.remoteURI());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("{}", req);
+    }
+  }
+
+  protected void logTransferDone(GetTransferRequest req) {
+    if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
+      LOG.info("Pull third-party transfer completed: {}. Source: {}, Destination: {}",
+          req.lastTransferStatus().get(), req.remoteURI(), req.path());
+    }
+  }
+
+  protected void logTransferDone(PutTransferRequest req) {
+    if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
+      LOG.info("Push third-party transfer completed: {}. Source: {}, Destination: {}",
+          req.lastTransferStatus().get(), req.path(), req.remoteURI());
     }
   }
 
@@ -118,19 +171,25 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       .overwrite(overwriteRequested(request))
       .build();
 
+    MDC.put(XFER_ID_KEY, xferRequest.uuid());
+
+    logTransferStart(xferRequest);
+
     try {
 
       response.setStatus(SC_ACCEPTED);
-      client.handle(xferRequest, s -> reportProgress(s, response));
+      client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
 
     } catch (ChecksumVerificationError e) {
-      handleChecksumVerificationError(e, response);
+      handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {
-      handleTransferError(e, response);
+      handleTransferError(xferRequest, e, response);
     } catch (HttpResponseException e) {
-      handleHttpResponseException(e, response);
+      handleHttpResponseException(xferRequest, e, response);
     } catch (ClientProtocolException e) {
-      handleClientProtocolException(e, response);
+      handleClientProtocolException(xferRequest, e, response);
+    } finally {
+      logTransferDone(xferRequest);
     }
   }
 
@@ -147,19 +206,24 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       .overwrite(overwriteRequested(request))
       .build();
 
+    MDC.put(XFER_ID_KEY, xferRequest.uuid());
+    logTransferStart(xferRequest);
+    
     try {
 
       response.setStatus(SC_ACCEPTED);
-      client.handle(xferRequest, s -> reportProgress(s, response));
+      client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
 
     } catch (ChecksumVerificationError e) {
-      handleChecksumVerificationError(e, response);
+      handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {
-      handleTransferError(e, response);
+      handleTransferError(xferRequest, e, response);
     } catch (HttpResponseException e) {
-      handleHttpResponseException(e, response);
+      handleHttpResponseException(xferRequest, e, response);
     } catch (ClientProtocolException e) {
-      handleClientProtocolException(e, response);
+      handleClientProtocolException(xferRequest, e, response);
+    } finally {
+      logTransferDone(xferRequest);
     }
   }
 

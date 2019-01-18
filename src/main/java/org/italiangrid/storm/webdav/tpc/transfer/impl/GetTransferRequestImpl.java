@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
+import static java.lang.String.format;
+
 import java.net.URI;
 
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -30,8 +32,13 @@ public class GetTransferRequestImpl extends TransferRequestImpl implements GetTr
 
   @Override
   public String toString() {
-    return "GetTransferRequest[path=" + path + ", uri=" + uri + ", xferHeaders=" + xferHeaders
-        + ", verifyChecksum=" + verifyChecksum + ", overwrite=" + overwrite + "]";
+    return "GetTransferRequest[uuid=" + uuid + ", path=" + path + ", uri=" + uri + ", xferHeaders="
+        + xferHeaders + ", verifyChecksum=" + verifyChecksum + ", overwrite=" + overwrite + "]";
+  }
+
+  @Override
+  public String statusString() {
+    return format("Pull xfer request %s status: %s", uuid, lastTransferStatus());
   }
 
 }

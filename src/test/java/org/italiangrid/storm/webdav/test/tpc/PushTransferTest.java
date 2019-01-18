@@ -157,7 +157,7 @@ public class PushTransferTest extends TransferFilterTestSupport{
     
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_NOT_FOUND));
-    assertThat(error.getValue(), is("Not found: "+SERVLET_PATH+LOCAL_PATH));
+    assertThat(error.getValue(), is("Local source path not found: "+SERVLET_PATH+LOCAL_PATH));
     
   }
 }

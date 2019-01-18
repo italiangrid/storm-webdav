@@ -58,7 +58,7 @@ public class GetResponseHandlerTest extends ClientTestSupport {
   @Before
   public void setup() {
     
-    handler = new GetResponseHandler(os, ah);
+    handler = new GetResponseHandler(null, os, ah);
     when(response.getStatusLine()).thenReturn(status);
     when(response.getEntity()).thenReturn(entity);
   }

@@ -14,8 +14,8 @@ services:
     volumes:
       - trustanchors:/etc/grid-security/certificates
       - cabundle:/etc/pki
-    # environment:
-      # FORCE_TRUST_ANCHORS_UPDATE: 1
+    environment:
+      FORCE_TRUST_ANCHORS_UPDATE: 1
 
   webdav-setup:
     image: italiangrid/storm-webdav:latest
@@ -50,7 +50,6 @@ services:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.example
-      DEBUG: y
 
     volumes:
       - storage:/storage

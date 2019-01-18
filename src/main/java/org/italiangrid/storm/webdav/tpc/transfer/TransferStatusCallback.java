@@ -18,6 +18,6 @@ package org.italiangrid.storm.webdav.tpc.transfer;
 @FunctionalInterface
 public interface TransferStatusCallback {
   
-  void reportStatus(TransferStatus ts);
+  void reportStatus(TransferRequest req, TransferStatus ts);
 
 }
