@@ -23,7 +23,6 @@ import java.util.Optional;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -33,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.tracing.RequestIdHolder;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequestBuilder;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
@@ -59,11 +59,6 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       boolean verifyChecksum) {
     super(resolver, lus, verifyChecksum);
     client = c;
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-
   }
 
   @Override
@@ -164,14 +159,13 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     String path = getScopedPathInfo(request);
 
     GetTransferRequest xferRequest = GetTransferRequestBuilder.create()
+      .uuid(RequestIdHolder.getRequestId())
       .uri(uri)
       .path(path)
       .headers(getTransferHeaders(request, response))
       .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
       .overwrite(overwriteRequested(request))
       .build();
-
-    MDC.put(XFER_ID_KEY, xferRequest.uuid());
 
     logTransferStart(xferRequest);
 
@@ -199,6 +193,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     String path = getScopedPathInfo(request);
 
     PutTransferRequest xferRequest = PutTransferRequestBuilder.create()
+      .uuid(RequestIdHolder.getRequestId())
       .uri(uri)
       .path(path)
       .headers(getTransferHeaders(request, response))

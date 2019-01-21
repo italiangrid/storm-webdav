@@ -24,6 +24,7 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
@@ -82,8 +83,8 @@ public class TpcIntegrationTest {
   public void testPutRedirectHandled() {
     Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
 
-    PutTransferRequest putRequest = new PutTransferRequestImpl("/test/example",
-        URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()

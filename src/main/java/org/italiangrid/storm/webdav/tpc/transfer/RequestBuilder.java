@@ -22,8 +22,10 @@ import com.google.common.collect.Multimap;
 
 public abstract class RequestBuilder<T> {
 
+  String uuid;
+
   String path;
-  
+
   URI uri;
 
   boolean verifyChecksum = true;
@@ -31,12 +33,16 @@ public abstract class RequestBuilder<T> {
   boolean overwrite = true;
 
   Multimap<String, String> headers = ArrayListMultimap.create();
-  
-  protected RequestBuilder() {
-  }
+
+  protected RequestBuilder() {}
 
   public abstract T build();
-  
+
+  public RequestBuilder<T> uuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
   public RequestBuilder<T> path(String path) {
     this.path = path;
     return this;
@@ -56,12 +62,12 @@ public abstract class RequestBuilder<T> {
     headers.put(header, value);
     return this;
   }
-  
+
   public RequestBuilder<T> overwrite(boolean o) {
     overwrite = o;
     return this;
   }
-  
+
   public RequestBuilder<T> verifyChecksum(boolean v) {
     verifyChecksum = v;
     return this;

@@ -27,6 +27,7 @@ import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
+import org.italiangrid.storm.webdav.server.tracing.RequestIdFilter;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
@@ -46,12 +47,25 @@ import com.codahale.metrics.servlets.MetricsServlet;
 @Configuration
 public class ServletConfiguration {
 
-  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
-  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 2000;
-  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 3000;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 4000;
+  static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
+  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1001;
+  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
+  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
 
 
+  @Bean
+  FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
+    FilterRegistrationBean<RequestIdFilter> requestIdFilter = 
+        new FilterRegistrationBean<>(new RequestIdFilter());
+    
+    requestIdFilter.addUrlPatterns("/*");
+    requestIdFilter.setOrder(REQUEST_ID_FILTER_ORDER);
+    
+    return requestIdFilter;
+  }
+  
+  
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
     FilterRegistrationBean<LogRequestFilter> logRequestFilter =

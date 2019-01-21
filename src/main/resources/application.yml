@@ -27,6 +27,8 @@ oauth:
       issuer: https://iam-test.indigo-datacloud.eu/
 
 storm:
+  access-log-configuration-path: ${STORM_WEBDAV_ACCESS_LOG_CONFIGURATION:}
+  
   hostnames:
     - ${STORM_WEBDAV_HOSTNAME_0:${server.address}}
     - ${STORM_WEBDAV_HOSTNAME_1:}

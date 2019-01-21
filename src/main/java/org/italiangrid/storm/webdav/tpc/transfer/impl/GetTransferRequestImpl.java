@@ -25,9 +25,9 @@ import com.google.common.collect.Multimap;
 
 public class GetTransferRequestImpl extends TransferRequestImpl implements GetTransferRequest {
 
-  public GetTransferRequestImpl(String path, URI uri, Multimap<String, String> xferHeaders,
+  public GetTransferRequestImpl(String uuid, String path, URI uri, Multimap<String, String> xferHeaders,
       boolean verifyChecksum, boolean overwrite) {
-    super(path, uri, xferHeaders, verifyChecksum, overwrite);
+    super(uuid,path, uri, xferHeaders, verifyChecksum, overwrite);
   }
 
   @Override

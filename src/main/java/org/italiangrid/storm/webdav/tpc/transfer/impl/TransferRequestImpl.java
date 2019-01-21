@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
@@ -40,10 +39,10 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   private Optional<TransferStatus> lastTransferStatus = Optional.empty();
 
-  TransferRequestImpl(String path, URI uri, Multimap<String, String> xferHeaders,
+  TransferRequestImpl(String uuid, String path, URI uri, Multimap<String, String> xferHeaders,
       boolean verifyChecksum, boolean overwrite) {
 
-    this.uuid = UUID.randomUUID().toString();
+    this.uuid = uuid;
     this.path = path;
     this.uri = uri;
     this.xferHeaders = xferHeaders;

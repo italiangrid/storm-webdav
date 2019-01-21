@@ -21,7 +21,7 @@ public class GetTransferRequestBuilder extends RequestBuilder<GetTransferRequest
 
 
   public GetTransferRequest build() {
-    return new GetTransferRequestImpl(path, uri, headers, verifyChecksum, overwrite);
+    return new GetTransferRequestImpl(uuid, path, uri, headers, verifyChecksum, overwrite);
 
   }
 

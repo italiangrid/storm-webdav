@@ -18,23 +18,6 @@
     </encoder>
   </appender>
   
-  <appender name="ACCESS"
-    class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>/var/log/storm/webdav/storm-webdav-server-access.log</File>
-    <rollingPolicy
-      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server-access.log-%d{yyyyMMdd}.gz</FileNamePattern>
-    </rollingPolicy>
-
-    <encoder>
-      <pattern>%h %l %u [%t] "%r" %s %b %D</pattern>
-    </encoder>
-  </appender>
-  
-  <logger name="org.italiangrid.storm.webdav.server.RequestLog" level="DEBUG" additivity="false">
-    <appender-ref ref="ACCESS"/>
-  </logger>
-  
   <root level="WARN">
     <appender-ref ref="FILE" />
   </root>

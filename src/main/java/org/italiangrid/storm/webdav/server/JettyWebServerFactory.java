@@ -15,8 +15,12 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
@@ -29,7 +33,6 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.Slf4jRequestLog;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -44,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.autoconfigure.web.ServerProperties.Jetty.Accesslog;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
@@ -54,13 +56,15 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
 
+import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
 @Component
 public class JettyWebServerFactory extends JettyServletWebServerFactory
     implements JettyServerCustomizer {
-  
-  public static final String STORM_REQUEST_LOGGER_NAME = JettyWebServerFactory.class.getPackage().getName()+".RequestLog";
+
+  public static final String STORM_REQUEST_LOGGER_NAME =
+      JettyWebServerFactory.class.getPackage().getName() + ".RequestLog";
 
   public static final Logger LOG = LoggerFactory.getLogger(JettyWebServerFactory.class);
 
@@ -172,31 +176,30 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     setThreadPool(configureThreadPool());
   }
 
-  private void customizeAccessLog(Server server) {
-    Slf4jRequestLog log = new Slf4jRequestLog();
-    
-    log.setLoggerName(STORM_REQUEST_LOGGER_NAME);
+  private void configureAccessLog(Server server) {
+    RequestLogImpl rli = new RequestLogImpl();
 
-    final Accesslog accessLog = serverProperties.getJetty().getAccesslog();
+    rli.setQuiet(true);
+    String accessLogConfiguration = configuration.getAccessLogConfigurationPath();
 
-    if (accessLog.isExtendedFormat()) {
-      log.setExtended(true);
+    if (isNullOrEmpty(accessLogConfiguration)) {
+      LOG.info("Null or empty access log configuration... access log will go to standard output");
+      rli.setResource("/logback-access.xml");
+    } else {
+      File accessLogConfFile = Paths.get(accessLogConfiguration).toFile();
+      if (!accessLogConfFile.exists() || !accessLogConfFile.canRead()) {
+        LOG.warn(
+            "Access log configuration file '{}' does not exist or is not readable... disabling access log.",
+            accessLogConfFile);
+        return;
+      } else {
+        LOG.info("Jetty Access log configured from file '{}'.", accessLogConfFile);
+        rli.setFileName(accessLogConfiguration);
+      }
     }
 
-    if (accessLog.getDateFormat() != null) {
-      log.setLogDateFormat(accessLog.getDateFormat());
-    }
-    if (accessLog.getLocale() != null) {
-      log.setLogLocale(accessLog.getLocale());
-    }
-    if (accessLog.getTimeZone() != null) {
-      log.setLogTimeZone(accessLog.getTimeZone().getID());
-    }
-
-    log.setLogServer(accessLog.isLogServer());
-    log.setLogLatency(accessLog.isLogLatency());
-
-    server.setRequestLog(log);
+    rli.start();
+    server.setRequestLog(rli);
   }
 
   private void addJettyErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
@@ -235,6 +238,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     try {
       configureTLSConnector(server);
       configureRewriteHandler(server);
+      configureAccessLog(server);
     } catch (KeyStoreException | CertificateException | IOException e) {
       throw new StoRMWebDAVError(e);
     }
@@ -243,7 +247,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     server.setDumpBeforeStop(false);
     server.setStopAtShutdown(true);
 
-    customizeAccessLog(server);
+
 
   }
 

@@ -62,11 +62,8 @@ STORM_WEBDAV_LOG="/var/log/storm/webdav/storm-webdav-server.log"
 # The StoRM webdav logging configuration. Do not change this unless you know what you are doing.
 STORM_WEBDAV_LOG_CONFIGURATION="/etc/storm/webdav/logback.xml"
 
-# Whether the StoRM webdav access log should be enabled. Do not change this unless you know what you are doing.
-STORM_WEBDAV_ACCESS_LOG_ENABLE="true"
-
-# The StoRM webdav access log location. Do not change this unless you know what you are doing.
-STORM_WEBDAV_ACCESS_LOG_LOCATION="/var/log/storm/webdav/storm-webdav-server-access.log"
+# The StoRM webdav access log configuration. Do not change this unless you know what you are doing.
+STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/etc/storm/webdav/logback-access.xml"
 
 # Access log retention period (in days)
 # Default: 90

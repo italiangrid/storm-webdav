@@ -349,6 +349,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private AuthorizationServerProperties authzServer;
 
   private VOMSProperties voms;
+  
+  private String logConfigurationPath;
+  
+  private String accessLogConfigurationPath;
 
   @NotEmpty
   private List<String> hostnames;
@@ -440,15 +444,21 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   @Override
   public String getLogConfigurationPath() {
-    return null;
+    return logConfigurationPath;
   }
 
+  public void setLogConfigurationPath(String logConfigurationPath) {
+    this.logConfigurationPath = logConfigurationPath;
+  }
 
   @Override
   public String getAccessLogConfigurationPath() {
-    return null;
+    return accessLogConfigurationPath;
   }
 
+  public void setAccessLogConfigurationPath(String accessLogConfigurationPath) {
+    this.accessLogConfigurationPath = accessLogConfigurationPath;
+  }
 
   @Override
   public long getTrustAnchorsRefreshIntervalInSeconds() {
