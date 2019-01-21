@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.server.servlet;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 
 import java.io.File;
@@ -116,27 +117,22 @@ public class ChecksumFilter implements Filter {
 
     } catch (IOException e) {
 
-      logger.error("Unable to retrieve file checksum value: {}",
-        e.getMessage(), e);
+      logger.error("Error retrieving checksum value for path '{}': {}",
+          pathResolved,e.getMessage());
+      
+      if (logger.isDebugEnabled()) {
+        logger.error(e.getMessage(), e);
+      }
       return;
     }
 
-    if (checksumValue == null) {
-
-      logger.error("Retrieved null file checksum value");
-      return;
-
-    } else if (checksumValue.isEmpty()) {
-
-      logger.error("Retrieved empty file checksum value");
+    if (isNullOrEmpty(checksumValue)) {
+      logger.warn("Null or empty checksum value for path: {}", pathResolved);
       return;
     }
 
-    String content = "adler32=" + checksumValue;
-    response.setHeader("Digest", content);
-
-    logger.debug("Added response header 'Digest: {}'", content);
-
+    final String checksumHeaderContent = "adler32=" + checksumValue;
+    response.setHeader("Digest", checksumHeaderContent);
   }
 
 }

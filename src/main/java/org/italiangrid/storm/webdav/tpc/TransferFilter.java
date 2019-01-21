@@ -203,7 +203,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
     MDC.put(XFER_ID_KEY, xferRequest.uuid());
     logTransferStart(xferRequest);
-    
+
     try {
 
       response.setStatus(SC_ACCEPTED);

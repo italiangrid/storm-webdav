@@ -10,7 +10,7 @@
     </rollingPolicy>
 
     <encoder>
-      <pattern>%h %l %u %user %date "%r" %s %b %D</pattern>
+      <pattern>%h %l %u %user %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%r" %s %b %D</pattern>
     </encoder>
   </appender>
 

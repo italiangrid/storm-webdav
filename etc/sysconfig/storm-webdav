@@ -65,10 +65,6 @@ STORM_WEBDAV_LOG_CONFIGURATION="/etc/storm/webdav/logback.xml"
 # The StoRM webdav access log configuration. Do not change this unless you know what you are doing.
 STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="/etc/storm/webdav/logback-access.xml"
 
-# Access log retention period (in days)
-# Default: 90
-# STORM_WEBDAV_ACCESS_LOG_RETENTION_PERIOD=90
-
 # Enables/disables  support for VO map files
 STORM_WEBDAV_VO_MAP_FILES_ENABLE="false"
 
