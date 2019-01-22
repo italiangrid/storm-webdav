@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
 public class HttpTransferClient implements TransferClient, DisposableBean {
 
   public static final Logger LOG = LoggerFactory.getLogger(HttpTransferClient.class);
-  
+
   final PathResolver resolver;
   final ExtendedAttributesHelper attributesHelper;
   final CloseableHttpClient httpClient;
@@ -128,7 +128,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     Path p = Paths.get(path);
 
     try {
-      return CountingFileEntity.create(p.toFile());
+      return CountingFileEntity.create(p.toFile(), localFileBufferSize);
     } catch (FileNotFoundException e) {
       throw new TransferError("Resolved path does not exists!", e);
     }
@@ -173,12 +173,17 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       reportStatus(cb, request, done(os.getCount()));
 
     } catch (HttpResponseException e) {
+      logException(e);
       reportStatus(cb, request, error(format("Error fetching %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
+
     } catch (ClientProtocolException e) {
+      logException(e);
       reportStatus(cb, request,
           error(format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+
     } catch (Throwable e) {
+      logException(e);
       reportStatus(cb, request, error(format("%s while fetching %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
@@ -228,18 +233,27 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       reportTask.cancel(true);
       reportStatus(cb, request, done(10)); // Why 10??
     } catch (HttpResponseException e) {
+      logException(e);
       reportStatus(cb, request, error(format("Error pushing %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
     } catch (ClientProtocolException e) {
+      logException(e);
       reportStatus(cb, request,
           error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     } catch (Throwable e) {
+      logException(e);
       reportStatus(cb, request, error(format("%s while pushing %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
       if (!reportTask.isCancelled()) {
         reportTask.cancel(true);
       }
+    }
+  }
+
+  private void logException(Throwable e) {
+    if (LOG.isDebugEnabled()) {
+      LOG.error(e.getMessage(), e);
     }
   }
 }
