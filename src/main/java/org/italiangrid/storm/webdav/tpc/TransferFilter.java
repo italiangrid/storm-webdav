@@ -102,7 +102,11 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     Optional<String> clientInfoHeader = Optional.ofNullable(request.getHeader(CLIENT_INFO_HEADER));
 
     if (clientInfoHeader.isPresent()) {
-      ClientInfo.fromHeaderString(clientInfoHeader.get()).addToMDC();
+      try {
+        ClientInfo.fromHeaderString(clientInfoHeader.get()).addToMDC();
+      } catch(IllegalArgumentException e) {
+        LOG.warn("Error parsing ClientInfo header: {}", clientInfoHeader.get());
+      }
     }
   }
 

@@ -61,11 +61,11 @@ public class ClientInfo {
   public static ClientInfo fromHeaderString(String headerString) {
     checkArgument(!isNullOrEmpty(headerString), "Invalid ClientInfo header: %s", headerString);
     Map<String, String> splitResult = SPLITTER.split(headerString);
-    checkArgument(!splitResult.containsKey(JOB_ID_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(JOB_ID_KEY), "Invalid ClientInfo header: %s",
         headerString);
-    checkArgument(!splitResult.containsKey(FILE_ID_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(FILE_ID_KEY), "Invalid ClientInfo header: %s",
         headerString);
-    checkArgument(!splitResult.containsKey(RETRY_COUNT_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(RETRY_COUNT_KEY), "Invalid ClientInfo header: %s",
         headerString);
     return new ClientInfo(splitResult.get(JOB_ID_KEY), splitResult.get(FILE_ID_KEY),
         Integer.parseInt(splitResult.get(RETRY_COUNT_KEY)));
