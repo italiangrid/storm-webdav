@@ -16,20 +16,33 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class PutResponseHandler extends ResponseHandlerSupport implements ResponseHandler<Boolean> {
 
-  public PutResponseHandler() {
+  public static final Logger LOG = LoggerFactory.getLogger(PutResponseHandler.class);
+
+  public PutResponseHandler(Map<String, String> mdcContextMap) {
+    super(mdcContextMap);
   }
 
   @Override
   public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-    checkResponseStatus(response.getStatusLine());
-    return true;
+    setupMDC();
+    
+    try {
+      LOG.debug("Response: {}", response);
+      checkResponseStatus(response.getStatusLine());
+      return true;
+    } finally {
+      MDC.clear();
+    }
   }
-
 }

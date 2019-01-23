@@ -15,15 +15,28 @@
  */
 package org.italiangrid.storm.webdav.tpc.http;
 
+import static java.util.Objects.isNull;
+
+import java.util.Map;
+
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
+import org.slf4j.MDC;
 
 public abstract class ResponseHandlerSupport {
 
-  protected ResponseHandlerSupport() {
-    // empty ctor
+  final Map<String, String> mdcContextMap;
+
+  protected ResponseHandlerSupport(Map<String, String> mdcContextMap) {
+    this.mdcContextMap = mdcContextMap;
   }
   
+  protected void setupMDC() {
+    if (!isNull(mdcContextMap)) {
+      MDC.setContextMap(mdcContextMap);
+    }
+  }
+
   protected void checkResponseStatus(StatusLine sl) throws HttpResponseException {
     if (sl.getStatusCode() >= 300) {
       throw new HttpResponseException(sl.getStatusCode(), sl.getReasonPhrase());

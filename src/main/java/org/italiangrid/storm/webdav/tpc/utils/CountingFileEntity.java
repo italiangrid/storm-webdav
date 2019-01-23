@@ -15,24 +15,20 @@
  */
 package org.italiangrid.storm.webdav.tpc.utils;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.FileEntity;
 
 import com.google.common.io.CountingOutputStream;
 
-public class CountingFileEntity extends InputStreamEntity implements Countable {
+public class CountingFileEntity extends FileEntity implements Countable {
 
   private CountingOutputStream os;
 
-  private CountingFileEntity(InputStream is, long length) {
-    super(is, length);
+  private CountingFileEntity(File file) {
+    super(file);
   }
 
   @Override
@@ -51,9 +47,8 @@ public class CountingFileEntity extends InputStreamEntity implements Countable {
     super.writeTo(os);
   }
 
-  public static CountingFileEntity create(File f, int bufferSize) throws FileNotFoundException {
-    FileInputStream fis = new FileInputStream(f);
-    return new CountingFileEntity(new BufferedInputStream(fis, bufferSize), f.length());
+  public static CountingFileEntity create(File f) {
+    return new CountingFileEntity(f);
   }
 
 }

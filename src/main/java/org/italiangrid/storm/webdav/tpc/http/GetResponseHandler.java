@@ -16,6 +16,8 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,24 +27,38 @@ import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class GetResponseHandler extends ResponseHandlerSupport
     implements org.apache.http.client.ResponseHandler<Boolean> {
+
+  public static final Logger LOG = LoggerFactory.getLogger(GetResponseHandler.class);
 
   final GetTransferRequest request;
   final StormCountingOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
 
   public GetResponseHandler(GetTransferRequest req, StormCountingOutputStream fs,
-      ExtendedAttributesHelper ah) {
+      ExtendedAttributesHelper ah, Map<String, String> mdcContextMap) {
 
+    super(mdcContextMap);
     request = req;
     fileStream = fs;
     attributesHelper = ah;
   }
 
+  public GetResponseHandler(GetTransferRequest req, StormCountingOutputStream fs,
+      ExtendedAttributesHelper ah) {
+    this(req, fs, ah, Collections.emptyMap());
+  }
+
   @Override
   public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+
+    setupMDC();
+    LOG.debug("Response: {}", response);
 
     StatusLine sl = response.getStatusLine();
     HttpEntity entity = response.getEntity();
@@ -52,6 +68,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
     Adler32ChecksumOutputStream checkedStream = new Adler32ChecksumOutputStream(fileStream);
 
     try {
+
       if (entity != null) {
 
         entity.writeTo(checkedStream);
@@ -63,6 +80,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     } finally {
       fileStream.close();
+      MDC.clear();
     }
 
   }

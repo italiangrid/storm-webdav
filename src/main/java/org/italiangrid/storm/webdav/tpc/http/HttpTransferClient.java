@@ -23,7 +23,6 @@ import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.inProgres
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +40,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -56,6 +54,7 @@ import org.italiangrid.storm.webdav.tpc.utils.CountingFileEntity;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,8 +114,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       put.addHeader(h.getKey(), h.getValue());
     }
 
-    BufferedHttpEntity bhe = new BufferedHttpEntity(cfe);
-    put.setEntity(bhe);
+    put.setEntity(cfe);
 
     return put;
   }
@@ -126,12 +124,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     checkNotNull(path, "Impossible path resolution error");
 
     Path p = Paths.get(path);
-
-    try {
-      return CountingFileEntity.create(p.toFile(), localFileBufferSize);
-    } catch (FileNotFoundException e) {
-      throw new TransferError("Resolved path does not exists!", e);
-    }
+    return CountingFileEntity.create(p.toFile());
   }
 
   StormCountingOutputStream prepareOutputStream(String path) {
@@ -167,7 +160,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     try {
 
-      httpClient.execute(get, new GetResponseHandler(request, os, attributesHelper));
+      httpClient.execute(get,
+          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap()));
 
       reportTask.cancel(true);
       reportStatus(cb, request, done(os.getCount()));
@@ -219,6 +213,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
       put = prepareRequest(request, cfe);
     } catch (IOException e) {
+      logException(e);
       reportStatus(cb, request,
           error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     }
@@ -229,7 +224,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     try {
       checkOverwrite(request);
-      httpClient.execute(put, new PutResponseHandler());
+      httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()));
       reportTask.cancel(true);
       reportStatus(cb, request, done(10)); // Why 10??
     } catch (HttpResponseException e) {
@@ -241,7 +236,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       reportStatus(cb, request,
           error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     } catch (Throwable e) {
-      logException(e);
+      LOG.error(e.getMessage(), e); // we explicitly always log a generic error
       reportStatus(cb, request, error(format("%s while pushing %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {

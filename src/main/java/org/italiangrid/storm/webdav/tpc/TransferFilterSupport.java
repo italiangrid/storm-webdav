@@ -313,28 +313,32 @@ public class TransferFilterSupport implements TransferConstants {
 
   public void handleChecksumVerificationError(TransferRequest req, ChecksumVerificationError e,
       HttpServletResponse response) throws IOException {
-    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
     req.setTransferStatus(error(e.getMessage()));
+    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    
   }
 
   public void handleTransferError(TransferRequest req, TransferError e,
       HttpServletResponse response) throws IOException {
-    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
     req.setTransferStatus(error(e.getMessage()));
+    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    
   }
 
   public void handleClientProtocolException(TransferRequest req, ClientProtocolException e,
       HttpServletResponse response) throws IOException {
+    req.setTransferStatus(error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %s", e.getMessage()));
-    req.setTransferStatus(error(e.getMessage()));
+    
   }
 
   public void handleHttpResponseException(TransferRequest req, HttpResponseException e,
       HttpServletResponse response) throws IOException {
+    req.setTransferStatus(error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
-    req.setTransferStatus(error(e.getMessage()));
+   
   }
 
 }
