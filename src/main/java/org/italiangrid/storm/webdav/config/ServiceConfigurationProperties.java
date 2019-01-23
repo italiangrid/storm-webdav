@@ -30,6 +30,19 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("storm")
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
+  public static class MacaroonFilterProperties {
+
+    boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+  }
+
   public static class ChecksumFilterProperties {
 
     boolean enabled = true;
@@ -338,6 +351,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private ChecksumFilterProperties checksumFilter;
 
+  private MacaroonFilterProperties macaroonFilter;
+
   private ConnectorProperties connector;
 
   private TLSProperties tls;
@@ -349,9 +364,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private AuthorizationServerProperties authzServer;
 
   private VOMSProperties voms;
-  
+
   private String logConfigurationPath;
-  
+
   private String accessLogConfigurationPath;
 
   @NotEmpty
@@ -558,4 +573,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.checksumFilter = checksumFilter;
   }
 
+
+  public MacaroonFilterProperties getMacaroonFilter() {
+    return macaroonFilter;
+  }
+
+
+  public void setMacaroonFilter(MacaroonFilterProperties macaroonFilter) {
+    this.macaroonFilter = macaroonFilter;
+  }
 }

@@ -39,7 +39,10 @@ storm:
     disabled: false
 
   checksum-filter:
-    enabled: true
+    enabled: ${STORM_WEBDAV_CHECKSUM_FILTER_ENABLED:true}
+    
+  macaroon-filter:
+    enabled: ${STORM_WEBDAV_MACAROON_FILTER_ENABLED:true}
     
   connector:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}

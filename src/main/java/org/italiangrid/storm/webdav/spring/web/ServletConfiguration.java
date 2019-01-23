@@ -21,6 +21,8 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.macaroon.MacaroonIssuerService;
+import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
@@ -32,6 +34,9 @@ import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -41,31 +46,35 @@ import org.thymeleaf.TemplateEngine;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.MetricsServlet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 
 @Configuration
 public class ServletConfiguration {
+  
+  public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
 
   static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
   static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1001;
   static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
-  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
+  static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
+  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
 
 
   @Bean
   FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
-    FilterRegistrationBean<RequestIdFilter> requestIdFilter = 
+    FilterRegistrationBean<RequestIdFilter> requestIdFilter =
         new FilterRegistrationBean<>(new RequestIdFilter());
-    
+
     requestIdFilter.addUrlPatterns("/*");
     requestIdFilter.setOrder(REQUEST_ID_FILTER_ORDER);
-    
+
     return requestIdFilter;
   }
-  
-  
+
+
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
     FilterRegistrationBean<LogRequestFilter> logRequestFilter =
@@ -77,14 +86,27 @@ public class ServletConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(name="storm.checksum-filter.enabled", havingValue="true")
+  @ConditionalOnProperty(name = "storm.checksum-filter.enabled", havingValue = "true")
   FilterRegistrationBean<ChecksumFilter> checksumFilter(ExtendedAttributesHelper helper,
       PathResolver resolver) {
+    LOG.info("Checksum filter enabled");
     FilterRegistrationBean<ChecksumFilter> filter =
         new FilterRegistrationBean<>(new ChecksumFilter(helper, resolver));
 
     filter.addUrlPatterns("/*");
     filter.setOrder(CHECKSUM_FILTER_ORDER);
+    return filter;
+  }
+
+  @Bean
+  @ConditionalOnExpression("${storm.macaroon-filter.enabled} && ${storm.authz-server.enabled}")
+  FilterRegistrationBean<MacaroonRequestFilter> macaroonRequestFilter(ObjectMapper mapper,
+      MacaroonIssuerService service) {
+    LOG.info("Macaroon request filter enabled");
+    FilterRegistrationBean<MacaroonRequestFilter> filter =
+        new FilterRegistrationBean<>(
+            new MacaroonRequestFilter(mapper, service));
+    filter.setOrder(MACAROON_REQ_FILTER_ORDER);
     return filter;
   }
 
