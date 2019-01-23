@@ -6,7 +6,7 @@
     <File>/var/log/storm/webdav/storm-webdav-server-access.log</File>
     <rollingPolicy
       class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server-access.%d{yyyy-MM-dd}.log</FileNamePattern>
+      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server-access.%d{yyyyMMdd}.log.gz</FileNamePattern>
     </rollingPolicy>
 
     <encoder>
