@@ -16,10 +16,10 @@
 package org.italiangrid.storm.webdav.tpc.transfer;
 
 import static java.lang.String.format;
-import static java.lang.System.currentTimeMillis;
 import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status.DONE;
 import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status.ERROR;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public class TransferStatus {
@@ -33,17 +33,20 @@ public class TransferStatus {
   final Status status;
   final long transferByteCount;
   final Optional<String> errorMessage;
+  final long epochSecond;
 
   private TransferStatus(Status s, long bc) {
     this.status = s;
     this.transferByteCount = bc;
     this.errorMessage = Optional.empty();
+    this.epochSecond = Instant.now().getEpochSecond();
   }
 
   private TransferStatus(String errorMessage) {
     this.status = Status.ERROR;
     this.transferByteCount = 0;
     this.errorMessage = Optional.of(errorMessage);
+    this.epochSecond = Instant.now().getEpochSecond();
   }
 
 
@@ -83,7 +86,7 @@ public class TransferStatus {
       builder.append(String.format("failure: %s", getErrorMessage().orElse("")));
     } else {
       builder.append("Perf Marker\n");
-      builder.append(format("Timestamp: %d\n", currentTimeMillis()));
+      builder.append(format("Timestamp: %d\n", epochSecond));
       builder.append("Stripe Index: 0\n");
       builder.append(format("Stripe Bytes Transferred: %d\n", getTransferByteCount()));
       builder.append("Total Stripe Count: 1\n");

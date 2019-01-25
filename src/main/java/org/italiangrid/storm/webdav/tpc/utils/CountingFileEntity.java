@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.tpc.utils;
 
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,7 +30,7 @@ public class CountingFileEntity extends FileEntity implements Countable {
   private CountingOutputStream os;
 
   private CountingFileEntity(File file) {
-    super(file);
+    super(file, APPLICATION_OCTET_STREAM);
   }
 
   @Override
