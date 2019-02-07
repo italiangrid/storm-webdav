@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
+    NO_CHECKSUM,
     EARLY,
     LATE
   }

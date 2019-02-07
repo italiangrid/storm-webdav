@@ -55,6 +55,7 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.util.EarlyChecksumStrategy;
 import org.italiangrid.storm.webdav.milton.util.LateChecksumStrategy;
 import org.italiangrid.storm.webdav.milton.util.MetricsReplaceContentStrategy;
+import org.italiangrid.storm.webdav.milton.util.NoChecksumStrategy;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
@@ -271,6 +272,11 @@ public class AppConfig implements TransferConstants {
     LOG.info("Checksum strategy: late");
     return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
   }
+  
+  @Bean
+  @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
+  public ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
+    LOG.warn("Checksum strategy: no checksum");
+    return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
+  }
 }
-
-
