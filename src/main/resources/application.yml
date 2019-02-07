@@ -1,18 +1,12 @@
 spring:
   main:
     banner-mode: "off"
-
+    
 server:
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
     whitelabel:
-      enabled: false 
-  jetty:
-    accesslog:
       enabled: false
-      date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
-      time-zone: UTC 
-      log-latency: true
 tpc:
   tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
   maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
@@ -27,6 +21,8 @@ oauth:
       issuer: https://iam-test.indigo-datacloud.eu/
 
 storm:
+  checksum-strategy: early
+  
   access-log-configuration-path: ${STORM_WEBDAV_ACCESS_LOG_CONFIGURATION:}
   
   hostnames:

@@ -15,6 +15,12 @@
  */
 package org.italiangrid.storm.webdav.milton;
 
+import java.io.File;
+import java.util.Date;
+
+import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+
 import io.milton.http.Auth;
 import io.milton.http.Request;
 import io.milton.http.Request.Method;
@@ -26,14 +32,7 @@ import io.milton.resource.MoveableResource;
 import io.milton.resource.PropFindableResource;
 import io.milton.resource.Resource;
 
-import java.io.File;
-import java.util.Date;
-
-import org.italiangrid.storm.webdav.fs.FilesystemAccess;
-import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
-
-public abstract class StoRMResource implements Resource, PropFindableResource,
-  MoveableResource {
+public abstract class StoRMResource implements Resource, PropFindableResource, MoveableResource {
 
   protected final StoRMResourceFactory resourceFactory;
   protected final File file;
@@ -87,8 +86,7 @@ public abstract class StoRMResource implements Resource, PropFindableResource,
   }
 
   @Override
-  public String checkRedirect(Request request) throws NotAuthorizedException,
-    BadRequestException {
+  public String checkRedirect(Request request) throws NotAuthorizedException, BadRequestException {
 
     return null;
   }
@@ -115,7 +113,7 @@ public abstract class StoRMResource implements Resource, PropFindableResource,
 
   @Override
   public void moveTo(CollectionResource rDest, String name)
-    throws ConflictException, NotAuthorizedException, BadRequestException {
+      throws ConflictException, NotAuthorizedException, BadRequestException {
 
     StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
     getFilesystemAccess().mv(getFile(), dir.childrenFile(name));

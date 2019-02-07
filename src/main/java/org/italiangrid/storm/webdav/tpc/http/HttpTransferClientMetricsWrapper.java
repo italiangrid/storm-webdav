@@ -33,7 +33,7 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
 
   final Timer pullTimer;
   final Timer pushTimer;
-
+  
   public HttpTransferClientMetricsWrapper(MetricRegistry registry, TransferClient delegate) {
     this.registry = registry;
     this.delegate = delegate;
@@ -41,6 +41,8 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
     pushTimer = registry.timer(name(TransferClient.class, "push"));
   }
 
+ 
+  
   @Override
   public void handle(GetTransferRequest request, TransferStatusCallback status)
       throws ClientProtocolException {
@@ -60,7 +62,7 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
       throws ClientProtocolException {
 
     final Timer.Context context = pushTimer.time();
-
+    
     try {
       delegate.handle(request, status);
     } finally {

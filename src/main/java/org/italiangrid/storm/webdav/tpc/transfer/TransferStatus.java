@@ -108,4 +108,8 @@ public class TransferStatus {
    
    return builder.toString();
   }
+  
+  public long epochSecond() {
+    return epochSecond;
+  }
 }

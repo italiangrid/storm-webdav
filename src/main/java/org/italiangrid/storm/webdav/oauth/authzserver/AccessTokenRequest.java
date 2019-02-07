@@ -20,21 +20,26 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public class AccessTokenRequest {
+
+  public static final int MAX_PATH_LENGTH = 4096;
+  public static final int MAX_SCOPE_LENGTH = 4 * 4096;
+
   public static final String CLIENT_CREDENTIALS = "client_credentials";
   public static final String GRANT_TYPE_NOT_FOUND = "grant_type not found in request";
   public static final String INVALID_GRANT_TYPE = "Invalid grant type";
 
-  public static final String SCOPE_TOO_LONG = "scope length is must be less than 256 characters";
+  public static final String SCOPE_TOO_LONG =
+      "scope exceeds maximum length in characters: " + MAX_SCOPE_LENGTH;
 
   @NotNull(message = GRANT_TYPE_NOT_FOUND)
   @Pattern(regexp = CLIENT_CREDENTIALS, message = INVALID_GRANT_TYPE)
   private String grant_type;
 
-  @Size(max = 256, message = SCOPE_TOO_LONG)
+  @Size(max = MAX_SCOPE_LENGTH, message = SCOPE_TOO_LONG)
   private String scope;
 
   private Long lifetime;
-  
+
   public String getGrant_type() {
     return grant_type;
   }

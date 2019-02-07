@@ -79,9 +79,7 @@ public class StoRMFileResource extends StoRMResource
   private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
 
   public StoRMFileResource(StoRMResourceFactory factory, File f) {
-
     super(factory, f);
-
   }
 
   @Override
@@ -92,12 +90,12 @@ public class StoRMFileResource extends StoRMResource
   }
 
   protected void handleIOException(IOException e) {
-    
+
     if (DISK_QUOTA_EXCEEDED.equals(e.getMessage())) {
       throw new DiskQuotaExceeded(e.getMessage(), e);
     }
-    
-    throw new StoRMWebDAVError(e.getMessage(),e);
+
+    throw new StoRMWebDAVError(e.getMessage(), e);
   }
 
   @Override
@@ -116,13 +114,7 @@ public class StoRMFileResource extends StoRMResource
 
     try {
 
-      Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
-
-      if (RangeCopyHelper.rangeCopy(cis, getFile(), 0, length) != length) {
-        throw new StoRMWebDAVError("Incomplete copy error!");
-      }
-
-      getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());
+      getResourceFactory().getReplaceContentStrategy().replaceContent(in, length, getFile());
 
     } catch (FileNotFoundException e) {
       throw new ResourceNotFound(e);
@@ -180,6 +172,7 @@ public class StoRMFileResource extends StoRMResource
       byte[] buffer = new byte[8192];
 
       while (cis.read(buffer) != -1) {
+        // do nothing, just read
       }
 
       getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());

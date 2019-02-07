@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.test.oauth.integration;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +59,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class OAuthAuthzServerIntegrationTests {
 
   public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
-  
+
   public static final String GRANT_TYPE = "grant_type";
   public static final String CLIENT_CREDENTIALS = "client_credentials";
   public static final String CUSTOM_GRANT_TYPE = "my_own_grant_type";
@@ -135,24 +137,46 @@ public class OAuthAuthzServerIntegrationTests {
   @WithMockVOMSUser
   public void requestedLifetimeHonoured() throws Exception {
     mvc
-    .perform(
-        post("/oauth/token").content(format("%s&lifetime=50", CONTENT)).contentType(APPLICATION_FORM_URLENCODED))
+      .perform(post("/oauth/token").content(format("%s&lifetime=50", CONTENT))
+        .contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token").exists())
       .andExpect(jsonPath("$.expires_in", is(50)))
       .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
-  
+
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
   public void requestedLifetimeLimited() throws Exception {
     mvc
-    .perform(
-        post("/oauth/token").content(format("%s&lifetime=200000", CONTENT)).contentType(APPLICATION_FORM_URLENCODED))
+      .perform(post("/oauth/token").content(format("%s&lifetime=200000", CONTENT))
+        .contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token").exists())
       .andExpect(jsonPath("$.expires_in", is(200)))
       .andExpect(jsonPath("$.token_type", is("Bearer")));
+  }
+
+  @Test
+  @WithMockVOMSUser
+  public void scopeLengthIsChecked() throws Exception {
+
+    String randomAlphabetic = randomAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
+
+    mvc
+      .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+        .contentType(APPLICATION_FORM_URLENCODED))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.access_token").exists());
+
+    randomAlphabetic = randomAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH + 1);
+
+    mvc
+      .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+        .contentType(APPLICATION_FORM_URLENCODED))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.error", is("invalid_scope")))
+      .andExpect(jsonPath("$.error_description", is(AccessTokenRequest.SCOPE_TOO_LONG)));
   }
 
 }

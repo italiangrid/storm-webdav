@@ -30,6 +30,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("storm")
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
+  public enum ChecksumStrategy {
+    EARLY,
+    LATE
+  }
+
   public static class MacaroonFilterProperties {
 
     boolean enabled = true;
@@ -369,6 +374,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private String accessLogConfigurationPath;
 
+  private ChecksumStrategy checksumStrategy = ChecksumStrategy.EARLY;
+
   @NotEmpty
   private List<String> hostnames;
 
@@ -581,5 +588,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setMacaroonFilter(MacaroonFilterProperties macaroonFilter) {
     this.macaroonFilter = macaroonFilter;
+  }
+
+  public ChecksumStrategy getChecksumStrategy() {
+    return checksumStrategy;
+  }
+
+  public void setChecksumStrategy(ChecksumStrategy checksumStrategy) {
+    this.checksumStrategy = checksumStrategy;
   }
 }

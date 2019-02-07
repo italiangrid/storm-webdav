@@ -34,6 +34,7 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
 import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
+import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,27 +62,30 @@ public class MiltonFilter implements Filter {
 
   private ServletContext servletContext;
 
-  private FilesystemAccess filesystemAccess;
+  private final FilesystemAccess filesystemAccess;
 
-  private ExtendedAttributesHelper attrsHelper;
+  private final ExtendedAttributesHelper attrsHelper;
 
-  private PathResolver resolver;
+  private final PathResolver resolver;
+
+  private final ReplaceContentStrategy rcs;
 
   @Autowired
-  public MiltonFilter(FilesystemAccess fsAccess,
-    ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
+  public MiltonFilter(FilesystemAccess fsAccess, ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver, ReplaceContentStrategy rcs) {
 
     this.filesystemAccess = fsAccess;
     this.attrsHelper = attrsHelper;
     this.resolver = resolver;
+    this.rcs = rcs;
   }
 
   private void initMiltonHTTPManager(ServletContext context) {
 
     final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
 
-    final StoRMResourceFactory resourceFactory = new StoRMResourceFactory(
-      filesystemAccess, attrsHelper, resolver);
+    final StoRMResourceFactory resourceFactory =
+        new StoRMResourceFactory(filesystemAccess, attrsHelper, resolver, rcs);
 
     builder.setResourceFactory(resourceFactory);
 
@@ -99,13 +103,12 @@ public class MiltonFilter implements Filter {
 
   private boolean isWebDAVMethod(ServletRequest request) {
 
-    return WEBDAV_METHOD_SET.contains(((HttpServletRequest) request)
-      .getMethod());
+    return WEBDAV_METHOD_SET.contains(((HttpServletRequest) request).getMethod());
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response,
-    FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
 
     if (isWebDAVMethod(request)) {
       doMilton((HttpServletRequest) request, (HttpServletResponse) response);
@@ -120,8 +123,7 @@ public class MiltonFilter implements Filter {
 
     try {
       // Is this really needed?
-      MiltonServlet.setThreadlocals((HttpServletRequest) request,
-        (HttpServletResponse) response);
+      MiltonServlet.setThreadlocals((HttpServletRequest) request, (HttpServletResponse) response);
 
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 

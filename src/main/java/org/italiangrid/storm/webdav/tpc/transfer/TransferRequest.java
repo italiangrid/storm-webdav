@@ -39,4 +39,7 @@ public interface TransferRequest {
   void setTransferStatus(TransferStatus status);
   
   String statusString();
+  
+  long startEpochSecond();
+  
 }

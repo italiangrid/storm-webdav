@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status;
 
 import com.google.common.collect.Multimap;
 
@@ -36,6 +37,8 @@ public abstract class TransferRequestImpl implements TransferRequest {
   final boolean verifyChecksum;
 
   final boolean overwrite;
+  
+  long startEpochSecond;
 
   private Optional<TransferStatus> lastTransferStatus = Optional.empty();
 
@@ -78,6 +81,10 @@ public abstract class TransferRequestImpl implements TransferRequest {
   @Override
   public void setTransferStatus(TransferStatus status) {
     this.lastTransferStatus = Optional.of(status);
+    
+    if (status.getStatus().equals(Status.STARTED)) {
+      startEpochSecond = status.epochSecond();
+    }
   }
 
   @Override
@@ -88,5 +95,10 @@ public abstract class TransferRequestImpl implements TransferRequest {
   @Override
   public String uuid() {
     return uuid;
+  }
+  
+  @Override
+  public long startEpochSecond() {
+    return startEpochSecond;
   }
 }

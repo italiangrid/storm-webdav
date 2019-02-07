@@ -226,7 +226,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       checkOverwrite(request);
       httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()));
       reportTask.cancel(true);
-      reportStatus(cb, request, done(10)); // Why 10??
+      reportStatus(cb, request, done(cfe.getCount()));
     } catch (HttpResponseException e) {
       logException(e);
       reportStatus(cb, request, error(format("Error pushing %s: %d %s",

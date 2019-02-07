@@ -25,8 +25,8 @@ import com.google.common.collect.Multimap;
 
 public class PutTransferRequestImpl extends TransferRequestImpl implements PutTransferRequest {
 
-  public PutTransferRequestImpl(String uuid, String path, URI uri, Multimap<String, String> xferHeaders,
-      boolean verifyChecksum, boolean overwrite) {
+  public PutTransferRequestImpl(String uuid, String path, URI uri,
+      Multimap<String, String> xferHeaders, boolean verifyChecksum, boolean overwrite) {
     super(uuid, path, uri, xferHeaders, verifyChecksum, overwrite);
   }
 
@@ -40,4 +40,5 @@ public class PutTransferRequestImpl extends TransferRequestImpl implements PutTr
   public String statusString() {
     return format("Push xfer request %s status: %s", uuid, lastTransferStatus());
   }
+
 }

@@ -23,6 +23,7 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.macaroon.MacaroonIssuerService;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
+import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
@@ -112,9 +113,9 @@ public class ServletConfiguration {
 
   @Bean
   FilterRegistrationBean<MiltonFilter> miltonFilter(FilesystemAccess fsAccess,
-      ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
+      ExtendedAttributesHelper attrsHelper, PathResolver resolver, ReplaceContentStrategy rcs) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
-        new FilterRegistrationBean<>(new MiltonFilter(fsAccess, attrsHelper, resolver));
+        new FilterRegistrationBean<>(new MiltonFilter(fsAccess, attrsHelper, resolver, rcs));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;

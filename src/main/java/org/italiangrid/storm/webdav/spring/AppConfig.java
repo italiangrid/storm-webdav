@@ -52,6 +52,10 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.MetricsFSStrategyWrapper;
 import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.milton.util.EarlyChecksumStrategy;
+import org.italiangrid.storm.webdav.milton.util.LateChecksumStrategy;
+import org.italiangrid.storm.webdav.milton.util.MetricsReplaceContentStrategy;
+import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
 import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
@@ -67,6 +71,9 @@ import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -86,6 +93,8 @@ import eu.emi.security.authn.x509.impl.PEMCredential;
 
 @Configuration
 public class AppConfig implements TransferConstants {
+
+  public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
   @Bean
   public Clock systemClock() {
@@ -156,16 +165,15 @@ public class AppConfig implements TransferConstants {
     long refreshInterval =
         TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    return
-        builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
-          .crlChecks(CrlCheckingMode.IF_VALID)
-          .ocspChecks(OCSPCheckingMode.IGNORE)
-          .lazyAnchorsLoading(false)
-          .storeUpdateListener(l)
-          .validationErrorListener(l)
-          .trustAnchorsDir(configuration.getTrustAnchorsDir())
-          .trustAnchorsUpdateInterval(refreshInterval)
-          .build();
+    return builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
+      .crlChecks(CrlCheckingMode.IF_VALID)
+      .ocspChecks(OCSPCheckingMode.IGNORE)
+      .lazyAnchorsLoading(false)
+      .storeUpdateListener(l)
+      .validationErrorListener(l)
+      .trustAnchorsDir(configuration.getTrustAnchorsDir())
+      .trustAnchorsUpdateInterval(refreshInterval)
+      .build();
 
   }
 
@@ -246,6 +254,22 @@ public class AppConfig implements TransferConstants {
     String tokenEndpoint = String.format("%s/oauth/token", props.getAuthzServer().getIssuer());
     md.setTokenEndpoint(tokenEndpoint);
     return md;
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "EARLY")
+  public ReplaceContentStrategy earlyChecksumStrategy(MetricRegistry registry,
+      ExtendedAttributesHelper ah) {
+    LOG.info("Checksum strategy: early");
+    return new MetricsReplaceContentStrategy(registry, new EarlyChecksumStrategy(ah));
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "LATE")
+  public ReplaceContentStrategy lateChecksumStrategy(MetricRegistry registry,
+      ExtendedAttributesHelper ah) {
+    LOG.info("Checksum strategy: late");
+    return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
   }
 }
 
