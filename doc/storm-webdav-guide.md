@@ -2,14 +2,19 @@
 
 ## Introduction
 
-The StoRM WebDAV service replaces the StoRM GridHTTPS service.
+The StoRM WebDAV service provides a storage management solution
+supporting VOMS and token-based authorization.
+
+Starting from version 1.1.0, StoRM WebDAV supports third-party WebDAV COPY
+transfers (see [here][doma-tpc] for technical details) and token-based
+authorization.
 
 ## Install the service package
 
 Grap the latest package from the StoRM repository. See instructions
-[here](http://italiangrid.github.io/storm/download.html).
+[here](https://italiangrid.github.io/storm/download.html).
 
-Note that storm-webdav is supported **only** on SL6.
+Note that storm-webdav is currently supported **only** on SL6.
 
 ```bash
 yum install storm-webdav
