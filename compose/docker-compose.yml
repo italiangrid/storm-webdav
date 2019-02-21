@@ -69,8 +69,35 @@ services:
       default:
         aliases:
           - storm.example
-          - storm-alias.example
 
+  nginx:
+    image: storm2/ngx-voms:latest
+    dns_search: example 
+
+    ports:
+      - "9553:443"
+
+    depends_on:
+      - trust
+      - webdav-setup
+
+    environment:
+      TZ: UTC
+      X509_VOMS_DIR: /vomsdir
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/certs:/certs
+      - ./assets/vomsdir:/vomsdir
+      - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
+      - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
+      - storage:/storage
+
+    networks:
+      default:
+        aliases:
+          - storm-alias.example
   ts:
     image: italiangrid/storm-webdav-ts:latest
     environment:
