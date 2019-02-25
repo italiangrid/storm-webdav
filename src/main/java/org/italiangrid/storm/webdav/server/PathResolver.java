@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,14 @@ package org.italiangrid.storm.webdav.server;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 
 
+
+
 public interface PathResolver {
   
-  public String resolvePath(String pathInContext);
+  String resolvePath(String pathInContext);
   
-  public StorageAreaInfo resolveStorageArea(String pathInContext);
+  StorageAreaInfo resolveStorageArea(String pathInContext);
+  
+  boolean pathExists(String pathInContext);
 
 }

@@ -1,0 +1,128 @@
+version: "3"
+
+volumes:
+  trustanchors:
+  cabundle:
+  storage:
+  hostcert:
+  saconfig:
+  mapfilesconfig:
+
+services:
+  trust:
+    image: indigoiam/trustanchors:latest
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+    environment:
+      FORCE_TRUST_ANCHORS_UPDATE: 1
+
+  webdav-setup:
+    image: italiangrid/storm-webdav:latest
+    environment:
+      TZ: UTC
+
+    volumes:
+      - ./assets/certs/:/certs:ro 
+      - ./assets/scripts:/scripts:ro
+      - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
+      - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
+      - hostcert:/etc/grid-security/storm-webdav
+      - saconfig:/etc/storm/webdav/sa.d
+      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - storage:/storage
+
+    entrypoint:
+      - /scripts/setup.sh
+
+  webdav:
+    image: italiangrid/storm-webdav:latest
+    dns_search: example
+    ports:
+      - "9443:8443"
+      - "9444:1044"
+
+    depends_on:
+      - trust
+      - webdav-setup
+
+    environment:
+      TZ: UTC
+      STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
+      STORM_WEBDAV_HOSTNAME_0: storm.example
+
+    volumes:
+      - storage:/storage
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - hostcert:/etc/grid-security/storm-webdav
+      - saconfig:/etc/storm/webdav/sa.d
+      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
+      - ./assets/scripts:/scripts:ro
+      - ${HOME}/git/storm-webdav:/code:ro
+
+    entrypoint:
+      - /scripts/run.sh
+
+    networks:
+      default:
+        aliases:
+          - storm.example
+
+  nginx:
+    image: storm2/ngx-voms:latest
+    dns_search: example 
+
+    ports:
+      - "9553:443"
+
+    depends_on:
+      - trust
+      - webdav-setup
+
+    environment:
+      TZ: UTC
+      X509_VOMS_DIR: /vomsdir
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/certs:/certs
+      - ./assets/vomsdir:/vomsdir
+      - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
+      - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
+      - storage:/storage
+
+    networks:
+      default:
+        aliases:
+          - storm-alias.example
+  ts:
+    image: italiangrid/storm-webdav-ts:latest
+    environment:
+      - IAM_ACCESS_TOKEN
+      - TZ=UTC 
+      - DAV_HOST=storm.example
+      - REMOTE_DAV_HOST=storm-alias.example
+
+    depends_on:
+      - webdav 
+
+    volumes:
+      - storage:/storage
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/vomses:/etc/vomses:ro
+      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ./assets/scripts:/scripts:ro
+      - ./assets/usercerts/:/usercerts:ro
+      - ${HOME}/git/storm-webdav:/code:ro
+
+    # entrypoint:  sleep infinity
+    #
+    entrypoint: 
+     - /scripts/wait-and-run-testsuite.sh
+
+    networks:
+      default:

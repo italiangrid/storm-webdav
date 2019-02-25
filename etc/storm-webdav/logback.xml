@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+  <logger name="org.italiangrid.storm.webdav" level="INFO" />
+  
+  <appender name="FILE"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/log/storm/webdav/storm-webdav-server.log</File>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>/var/log/storm/webdav/storm-webdav-server.log-%d{yyyyMMdd}.gz</FileNamePattern>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+  
+  <root level="WARN">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

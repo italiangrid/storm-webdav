@@ -1,10 +1,16 @@
 language: java
-
+sudo: required
+dist: trusty
 jdk:
-    - openjdk7
-    - oraclejdk7
-    - oraclejdk8
-
-os:
-    - linux
-    - osx
+- openjdk8
+install:
+- "/bin/bash travis/install-deps.sh"
+script:
+- "/bin/bash travis/build.sh"
+cache:
+  directories:
+  - "$HOME/.m2/repository"
+notifications:
+  slack:
+    rooms:
+      secure: OKe5lIcTQOeUaoS+6NImoIjceaN5IGR1a2w3PEl+tkRYygVnaPdwDtXAUr+WtdU+X8tfFudCTNd8xpcAsfFHXK9+TwvFi4Qk3ODGRF37iPe+pWUtdkb7TtjKP+Rkq19hFse24+kH2EojYAFagn6rulurZfJCeqJtnV3P8MyJe/c=

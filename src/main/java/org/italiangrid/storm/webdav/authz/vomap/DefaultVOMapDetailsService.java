@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-@Component
 public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
   private static final Logger logger = LoggerFactory
@@ -49,7 +47,9 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
       "Please provide a non-null (but possibly empty) set of providers");
     this.providers = providers;
     this.refreshPeriodInSeconds = refreshPeriod;
-    scheduleRefresh();
+    if (refreshPeriodInSeconds > 0) {
+      scheduleRefresh();
+    }
   }
 
   private void scheduleRefresh() {

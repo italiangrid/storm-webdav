@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.italiangrid.storm.webdav.authz;
+
+import static java.lang.String.format;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -31,12 +33,12 @@ public class SAPermission implements GrantedAuthority, Comparable<SAPermission> 
 
   public static SAPermission canRead(String saName) {
 
-    return new SAPermission(String.format(READ_PERM, saName));
+    return new SAPermission(format(READ_PERM, saName));
   }
 
   public static SAPermission canWrite(String saName) {
 
-    return new SAPermission(String.format(WRITE_PERM, saName));
+    return new SAPermission(format(WRITE_PERM, saName));
   }
 
   private SAPermission(String permission) {
@@ -90,4 +92,7 @@ public class SAPermission implements GrantedAuthority, Comparable<SAPermission> 
     return true;
   }
 
+  public static SAPermission fromString(String s) {
+    return new SAPermission(s);
+  }
 }

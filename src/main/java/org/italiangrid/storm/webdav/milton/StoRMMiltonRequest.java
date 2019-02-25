@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jetty.util.URIUtil;
 
+import io.milton.http.Auth;
 import io.milton.servlet.ServletRequest;
 
 public class StoRMMiltonRequest extends ServletRequest {
@@ -51,9 +52,13 @@ public class StoRMMiltonRequest extends ServletRequest {
 
   @Override
   public String getAbsolutePath() {
-    // Compact URL using the Jetty logic, as Milton is confused
-    // by multiple slashes
     return URIUtil.compactPath(super.getAbsolutePath());
-
   }
+
+  @Override
+  public Auth getAuthorization() {
+    // Always return null as milton is confused by the OAuth2 Bearer scheme
+    return null;
+  }
+  
 }

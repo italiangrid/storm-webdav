@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,18 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.aeonbits.owner.ConfigFactory;
+import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 public class SAConfigurationParser implements StorageAreaConfiguration {
+
+  private final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known", "actuator");
 
   private final ServiceConfiguration serviceConfig;
 
@@ -51,33 +57,32 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
 
       @Override
       public boolean accept(File file, String name) {
-
-        return (name.endsWith(PROPERTIES_FILENAME_SUFFIX));
+        if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
+          log.warn("Skipping {} as it is a reserved storage area name");
+        }
+        return (!RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
       }
     });
 
     if (saFiles.length == 0) {
-      String msg = String
-        .format(
+      String msg = String.format(
           "No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
           dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
-      throw new RuntimeException(msg);
+      throw new StoRMIntializationError(msg);
     }
 
     saInfos = new ArrayList<StorageAreaInfo>();
 
     for (File f : saFiles) {
-
+      
       Properties p = new Properties();
       try {
         p.load(new FileReader(f));
       } catch (Exception e) {
-        throw new RuntimeException("Error loading properties: "
-          + e.getMessage(), e);
+        throw new StoRMIntializationError("Error reading properties: " + e.getMessage(), e);
       }
 
-      OwnerStorageAreaInfo saInfo = ConfigFactory.create(
-        OwnerStorageAreaInfo.class, p);
+      OwnerStorageAreaInfo saInfo = ConfigFactory.create(OwnerStorageAreaInfo.class, p);
       saInfos.add(saInfo);
 
       log.debug("{} loaded: {}", f, saInfo);
@@ -87,23 +92,19 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
   private void directorySanityChecks(File directory) {
 
     if (!directory.exists())
-      throw new IllegalArgumentException(
-        "Storage area configuration directory does not exists: "
-          + directory.getAbsolutePath());
+      throw new StoRMIntializationError(
+          "Storage area configuration directory does not exist: " + directory.getAbsolutePath());
 
     if (!directory.isDirectory())
-      throw new IllegalArgumentException(
-        "Storage area configuration directory is not a directory: "
+      throw new StoRMIntializationError("Storage area configuration directory is not a directory: "
           + directory.getAbsolutePath());
 
     if (!directory.canRead())
-      throw new IllegalArgumentException(
-        "Storage area configuration directory is not readable: "
-          + directory.getAbsolutePath());
+      throw new StoRMIntializationError(
+          "Storage area configuration directory is not readable: " + directory.getAbsolutePath());
 
     if (!directory.canExecute())
-      throw new IllegalArgumentException(
-        "Storage area configuration directory is not traversable: "
+      throw new StoRMIntializationError("Storage area configuration directory is not traversable: "
           + directory.getAbsolutePath());
 
   }
