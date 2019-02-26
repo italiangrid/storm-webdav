@@ -232,3 +232,5 @@ The service logs live in the `/var/log/storm/webdav` directory.
 By default a storage area named `sa` is accessible at the URL
 `https://hostname:8443/sa` or, if anonymous access is granted, at
 `http://hostname:8085/sa`
+
+[doma-tpc]: https://twiki.cern.ch/twiki/bin/view/LCG/HttpTpcTechnical
