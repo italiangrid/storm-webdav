@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,36 @@
 package org.italiangrid.storm.webdav.authz;
 
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+
 public class Utils {
+
+  public static final String X509_CERT_REQ_ATTR = "javax.servlet.request.X509Certificate";
 
   private Utils() {
 
   }
 
-  public static X509Certificate[] getCertificateChainFromRequest(
-    HttpServletRequest request) {
+  public static Optional<X509Certificate[]> getCertificateChainFromRequest(
+      HttpServletRequest request) {
 
-    return (X509Certificate[]) request
-      .getAttribute("javax.servlet.request.X509Certificate");
+    X509Certificate[] chain = (X509Certificate[]) request.getAttribute(X509_CERT_REQ_ATTR);
+
+    return Optional.ofNullable(chain);
+  }
+
+  public static Optional<X500Principal> getX500PrincipalFromRequest(HttpServletRequest request) {
+    Optional<X509Certificate[]> chain = getCertificateChainFromRequest(request);
+
+    if (chain.isPresent()) {
+      return Optional.of(ProxyUtils.getOriginalUserDN(chain.get()));
+    }
+
+    return Optional.empty();
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,28 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.util.Objects.isNull;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import org.eclipse.jetty.util.URIUtil;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
-import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class DefaultPathResolver implements PathResolver {
 
   private final StorageAreaConfiguration saConfig;
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(DefaultPathResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultPathResolver.class);
 
   private final NavigableMap<String, StorageAreaInfo> contextMap;
 
@@ -42,8 +47,7 @@ public class DefaultPathResolver implements PathResolver {
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
-        logger.debug("Adding path mapping for sa {}: {} -> {}", sa.name(), ap,
-          sa.rootPath());
+        logger.debug("Adding path mapping for sa {}: {} -> {}", sa.name(), ap, sa.rootPath());
         contextMap.put(ap, sa);
       }
     }
@@ -59,22 +63,27 @@ public class DefaultPathResolver implements PathResolver {
     }
   }
 
+
   @Override
   public String resolvePath(String pathInContext) {
 
+    if (isNull(pathInContext)) {
+      return null;
+    }
+
     for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
-      
+
       if (pathInContext.startsWith(e.getKey())) {
-        
-        String resolvedPath = URIUtil.addPaths(e.getValue().rootPath(),
-          stripContextPath(e.getKey(), pathInContext));
+
+        Path resolvedPath =
+            Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
 
         if (logger.isDebugEnabled()) {
-          logger.debug("{} matches with access point {}. Resolved path: {}",
-            pathInContext, e.getKey(), resolvedPath);
+          logger.debug("{} matches with access point {}. Resolved path: {}", pathInContext,
+              e.getKey(), resolvedPath);
         }
 
-        return resolvedPath;
+        return resolvedPath.toAbsolutePath().toString();
       }
     }
 
@@ -85,12 +94,12 @@ public class DefaultPathResolver implements PathResolver {
   public StorageAreaInfo resolveStorageArea(String pathInContext) {
 
     for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
-      
+
       if (pathInContext.startsWith(e.getKey())) {
-        
+
         if (logger.isDebugEnabled()) {
           logger.debug("{} matches with access point {}. Resolved storage area name: {}",
-            pathInContext, e.getKey(), e.getValue().name());
+              pathInContext, e.getKey(), e.getValue().name());
         }
 
         return e.getValue();
@@ -98,5 +107,20 @@ public class DefaultPathResolver implements PathResolver {
     }
     return null;
   }
+
+  @Override
+  public boolean pathExists(String pathInContext) {
+    String resolvedPath = resolvePath(pathInContext);
+
+    if (isNull(resolvedPath)) {
+      return false;
+    }
+
+    return Files.exists(Paths.get(resolvedPath), NOFOLLOW_LINKS);
+  }
+
+
+  
+
 
 }

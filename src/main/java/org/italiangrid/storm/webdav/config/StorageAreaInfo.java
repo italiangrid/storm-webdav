@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ public interface StorageAreaInfo {
   public List<String> accessPoints();
 
   public Set<String> vos();
+  
+  public Set<String> orgs();
 
   public Boolean anonymousReadEnabled();
 
@@ -37,4 +39,6 @@ public interface StorageAreaInfo {
   public Boolean voMapEnabled();
   
   public Boolean voMapGrantsWritePermission();
+  
+  public Boolean orgsGrantWritePermission();
 }

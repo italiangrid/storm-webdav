@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
     limitations under the License.
 
 -->
+<!DOCTYPE xml>
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
@@ -29,16 +30,17 @@
     <!-- Empty fileset to create empty directory -->
     <fileSet>
       <directory>src</directory>
-      <outputDirectory>/var/log/storm/webdav</outputDirectory>
+      <outputDirectory>var/log/storm/webdav</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
       <directoryMode>0750</directoryMode>
     </fileSet>
 
+    <!-- Empty fileset to create empty directory -->
     <fileSet>
       <directory>src</directory>
-      <outputDirectory>/var/lib/storm-webdav/work</outputDirectory>
+      <outputDirectory>var/lib/storm-webdav/work</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
@@ -47,55 +49,31 @@
 
     <fileSet>
       <directory>etc/storm-webdav</directory>
-      <outputDirectory>/etc/storm/webdav</outputDirectory>
+      <outputDirectory>etc/storm/webdav</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>
-      <excludes>
-        <exclude>logback.xml.template</exclude>
-        <exclude>logback-access.xml.template</exclude>
-      </excludes>
       <directoryMode>0755</directoryMode>
     </fileSet>
   </fileSets>
 
   <files>
-
     <file>
-      <source>${sysconfig.template}</source>
-      <outputDirectory>/etc/sysconfig</outputDirectory>
-      <destName>storm-webdav</destName>
+      <source>etc/sysconfig/storm-webdav</source>
+      <outputDirectory>etc/sysconfig</outputDirectory>
       <fileMode>0644</fileMode>
-      <filtered>true</filtered>
     </file>
 
     <file>
-      <source>etc/init.d/storm-webdav.template</source>
-      <outputDirectory>/etc/init.d</outputDirectory>
+      <source>etc/init.d/storm-webdav</source>
+      <outputDirectory>etc/init.d</outputDirectory>
       <destName>storm-webdav</destName>
       <fileMode>0755</fileMode>
-      <filtered>true</filtered>
-    </file>
-
-    <file>
-      <source>etc/storm-webdav/logback.xml.template</source>
-      <outputDirectory>/etc/storm/webdav</outputDirectory>
-      <destName>logback.xml</destName>
-      <fileMode>0644</fileMode>
-      <filtered>true</filtered>
-    </file>
-
-    <file>
-      <source>etc/storm-webdav/logback-access.xml.template</source>
-      <outputDirectory>/etc/storm/webdav</outputDirectory>
-      <destName>logback-access.xml</destName>
-      <fileMode>0644</fileMode>
-      <filtered>true</filtered>
     </file>
 
     <file>
       <source>target/storm-webdav-server.jar</source>
-      <outputDirectory>/usr/share/java/storm-webdav</outputDirectory>
+      <outputDirectory>usr/share/java/storm-webdav</outputDirectory>
       <fileMode>0755</fileMode>
     </file>
   </files>

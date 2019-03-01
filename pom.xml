@@ -5,127 +5,85 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.italiangrid</groupId>
   <artifactId>storm-webdav-server</artifactId>
-  <version>1.0.5</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
   <name>storm-webdav-server</name>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.2.RELEASE</version>
+    <relativePath />
+  </parent>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+    <java.version>1.8</java.version>
     <plugin.compiler.version>3.0</plugin.compiler.version>
     <plugin.jar.version>2.4</plugin.jar.version>
     <plugin.assembly.version>2.4</plugin.assembly.version>
     <plugin.shade.version>2.3</plugin.shade.version>
     <plugin.license.version>1.9.0</plugin.license.version>
 
-    <https-utils.version>0.3.6</https-utils.version>
+    <spring-boot.version>2.0.5.RELEASE</spring-boot.version>
+    <jetty-utils.version>0.3.0-SNAPSHOT</jetty-utils.version>
     <milton.version>2.7.1.3</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
     <commons-cli.version>1.2</commons-cli.version>
     <commons-csv.version>1.0</commons-csv.version>
+    <jimfs.version>1.1</jimfs.version>
 
     <http-core.version>4.2.2</http-core.version>
     <http-client.version>4.2.1</http-client.version>
 
-    <metrics.version>3.0.2</metrics.version>
+    <metrics.version>4.0.0</metrics.version>
 
-    <!-- Keep this aligned with https-utils -->
-    <logback-access.version>1.0.9</logback-access.version>
-
-    <guava.version>18.0</guava.version>
+    <guava.version>20.0</guava.version>
 
     <owner-config.version>1.0.5.1</owner-config.version>
 
-    <spring.version>4.1.0.RELEASE</spring.version>
-    <spring-security.version>3.2.5.RELEASE</spring-security.version>
-    <thymeleaf.version>2.1.3.RELEASE</thymeleaf.version>
-
-    <mockito-core.version>1.10.19</mockito-core.version>
-
-    <!-- Default install prefix: keep it empty -->
-    <!-- It can be changed by passing variable at build time, with -Dinstall.prefix=/opt/storm-webdav -->
-    <install.prefix></install.prefix>
-
-    <!-- Template for the sysconfig file -->
-    <sysconfig.template>etc/sysconfig/storm-webdav.template</sysconfig.template>
-
-    <webdav.main.class>org.italiangrid.storm.webdav.server.Main</webdav.main.class>
-
+    <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
+    <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
+    <mock-server.version>5.5.1</mock-server.version>
   </properties>
 
   <build>
     <finalName>${project.name}</finalName>
 
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${plugin.compiler.version}</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${plugin.jar.version}</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>${webdav.main.class}</mainClass>
-            </manifest>
-            <manifestEntries>
-
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>${plugin.shade.version}</version>
-        <configuration>
-          <createDependencyReducedPom>false</createDependencyReducedPom>
-
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-          <transformers>
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-              <manifestEntries>
-                <Main-Class>${webdav.main.class}</Main-Class>
-                <Implementation-Version>${project.version}</Implementation-Version>
-              </manifestEntries>
-            </transformer>
-          </transformers>
-        </configuration>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>build-info</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
 
       <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>${plugin.assembly.version}</version>
         <configuration>
           <descriptors>
             <descriptor>src/assembly/tarball.xml</descriptor>
@@ -142,7 +100,6 @@
         </executions>
       </plugin>
 
-
       <plugin>
         <groupId>com.mycila.maven-license-plugin</groupId>
         <artifactId>maven-license-plugin</artifactId>
@@ -150,15 +107,24 @@
         <configuration>
           <header>copyright.txt</header>
           <excludes>
+            <exclude>etc/**</exclude>
+            <exclude>**/.factorypath</exclude>
             <exclude>**/*.md</exclude>
-            <exclude>.travis.yml</exclude>
+            <exclude>**/*.yml</exclude>
             <exclude>Makefile</exclude>
             <exclude>.gitignore</exclude>
             <exclude>spec/**</exclude>
             <exclude>**/*.template</exclude>
             <exclude>src/main/resources/templates/**</exclude>
+            <exclude>robot/**</exclude>
+            <exclude>compose/**</exclude>
+            <exclude>docker/**</exclude>
+            <exclude>src/test/resources/**</exclude>
+            <exclude>Jenkinsfile</exclude>
+            <exclude>src/main/resources/META-INF/spring.factories</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
+          <strictCheck>true</strictCheck>
         </configuration>
         <executions>
           <execution>
@@ -170,25 +136,112 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.20</version>
-        <configuration>
-          <skipTests>false</skipTests>
-        </configuration>
-      </plugin>
     </plugins>
-
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.jimfs</groupId>
+      <artifactId>jimfs</artifactId>
+      <version>${jimfs.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <exclusions>
+        <!-- Exclude this to make failure reporting work -->
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <!-- Exclude the Tomcat dependency -->
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-resource-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security.oauth.boot</groupId>
+      <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+      <version>${spring-boot.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty</artifactId>
+      <version>${mock-server.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-client-java</artifactId>
+      <version>${mock-server.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -205,21 +258,18 @@
     </dependency>
 
     <dependency>
-      <groupId>com.codahale.metrics</groupId>
+      <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.codahale.metrics</groupId>
+      <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-jvm</artifactId>
-      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.codahale.metrics</groupId>
-      <artifactId>metrics-jetty8</artifactId>
-      <version>${metrics.version}</version>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-jetty9</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.jetty</groupId>
@@ -229,15 +279,14 @@
     </dependency>
 
     <dependency>
-      <groupId>com.codahale.metrics</groupId>
+      <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-servlets</artifactId>
-      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.italiangrid</groupId>
-      <artifactId>https-utils</artifactId>
-      <version>${https-utils.version}</version>
+      <artifactId>jetty-utils</artifactId>
+      <version>${jetty-utils.version}</version>
       <exclusions>
         <exclusion>
           <groupId>javax.activation</groupId>
@@ -247,32 +296,50 @@
           <groupId>javax.mail</groupId>
           <artifactId>mail</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty.aggregate</groupId>
+          <artifactId>jetty-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.7.5</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-access</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-access</artifactId>
-      <version>${logback-access.version}</version>
+      <artifactId>logback-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>${http-client.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-rewrite</artifactId>
     </dependency>
 
     <dependency>
@@ -312,31 +379,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-      <version>${spring-security.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
-      <version>${spring-security.version}</version>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.thymeleaf</groupId>
-      <artifactId>thymeleaf</artifactId>
-      <version>${thymeleaf.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>io.milton</groupId>
       <artifactId>milton-api</artifactId>
       <version>${milton.version}</version>
@@ -351,27 +393,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito-core.version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>prod</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <install.prefix></install.prefix>
-      </properties>
-    </profile>
-    <profile>
-      <id>dev</id>
-      <properties>
-        <install.prefix>/opt/storm-webdav</install.prefix>
-      </properties>
-    </profile>
-  </profiles>
 </project>

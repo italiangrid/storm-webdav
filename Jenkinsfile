@@ -6,6 +6,8 @@ pipeline {
     timeout(time: 2, unit: 'HOURS')
   }
     
+  triggers { cron('@daily') }
+
   stages {
     stage('build') {
       steps {

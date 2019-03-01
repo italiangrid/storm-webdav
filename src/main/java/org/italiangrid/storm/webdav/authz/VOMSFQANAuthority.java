@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package org.italiangrid.storm.webdav.authz;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
-public class VOMSFQANAuthority implements GrantedAuthority,
-  Comparable<VOMSFQANAuthority> {
+import org.springframework.security.core.GrantedAuthority;
+
+public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANAuthority> {
 
   /**
-	 * 
-	 */
+   * 
+   */
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -31,8 +32,7 @@ public class VOMSFQANAuthority implements GrantedAuthority,
 
     final int prime = 31;
     int result = 1;
-    result = prime * result
-      + ((fqanAuthority == null) ? 0 : fqanAuthority.hashCode());
+    result = prime * result + ((fqanAuthority == null) ? 0 : fqanAuthority.hashCode());
     return result;
   }
 
@@ -57,8 +57,7 @@ public class VOMSFQANAuthority implements GrantedAuthority,
   String fqanAuthority;
 
   public VOMSFQANAuthority(String fqan) {
-
-    Assert.hasText(fqan);
+    checkArgument(!isNullOrEmpty(fqan));
     fqanAuthority = String.format("FQAN(%s)", fqan);
   }
 
