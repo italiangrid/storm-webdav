@@ -1,0 +1,12 @@
+[Unit]
+Description=StoRM WebDAV service
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/storm-webdav
+User=storm
+Type=simple
+ExecStart=/bin/bash -ac "/usr/bin/java $STORM_WEBDAV_JVM_OPTS -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION -jar $STORM_WEBDAV_JAR"
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
