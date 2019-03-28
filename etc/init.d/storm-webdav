@@ -75,7 +75,7 @@ _current_status(){
   local pid=$(pgrep -f storm-webdav-server.jar)
   local restored_pid_or_lock=0
 
-  if [ -z ${pid} ]; then
+  if [ -z "${pid}" ]; then
     rm -f ${pidfile}
     if [ -f "${lockfile}" ]; then
       rm -f ${lockfile}
@@ -112,6 +112,7 @@ start() {
     return 0
   fi
 
+  cd /etc/storm/webdav
   start_daemon -p ${pidfile} -u ${STORM_WEBDAV_USER} ${startcmd}
   retval=$?
 
