@@ -10,8 +10,11 @@ rootPath=/tmp
 # Comma separated list of storage area access points. 
 accessPoints=/sa
 
-# Comma separated list of VOMS VOs supported in this storage area
+# Comma-separated list of VOMS VOs supported in this storage area
 vos=test.vo 
+
+# Comma-separated list of OAuth/OpenID Connect token issuers trusted in this storage area
+# orgs=https://super-provider.example/
 
 # Enables read access to users authenticated with an X.509 certificate issued by
 # a trusted CA (users without VOMS credentials).
