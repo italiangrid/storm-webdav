@@ -2,6 +2,7 @@
 Description=StoRM WebDAV service
 
 [Service]
+WorkingDirectory=/etc/storm/webdav
 EnvironmentFile=-/etc/sysconfig/storm-webdav
 User=storm
 Type=simple
