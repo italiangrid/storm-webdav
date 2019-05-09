@@ -52,5 +52,7 @@ public interface ServiceConfiguration {
   public boolean requireClientCertificateAuthentication();
   
   public boolean useConscrypt();
+  
+  public boolean enableHttp2();
 
 }

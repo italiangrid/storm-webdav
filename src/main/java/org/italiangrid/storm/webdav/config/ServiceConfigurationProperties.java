@@ -149,8 +149,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     long trustAnchorsRefreshIntervalSecs = 86400;
 
     boolean requireClientCert = true;
-    
+
     boolean useConscrypt = false;
+
+    boolean enableHttp2 = false;
 
     public String getCertificatePath() {
       return certificatePath;
@@ -191,13 +193,21 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setRequireClientCert(boolean requireClientCert) {
       this.requireClientCert = requireClientCert;
     }
-    
+
     public boolean isUseConscrypt() {
       return useConscrypt;
     }
-    
+
     public void setUseConscrypt(boolean useConscrypt) {
       this.useConscrypt = useConscrypt;
+    }
+
+    public void setEnableHttp2(boolean enableHttp2) {
+      this.enableHttp2 = enableHttp2;
+    }
+
+    public boolean isEnableHttp2() {
+      return enableHttp2;
     }
   }
 
@@ -613,5 +623,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public boolean useConscrypt() {
     return getTls().isUseConscrypt();
+  }
+
+
+  @Override
+  public boolean enableHttp2() {
+    return getTls().isEnableHttp2();
   }
 }
