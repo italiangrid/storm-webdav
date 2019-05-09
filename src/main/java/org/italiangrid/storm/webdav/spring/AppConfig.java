@@ -15,10 +15,15 @@
  */
 package org.italiangrid.storm.webdav.spring;
 
+import static java.util.Objects.isNull;
+import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +46,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
@@ -197,14 +203,23 @@ public class AppConfig implements TransferConstants {
   @Bean
   public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
       ServiceConfiguration conf) throws NoSuchAlgorithmException, KeyManagementException,
-      KeyStoreException, CertificateException, IOException {
+      KeyStoreException, CertificateException, IOException, NoSuchProviderException {
 
     PEMCredential serviceCredential = serviceCredential(conf);
 
     SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
 
-    SSLContext ctx = SSLContext.getInstance(props.getTlsProtocol());
-
+    SSLContext ctx;
+    
+    if (props.isUseConscrypt()) {
+      if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
+        Security.addProvider(new OpenSSLProvider());
+      }
+      ctx = SSLContext.getInstance(props.getTlsProtocol(), CONSCRYPT_PROVIDER);
+    } else {
+      ctx = SSLContext.getInstance(props.getTlsProtocol());
+    }
+    
     ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();

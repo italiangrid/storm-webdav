@@ -44,6 +44,8 @@ public class ThirdPartyCopyProperties {
 
   @Min(value = 4096, message = "tpc.localFileBufferSize must be > 4096")
   int localFileBufferSize = 8192;
+  
+  boolean useConscrypt = false;
 
   public String getTlsProtocol() {
     return tlsProtocol;
@@ -93,4 +95,11 @@ public class ThirdPartyCopyProperties {
     this.localFileBufferSize = localFileBufferSize;
   }
 
+  public boolean isUseConscrypt() {
+    return useConscrypt;
+  }
+
+  public void setUseConscrypt(boolean useConscrypt) {
+    this.useConscrypt = useConscrypt;
+  }
 }

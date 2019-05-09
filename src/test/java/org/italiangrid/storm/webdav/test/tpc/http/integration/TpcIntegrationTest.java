@@ -96,7 +96,7 @@ public class TpcIntegrationTest {
     client.handle(putRequest, (r, s) -> {
       assertThat(s.getStatus(), is(TransferStatus.Status.ERROR));
       assertThat(s.getErrorMessage().isPresent(), is(true));
-      assertThat(s.getErrorMessage().get(), containsString("401 Unauthorized"));
+      assertThat(s.getErrorMessage().get(), containsString("status code: 401, reason phrase: Unauthorized"));
     });
 
     mockServer.verify(request().withMethod("PUT").withPath("/test/example"), exactly(1));

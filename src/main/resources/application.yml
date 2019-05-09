@@ -14,6 +14,8 @@ tpc:
   reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:1}
   httpClientSocketBufferSize: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
   localFileBufferSize: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
+  use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
+  
 
 oauth:
   issuers:
@@ -51,6 +53,7 @@ storm:
     trustAnchorsDir: ${STORM_WEBDAV_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
     trustAnchorsRefreshIntervalSecs: ${STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL:86400}
     requireClientCert: ${STORM_WEBDAV_REQUIRE_CLIENT_CERT:true}
+    use-conscrypt: ${STORM_WEBDAV_USE_CONSCRYPT:false}
   
   sa:
     configDir: ${STORM_WEBDAV_SA_CONFIG_DIR:/etc/storm/webdav/sa.d}

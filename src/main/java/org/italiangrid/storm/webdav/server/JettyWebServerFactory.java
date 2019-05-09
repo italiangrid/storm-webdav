@@ -102,11 +102,13 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withCertificateKeyFile(configuration.getPrivateKeyPath())
       .metricName("storm-https.connection")
       .metricRegistry(metricRegistry)
+      .withConscrypt(configuration.useConscrypt())
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
     server.addConnector(connector);
-    LOG.info("Configured TLS connector on port: {}", configuration.getHTTPSPort());
+    LOG.info("Configured TLS connector on port: {}. Conscrypt enabled: {}",
+        configuration.getHTTPSPort(), configuration.useConscrypt());
   }
 
   private void configurePlainConnector(Server server) {

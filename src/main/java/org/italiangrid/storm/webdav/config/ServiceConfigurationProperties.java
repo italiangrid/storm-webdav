@@ -149,6 +149,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     long trustAnchorsRefreshIntervalSecs = 86400;
 
     boolean requireClientCert = true;
+    
+    boolean useConscrypt = false;
 
     public String getCertificatePath() {
       return certificatePath;
@@ -188,6 +190,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setRequireClientCert(boolean requireClientCert) {
       this.requireClientCert = requireClientCert;
+    }
+    
+    public boolean isUseConscrypt() {
+      return useConscrypt;
+    }
+    
+    public void setUseConscrypt(boolean useConscrypt) {
+      this.useConscrypt = useConscrypt;
     }
   }
 
@@ -597,5 +607,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setChecksumStrategy(ChecksumStrategy checksumStrategy) {
     this.checksumStrategy = checksumStrategy;
+  }
+
+
+  @Override
+  public boolean useConscrypt() {
+    return getTls().isUseConscrypt();
   }
 }

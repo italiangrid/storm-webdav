@@ -83,7 +83,7 @@ public class TransferReturnStatusTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(), is("Third party transfer error: 403 Access denied"));
+    assertThat(error.getValue(), is("Third party transfer error: 403 status code: 403, reason phrase: Access denied"));
   }
   
   @Test
