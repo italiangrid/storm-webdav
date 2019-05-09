@@ -120,3 +120,14 @@ STORM_WEBDAV_TPC_VERIFY_CHECKSUM="false"
 # Default: true
 # Set to 'false' if you want token-based authentication to work (and thus third-party copy)
 # STORM_WEBDAV_REQUIRE_CLIENT_CERT="false"
+
+# Use Conscrypt JSSE provider? 
+# Default: false 
+# Set to 'true' if you want to use a faster TLS implementation which can improve dramatically
+# the performance on data transfers. This flag must also set to "true" when HTTP/2 is enabled
+# STORM_WEBDAV_USE_CONSCRYPT="false"
+
+# Enable HTTP/2 support? 
+# Default: false 
+# Set to 'true' if you want to enable HTTP/2 (and remember to enable conscrypt too!)
+# STORM_WEBDAV_ENABLE_HTTP2="false"

@@ -54,6 +54,7 @@ storm:
     trustAnchorsRefreshIntervalSecs: ${STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL:86400}
     requireClientCert: ${STORM_WEBDAV_REQUIRE_CLIENT_CERT:true}
     use-conscrypt: ${STORM_WEBDAV_USE_CONSCRYPT:false}
+    enable-http2: ${STORM_WEBDAV_ENABLE_HTTP2:false}
   
   sa:
     configDir: ${STORM_WEBDAV_SA_CONFIG_DIR:/etc/storm/webdav/sa.d}
