@@ -65,6 +65,13 @@
     </file>
 
     <file>
+      <source>etc/init.d/storm-webdav</source>
+      <outputDirectory>etc/init.d</outputDirectory>
+      <destName>storm-webdav</destName>
+      <fileMode>0755</fileMode>
+    </file>
+
+    <file>
       <source>etc/systemd/system/storm-webdav.service</source>
       <outputDirectory>etc/systemd/system</outputDirectory>
       <destName>storm-webdav.service</destName>
