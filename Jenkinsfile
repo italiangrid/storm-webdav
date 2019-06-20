@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B clean compile'
         }
       }
@@ -19,13 +19,13 @@ pipeline {
     
     stage('test') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B clean test'
         }
       }
       post {
         always {
-          container('maven-runner'){
+          container('runner'){
             junit '**/target/surefire-reports/TEST-*.xml'
           }
         }
@@ -39,7 +39,7 @@ pipeline {
         }
       }
       steps {
-        container('maven-runner'){
+        container('runner'){
           script{
             def tokens = "${env.CHANGE_URL}".tokenize('/')
             def organization = tokens[tokens.size()-4]
@@ -69,7 +69,7 @@ pipeline {
         environment name: 'CHANGE_URL', value: ''
       }
       steps {
-        container('maven-runner'){
+        container('runner'){
           script{
             def opts = '-Dmaven.test.failure.ignore -DfailIfNoTests=false'
             def checkstyle_opts = 'checkstyle:check -Dcheckstyle.config.location=google_checks.xml'
@@ -84,7 +84,7 @@ pipeline {
     
     stage('package') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B -DskipTests=true clean package'
         }
       }
