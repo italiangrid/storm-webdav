@@ -1,5 +1,13 @@
 pipeline {
-  agent { label 'maven' }
+
+  agent {
+      kubernetes {
+          label "storm-webdav-${env.JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+          cloud 'Kube mwdevel'
+          defaultContainer 'jnlp'
+          inheritFrom 'ci-template'
+      }
+  }
   
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
