@@ -1,14 +1,16 @@
+def podLabel = 'storm-webdav-' + JOB_BASE_NAME.replaceAll('%2F','').replaceAll("[^a-zA-Z0-9]+","") + '-' + BUILD_NUMBER
+
 pipeline {
 
   agent {
-      kubernetes {
-          label "storm-webdav-${env.JOB_BASE_NAME}-${env.BUILD_NUMBER}"
-          cloud 'Kube mwdevel'
-          defaultContainer 'jnlp'
-          inheritFrom 'ci-template'
-      }
+    kubernetes {
+      label "${podLabel}"
+      cloud 'Kube mwdevel'
+      defaultContainer 'jnlp'
+      inheritFrom 'ci-template'
+    }
   }
-  
+
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
     timeout(time: 2, unit: 'HOURS')
