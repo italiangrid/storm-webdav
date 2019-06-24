@@ -1,6 +1,16 @@
+def podLabel = 'storm-webdav-' + JOB_BASE_NAME.replaceAll('%2F','').replaceAll("[^a-zA-Z0-9]+","") + '-' + BUILD_NUMBER
+
 pipeline {
-  agent { label 'maven' }
-  
+
+  agent {
+    kubernetes {
+      label "${podLabel}"
+      cloud 'Kube mwdevel'
+      defaultContainer 'jnlp'
+      inheritFrom 'ci-template'
+    }
+  }
+
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
     timeout(time: 2, unit: 'HOURS')
@@ -11,7 +21,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B clean compile'
         }
       }
@@ -19,13 +29,13 @@ pipeline {
     
     stage('test') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B clean test'
         }
       }
       post {
         always {
-          container('maven-runner'){
+          container('runner'){
             junit '**/target/surefire-reports/TEST-*.xml'
           }
         }
@@ -39,7 +49,7 @@ pipeline {
         }
       }
       steps {
-        container('maven-runner'){
+        container('runner'){
           script{
             def tokens = "${env.CHANGE_URL}".tokenize('/')
             def organization = tokens[tokens.size()-4]
@@ -69,7 +79,7 @@ pipeline {
         environment name: 'CHANGE_URL', value: ''
       }
       steps {
-        container('maven-runner'){
+        container('runner'){
           script{
             def opts = '-Dmaven.test.failure.ignore -DfailIfNoTests=false'
             def checkstyle_opts = 'checkstyle:check -Dcheckstyle.config.location=google_checks.xml'
@@ -84,7 +94,7 @@ pipeline {
     
     stage('package') {
       steps {
-        container('maven-runner'){
+        container('runner'){
           sh 'mvn -B -DskipTests=true clean package'
         }
       }
