@@ -273,6 +273,7 @@ public class AppConfig implements TransferConstants {
     }
     
     if (sProps.getAuthzServer().isEnabled()) {
+      LOG.info("Initializing local JWT token issuer with issuer: {}", sProps.getAuthzServer().getIssuer());
       LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
       decoders.put(sProps.getAuthzServer().getIssuer(), d);
     }
