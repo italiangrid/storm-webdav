@@ -50,8 +50,8 @@ services:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.example
-      #STORM_WEBDAV_USE_CONSCRYPT: "true"
-      #STORM_WEBDAV_JVM_OPTS: -Doauth.issuers
+      STORM_WEBDAV_USE_CONSCRYPT: "true"
+      STORM_WEBDAV_JVM_OPTS: -Djavax.net.debug=all
       #DEBUG: y
       #DEBUG_SUSPEND: y
 
@@ -123,10 +123,10 @@ services:
       - ./assets/usercerts/:/usercerts:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
-    # entrypoint:  sleep infinity
-    #
-    entrypoint: 
-     - /scripts/wait-and-run-testsuite.sh
+    entrypoint:  sleep infinity
+    
+    # entrypoint: 
+    # - /scripts/wait-and-run-testsuite.sh
 
     networks:
       default:

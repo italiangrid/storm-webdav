@@ -82,7 +82,8 @@ To configure the service with yaim, run the following command:
 ### `/etc/sysconfig/storm-webdav`
 
 The storm-webdav service configuration lives in this file.
-Normally you shouldn't change anything.
+Typically the configuration works out of the box, but changes are required for
+instance to enable third-party transfer support.
 
 #### VO mapfiles
 
@@ -163,29 +164,6 @@ Check that the service responds:
 ```
 # curl http://localhost:8085/status/ping
 pong
-```
-
-Print JVM thread stacks:
-
-```
-# curl http://localhost:8085/status/threads
-Reference Handler id=2 state=WAITING
-    - waiting on <0x519b1696> (a java.lang.ref.Reference$Lock)
-    - locked <0x519b1696> (a java.lang.ref.Reference$Lock)
-    at java.lang.Object.wait(Native Method)
-    at java.lang.Object.wait(Object.java:503)
-    at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:133)
-
-Finalizer id=3 state=WAITING
-    - waiting on <0x3c854594> (a java.lang.ref.ReferenceQueue$Lock)
-    - locked <0x3c854594> (a java.lang.ref.ReferenceQueue$Lock)
-    at java.lang.Object.wait(Native Method)
-    at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:135)
-    at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
-    at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
-
-Signal Dispatcher id=4 state=RUNNABLE
-...
 ```
 
 Get service metrics:

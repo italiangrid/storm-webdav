@@ -101,7 +101,6 @@ import eu.emi.security.authn.x509.NamespaceCheckingMode;
 import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 
 @Configuration
@@ -218,7 +217,6 @@ public class AppConfig implements TransferConstants {
       }
       ctx = SSLContext.getInstance(props.getTlsProtocol(), CONSCRYPT_PROVIDER);
     } else {
-      CertificateUtils.configureSecProvider();
       ctx = SSLContext.getInstance(props.getTlsProtocol());
     }
     

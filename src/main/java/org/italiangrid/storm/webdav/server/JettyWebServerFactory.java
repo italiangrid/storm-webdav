@@ -88,7 +88,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
-
+    
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
 
@@ -104,6 +104,8 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .metricRegistry(metricRegistry)
       .withConscrypt(configuration.useConscrypt())
       .withHttp2(configuration.enableHttp2())
+      .withDisableJsseHostnameVerification(true)
+      .withTlsProtocol("TLS")
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
