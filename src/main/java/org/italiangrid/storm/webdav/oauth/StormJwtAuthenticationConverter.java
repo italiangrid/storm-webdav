@@ -68,8 +68,7 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
 
 
   protected Collection<GrantedAuthority> extractAuthoritiesExternalAuthzServer(String issuer) {
-    Collection<GrantedAuthority> authorities = authzMap.get(issuer);
-    return authorities;
+    return authzMap.get(issuer);
   }
 
   protected Collection<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
@@ -95,6 +94,4 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
 
     return extractAuthoritiesExternalAuthzServer(issuer);
   }
-
-
 }

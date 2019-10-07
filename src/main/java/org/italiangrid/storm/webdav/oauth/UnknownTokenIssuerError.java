@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.macaroon;
+package org.italiangrid.storm.webdav.oauth;
 
-import org.springframework.security.core.Authentication;
+import static java.lang.String.format;
 
-public interface MacaroonIssuerService {
+import org.springframework.security.oauth2.jwt.JwtException;
 
-  MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth);
+public class UnknownTokenIssuerError extends JwtException {
+
   
+  private static final String UNKNOWN_ISSUER_TEMPLATE = "Unknown token issuer: %s";
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  public UnknownTokenIssuerError(String issuer) {
+    super(format(UNKNOWN_ISSUER_TEMPLATE,issuer));
+  }
+
 }

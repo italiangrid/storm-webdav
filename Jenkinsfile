@@ -1,12 +1,14 @@
-def podLabel = 'storm-webdav-' + JOB_BASE_NAME.replaceAll('%2F','').replaceAll("[^a-zA-Z0-9]+","") + '-' + BUILD_NUMBER
+#!/usr/bin/env groovy
+@Library('sd')_
+def kubeLabel = getKubeLabel()
 
 pipeline {
 
   agent {
     kubernetes {
-      label "${podLabel}"
+      label "${kubeLabel}"
       cloud 'Kube mwdevel'
-      defaultContainer 'jnlp'
+      defaultContainer 'runner'
       inheritFrom 'ci-template'
     }
   }
@@ -21,72 +23,62 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        container('runner'){
-          sh 'mvn -B clean compile'
-        }
+        sh 'mvn -B clean compile'
       }
     }
     
     stage('test') {
       steps {
-        container('runner'){
-          sh 'mvn -B clean test'
-        }
+        sh 'mvn -B clean test'
       }
       post {
         always {
-          container('runner'){
-            junit '**/target/surefire-reports/TEST-*.xml'
-          }
+          junit '**/target/surefire-reports/TEST-*.xml'
         }
       }
     }
     
-    stage('PR analysis'){
-      when{
+    stage('PR analysis') {
+      when {
         not {
           environment name: 'CHANGE_URL', value: ''
         }
       }
       steps {
-        container('runner'){
-          script{
-            def tokens = "${env.CHANGE_URL}".tokenize('/')
-            def organization = tokens[tokens.size()-4]
-            def repo = tokens[tokens.size()-3]
+        script {
+          def tokens = "${env.CHANGE_URL}".tokenize('/')
+          def organization = tokens[tokens.size()-4]
+          def repo = tokens[tokens.size()-3]
 
-            withCredentials([string(credentialsId: '630f8e6c-0d31-4f96-8d82-a1ef536ef059', variable: 'GITHUB_ACCESS_TOKEN')]) {
-              withSonarQubeEnv{
-                sh """
-                  mvn -B -U clean compile sonar:sonar \\
-                    -Dsonar.analysis.mode=preview \\
-                    -Dsonar.github.pullRequest=${env.CHANGE_ID} \\
-                    -Dsonar.github.repository=${organization}/${repo} \\
-                    -Dsonar.github.oauth=${GITHUB_ACCESS_TOKEN} \\
-                    -Dsonar.host.url=${SONAR_HOST_URL} \\
-                    -Dsonar.login=${SONAR_AUTH_TOKEN}
-                """
-              }
+          withCredentials([string(credentialsId: '630f8e6c-0d31-4f96-8d82-a1ef536ef059', variable: 'GITHUB_ACCESS_TOKEN')]) {
+            withSonarQubeEnv{
+              sh """
+                mvn -B -U clean compile sonar:sonar \\
+                  -Dsonar.analysis.mode=preview \\
+                  -Dsonar.github.pullRequest=${env.CHANGE_ID} \\
+                  -Dsonar.github.repository=${organization}/${repo} \\
+                  -Dsonar.github.oauth=${GITHUB_ACCESS_TOKEN} \\
+                  -Dsonar.host.url=${SONAR_HOST_URL} \\
+                  -Dsonar.login=${SONAR_AUTH_TOKEN}
+              """
             }
           }
         }
       }
     }
 
-    stage('analysis'){
-      when{
+    stage('analysis') {
+      when {
         anyOf { branch 'master'; branch 'develop' }
         environment name: 'CHANGE_URL', value: ''
       }
       steps {
-        container('runner'){
-          script{
-            def opts = '-Dmaven.test.failure.ignore -DfailIfNoTests=false'
-            def checkstyle_opts = 'checkstyle:check -Dcheckstyle.config.location=google_checks.xml'
+        script {
+          def opts = '-Dmaven.test.failure.ignore -DfailIfNoTests=false'
+          def checkstyle_opts = 'checkstyle:check -Dcheckstyle.config.location=google_checks.xml'
 
-            withSonarQubeEnv{
-              sh "mvn clean compile -U ${opts} ${checkstyle_opts} ${SONAR_MAVEN_GOAL} -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}"
-            }
+          withSonarQubeEnv{
+            sh "mvn clean compile -U ${opts} ${checkstyle_opts} ${SONAR_MAVEN_GOAL} -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}"
           }
         }
       }
@@ -94,13 +86,11 @@ pipeline {
     
     stage('package') {
       steps {
-        container('runner'){
-          sh 'mvn -B -DskipTests=true clean package'
-        }
+        sh 'mvn -B -DskipTests=true clean package'
       }
     }
     
-    stage('result'){
+    stage('result') {
       steps {
         script { currentBuild.result = 'SUCCESS' }
       }
