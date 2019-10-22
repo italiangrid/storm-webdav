@@ -15,13 +15,19 @@
  */
 package org.italiangrid.storm.webdav.spring;
 
+import static java.util.Objects.isNull;
+import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +46,10 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
+import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -64,6 +72,8 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.web.AuthzServerMetadata;
+import org.italiangrid.storm.webdav.oauth.utils.OidcConfigurationFetcher;
+import org.italiangrid.storm.webdav.oauth.utils.TrustedJwtDecoderCacheLoader;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
@@ -75,15 +85,16 @@ import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import com.google.common.collect.Maps;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -192,14 +203,23 @@ public class AppConfig implements TransferConstants {
   @Bean
   public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
       ServiceConfiguration conf) throws NoSuchAlgorithmException, KeyManagementException,
-      KeyStoreException, CertificateException, IOException {
+      KeyStoreException, CertificateException, IOException, NoSuchProviderException {
 
     PEMCredential serviceCredential = serviceCredential(conf);
 
     SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
 
-    SSLContext ctx = SSLContext.getInstance(props.getTlsProtocol());
-
+    SSLContext ctx;
+    
+    if (props.isUseConscrypt()) {
+      if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
+        Security.addProvider(new OpenSSLProvider());
+      }
+      ctx = SSLContext.getInstance(props.getTlsProtocol(), CONSCRYPT_PROVIDER);
+    } else {
+      ctx = SSLContext.getInstance(props.getTlsProtocol());
+    }
+    
     ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
@@ -227,19 +247,38 @@ public class AppConfig implements TransferConstants {
 
 
   @Bean
-  public JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps) {
+  public JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
+      RestTemplateBuilder builder, OidcConfigurationFetcher fetcher) {
 
-    Map<String, JwtDecoder> decoders = Maps.newHashMap();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    props.getIssuers().forEach(i -> {
-      decoders.put(i.getIssuer(), JwtDecoders.fromOidcIssuerLocation(i.getIssuer()));
-    });
+    TrustedJwtDecoderCacheLoader loader =
+        new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
+    
+    
+    LoadingCache<String, JwtDecoder> decoders =
+        CacheBuilder.newBuilder().refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES).build(loader);
 
-    LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
-    decoders.put(sProps.getAuthzServer().getIssuer(), d);
+    
+    for (AuthorizationServer as: props.getIssuers()) {
+      LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
+      try {
+        decoders.put(as.getIssuer(), loader.load(as.getIssuer()));
+      } catch (Exception e) {
+        LOG.warn("Error initializing trusted issuer: {}", e.getMessage());
+        if (LOG.isDebugEnabled()) {
+          LOG.warn("Error initializing trusted issuer: {}", e.getMessage(),e);
+        }
+      }
+    }
+    
+    if (sProps.getAuthzServer().isEnabled()) {
+      LOG.info("Initializing local JWT token issuer with issuer: {}", sProps.getAuthzServer().getIssuer());
+      LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
+      decoders.put(sProps.getAuthzServer().getIssuer(), d);
+    }
 
     return new CompositeJwtDecoder(decoders);
-
   }
 
   @Bean
@@ -272,7 +311,7 @@ public class AppConfig implements TransferConstants {
     LOG.info("Checksum strategy: late");
     return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
   }
-  
+
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
   public ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {

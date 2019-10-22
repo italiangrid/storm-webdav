@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.config;
 
 import java.util.List;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 import org.hibernate.validator.constraints.URL;
@@ -61,9 +62,13 @@ public class OAuthProperties {
     public void setIssuer(String issuer) {
       this.issuer = issuer;
     }
+
   }
 
   List<AuthorizationServer> issuers;
+
+  @Min(value = 1, message = "The refresh period must be a positive integer")
+  int refreshPeriodMinutes = 1;
 
   public List<AuthorizationServer> getIssuers() {
     return issuers;
@@ -72,4 +77,12 @@ public class OAuthProperties {
   public void setIssuers(List<AuthorizationServer> issuers) {
     this.issuers = issuers;
   }
+
+  public int getRefreshPeriodMinutes() {
+    return refreshPeriodMinutes;
+  }
+
+  public void setRefreshPeriodMinutes(int refreshPeriodMinutes) {
+    this.refreshPeriodMinutes = refreshPeriodMinutes;
+  }  
 }

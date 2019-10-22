@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.macaroon;
+package org.italiangrid.storm.webdav.oauth.utils;
 
-import org.springframework.security.core.Authentication;
+public class OidcConfigurationResolutionError extends RuntimeException {
 
-public interface MacaroonIssuerService {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
-  MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth);
+  public OidcConfigurationResolutionError(String message) {
+    super(message);
+  }
   
+  public OidcConfigurationResolutionError(String message, Throwable cause) {
+    super(message, cause);
+
+  }
 }

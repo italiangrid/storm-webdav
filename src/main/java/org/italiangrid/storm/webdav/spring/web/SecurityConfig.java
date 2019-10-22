@@ -191,9 +191,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
     }
 
-    if (!oauthProperties.getIssuers().isEmpty()) {
-      http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
-    }
+    http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
 
     http.authorizeRequests().antMatchers(HttpMethod.GET, "/errors/**").permitAll();
     http.authorizeRequests()

@@ -49,8 +49,8 @@ public class CANLListener implements StoreUpdateListener, ValidationErrorListene
   public boolean onValidationError(ValidationError error) {
 
     String certChainInfo = CertificateUtils.format(error.getChain(), FormatMode.COMPACT_ONE_LINE);
-    LOG.warn("Certificate validation error for chain: {}", certChainInfo);
-    LOG.warn("Validation Error: {}", error.getMessage());
+    LOG.warn("Certificate validation error for chain: {}. Error: {}", certChainInfo,
+        error.getMessage());
     return false;
 
   }

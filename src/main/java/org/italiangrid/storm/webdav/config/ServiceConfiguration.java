@@ -50,5 +50,9 @@ public interface ServiceConfiguration {
   public boolean isAuthorizationDisabled();
   
   public boolean requireClientCertificateAuthentication();
+  
+  public boolean useConscrypt();
+  
+  public boolean enableHttp2();
 
 }

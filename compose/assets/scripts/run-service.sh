@@ -2,7 +2,7 @@
 set -ex
 
 JARDIR=/usr/share/java/storm-webdav
-JVM_OPTS=""
+JVM_OPTS=${STORM_WEBDAV_JVM_OPTS:-}
 
 if [ -n "$ENABLE_JREBEL" ]; then
   JVM_OPTS="-javaagent:/opt/jrebel/jrebel.jar -Drebel.stats=false -Drebel.usage_reporting=false -Drebel.struts2_plugin=true -Drebel.tiles2_plugin=true -Drebel.license=/home/storm/.jrebel/jrebel.lic $JVM_OPTS"

@@ -88,7 +88,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
-
+    
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
 
@@ -102,11 +102,16 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withCertificateKeyFile(configuration.getPrivateKeyPath())
       .metricName("storm-https.connection")
       .metricRegistry(metricRegistry)
+      .withConscrypt(configuration.useConscrypt())
+      .withHttp2(configuration.enableHttp2())
+      .withDisableJsseHostnameVerification(true)
+      .withTlsProtocol("TLS")
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
     server.addConnector(connector);
-    LOG.info("Configured TLS connector on port: {}", configuration.getHTTPSPort());
+    LOG.info("Configured TLS connector on port: {}. Conscrypt enabled: {}. HTTP/2 enabled: {}",
+        configuration.getHTTPSPort(), configuration.useConscrypt(), configuration.enableHttp2());
   }
 
   private void configurePlainConnector(Server server) {

@@ -71,7 +71,7 @@ public class LocallyIssuedJwtDecoder implements JwtDecoder {
   }
 
   @Override
-  public Jwt decode(String token) throws JwtException {
+  public Jwt decode(String token) {
     JWT jwt = parse(token);
     if (jwt instanceof SignedJWT) {
       Jwt createdJwt = this.createJwt(token, jwt);

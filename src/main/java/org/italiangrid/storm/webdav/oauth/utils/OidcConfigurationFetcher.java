@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.macaroon;
+package org.italiangrid.storm.webdav.oauth.utils;
 
-import org.springframework.security.core.Authentication;
+import java.util.Map;
 
-public interface MacaroonIssuerService {
+public interface OidcConfigurationFetcher {
 
-  MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth);
-  
+  Map<String, Object> loadConfigurationForIssuer(String issuer);
+
 }

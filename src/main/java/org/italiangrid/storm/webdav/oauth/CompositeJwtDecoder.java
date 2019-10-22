@@ -18,55 +18,62 @@ package org.italiangrid.storm.webdav.oauth;
 import static java.lang.String.format;
 
 import java.text.ParseException;
-import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
+import com.google.common.cache.LoadingCache;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
 public class CompositeJwtDecoder implements JwtDecoder {
+  
   private static final String DECODING_ERROR_MESSAGE_TEMPLATE =
       "An error occurred while attempting to decode the Jwt: %s";
 
-  private static final String UNKNOWN_ISSUER_TEMPLATE = "Unknown token issuer: %s";
+  public static final Logger LOG = LoggerFactory.getLogger(CompositeJwtDecoder.class);
 
-  final Map<String, JwtDecoder> decoders;
-
-  public CompositeJwtDecoder(Map<String, JwtDecoder> decoders) {
+  final LoadingCache<String, JwtDecoder> decoders;
+  
+  public CompositeJwtDecoder(LoadingCache<String, JwtDecoder> decoders) {
     this.decoders = decoders;
   }
+  
+  protected JwtDecoder resolveDecoder(String token) {
 
-  protected JwtDecoder resolveDecoder(String token) throws JwtException {
-
-    JWT jwt = parse(token);
-
+    String issuer = resolveIssuerFromToken(token);
     try {
-      String issuer = jwt.getJWTClaimsSet().getIssuer();
-      Optional<JwtDecoder> decoder = Optional.ofNullable(decoders.get(issuer));
-      return decoder.orElseThrow(() -> new JwtException(format(UNKNOWN_ISSUER_TEMPLATE, issuer)));
-    } catch (ParseException e) {
-      throw new JwtException(format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()));
+      return decoders.get(issuer);
+    } catch (ExecutionException e) {
+      LOG.warn("Error resolving OAuth issuer configuration for {}", issuer);
+      if (LOG.isDebugEnabled()) {
+        LOG.warn("Error resolving OAuth issuer configuration for {}", issuer,e);
+      }
+      throw new UnknownTokenIssuerError(issuer);
     }
-
   }
-
-
+  
   @Override
-  public Jwt decode(String token) throws JwtException {
+  public Jwt decode(String token) {
     JwtDecoder decoder = resolveDecoder(token);
     return decoder.decode(token);
   }
-
-  private JWT parse(String token) {
-    try {
-      return JWTParser.parse(token);
-    } catch (Exception ex) {
-      throw new JwtException(format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
-    }
+  
+  private String resolveIssuerFromToken(String token) {
+      try {
+        JWT jwt;
+        jwt = JWTParser.parse(token);
+        return jwt.getJWTClaimsSet().getIssuer();
+      } catch (ParseException e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.error(format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()));
+        }
+        throw new JwtException(format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()), e);
+      } 
   }
 
 }
