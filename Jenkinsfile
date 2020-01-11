@@ -6,7 +6,6 @@ pipeline {
 
   agent {
     kubernetes {
-
       label "${kubeLabel}"
       cloud 'Kube mwdevel'
       defaultContainer 'runner'

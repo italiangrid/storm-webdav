@@ -72,6 +72,13 @@
     </file>
 
     <file>
+      <source>etc/systemd/system/storm-webdav.service</source>
+      <outputDirectory>usr/lib/systemd/system</outputDirectory>
+      <destName>storm-webdav.service</destName>
+      <fileMode>0644</fileMode>
+    </file>
+
+    <file>
       <source>target/storm-webdav-server.jar</source>
       <outputDirectory>usr/share/java/storm-webdav</outputDirectory>
       <fileMode>0755</fileMode>
