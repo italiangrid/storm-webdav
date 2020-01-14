@@ -13,37 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.config;
+package org.italiangrid.storm.webdav.authz.pdp.principal;
 
-import java.util.List;
-import java.util.Set;
+import org.springframework.security.core.Authentication;
 
-public interface StorageAreaInfo {
+public class Anyone implements PrincipalMatcher {
 
-  public String name();
+  public Anyone() {}
 
-  public String rootPath();
+  @Override
+  public boolean matchesPrincipal(Authentication authentication) {
+    return true;
+  }
 
-  public String filesystemType();
-
-  public List<String> accessPoints();
-
-  public Set<String> vos();
-
-  public Set<String> orgs();
-
-  public Boolean anonymousReadEnabled();
-
-  public Boolean authenticatedReadEnabled();
-
-  public Boolean voMapEnabled();
-
-  public Boolean voMapGrantsWritePermission();
-
-  public Boolean orgsGrantReadPermission();
-
-  public Boolean orgsGrantWritePermission();
-
-  public Boolean wlcgStructuredScopeAuthzEnabled();
-
+  @Override
+  public String toString() {
+    return "Anyone";
+  }
 }

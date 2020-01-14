@@ -38,7 +38,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
 @Configuration
-public class VOMSSecurityConfig {
+public class VOMSBeans {
 
   @Bean
   VOMSACValidator vomsValidator(X509CertChainValidatorExt certificateValidator,

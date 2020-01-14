@@ -33,7 +33,7 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @Separator(",")
   public Set<String> vos();
-  
+
   @Override
   @Separator(",")
   public Set<String> orgs();
@@ -44,16 +44,24 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @DefaultValue("false")
   public Boolean authenticatedReadEnabled();
-  
+
   @Override
   @DefaultValue("true")
   public Boolean voMapEnabled();
-  
+
   @Override
   @DefaultValue("false")
   public Boolean voMapGrantsWritePermission();
 
   @Override
   @DefaultValue("true")
+  public Boolean orgsGrantReadPermission();
+
+  @Override
+  @DefaultValue("true")
   public Boolean orgsGrantWritePermission();
+
+  @Override
+  @DefaultValue("false")
+  public Boolean wlcgStructuredScopeAuthzEnabled();
 }

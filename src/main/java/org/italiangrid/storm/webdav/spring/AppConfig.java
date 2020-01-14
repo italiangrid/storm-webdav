@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.spring;
 
 import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.notApplicable;
 import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
@@ -48,6 +49,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
+import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
+import org.italiangrid.storm.webdav.authz.pdp.InMemoryPolicyRepository;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
@@ -210,7 +215,7 @@ public class AppConfig implements TransferConstants {
     SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
 
     SSLContext ctx;
-    
+
     if (props.isUseConscrypt()) {
       if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
         Security.addProvider(new OpenSSLProvider());
@@ -219,7 +224,7 @@ public class AppConfig implements TransferConstants {
     } else {
       ctx = SSLContext.getInstance(props.getTlsProtocol());
     }
-    
+
     ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
@@ -254,26 +259,28 @@ public class AppConfig implements TransferConstants {
 
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
-    
-    
-    LoadingCache<String, JwtDecoder> decoders =
-        CacheBuilder.newBuilder().refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES).build(loader);
 
-    
-    for (AuthorizationServer as: props.getIssuers()) {
+
+    LoadingCache<String, JwtDecoder> decoders = CacheBuilder.newBuilder()
+      .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+      .build(loader);
+
+
+    for (AuthorizationServer as : props.getIssuers()) {
       LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
       try {
         decoders.put(as.getIssuer(), loader.load(as.getIssuer()));
       } catch (Exception e) {
         LOG.warn("Error initializing trusted issuer: {}", e.getMessage());
         if (LOG.isDebugEnabled()) {
-          LOG.warn("Error initializing trusted issuer: {}", e.getMessage(),e);
+          LOG.warn("Error initializing trusted issuer: {}", e.getMessage(), e);
         }
       }
     }
-    
+
     if (sProps.getAuthzServer().isEnabled()) {
-      LOG.info("Initializing local JWT token issuer with issuer: {}", sProps.getAuthzServer().getIssuer());
+      LOG.info("Initializing local JWT token issuer with issuer: {}",
+          sProps.getAuthzServer().getIssuer());
       LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
       decoders.put(sProps.getAuthzServer().getIssuer(), d);
     }
@@ -317,5 +324,17 @@ public class AppConfig implements TransferConstants {
   public ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
     LOG.warn("Checksum strategy: no checksum");
     return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "true")
+  public PathAuthorizationPolicyRepository pathAuthzPolicyRepository(PathAuthzPolicyParser parser) {
+    return new InMemoryPolicyRepository(parser.parsePolicies());
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "false")
+  public PathAuthorizationPdp pathAuthzPdp() {
+    return (r) -> notApplicable();
   }
 }

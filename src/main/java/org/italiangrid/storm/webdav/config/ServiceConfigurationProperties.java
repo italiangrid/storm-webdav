@@ -26,6 +26,8 @@ import javax.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.common.collect.Lists;
+
 @Configuration
 @ConfigurationProperties("storm")
 public class ServiceConfigurationProperties implements ServiceConfiguration {
@@ -62,9 +64,15 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
 
   }
+
   public static class AuthorizationProperties {
 
     boolean disabled = false;
+
+    boolean enableFineGrainedAuthz = false;
+
+    @Valid
+    List<FineGrainedAuthzPolicy> policies = Lists.newArrayList();
 
     public boolean isDisabled() {
       return disabled;
@@ -72,6 +80,22 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setDisabled(boolean disabled) {
       this.disabled = disabled;
+    }
+
+    public void setEnableFineGrainedAuthz(boolean enableFineGrainedAuthz) {
+      this.enableFineGrainedAuthz = enableFineGrainedAuthz;
+    }
+
+    public boolean isEnableFineGrainedAuthz() {
+      return enableFineGrainedAuthz;
+    }
+
+    public List<FineGrainedAuthzPolicy> getPolicies() {
+      return policies;
+    }
+
+    public void setPolicies(List<FineGrainedAuthzPolicy> policies) {
+      this.policies = policies;
     }
   }
 
@@ -373,7 +397,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
-  private AuthorizationProperties authz;
+  private AuthorizationProperties authz = new AuthorizationProperties();
 
   private ChecksumFilterProperties checksumFilter;
 
@@ -629,5 +653,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public boolean enableHttp2() {
     return getTls().isEnableHttp2();
+  }
+
+
+  @Override
+  public boolean isFineGrainedAuthorizationEnabled() {
+    return getAuthz().isEnableFineGrainedAuthz();
   }
 }

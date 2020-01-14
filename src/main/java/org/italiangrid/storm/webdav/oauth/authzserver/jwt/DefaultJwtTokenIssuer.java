@@ -32,6 +32,7 @@ import org.italiangrid.storm.webdav.oauth.authzserver.TokenCreationError;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import com.google.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -110,15 +111,22 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
   @Override
   public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication) {
 
-    Set<GrantedAuthority> authorities = policyService.getSAPermissions(authentication);
+    Set<GrantedAuthority> tokenAuthorities = Sets.newHashSet();
+    
+    Set<GrantedAuthority> saAuthorities = policyService.getSAPermissions(authentication);
+    tokenAuthorities.addAll(saAuthorities);
+    
+    tokenAuthorities.addAll(authentication.getAuthorities());
+    
     JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
 
     claimsSet.issuer(properties.getIssuer());
     claimsSet.audience(properties.getIssuer());
     claimsSet.subject(authentication.getName());
     claimsSet.expirationTime(computeTokenExpirationTimestamp(request, authentication));
+    
     claimsSet.claim(CLAIM_AUTHORITIES,
-        authorities.stream().map(Object::toString).collect(toList()));
+        tokenAuthorities.stream().map(Object::toString).collect(toList()));
 
     SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWS_ALGO), claimsSet.build());
 

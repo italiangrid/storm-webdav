@@ -49,6 +49,8 @@ public interface ServiceConfiguration {
   
   public boolean isAuthorizationDisabled();
   
+  public boolean isFineGrainedAuthorizationEnabled();
+  
   public boolean requireClientCertificateAuthentication();
   
   public boolean useConscrypt();

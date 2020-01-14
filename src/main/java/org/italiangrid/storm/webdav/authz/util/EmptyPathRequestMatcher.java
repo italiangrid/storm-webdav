@@ -15,47 +15,29 @@
  */
 package org.italiangrid.storm.webdav.authz.util;
 
-import java.util.Arrays;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-public class MethodRequestMatcher implements RequestMatcher {
+public class EmptyPathRequestMatcher implements RequestMatcher {
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(MethodRequestMatcher.class);
-
-  private final String[] methods;
-
-  public MethodRequestMatcher(String... methods) {
-
-    this.methods = methods;
-
-  }
+  public EmptyPathRequestMatcher() {}
 
   @Override
   public boolean matches(HttpServletRequest request) {
-
-    for (String m : methods) {
-
-      if (request.getMethod().matches(m)) {
-        return true;
-      }
-    }
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("Request not matched by this matcher: method {} not in {}.",
-        request.getMethod(), methods);
-    }
-    return false;
-  }
-  
-  @Override
-  public String toString() {
-    return String.format("MethodRequestMatcher [method in '%s']", Arrays.toString(methods)); 
+    return isNullOrEmpty(getRequestPath(request));
   }
 
+  private String getRequestPath(HttpServletRequest request) {
+
+    String url = request.getServletPath();
+
+    if (request.getPathInfo() != null) {
+      url += request.getPathInfo();
+    }
+
+    return url;
+  }
 }

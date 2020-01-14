@@ -2,3 +2,7 @@ oauth:
   issuers:
     - name: iam-test
       issuer: https://iam-test.indigo-datacloud.eu/
+    - name: iam-wlcg
+      issuer: https://wlcg.cloud.cnaf.infn.it/
+    - name: iam-local
+      issuer: https://iam.local.io/

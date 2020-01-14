@@ -13,37 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.config;
+package org.italiangrid.storm.webdav.authz.pdp;
 
 import java.util.List;
-import java.util.Set;
 
-public interface StorageAreaInfo {
-
-  public String name();
-
-  public String rootPath();
-
-  public String filesystemType();
-
-  public List<String> accessPoints();
-
-  public Set<String> vos();
-
-  public Set<String> orgs();
-
-  public Boolean anonymousReadEnabled();
-
-  public Boolean authenticatedReadEnabled();
-
-  public Boolean voMapEnabled();
-
-  public Boolean voMapGrantsWritePermission();
-
-  public Boolean orgsGrantReadPermission();
-
-  public Boolean orgsGrantWritePermission();
-
-  public Boolean wlcgStructuredScopeAuthzEnabled();
-
+public interface PathAuthorizationPolicyRepository {
+  List<PathAuthorizationPolicy> getPolicies();
 }

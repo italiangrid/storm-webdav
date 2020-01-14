@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.tpc;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -46,7 +45,7 @@ import org.springframework.http.HttpStatus;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class TransferFilterSupport implements TransferConstants {
+public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
 
@@ -64,22 +63,7 @@ public class TransferFilterSupport implements TransferConstants {
 
   protected String getScopedPathInfo(HttpServletRequest request) {
     return Paths.get(request.getServletPath(), request.getPathInfo()).toString();
-  }
-
-  protected boolean hasRemoteSourceOrDestinationHeader(HttpServletRequest request) {
-
-    Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
-    Optional<String> dest = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
-
-    return (source.isPresent() && !localURLService.isLocalURL(source.get()))
-        || (dest.isPresent() && !localURLService.isLocalURL(dest.get()));
-
-  }
-
-  protected boolean isTpc(HttpServletRequest request) {
-    return COPY.toString().equals(request.getMethod())
-        && hasRemoteSourceOrDestinationHeader(request);
-  }
+  }  
 
   protected Multimap<String, String> getTransferHeaders(HttpServletRequest request,
       HttpServletResponse response) {

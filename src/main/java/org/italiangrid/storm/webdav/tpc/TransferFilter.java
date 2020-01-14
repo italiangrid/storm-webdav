@@ -68,7 +68,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;
 
-    if (isTpc(req)) {
+    if (isTpc(req, localURLService)) {
       handleCopy(req, res);
     } else {
       chain.doFilter(request, response);

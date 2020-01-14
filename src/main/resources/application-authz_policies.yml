@@ -1,0 +1,33 @@
+storm:
+  authz:
+    enable-fine-grained-authz: true
+    policies:
+    - id: "read-on-root" 
+      effect: permit
+      paths:
+      - ''
+      actions:
+      - read
+      principals:
+      - type: any-authenticated-user
+    - id: "read-write on /auth"
+      description: Allow write to authenticated users on /auth SA 
+      effect: permit
+      paths:
+      - /auth/**
+      actions:
+      - all
+      principals:
+      - type: vo
+        params:
+          vo: test.vo
+    - id: "read on /auth"
+      description:  
+      effect: permit
+      paths:
+      - /auth/**
+      actions:
+      - read
+      - list
+      principals:
+      - type: any-authenticated-user

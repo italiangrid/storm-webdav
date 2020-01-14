@@ -4,6 +4,7 @@ volumes:
   trustanchors:
   cabundle:
   storage:
+  storage2:
   hostcert:
   saconfig:
   mapfilesconfig:
@@ -51,7 +52,7 @@ services:
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.example
       STORM_WEBDAV_USE_CONSCRYPT: "true"
-      STORM_WEBDAV_JVM_OPTS: -Djavax.net.debug=all
+      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test
       #DEBUG: y
       #DEBUG_SUSPEND: y
 
@@ -74,34 +75,6 @@ services:
         aliases:
           - storm.example
 
-  nginx:
-    image: storm2/ngx-voms:latest
-    dns_search: example 
-
-    ports:
-      - "9553:443"
-
-    depends_on:
-      - trust
-      - webdav-setup
-
-    environment:
-      TZ: UTC
-      X509_VOMS_DIR: /vomsdir
-
-    volumes:
-      - cabundle:/etc/pki
-      - trustanchors:/etc/grid-security/certificates
-      - ./assets/certs:/certs
-      - ./assets/vomsdir:/vomsdir
-      - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
-      - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
-      - storage:/storage
-
-    networks:
-      default:
-        aliases:
-          - storm-alias.example
   ts:
     image: italiangrid/storm-webdav-ts:latest
     environment:
@@ -125,8 +98,37 @@ services:
 
     entrypoint:  sleep infinity
     
-    # entrypoint: 
+    #entrypoint: 
     # - /scripts/wait-and-run-testsuite.sh
 
     networks:
       default:
+
+  nginx:
+    image: storm2/ngx-voms:latest
+    dns_search: example 
+
+    ports:
+      - "9553:443"
+
+    depends_on:
+      - trust
+      - webdav-setup
+
+    environment:
+      TZ: UTC
+      X509_VOMS_DIR: /vomsdir
+
+    volumes:
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/certs:/certs
+      - ./assets/vomsdir:/vomsdir
+      - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
+      - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
+      - storage2:/storage
+
+    networks:
+      default:
+        aliases:
+          - storm-alias.example

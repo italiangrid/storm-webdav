@@ -13,37 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.config;
+package org.italiangrid.storm.webdav.authz.util;
 
-import java.util.List;
-import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 
-public interface StorageAreaInfo {
+public interface MatcherUtils {
 
-  public String name();
+  public default String getRequestPath(HttpServletRequest request) {
+    String url = request.getServletPath();
 
-  public String rootPath();
+    if (request.getPathInfo() != null) {
+      url += request.getPathInfo();
+    }
 
-  public String filesystemType();
-
-  public List<String> accessPoints();
-
-  public Set<String> vos();
-
-  public Set<String> orgs();
-
-  public Boolean anonymousReadEnabled();
-
-  public Boolean authenticatedReadEnabled();
-
-  public Boolean voMapEnabled();
-
-  public Boolean voMapGrantsWritePermission();
-
-  public Boolean orgsGrantReadPermission();
-
-  public Boolean orgsGrantWritePermission();
-
-  public Boolean wlcgStructuredScopeAuthzEnabled();
+    return url;
+  }
 
 }

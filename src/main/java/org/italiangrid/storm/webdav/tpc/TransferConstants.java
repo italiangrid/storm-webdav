@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -43,5 +44,7 @@ public interface TransferConstants {
   Set<String> SUPPORTED_PROTOCOLS =
       ImmutableSet.<String>builder().add(HTTP, HTTPS, DAV, DAVS).build();
 
+  String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
+  Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);
 
 }
