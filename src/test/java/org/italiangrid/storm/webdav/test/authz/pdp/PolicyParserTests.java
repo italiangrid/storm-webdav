@@ -15,10 +15,12 @@
  */
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -31,6 +33,8 @@ import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Acti
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -46,8 +50,20 @@ public class PolicyParserTests {
   @Mock
   StorageAreaConfiguration saConfig;
 
-  FineGrainedAuthzPolicyParser parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
+  @Mock
+  StorageAreaInfo saInfo;
+  
+  FineGrainedAuthzPolicyParser parser;
 
+  @Before
+  public void setup() {
+    when(saConfig.getStorageAreaInfo()).thenReturn(newArrayList(saInfo));
+    when(saInfo.name()).thenReturn("test");
+    when(saInfo.accessPoints()).thenReturn(newArrayList("/test"));
+    
+    parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
+  }
+  
   @Test
   public void testNoPolicyParsing() throws Exception {
     assertThat(parser.parsePolicies(), empty());
@@ -64,8 +80,8 @@ public class PolicyParserTests {
     FineGrainedAuthzPolicyProperties policy = new FineGrainedAuthzPolicyProperties();
 
     policy.setDescription("desc");
+    policy.setSa("test");
     policy.setEffect(PolicyEffect.DENY);
-    policy.setPaths(Lists.newArrayList("/**"));
     policy.setPrincipals(Lists.newArrayList(anonymous));
     policy.setActions(EnumSet.allOf(Action.class));
 
@@ -75,7 +91,6 @@ public class PolicyParserTests {
     assertThat(policies, hasSize(1));
     PathAuthorizationPolicy parsedPolicy = policies.get(0);
     assertThat(parsedPolicy.getEffect(), is(PolicyEffect.DENY));
-    assertThat(parsedPolicy.getId(), is("id"));
     assertThat(parsedPolicy.getDecription(), is("desc"));
     assertThat(parsedPolicy.getPrincipalMatchers(), hasSize(1));
     assertThat(parsedPolicy.getRequestMatchers(), hasSize(5));
