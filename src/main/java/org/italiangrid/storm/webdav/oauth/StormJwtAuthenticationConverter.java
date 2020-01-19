@@ -19,6 +19,7 @@ import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.SAPermission;
@@ -74,8 +75,8 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
   protected Collection<GrantedAuthority> extractAuthoritiesExternalAuthzServer(String issuer) {
     return authzMap.get(issuer);
   }
-  
-  
+
+
   protected Set<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 
@@ -94,11 +95,13 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
 
     Set<GrantedAuthority> scopeAuthorities = Sets.newHashSet();
 
-    String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
+    if (!Objects.isNull(jwt.getClaimAsString(SCOPE_CLAIM_NAME))) {
+      String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
 
-    String[] scopes = jwt.getClaimAsString(SCOPE_CLAIM_NAME).split(" ");
-    for (String s: scopes) {
-      scopeAuthorities.add(new OAuthGroupAuthority(tokenIssuer, s));
+      String[] scopes = jwt.getClaimAsString(SCOPE_CLAIM_NAME).split(" ");
+      for (String s : scopes) {
+        scopeAuthorities.add(new OAuthGroupAuthority(tokenIssuer, s));
+      }
     }
     
     return scopeAuthorities;
