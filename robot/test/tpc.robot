@@ -76,6 +76,24 @@ Local push copy works Teardown
     Remove Test File  tpc_test_push
     Remove Test File  tpc_test_push  ${sa.oauth}
 
+Oauth pull copy works Setup
+    Default Setup
+    Create Test File   oauth_pull_copy_works  content=Hello World!  sa=${sa.oauth}
+
+Oauth pull copy works Teardown
+    Default Teardown
+    Remove Test File   oauth_pull_copy_works  ${sa.oauth}
+    Remove Test File   oauth_pull_copy_works.copy  ${sa.oauth}
+
+Oauth push copy works Setup
+    Default Setup
+    Create Test File   oauth_push_copy_works  content=Hello World!  sa=${sa.oauth}
+
+Oauth push copy works Teardown
+    Default Teardown
+    Remove Test File   oauth_push_copy_works  ${sa.oauth}
+    Remove Test File   oauth_push_copy_works.copy  ${sa.oauth}
+
 *** Test cases ***
 
 Local pull copy works
@@ -125,3 +143,25 @@ Local push copy works
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
     Davix Get Success   ${dst}  ${davix.opts.oauth}
     [Teardown]  Local push copy works Teardown
+
+Oauth pull copy works
+    [Tags]   oauth  tpc  pull
+    [Setup]   Oauth pull copy works Setup 
+    ${src}  Remote DAVS URL  oauth_pull_copy_works  sa=${sa.oauth}
+    ${dst}   DAVS URL   oauth_pull_copy_works.copy  sa=${sa.oauth}
+    ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
+    ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
+    ${rc}  ${out}  Curl Pull COPY Success  ${dst}  ${src}  ${opts}
+    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    [Teardown]  Oauth pull copy works Teardown
+
+Oauth push copy works
+    [Tags]   oauth tpc push
+    [Setup]   Oauth push copy works Setup 
+    ${src}  DAVS URL  oauth_push_copy_works  sa=${sa.oauth}
+    ${dst}   Remote DAVS URL  oauth_push_copy_works.copy   sa=${sa.oauth}
+    ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
+    ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
+    ${rc}  ${out}  Curl Push COPY Success  ${dst}  ${src}  ${opts}
+    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    [Teardown]  Oauth push copy works Teardown

@@ -69,3 +69,13 @@ Curl Voms POST Failure  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${all_opts}   Set variable   -X POST ${opts} ${voms_opts}
     ${rc}  ${out}  Curl Error  ${url}  ${all_opts}
     [Return]  ${rc}  ${out}
+
+Curl pull COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
+    ${all_opts}   Set variable   -X COPY -H "Source: ${source}" ${opts}
+    ${rc}  ${out}  Curl Success  ${dest}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
+Curl push COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
+    ${all_opts}   Set variable   -X COPY -H "Destination: ${dest}" ${opts}
+    ${rc}  ${out}  Curl Success  ${source}  ${all_opts}
+    [Return]  ${rc}  ${out}
