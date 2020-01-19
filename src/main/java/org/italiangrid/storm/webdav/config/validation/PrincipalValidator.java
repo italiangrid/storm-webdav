@@ -18,15 +18,15 @@ package org.italiangrid.storm.webdav.config.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 
 public class PrincipalValidator
-    implements ConstraintValidator<Principal, FineGrainedAuthzPolicy.Principal> {
+    implements ConstraintValidator<Principal, FineGrainedAuthzPolicyProperties.PrincipalProperties> {
   
 
   
   @Override
-  public boolean isValid(org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Principal value,
+  public boolean isValid(org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties value,
       ConstraintValidatorContext context) {
     
     // TODO: implement validation

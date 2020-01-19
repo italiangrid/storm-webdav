@@ -29,4 +29,9 @@ public interface MatcherUtils {
     return url;
   }
 
+
+  public default String requestToString(HttpServletRequest request) {
+    return String.format("%s %s", request.getMethod(), getRequestPath(request));
+  }
+
 }

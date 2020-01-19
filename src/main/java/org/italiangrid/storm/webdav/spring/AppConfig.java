@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.spring;
 
 import static java.util.Objects.isNull;
-import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.notApplicable;
 import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
@@ -50,6 +49,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
+import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.InMemoryPolicyRepository;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
@@ -260,10 +260,10 @@ public class AppConfig implements TransferConstants {
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
 
-
     LoadingCache<String, JwtDecoder> decoders = CacheBuilder.newBuilder()
       .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
       .build(loader);
+
 
 
     for (AuthorizationServer as : props.getIssuers()) {
@@ -327,14 +327,12 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "true")
   public PathAuthorizationPolicyRepository pathAuthzPolicyRepository(PathAuthzPolicyParser parser) {
     return new InMemoryPolicyRepository(parser.parsePolicies());
   }
-
+  
   @Bean
-  @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "false")
-  public PathAuthorizationPdp pathAuthzPdp() {
-    return (r) -> notApplicable();
+  public PathAuthorizationPdp fineGrainedAuthzPdpd(PathAuthorizationPolicyRepository repo) {
+    return new DefaultPathAuthorizationPdp(repo);
   }
 }

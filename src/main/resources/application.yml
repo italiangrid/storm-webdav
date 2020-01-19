@@ -33,7 +33,6 @@ storm:
 
   authz:
     disabled: false
-    enable-fine-grained-authz: ${STORM_WEBDAV_AUTHZ_ENABLE_FINE_GRAINED_AUTHZ:false}
 
   checksum-filter:
     enabled: ${STORM_WEBDAV_CHECKSUM_FILTER_ENABLED:true}

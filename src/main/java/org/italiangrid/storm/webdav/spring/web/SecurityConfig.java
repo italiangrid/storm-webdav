@@ -96,10 +96,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   VOMSAuthenticationFilter vomsFilter;
 
   @Autowired
-  PathAuthorizationPdp pathAuthzPdp;
-
-  @Autowired
   LocalURLService localURLService;
+  
+  @Autowired
+  PathAuthorizationPdp fineGrainedAuthzPdp;
 
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
@@ -139,7 +139,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
         serviceConfigurationProperties, pathResolver, localURLService);
 
     voters.add(new WebExpressionVoter());
-    voters.add(new FineGrainedAuthzVoter(pathAuthzPdp));
+    voters.add(new CopyMoveAuthzVoter(saConfiguration, pathResolver, localURLService));
+    voters.add(new FineGrainedAuthzVoter(pathResolver, fineGrainedAuthzPdp));
     voters.add(new StructuredPathAuthzVoter(serviceConfigurationProperties, pathResolver, pdp));
     voters.add(new StructuredPathCopyMoveVoter(serviceConfigurationProperties, pathResolver, pdp,
         localURLService));
@@ -147,31 +148,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     return new AffirmativeBased(voters);
   }
 
-  public AccessDecisionManager accessDecisionManager() {
 
-    List<AccessDecisionVoter<?>> voters = new ArrayList<>();
-
-    voters.add(new WebExpressionVoter());
-    voters.add(new CopyMoveAuthzVoter(saConfiguration, pathResolver, localURLService));
-
-    return new AffirmativeBased(voters);
-  }
 
   protected void addAccessRules(HttpSecurity http) throws Exception {
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-
       for (String ap : sa.accessPoints()) {
 
-        String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
-            SAPermission.canRead(sa.name()).getAuthority(),
-            SAPermission.canWrite(sa.name()).getAuthority());
+        if (sa.fineGrainedAuthzEnabled()) {
+          
+          http.authorizeRequests().antMatchers(ap + "/**").denyAll();
+        
+        } else {
+          
+          String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
+              SAPermission.canRead(sa.name()).getAuthority(),
+              SAPermission.canWrite(sa.name()).getAuthority());
 
-        http.authorizeRequests()
-          .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-          .hasAuthority(SAPermission.canRead(sa.name()).getAuthority());
+          http.authorizeRequests()
+            .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+            .hasAuthority(SAPermission.canRead(sa.name()).getAuthority());
 
-        http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
+          http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
+        }
       }
     }
   }
@@ -181,7 +180,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
 
-      if (sa.anonymousReadEnabled()) {
+      if (sa.anonymousReadEnabled() && !sa.fineGrainedAuthzEnabled()) {
         anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
       }
     }
@@ -200,15 +199,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     if (serviceConfigurationProperties.getAuthz().isDisabled()) {
       http.authorizeRequests().anyRequest().permitAll();
     } else {
-
-      if (serviceConfigurationProperties.getAuthz().isEnableFineGrainedAuthz()) {
-        http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
-        http.authorizeRequests().anyRequest().denyAll();
-      } else {
-        http.authorizeRequests().accessDecisionManager(accessDecisionManager());
-        addAccessRules(http);
-        addAnonymousAccessRules(http);
-      }
+      http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
+      addAccessRules(http);
+      addAnonymousAccessRules(http);
     }
 
     http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);

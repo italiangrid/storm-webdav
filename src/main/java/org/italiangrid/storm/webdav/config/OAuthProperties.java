@@ -41,6 +41,10 @@ public class OAuthProperties {
     @URL
     String jwkUri;
 
+    boolean enforceAudienceChecks = false;
+
+    List<String> audiences = Lists.newArrayList();
+
     public String getName() {
       return name;
     }
@@ -65,6 +69,22 @@ public class OAuthProperties {
       this.issuer = issuer;
     }
 
+    public void setAudiences(List<String> audiences) {
+      this.audiences = audiences;
+    }
+
+    public List<String> getAudiences() {
+      return audiences;
+    }
+
+
+    public void setEnforceAudienceChecks(boolean enforceAudienceChecks) {
+      this.enforceAudienceChecks = enforceAudienceChecks;
+    }
+
+    public boolean isEnforceAudienceChecks() {
+      return enforceAudienceChecks;
+    }
   }
 
   List<AuthorizationServer> issuers;
@@ -72,9 +92,6 @@ public class OAuthProperties {
   @Min(value = 1, message = "The refresh period must be a positive integer")
   int refreshPeriodMinutes = 1;
 
-  boolean enforceAudienceChecks = false;
-  List<String> audiences = Lists.newArrayList();
-  
   public List<AuthorizationServer> getIssuers() {
     return issuers;
   }
@@ -90,20 +107,5 @@ public class OAuthProperties {
   public void setRefreshPeriodMinutes(int refreshPeriodMinutes) {
     this.refreshPeriodMinutes = refreshPeriodMinutes;
   }
-  
-  public void setEnforceAudienceChecks(boolean enforceAudienceChecks) {
-    this.enforceAudienceChecks = enforceAudienceChecks;
-  }
-  
-  public boolean isEnforceAudienceChecks() {
-    return enforceAudienceChecks;
-  }
-  
-  public void setAudiences(List<String> audiences) {
-    this.audiences = audiences;
-  }
-  
-  public List<String> getAudiences() {
-    return audiences;
-  }
+
 }

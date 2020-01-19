@@ -1,33 +1,16 @@
 storm:
   authz:
-    enable-fine-grained-authz: true
     policies:
-    - id: "read-on-root" 
-      effect: permit
-      paths:
-      - ''
+    - sa: fine_grained_authz
       actions:
+      - list
       - read
-      principals:
-      - type: any-authenticated-user
-    - id: "read-write on /auth"
-      description: Allow write to authenticated users on /auth SA 
       effect: permit
-      paths:
-      - /auth/**
-      actions:
-      - all
+      description: Grant read access to selected vo users
       principals:
       - type: vo
         params:
           vo: test.vo
-    - id: "read on /auth"
-      description:  
-      effect: permit
-      paths:
-      - /auth/**
-      actions:
-      - read
-      - list
-      principals:
-      - type: any-authenticated-user
+      - type: vo
+        params:
+          vo: dteam

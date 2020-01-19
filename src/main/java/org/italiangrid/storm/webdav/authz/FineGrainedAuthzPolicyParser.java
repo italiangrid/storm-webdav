@@ -19,6 +19,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AnonymousUser;
@@ -29,47 +31,86 @@ import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
 import org.italiangrid.storm.webdav.authz.util.CustomHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.WriteHttpMethodMatcher;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Action;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Principal;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Principal.PrincipalType;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.OAuthScopeAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "true")
-public class SpringConfigurationAuthzPolicyParser implements PathAuthzPolicyParser {
+public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
 
   final ServiceConfigurationProperties properties;
+  final StorageAreaConfiguration saConfig;
 
   @Autowired
-  public SpringConfigurationAuthzPolicyParser(ServiceConfigurationProperties properties) {
+  public FineGrainedAuthzPolicyParser(ServiceConfigurationProperties properties,
+      StorageAreaConfiguration saConfig) {
     this.properties = properties;
+    this.saConfig = saConfig;
+  }
+
+  Supplier<IllegalArgumentException> unknownStorageArea(String saName) {
+    return () -> new IllegalArgumentException("Unknown storage area: " + saName);
+  }
+
+  StorageAreaInfo getStorageAreaInfo(String saName) {
+    return saConfig.getStorageAreaInfo()
+      .stream()
+      .filter(sa -> sa.name().equals(saName))
+      .findAny()
+      .orElseThrow(unknownStorageArea(saName));
+  }
+
+  String matcherPath(String accessPoint, String path) {
+    return String.format("%s/%s", accessPoint, path).replaceAll("\\/\\+", "/");
   }
 
 
-  void parseAction(Action a, List<String> paths, PathAuthorizationPolicy.Builder builder) {
-    if (Action.ALL.equals(a)) {
-      paths.forEach(p -> builder.withRequestMatcher(new AntPathRequestMatcher(p)));
-    } else if (Action.READ.equals(a)) {
-      paths.forEach(p -> builder.withRequestMatcher(new ReadonlyHttpMethodMatcher(p)));
-    } else if (Action.WRITE.equals(a)) {
-      paths.forEach(p -> builder.withRequestMatcher(new WriteHttpMethodMatcher(p)));
-    } else if (Action.DELETE.equals(a)) {
-      paths.forEach(p -> builder.withRequestMatcher(new AntPathRequestMatcher(p, "DELETE")));
-    } else if (Action.LIST.equals(a)) {
-      paths.forEach(p -> builder.withRequestMatcher(new AndRequestMatcher(
-          new CustomHttpMethodMatcher(newHashSet("PROPFIND")), new AntPathRequestMatcher(p))));
+  Supplier<RequestMatcher> matcherByActionSupplier(Action a, String pattern) {
+    return () -> {
+      if (Action.ALL.equals(a)) {
+        return new AntPathRequestMatcher(pattern);
+      } else if (Action.READ.equals(a)) {
+        return new ReadonlyHttpMethodMatcher(pattern);
+      } else if (Action.WRITE.equals(a)) {
+        return new WriteHttpMethodMatcher(pattern);
+      } else if (Action.DELETE.equals(a)) {
+        return new AntPathRequestMatcher(pattern, "DELETE");
+      } else if (Action.LIST.equals(a)) {
+        return new AndRequestMatcher(new CustomHttpMethodMatcher(newHashSet("PROPFIND")),
+            new AntPathRequestMatcher(pattern));
+      } else {
+        throw new IllegalArgumentException("Unknown action: " + a);
+      }
+    };
+  }
+
+  void parseAction(Action a, FineGrainedAuthzPolicyProperties policyProperties,
+      PathAuthorizationPolicy.Builder builder) {
+
+    List<String> paths = policyProperties.getPaths();
+
+    for (String ap : getStorageAreaInfo(policyProperties.getSa()).accessPoints()) {
+      if (policyProperties.getPaths().isEmpty()) {
+        builder.withRequestMatcher(matcherByActionSupplier(a, ap + "/**").get());
+      } else {
+        paths.forEach(
+            p -> builder.withRequestMatcher(matcherByActionSupplier(a, matcherPath(ap, p)).get()));
+      }
     }
   }
 
-  PrincipalMatcher parsePrincipal(Principal p) {
+  PrincipalMatcher parsePrincipal(PrincipalProperties p) {
     PrincipalMatcher matcher = null;
 
     if (PrincipalType.ANONYMOUS.equals(p.getType())) {
@@ -94,15 +135,16 @@ public class SpringConfigurationAuthzPolicyParser implements PathAuthzPolicyPars
     return matcher;
   }
 
-  PathAuthorizationPolicy parsePolicy(FineGrainedAuthzPolicy policy) {
+  PathAuthorizationPolicy parsePolicy(FineGrainedAuthzPolicyProperties policy) {
 
     PathAuthorizationPolicy.Builder builder = PathAuthorizationPolicy.builder();
 
-    builder.withEffect(policy.getEffect())
-      .withId(policy.getId())
+    builder.withId(UUID.randomUUID().toString())
+      .withSa(policy.getSa())
+      .withEffect(policy.getEffect())
       .withDescription(policy.getDescription());
 
-    policy.getActions().forEach(a -> parseAction(a, policy.getPaths(), builder));
+    policy.getActions().forEach(a -> parseAction(a, policy, builder));
 
     policy.getPrincipals()
       .stream()

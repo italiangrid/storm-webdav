@@ -16,18 +16,19 @@
 package org.italiangrid.storm.webdav.oauth.utils;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.UnknownTokenIssuerError;
+import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -43,40 +44,48 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
 
   public static final Logger LOG = LoggerFactory.getLogger(TrustedJwtDecoderCacheLoader.class);
 
-  final ServiceConfigurationProperties properties;
-  final Set<String> trustedIssuers;
-  final RestTemplateBuilder builder;
-  final OidcConfigurationFetcher fetcher;
-  final ExecutorService executor;
+  private final ServiceConfigurationProperties properties;
+
+  private final OidcConfigurationFetcher fetcher;
+  private final ExecutorService executor;
+  private final OAuthProperties oauthProperties;
 
   @Autowired
   public TrustedJwtDecoderCacheLoader(ServiceConfigurationProperties properties,
       OAuthProperties oauthProperties, RestTemplateBuilder builder,
       OidcConfigurationFetcher fetcher, ExecutorService executor) {
     this.properties = properties;
-    this.builder = builder;
+    this.oauthProperties = oauthProperties;
     this.fetcher = fetcher;
     this.executor = executor;
-    trustedIssuers = oauthProperties.getIssuers()
-      .stream()
-      .map(AuthorizationServer::getIssuer)
-      .collect(Collectors.toSet());
   }
 
+  public Supplier<UnknownTokenIssuerError> unknownTokenIssuer(String issuer) {
+    return () -> new UnknownTokenIssuerError(issuer);
+  }
 
   @Override
   public JwtDecoder load(String issuer) throws Exception {
-    if (!trustedIssuers.contains(issuer)) {
-      throw new UnknownTokenIssuerError(issuer);
-    }
+    AuthorizationServer as = oauthProperties.getIssuers()
+      .stream()
+      .filter(i -> issuer.equals(i.getIssuer()))
+      .findAny()
+      .orElseThrow(unknownTokenIssuer(issuer));
 
     Map<String, Object> oidcConfiguration = fetcher.loadConfigurationForIssuer(issuer);
 
-    OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
-
     NimbusJwtDecoderJwkSupport jwtDecoder =
         new NimbusJwtDecoderJwkSupport(oidcConfiguration.get("jwks_uri").toString());
-    jwtDecoder.setJwtValidator(jwtValidator);
+
+    OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
+
+    if (as.isEnforceAudienceChecks()) {
+      OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(as);
+      jwtDecoder
+        .setJwtValidator(new DelegatingOAuth2TokenValidator<>(jwtValidator, audienceValidator));
+    } else {
+      jwtDecoder.setJwtValidator(jwtValidator);
+    }
 
     return jwtDecoder;
   }

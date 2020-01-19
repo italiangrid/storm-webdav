@@ -54,5 +54,9 @@ public class ReadonlyHttpMethodMatcher implements RequestMatcher {
     return delegate.matches(request);
   }
 
-
+  @Override
+  public String toString() {
+    return "ReadonlyHttpMethodMatcher [delegate=" + delegate + "]";
+  }
+  
 }

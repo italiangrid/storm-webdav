@@ -48,4 +48,10 @@ public class CustomHttpMethodMatcher implements RequestMatcher, MatcherUtils {
     }
     return supportedMethods.contains(request.getMethod());
   }
+
+  @Override
+  public String toString() {
+    return "CustomHttpMethodMatcher [supportedMethods=" + supportedMethods + "]";
+  }
+  
 }

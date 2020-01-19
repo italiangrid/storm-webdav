@@ -27,12 +27,15 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.FilterInvocation;
 
-public class StructuredPathCopyMoveVoter extends StructuredAuthzPathVoterSupport {
+public class StructuredPathCopyMoveVoter extends PathAuthzPdpVoterSupport {
+  public static final Logger LOG = LoggerFactory.getLogger(StructuredPathCopyMoveVoter.class);
 
   protected final LocalURLService localUrlService;
 
@@ -82,7 +85,7 @@ public class StructuredPathCopyMoveVoter extends StructuredAuthzPathVoterSupport
       }
 
       return renderDecision(PathAuthorizationRequest
-        .newAuthorizationRequest(filter.getHttpRequest(), authToken, destinationPath));
+        .newAuthorizationRequest(filter.getHttpRequest(), authToken, destinationPath), LOG);
 
 
     } catch (MalformedURLException e) {

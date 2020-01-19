@@ -40,4 +40,10 @@ public class EmptyPathRequestMatcher implements RequestMatcher {
 
     return url;
   }
+
+  @Override
+  public String toString() {
+    return "EmptyPathRequestMatcher";
+  }
+
 }

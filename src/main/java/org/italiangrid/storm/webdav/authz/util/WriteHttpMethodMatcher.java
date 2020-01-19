@@ -50,4 +50,9 @@ public class WriteHttpMethodMatcher implements RequestMatcher {
     return delegate.matches(request);
   }
 
+  @Override
+  public String toString() {
+    return "WriteHttpMethodMatcher [delegate=" + delegate + "]";
+  }
+
 }

@@ -44,7 +44,6 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
   final Multimap<String, GrantedAuthority> authzMap = ArrayListMultimap.create();
   final AuthorizationServerProperties authzServerProperties;
 
-  // FIXME: take list from configuration
   public static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups"};
   public static final String SCOPE_CLAIM_NAME = "scope";
 
@@ -75,7 +74,8 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
   protected Collection<GrantedAuthority> extractAuthoritiesExternalAuthzServer(String issuer) {
     return authzMap.get(issuer);
   }
-
+  
+  
   protected Set<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 

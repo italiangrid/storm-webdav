@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 public class PathAuthorizationPolicy {
 
   private final String id;
+  private final String sa;
   private final String decription;
   private final PolicyEffect effect;
   private final List<RequestMatcher> requestMatchers;
@@ -35,6 +36,7 @@ public class PathAuthorizationPolicy {
 
   private PathAuthorizationPolicy(Builder builder) {
     this.id = builder.id;
+    this.sa = builder.sa;
     this.decription = builder.description;
     this.effect = builder.effect;
     this.requestMatchers = builder.requestMatchers;
@@ -44,6 +46,10 @@ public class PathAuthorizationPolicy {
   public boolean appliesToRequest(HttpServletRequest request, Authentication authentication) {
     return principalMatchers.stream().anyMatch(m -> m.matchesPrincipal(authentication))
         && requestMatchers.stream().anyMatch(p -> p.matches(request));
+  }
+
+  public String getSa() {
+    return sa;
   }
 
   public PolicyEffect getEffect() {
@@ -74,6 +80,8 @@ public class PathAuthorizationPolicy {
   public static class Builder {
     private String id;
 
+    private String sa;
+
     private String description;
 
     private PolicyEffect effect = PolicyEffect.DENY;
@@ -82,7 +90,12 @@ public class PathAuthorizationPolicy {
     private List<PrincipalMatcher> principalMatchers = Lists.newArrayList();
 
     public Builder() {}
-    
+
+    public Builder withSa(String sa) {
+      this.sa = sa;
+      return this;
+    }
+
     public Builder withEffect(PolicyEffect e) {
       this.effect = e;
       return this;
@@ -129,4 +142,12 @@ public class PathAuthorizationPolicy {
       return new PathAuthorizationPolicy(this);
     }
   }
+
+  @Override
+  public String toString() {
+    return "PathAuthorizationPolicy [id=" + id + ", sa=" + sa + ", decription=" + decription
+        + ", effect=" + effect + ", requestMatchers=" + requestMatchers + ", principalMatchers="
+        + principalMatchers + "]";
+  }
+  
 }

@@ -26,12 +26,16 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.FilterInvocation;
 
-public class StructuredPathAuthzVoter extends StructuredAuthzPathVoterSupport {
+public class StructuredPathAuthzVoter extends PathAuthzPdpVoterSupport {
+  
+  public static final Logger LOG = LoggerFactory.getLogger(StructuredPathAuthzVoter.class);
 
   public static final EnumSet<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
       EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
@@ -62,7 +66,7 @@ public class StructuredPathAuthzVoter extends StructuredAuthzPathVoterSupport {
       return ACCESS_ABSTAIN;
     }
 
-    return renderDecision(newAuthorizationRequest(filter.getHttpRequest(), authentication));
+    return renderDecision(newAuthorizationRequest(filter.getHttpRequest(), authentication), LOG);
   }
 
 }

@@ -23,15 +23,17 @@ import static org.junit.Assert.assertThat;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.italiangrid.storm.webdav.authz.SpringConfigurationAuthzPolicyParser;
+import org.italiangrid.storm.webdav.authz.FineGrainedAuthzPolicyParser;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Action;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicy.Principal.PrincipalType;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
@@ -41,33 +43,35 @@ public class PolicyParserTests {
 
   ServiceConfigurationProperties properties = new ServiceConfigurationProperties();
 
-  SpringConfigurationAuthzPolicyParser parser =
-      new SpringConfigurationAuthzPolicyParser(properties);
+  @Mock
+  StorageAreaConfiguration saConfig;
+
+  FineGrainedAuthzPolicyParser parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
 
   @Test
   public void testNoPolicyParsing() throws Exception {
     assertThat(parser.parsePolicies(), empty());
   }
-  
-  
+
+
   @Test
   public void testSimplePolicyParsing() throws Exception {
-    
-    FineGrainedAuthzPolicy.Principal anonymous = new FineGrainedAuthzPolicy.Principal();
+
+    FineGrainedAuthzPolicyProperties.PrincipalProperties anonymous =
+        new FineGrainedAuthzPolicyProperties.PrincipalProperties();
     anonymous.setType(PrincipalType.ANONYMOUS);
-    
-    FineGrainedAuthzPolicy policy = new FineGrainedAuthzPolicy();
-    
-    policy.setId("id");
+
+    FineGrainedAuthzPolicyProperties policy = new FineGrainedAuthzPolicyProperties();
+
     policy.setDescription("desc");
     policy.setEffect(PolicyEffect.DENY);
     policy.setPaths(Lists.newArrayList("/**"));
     policy.setPrincipals(Lists.newArrayList(anonymous));
     policy.setActions(EnumSet.allOf(Action.class));
-    
+
     properties.getAuthz().setPolicies(Lists.newArrayList(policy));
     List<PathAuthorizationPolicy> policies = parser.parsePolicies();
-    
+
     assertThat(policies, hasSize(1));
     PathAuthorizationPolicy parsedPolicy = policies.get(0);
     assertThat(parsedPolicy.getEffect(), is(PolicyEffect.DENY));
@@ -76,7 +80,7 @@ public class PolicyParserTests {
     assertThat(parsedPolicy.getPrincipalMatchers(), hasSize(1));
     assertThat(parsedPolicy.getRequestMatchers(), hasSize(5));
   }
-  
+
 
 
 }

@@ -74,7 +74,7 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
   @Override
   public Set<String> getPrincipalVOs(X500Principal principal) {
 
-    Assert.notNull(principal, "Principal cannot be null");
+    Assert.notNull(principal, "PrincipalProperties cannot be null");
 
     HashSet<String> voNames = new HashSet<String>();
 

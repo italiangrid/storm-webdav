@@ -24,15 +24,18 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
+import org.italiangrid.storm.webdav.config.validation.Principal;
+import org.springframework.validation.annotation.Validated;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@Valid
-public class FineGrainedAuthzPolicy {
+@Validated
+public class FineGrainedAuthzPolicyProperties {
 
   @Valid
-  @org.italiangrid.storm.webdav.config.validation.Principal
-  public static class Principal {
+  @Principal
+  public static class PrincipalProperties {
 
     public enum PrincipalType {
       ANONYMOUS,
@@ -75,32 +78,23 @@ public class FineGrainedAuthzPolicy {
   }
 
   @NotBlank
-  String id;
-
-  @NotBlank
   String description;
 
   PolicyEffect effect = PolicyEffect.DENY;
 
-  @NotEmpty
-  List<String> paths;
+  @NotBlank
+  String sa;
+
+  List<String> paths = Lists.newArrayList();
 
   @NotEmpty
   @Valid
-  List<Principal> principals;
+  List<PrincipalProperties> principals;
 
   @NotEmpty
   EnumSet<Action> actions;
 
-  public FineGrainedAuthzPolicy() {}
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
+  public FineGrainedAuthzPolicyProperties() {}
 
   public String getDescription() {
     return description;
@@ -113,7 +107,7 @@ public class FineGrainedAuthzPolicy {
   public PolicyEffect getEffect() {
     return effect;
   }
-  
+
   public void setEffect(PolicyEffect effect) {
     this.effect = effect;
   }
@@ -126,11 +120,11 @@ public class FineGrainedAuthzPolicy {
     this.paths = paths;
   }
 
-  public List<Principal> getPrincipals() {
+  public List<PrincipalProperties> getPrincipals() {
     return principals;
   }
 
-  public void setPrincipals(List<Principal> principals) {
+  public void setPrincipals(List<PrincipalProperties> principals) {
     this.principals = principals;
   }
 
@@ -142,5 +136,11 @@ public class FineGrainedAuthzPolicy {
     this.actions = actions;
   }
 
+  public String getSa() {
+    return sa;
+  }
 
+  public void setSa(String sa) {
+    this.sa = sa;
+  }
 }

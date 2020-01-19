@@ -97,6 +97,10 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
       if (isNull(sa)) {
         return ACCESS_DENIED;
       }
+      
+      if (sa.fineGrainedAuthzEnabled()) {
+        return ACCESS_ABSTAIN;
+      }
 
       if (authentication.getAuthorities().contains(SAPermission.canWrite(sa.name()))) {
         return ACCESS_GRANTED;
@@ -104,7 +108,7 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
 
       if (logger.isDebugEnabled()) {
         logger.debug(
-            "Access denied. Principal does not have write permissions on " + "storage area {}",
+            "Access denied. PrincipalProperties does not have write permissions on " + "storage area {}",
             sa.name());
       }
 

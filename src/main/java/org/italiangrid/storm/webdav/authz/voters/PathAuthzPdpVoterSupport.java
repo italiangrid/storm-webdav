@@ -26,14 +26,13 @@ import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 
-public abstract class StructuredAuthzPathVoterSupport
+public abstract class PathAuthzPdpVoterSupport
     implements MatcherUtils, TpcUtils, AccessDecisionVoter<FilterInvocation> {
-  public static final Logger LOG = LoggerFactory.getLogger(StructuredAuthzPathVoterSupport.class);
+
 
   public static final EnumSet<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
       EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
@@ -43,8 +42,8 @@ public abstract class StructuredAuthzPathVoterSupport
   protected final PathResolver resolver;
   protected final PathAuthorizationPdp pdp;
 
-  public StructuredAuthzPathVoterSupport(ServiceConfigurationProperties config,
-      PathResolver resolver, PathAuthorizationPdp pdp) {
+  public PathAuthzPdpVoterSupport(ServiceConfigurationProperties config, PathResolver resolver,
+      PathAuthorizationPdp pdp) {
     this.config = config;
     this.resolver = resolver;
     this.pdp = pdp;
@@ -70,19 +69,19 @@ public abstract class StructuredAuthzPathVoterSupport
       .orElse("/");
   }
 
-  protected void abstainlogPdpMessage(String m) {
-    LOG.debug("Abstained. Pdp message: {}", m);
+  protected void abstainlogPdpMessage(PathAuthorizationRequest request, Logger logger, String m) {
+    logger.debug("Abstained. Request: {}. Pdp message: {}", request, m);
   }
 
-  protected void denylogPdpMessage(String m) {
-    LOG.debug("Access denied. Pdp message: {}", m);
+  protected void denylogPdpMessage(PathAuthorizationRequest request, Logger logger, String m) {
+    logger.debug("Access denied. Request: {}. Pdp message: {}", request, m);
   }
-  
-  public int renderDecision(PathAuthorizationRequest request) {
+
+  public int renderDecision(PathAuthorizationRequest request, Logger log) {
     PathAuthorizationResult result = pdp.authorizeRequest(request);
 
     if (ABSTAIN_DECISIONS.contains(result.getDecision())) {
-      result.getMessage().ifPresent(this::abstainlogPdpMessage);
+      result.getMessage().ifPresent(m -> abstainlogPdpMessage(request, log, m));
       return ACCESS_ABSTAIN;
     }
 
@@ -90,7 +89,7 @@ public abstract class StructuredAuthzPathVoterSupport
       return ACCESS_GRANTED;
     }
 
-    result.getMessage().ifPresent(this::denylogPdpMessage);
+    result.getMessage().ifPresent(m -> denylogPdpMessage(request, log, m));
     return ACCESS_DENIED;
   }
 }
