@@ -20,8 +20,10 @@ import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -31,29 +33,29 @@ public class SecurityErrorController {
   @ResponseStatus(BAD_REQUEST)
   @RequestMapping("/errors/400")
   String badRequestError(RequestRejectedException e) {
-    return "errors/400";
+    return "400";
   }
   
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @RequestMapping("/errors/401")
   String unauthorized() {
-    return "errors/401";
+    return "401";
   }
   @ResponseStatus(HttpStatus.FORBIDDEN)
   @RequestMapping("/errors/403")
-  String forbidden() {
-    return "errors/403";
+  String forbidden(Authentication auth, Model model) {
+    return "403";
   }
   
   @ResponseStatus(NOT_FOUND)
   @RequestMapping("/errors/404")
   String notFound() {
-    return "errors/404";
+    return "404";
   }
   
   @ResponseStatus(METHOD_NOT_ALLOWED)
   @RequestMapping("/errors/405")
   String methodNotAllowed() {
-    return "errors/405";
+    return "405";
   }
 }

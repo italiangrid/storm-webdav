@@ -17,9 +17,6 @@ package org.italiangrid.storm.webdav.oauth.authority;
 
 public class OAuthGroupAuthority extends OAuthAuthority implements Comparable<OAuthGroupAuthority> {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   public static final String AUTH_TEMPLATE = "O_g(%s,%s)";
@@ -27,7 +24,7 @@ public class OAuthGroupAuthority extends OAuthAuthority implements Comparable<OA
   private final String group;
 
   public OAuthGroupAuthority(String issuer, String group) {
-    super(issuer);
+    super(issuer, String.format(AUTH_TEMPLATE, issuer, group));
     this.group = group;
   }
 
@@ -35,10 +32,6 @@ public class OAuthGroupAuthority extends OAuthAuthority implements Comparable<OA
     return group;
   }
 
-  @Override
-  public String getAuthority() {
-    return String.format(AUTH_TEMPLATE, issuer, group);
-  }
 
   @Override
   public int compareTo(OAuthGroupAuthority o) {

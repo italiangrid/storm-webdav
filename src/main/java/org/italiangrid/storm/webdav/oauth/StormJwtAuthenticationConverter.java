@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth;
 
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
 
 import java.util.Collection;
@@ -24,51 +23,29 @@ import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.OAuthScopeAuthority;
+import org.italiangrid.storm.webdav.oidc.authority.OidcSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 @Component
-public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter {
-
-  final Multimap<String, GrantedAuthority> authzMap = ArrayListMultimap.create();
-  final AuthorizationServerProperties authzServerProperties;
-
-  public static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups"};
-  public static final String SCOPE_CLAIM_NAME = "scope";
-
-  protected void addSaGrantedAuthorities(StorageAreaInfo sa, String issuer) {
-
-    if (sa.orgsGrantReadPermission()) {
-      authzMap.put(issuer, SAPermission.canRead(sa.name()));
-    }
-
-
-    if (sa.orgsGrantWritePermission()) {
-      authzMap.put(issuer, SAPermission.canWrite(sa.name()));
-    }
-  }
+public class StormJwtAuthenticationConverter extends GrantedAuthoritiesMapperSupport
+    implements Converter<Jwt, AbstractAuthenticationToken> {
 
   @Autowired
   public StormJwtAuthenticationConverter(StorageAreaConfiguration conf,
       ServiceConfigurationProperties props) {
-    authzServerProperties = props.getAuthzServer();
-    for (StorageAreaInfo sa : conf.getStorageAreaInfo()) {
-      if (!isNull(sa.orgs())) {
-        sa.orgs().forEach(i -> addSaGrantedAuthorities(sa, i));
-      }
-    }
+    super(conf, props);
   }
 
 
@@ -100,10 +77,10 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
 
       String[] scopes = jwt.getClaimAsString(SCOPE_CLAIM_NAME).split(" ");
       for (String s : scopes) {
-        scopeAuthorities.add(new OAuthGroupAuthority(tokenIssuer, s));
+        scopeAuthorities.add(new OAuthScopeAuthority(tokenIssuer, s));
       }
     }
-    
+
     return scopeAuthorities;
   }
 
@@ -123,7 +100,6 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
     return groupAuthorities;
   }
 
-  @Override
   protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
 
     String issuer = jwt.getIssuer().toString();
@@ -138,6 +114,15 @@ public class StormJwtAuthenticationConverter extends JwtAuthenticationConverter 
     authorities.addAll(extractOauthGroupAuthorities(jwt));
     authorities.addAll(extractOauthScopeAuthorities(jwt));
 
+    authorities.add(new OidcSubjectAuthority(jwt.getIssuer().toString(), jwt.getSubject()));
+
     return authorities;
+  }
+
+
+  @Override
+  public AbstractAuthenticationToken convert(Jwt source) {
+    Collection<GrantedAuthority> authorities = extractAuthorities(source);
+    return new JwtAuthenticationToken(source, authorities);
   }
 }

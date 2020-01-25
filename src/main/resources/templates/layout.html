@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">StoRM WebDAV</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/css/storm-webdav.css">
+<link rel="stylesheet" type="text/css" href="/css/bootstrap-table.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="h3 mb-3 font-weight-normal text-center text-muted" th:text="${storm}">storm.example</h1>
+    </header>
+    <section layout:fragment="page-content">
+      <p>Content goes here</p>
+    </section>
+  </div>
+  <footer id="footer">
+    <div class="container">
+      <div th:if="${authnSubject}">
+        <div class="float-left">
+            <a href="/authn-info" th:text="${authnSubject}">Authenticated user</a>
+        </div>
+        <div class="float-right">
+            <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Javascript -->
+  <script src="/js/jquery-3.4.1.slim.min.js"></script>
+  <script src="/js/popper.min.js"></script>
+  <script src="/js/bootstrap-table.min.js"></script>
+</body>

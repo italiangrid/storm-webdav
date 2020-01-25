@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
@@ -36,9 +35,12 @@ import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.oauth.StormJwtAuthenticationConverter;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.server.ErrorPage;
@@ -55,7 +57,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -67,6 +69,8 @@ import com.google.common.collect.Lists;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
+
+  public static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
   ServletContext context;
 
@@ -83,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   PathResolver pathResolver;
 
   @Autowired
-  JwtAuthenticationConverter authConverter;
+  StormJwtAuthenticationConverter authConverter;
 
   @Autowired
   OAuthProperties oauthProperties;
@@ -97,9 +101,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Autowired
   LocalURLService localURLService;
-  
+
   @Autowired
   PathAuthorizationPdp fineGrainedAuthzPdp;
+
+  @Autowired
+  ClientRegistrationRepository clientRegistrationRepository;
 
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
@@ -156,11 +163,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       for (String ap : sa.accessPoints()) {
 
         if (sa.fineGrainedAuthzEnabled()) {
-          
+
           http.authorizeRequests().antMatchers(ap + "/**").denyAll();
-        
+
         } else {
-          
+
           String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
               SAPermission.canRead(sa.name()).getAuthority(),
               SAPermission.canWrite(sa.name()).getAuthority());
@@ -190,6 +197,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     }
   }
 
+
+
+  protected void configureOidcAuthn(HttpSecurity http) throws Exception {
+    if (oauthProperties.isEnableOidc()) {
+      http.oauth2Login()
+        .loginPage("/oidc-login")
+        .and()
+        .logout()
+        .clearAuthentication(true)
+        .invalidateHttpSession(true)
+        .logoutSuccessUrl("/");
+    }
+  }
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
 
@@ -215,7 +236,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
     http.exceptionHandling().accessDeniedPage("/errors/403");
 
-    http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
+    // http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
+
+    configureOidcAuthn(http);
   }
 
   @Override

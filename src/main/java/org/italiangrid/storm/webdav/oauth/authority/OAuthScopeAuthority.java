@@ -17,9 +17,6 @@ package org.italiangrid.storm.webdav.oauth.authority;
 
 public class OAuthScopeAuthority extends OAuthAuthority implements Comparable<OAuthScopeAuthority> {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   final String scope;
@@ -27,13 +24,8 @@ public class OAuthScopeAuthority extends OAuthAuthority implements Comparable<OA
   public static final String AUTH_TEMPLATE = "O_s(%s,%s)";
 
   public OAuthScopeAuthority(String issuer, String scope) {
-    super(issuer);
+    super(issuer, String.format(AUTH_TEMPLATE, issuer, scope));
     this.scope = scope;
-  }
-
-  @Override
-  public String getAuthority() {
-    return String.format(AUTH_TEMPLATE, issuer, scope);
   }
 
   @Override

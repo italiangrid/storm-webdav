@@ -2,12 +2,12 @@
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
   layout:decorate="~{layout.html}">
 <head>
-<title>Error!</title>
+<title>Access denied!</title>
 </head>
 <body>
   <section layout:fragment="page-content">
-    <h3>Ops!</h3>
-    <p>Something went wrong, and this page is not very informative</p>
+    <h3>Request method not allowed!</h3>
+    <p>The http method in your request is not allowed for the target resource!</p>
     <a href="/">Go back to the storage area index page</a>
   </section>
 </body>

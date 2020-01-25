@@ -1,0 +1,34 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
+<head>
+<title th:text="${title}">Directory</title>
+</head>
+<body>
+  <section layout:fragment="page-content">
+    <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
+    <div>
+      <a href="parent" th:href="${parentDir}">Go to parent directory</a>
+    </div>
+    <table class="table jetty-dir-table" data-toggle="table" data-search="true" data-pagination="true"
+      data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
+      <thead>
+        <tr th:if="${!resources.empty}">
+          <th data-sortable="true" data-field="name">Name</th>
+          <th data-sortable="true" data-field="last-modified">Last modified</th>
+          <th data-sortable="true" data-field="size">Size (in bytes)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="r: ${resources}">
+          <td>
+            <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
+          </td>
+          <td th:text="${#dates.formatISO(r.lastModificationTime)}">Last modification time</td>
+          <td th:text="${r.sizeInBytes}">Size in bytes</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</body>
+</html>

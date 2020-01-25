@@ -1,0 +1,29 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
+<head>
+<title>Authentication info</title>
+</head>
+<body>
+  <section layout:fragment="page-content">
+    <p>This page shows information about the authenticated user:</p>
+    <dl class="row">
+      <dt class="col-sm-3">Principal</dt>
+      <dd class="col-sm-9">
+        <span class="subject" th:text="${authnSubject}">subject</span>
+      </dd>
+      <dt class="col-sm-3">Authentication type</dt>
+      <dd class="col-sm-9">
+        <span th:text="${authn.class.simpleName}">OIDCToken</span>
+      </dd>
+      <dt class="col-sm-3">Granted authorities</dt>
+      <dd class="col-sm-9">
+        <ul class="list-unstyled">
+          <li th:each="ga: ${authn.authorities}" th:text="${ga}"></li>
+        </ul>
+      </dd>
+    </dl>
+    <a href="/">Go back to the storage area index page</a>
+  </section>
+</body>
+</html>

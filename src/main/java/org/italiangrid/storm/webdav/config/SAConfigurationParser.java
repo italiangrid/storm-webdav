@@ -32,7 +32,7 @@ import com.google.common.collect.Sets;
 
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-  private final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known", "actuator");
+  private final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known", "actuator", "css", "js", "authn-info");
 
   private final ServiceConfiguration serviceConfig;
 

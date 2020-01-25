@@ -33,9 +33,8 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
   public static final Logger logger = LoggerFactory.getLogger(VOMSAuthenticationFilter.class);
   
   public VOMSAuthenticationFilter(AuthenticationManager mgr) {
-
-    setCheckForPrincipalChanges(true);
-    setInvalidateSessionOnPrincipalChange(true);
+    setCheckForPrincipalChanges(false);
+    setInvalidateSessionOnPrincipalChange(false);
     setContinueFilterChainOnUnsuccessfulAuthentication(true);
     setAuthenticationManager(mgr);
   }

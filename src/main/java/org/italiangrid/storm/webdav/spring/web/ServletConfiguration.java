@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 public class ServletConfiguration {
-  
+
   public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
 
   static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
@@ -105,8 +106,7 @@ public class ServletConfiguration {
       MacaroonIssuerService service) {
     LOG.info("Macaroon request filter enabled");
     FilterRegistrationBean<MacaroonRequestFilter> filter =
-        new FilterRegistrationBean<>(
-            new MacaroonRequestFilter(mapper, service));
+        new FilterRegistrationBean<>(new MacaroonRequestFilter(mapper, service));
     filter.setOrder(MACAROON_REQ_FILTER_ORDER);
     return filter;
   }
@@ -145,16 +145,17 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<StoRMServlet> stormServlet(StorageAreaConfiguration saConfig,
-      PathResolver pathResolver) {
+  ServletRegistrationBean<StoRMServlet> stormServlet(ServiceConfigurationProperties serviceConfig,
+      StorageAreaConfiguration saConfig, PathResolver pathResolver, TemplateEngine templateEngine) {
 
-    ServletRegistrationBean<StoRMServlet> stormServlet =
-        new ServletRegistrationBean<>(new StoRMServlet(pathResolver));
+    ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
+        new StoRMServlet(serviceConfig, pathResolver, templateEngine));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");
     stormServlet.addInitParameter("aliases", "false");
     stormServlet.addInitParameter("gzip", "false");
+
 
     saConfig.getStorageAreaInfo()
       .forEach(i -> i.accessPoints().forEach(m -> stormServlet.addUrlMappings(m + "/*", m)));
@@ -163,9 +164,10 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<SAIndexServlet> saIndexServlet(StorageAreaConfiguration config,
+  ServletRegistrationBean<SAIndexServlet> saIndexServlet(
+      ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration config,
       TemplateEngine engine) {
-    return new ServletRegistrationBean<>(new SAIndexServlet(config, engine), "");
+    return new ServletRegistrationBean<>(new SAIndexServlet(serviceConfig, config, engine), "");
   }
 
 }

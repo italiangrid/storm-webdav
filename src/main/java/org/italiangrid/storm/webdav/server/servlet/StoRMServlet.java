@@ -24,7 +24,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceWrapper;
+import org.thymeleaf.TemplateEngine;
 
 public class StoRMServlet extends DefaultServlet {
 
@@ -32,20 +35,28 @@ public class StoRMServlet extends DefaultServlet {
    * 
    */
   private static final long serialVersionUID = 4204673943980786498L;
-  
+
   final PathResolver pathResolver;
-  
-  public StoRMServlet(PathResolver resolver) {
+  final TemplateEngine templateEngine;
+  final ServiceConfigurationProperties serviceConfig;
+
+  public StoRMServlet(ServiceConfigurationProperties serviceConfig, PathResolver resolver,
+      TemplateEngine engine) {
+    ;
     pathResolver = resolver;
-    
+    templateEngine = engine;
+    this.serviceConfig = serviceConfig;
   }
-  
+
+
+  @Override
+  public String getWelcomeFile(String pathInContext) {
+    return super.getWelcomeFile(pathInContext);
+  }
 
   @Override
   public Resource getResource(String pathInContext) {
-    
-    
-    
+
     String resolvedPath = pathResolver.resolvePath(pathInContext);
 
     if (resolvedPath == null) {
@@ -58,7 +69,7 @@ public class StoRMServlet extends DefaultServlet {
       return null;
     }
 
-    return Resource.newResource(f);
+    return new StormResourceWrapper(serviceConfig, templateEngine, Resource.newResource(f));
 
   }
 

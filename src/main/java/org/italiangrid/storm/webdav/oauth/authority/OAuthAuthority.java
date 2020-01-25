@@ -21,6 +21,18 @@ public abstract class OAuthAuthority implements GrantedAuthority {
 
   private static final long serialVersionUID = 1L;
 
+  protected final String authority;
+  protected final String issuer;
+  
+  protected OAuthAuthority(String issuer, String authority) {
+    this.issuer = issuer;
+    this.authority = authority;
+  }
+  
+  @Override
+  public String getAuthority() {
+    return authority;
+  }
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -46,13 +58,14 @@ public abstract class OAuthAuthority implements GrantedAuthority {
     return true;
   }
 
-  protected final String issuer;
-
-  public OAuthAuthority(String issuer) {
-    this.issuer = issuer;
-  }
+  
 
   public String getIssuer() {
     return issuer;
+  }
+  
+  @Override
+  public String toString() {
+    return getAuthority();
   }
 }

@@ -14,3 +14,7 @@ storm:
       - type: vo
         params:
           vo: dteam
+      - type: oauth-group
+        params:
+          iss: https://wlcg.cloud.cnaf.infn.it/
+          group: /wlcg/xfers

@@ -97,6 +97,9 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
 
   @Override
   public ListenableFuture<JwtDecoder> reload(String issuer, JwtDecoder oldValue) throws Exception {
+    
+    LOG.debug("Scheduling reload configuration for OAuth issuer '{}'", issuer);
+    
     if (localTokenIssuer(issuer)) {
       return Futures.immediateFuture(oldValue);
     }

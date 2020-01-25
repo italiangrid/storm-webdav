@@ -1,4 +1,5 @@
 oauth:
+  
   issuers:
     - name: iam-test
       issuer: https://iam-test.indigo-datacloud.eu/

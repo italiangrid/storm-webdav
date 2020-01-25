@@ -23,11 +23,13 @@ import javax.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 import com.google.common.collect.Lists;
 
 @Configuration
 @ConfigurationProperties("oauth")
+@Validated
 public class OAuthProperties {
 
   public static class AuthorizationServer {
@@ -88,6 +90,8 @@ public class OAuthProperties {
   }
 
   List<AuthorizationServer> issuers;
+  
+  boolean enableOidc = false;
 
   @Min(value = 1, message = "The refresh period must be a positive integer")
   int refreshPeriodMinutes = 1;
@@ -108,4 +112,11 @@ public class OAuthProperties {
     this.refreshPeriodMinutes = refreshPeriodMinutes;
   }
 
+  public void setEnableOidc(boolean enableOidc) {
+    this.enableOidc = enableOidc;
+  }
+  
+  public boolean isEnableOidc() {
+    return enableOidc;
+  }
 }

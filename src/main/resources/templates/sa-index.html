@@ -1,19 +1,21 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
 <head>
-
-<title>StoRM WebDAV service</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Storage areas index</title>
 </head>
-
 <body>
-	<header>Configured Storage areas</header>
-
-	<ul>
-		<li th:each="sa: ${saIndexMap}"><a href="/sa"
-			th:href="@{/webdav{ap}(ap=${sa.value})}" th:text="${sa.key}">fake</a>
-		</li>
-	</ul>
+  <section layout:fragment="page-content">
+    <h3 class="h3 mb-3 font-weight-normal">Storage areas:</h3>
+    <table class="table sa-index-table">
+      <tbody>
+        <tr th:each="sa: ${saIndexMap}">
+          <td>
+            <a href="/sa" th:href="@{{ap}(ap=${sa.value})}" th:text="${sa.key}">fake</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 </body>
-
 </html>
