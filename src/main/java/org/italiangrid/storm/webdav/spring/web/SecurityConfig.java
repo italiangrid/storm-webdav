@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
@@ -57,7 +58,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -104,9 +104,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Autowired
   PathAuthorizationPdp fineGrainedAuthzPdp;
-
-  @Autowired
-  ClientRegistrationRepository clientRegistrationRepository;
 
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
@@ -235,9 +232,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       .permitAll();
 
     http.exceptionHandling().accessDeniedPage("/errors/403");
-
-    // http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
-
+    
+    if( !oauthProperties.isEnableOidc()) {
+      http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
+    }
+    
     configureOidcAuthn(http);
   }
 
