@@ -152,28 +152,67 @@ decision.
 A policy matches an incoming request when the resources, actions and principal in the policy match the target resource action
 and principal in the request.
 
+An example, annotated policy is given below:
 
 ```yaml
 policies:
-    - sa: fine_grained_authz
+    // The storage area that will apply to this policy
+    - sa: example
       actions:
+      // An array of actions regulated by this policy, possible values are
+      // read, write, delete, list, all
       - list
       - read
+      // The policy effect. Possible values are 'permit', 'deny'
       effect: permit
+      // A policy description.
       description: Grant read access to selected vo users
+      // List of paths that this policy will apply to.
+      // Paths are specific to the storage area, i.e. are relative to the
+      // storage area access points. 
+      // Example:
+      // In a storage area 'example', that as the '/example/' access point,
+      // in order to match the '/example/read-only' path and its subpaths, the
+      // path expression included in the policy would be '/read-only/**'
+      // '**' matches any file or directory, at any level of nesting, of a given path
+      // '*' matches any file or directory contained in a given path
+      // The matching rules follow the Spring AntPath matcher conventions, see:
+      // https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/util/AntPathMatcher.html
       paths:
-      - 
+      - /read-only/**
+      // The list of principals this policy will apply to. Below examples of principals 
+      // are given
       principals:
-      - type: vo
+      // Anymous principal, will match users not authenticated
+      - type: anonymous 
+      // Any authenticated user, will match users that have been authenticated
+      // (with any supported mechanism, i.e. X.509, OAuth or OIDC)
+      - type: any-authenticated-user
+      // anyone, will match any principal
+      - type: anyone
+      // a VOMS fully qualified attribute name
+      - type: fqan
         params:
-          vo: test.vo
+          fqan: /test.vo/Role=admin
+      // A VOMS vo
       - type: vo
         params:
           vo: dteam
+      // An OAuth/OpenID Connect group, as asserted by a trusted OAuth/OpenID Connect token issuer
       - type: oauth-group
         params:
           iss: https://wlcg.cloud.cnaf.infn.it/
           group: /wlcg/xfers
+      // An OAuth/OpenID Connect scope, as asserted by a trusted OAuth/OpenID Connect token issuer
+      - type: oauth-scope
+        params:
+          iss: https://wlcg.cloud.cnaf.infn.it/
+          scope: /storage.read:/
+      // An OAuth/OpenID Connect subject, as asserted by a trusted OAuth/OpenID Connect token issuer
+      - type: oidc-subject
+        params:
+          iss: https://wlcg.cloud.cnaf.infn.it/
+          sub: a1b98335-9649-4fb0-961d-5a49ce108d49
 ```
 
 [spring-oidc-support]: https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-security.html#boot-features-security-oauth2-client
