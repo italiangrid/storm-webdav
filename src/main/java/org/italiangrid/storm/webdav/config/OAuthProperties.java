@@ -94,7 +94,7 @@ public class OAuthProperties {
   boolean enableOidc = false;
 
   @Min(value = 1, message = "The refresh period must be a positive integer")
-  int refreshPeriodMinutes = 1;
+  int refreshPeriodMinutes = 60;
 
   public List<AuthorizationServer> getIssuers() {
     return issuers;

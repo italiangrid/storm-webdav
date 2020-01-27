@@ -10,8 +10,8 @@
     <div>
       <a href="parent" th:href="${parentDir}">Go to parent directory</a>
     </div>
-    <table class="table jetty-dir-table" data-toggle="table" data-search="true" data-pagination="true"
-      data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
+    <table id="jetty-dir-table" class="table jetty-dir-table" data-toggle="table" data-search="true"
+      data-pagination="true" data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
       <thead>
         <tr th:if="${!resources.empty}">
           <th data-sortable="true" data-field="name">Name</th>

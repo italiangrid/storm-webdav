@@ -55,6 +55,7 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
@@ -198,18 +199,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   protected void configureOidcAuthn(HttpSecurity http) throws Exception {
     if (oauthProperties.isEnableOidc()) {
-      http.oauth2Login()
-        .loginPage("/oidc-login")
-        .and()
-        .logout()
-        .clearAuthentication(true)
-        .invalidateHttpSession(true)
-        .logoutSuccessUrl("/");
+      http.oauth2Login().loginPage("/oidc-login");
     }
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+
 
     http.csrf().disable();
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
@@ -232,17 +228,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       .permitAll();
 
     http.exceptionHandling().accessDeniedPage("/errors/403");
+    http.logout()
+      .logoutUrl("/logout")
+      .clearAuthentication(true)
+      .invalidateHttpSession(true)
+      .logoutSuccessUrl("/");
     
-    if( !oauthProperties.isEnableOidc()) {
+    if (!oauthProperties.isEnableOidc()) {
       http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
     }
-    
+
     configureOidcAuthn(http);
   }
 
   @Override
   public void setServletContext(ServletContext servletContext) {
     context = servletContext;
+  }
+
+  @Override
+  public void configure(WebSecurity web) throws Exception {
+    web.ignoring().antMatchers("/css/*", "/js/*");
   }
 
 }

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties.Provider;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,12 +56,6 @@ public class OidcLoginController {
     model.addAttribute("clients", clients);
     return "oidc-login";
   }
-  
-  @GetMapping("/authn-info")
-  String getAuthenticationInfo(Authentication authentication, Model model) {
-    return "authn-info";
-  }
-
 
   public static class OidcClientModel {
     String name;

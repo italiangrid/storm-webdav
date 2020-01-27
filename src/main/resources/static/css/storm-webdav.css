@@ -13,39 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-body {
-  padding-top: 40px;
-  padding-bottom: 40px;
+html, body {
+  height: 100%;
 }
 
-login-page-body {
-  display: -ms-flexbox;
-  display: -webkit-box;
-  display: flex;
-  -ms-flex-align: center;
-  -ms-flex-pack: center;
-  -webkit-box-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  justify-content: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
+main {
+  padding-top: 20px;
+}
+
+.container {
+  width: auto;
+  padding: 0 15px;
+}
+
+.footer {
   background-color: #f5f5f5;
+  font-size: smaller;
 }
 
-form-login {
+.jetty-dir-table {
+    font-size: smaller;
+}
+
+.form-login {
   width: 100%;
-  max-width: 330px;
+  max-width: 400px;
   padding: 15px;
   margin: 0 auto;
 }
 
-#footer {
-  position: absolute;
-  bottom: 0;
+.please-login {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.login-buttons {
   width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
-  background-color: #f5f5f5;
+  max-width: 330px;
+  margin: 0 auto;
 }

@@ -13,32 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-html,
-body {
-  height: 100%;
-}
+package org.italiangrid.storm.webdav.web;
 
-body {
-  justify-content: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
-}
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
-.form-login {
-  width: 100%;
-  max-width: 400px;
-  padding: 15px;
-  margin: 0 auto;
-}
+@Controller
+public class AuthnInfoController {
 
-.please-login {
-  margin-top: 30px;
-  margin-bottom: 30px;
-}
+  @GetMapping("/authn-info")
+  String getAuthenticationInfo(Authentication authentication, Model model) {
+    return "authn-info";
+  }
 
-.login-buttons {
-  width: 100%;
-  max-width: 330px;
-  margin: 0 auto;
 }
-

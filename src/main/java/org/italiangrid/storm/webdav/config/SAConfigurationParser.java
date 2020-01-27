@@ -32,7 +32,8 @@ import com.google.common.collect.Sets;
 
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-  private final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known", "actuator", "css", "js", "authn-info");
+  private final Set<String> RESERVED_SA_NAMES =
+      Sets.newHashSet("oauth", ".well-known", "actuator", "assets", "authn-info", "logout", "oidc-login");
 
   private final ServiceConfiguration serviceConfig;
 
@@ -74,7 +75,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
     saInfos = new ArrayList<StorageAreaInfo>();
 
     for (File f : saFiles) {
-      
+
       Properties p = new Properties();
       try {
         p.load(new FileReader(f));

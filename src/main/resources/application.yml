@@ -1,7 +1,16 @@
 spring:
   main:
     banner-mode: "off"
-    
+  security:
+    oauth2:
+      client:
+        provider:
+          wlcg:
+            issuer-uri: https://wlcg.cloud.cnaf.infn.it/
+          escape:
+            issuer-uri: https://iam-escape.cloud.cnaf.infn.it/
+          indigo:
+            issuer-uri: https://iam-test.indigo-datacloud.eu/
 server:
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
@@ -18,6 +27,7 @@ tpc:
   
 
 oauth:
+  refresh-period-minutes: 60
   issuers:
 
 storm:

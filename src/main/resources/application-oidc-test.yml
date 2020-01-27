@@ -13,7 +13,7 @@ spring:
             - openid
             - profile
           iam-test:
-            provider: iam-test
+            provider: indigo
             authorization-grant-type: authorization_code
             client-name: INDIGO IAM test instance
             client-id: storm-webdav-test
@@ -34,7 +34,3 @@ spring:
         provider:
           iam-local:
             issuer-uri: https://iam.local.io/
-          iam-test:
-            issuer-uri: https://iam-test.indigo-datacloud.eu/
-          wlcg:
-            issuer-uri: https://wlcg.cloud.cnaf.infn.it/ 
