@@ -45,7 +45,9 @@ public class FineGrainedAuthzPolicyProperties {
       OAUTH_SCOPE,
       VO,
       FQAN,
-      VO_MAP
+      VO_MAP,
+      OIDC_SUBJECT,
+      X509_SUBJECT
     }
 
     PrincipalType type;

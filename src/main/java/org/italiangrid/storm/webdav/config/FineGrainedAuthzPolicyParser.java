@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.authz;
+package org.italiangrid.storm.webdav.config;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
@@ -22,6 +22,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
+import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOMapAuthority;
+import org.italiangrid.storm.webdav.authz.X509SubjectAuthority;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AnonymousUser;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AnyAuthenticatedUser;
@@ -31,15 +36,12 @@ import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
 import org.italiangrid.storm.webdav.authz.util.CustomHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.WriteHttpMethodMatcher;
-import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
-import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.OAuthScopeAuthority;
+import org.italiangrid.storm.webdav.oidc.authority.OidcSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -131,6 +133,12 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOAuthority(p.getParams().get("vo")));
     } else if (PrincipalType.VO_MAP.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOMapAuthority(p.getParams().get("vo")));
+    } else if (PrincipalType.OIDC_SUBJECT.equals(p.getType())) {
+      matcher = AuthorityHolder.fromAuthority(
+          new OidcSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
+    } else if (PrincipalType.X509_SUBJECT.equals(p.getType())) {
+      matcher =
+          AuthorityHolder.fromAuthority(new X509SubjectAuthority(p.getParams().get("subject")));
     }
     return matcher;
   }

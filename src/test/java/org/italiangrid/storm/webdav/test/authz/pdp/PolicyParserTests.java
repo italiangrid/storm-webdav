@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.italiangrid.storm.webdav.authz.FineGrainedAuthzPolicyParser;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyParser;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;

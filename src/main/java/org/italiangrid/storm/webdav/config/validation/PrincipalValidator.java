@@ -15,21 +15,76 @@
  */
 package org.italiangrid.storm.webdav.config.validation;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OAUTH_GROUP;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OAUTH_SCOPE;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OIDC_SUBJECT;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.VO;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.VO_MAP;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.X509_SUBJECT;
+
+import java.util.Collection;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
+import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
 
-public class PrincipalValidator
-    implements ConstraintValidator<Principal, FineGrainedAuthzPolicyProperties.PrincipalProperties> {
-  
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 
-  
+public class PrincipalValidator implements
+    ConstraintValidator<Principal, FineGrainedAuthzPolicyProperties.PrincipalProperties> {
+
+
+  public static Multimap<PrincipalType, String> REQUIRED_ARGS =
+      ImmutableMultimap.<FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType, String>builder()
+        .put(FQAN, "fqan")
+        .put(OAUTH_GROUP, "iss")
+        .put(OAUTH_GROUP, "group")
+        .put(OAUTH_SCOPE, "iss")
+        .put(OAUTH_SCOPE, "scope")
+        .put(OIDC_SUBJECT, "iss")
+        .put(OIDC_SUBJECT, "sub")
+        .put(VO, "vo")
+        .put(VO_MAP, "vo")
+        .put(X509_SUBJECT, "subject")
+        .build();
+
+
   @Override
-  public boolean isValid(org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties value,
+  public boolean isValid(
+      org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties value,
       ConstraintValidatorContext context) {
+
+    Collection<String> requiredArgs = REQUIRED_ARGS.get(value.getType());
     
-    // TODO: implement validation
+    if (isNull(requiredArgs) || requiredArgs.isEmpty()) {
+      return true;
+    }
+
+    for (String ra : requiredArgs) {
+      if (!value.getParams().containsKey(ra)) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(format("Required param '%s' not found", ra))
+          .addConstraintViolation();
+        return false;
+      }
+
+      if (isNullOrEmpty(value.getParams().get(ra))) {
+        context.disableDefaultConstraintViolation();
+        context
+          .buildConstraintViolationWithTemplate(
+              format("Required param '%s' value is null or empty", ra))
+          .addConstraintViolation();
+        return false;
+      }
+    }
+
     return true;
   }
 
