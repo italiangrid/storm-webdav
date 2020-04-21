@@ -3,7 +3,7 @@
 STORM_WEBDAV_USER=storm
 
 # JVM options
-STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m -Djava.io.tmpdir=/var/lib/storm-webdav/work"
+STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m"
 
 # StoRM webdav will bind on this address
 STORM_WEBDAV_SERVER_ADDRESS="0.0.0.0"
