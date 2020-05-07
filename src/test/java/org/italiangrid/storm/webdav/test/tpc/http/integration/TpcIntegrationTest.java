@@ -33,6 +33,7 @@ import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +74,11 @@ public class TpcIntegrationTest {
   @AfterClass
   public static void stopMockServer() {
     mockServer.stop();
+  }
+  
+  @Before
+  public void before() {
+    mockServer.reset();
   }
 
   private String mockUrl(String path) {
