@@ -29,6 +29,8 @@ import org.apache.http.protocol.HttpContext;
 
 public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
 
+  public static final String NON_EMPTY_REDIRECT_HEADER = "X-StormRedirect";
+  
   private static final String[] REDIRECT_METHODS = new String[] {HttpGet.METHOD_NAME,
       HttpPut.METHOD_NAME, HttpPost.METHOD_NAME, HttpHead.METHOD_NAME, HttpDelete.METHOD_NAME};
 
@@ -56,6 +58,11 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
     }
 
     redirect.removeHeaders("Authorization");
+    
+    if (!redirect.headerIterator().hasNext()) {
+      redirect.addHeader(NON_EMPTY_REDIRECT_HEADER, "");
+    }
+    
     return redirect;
   }
 
