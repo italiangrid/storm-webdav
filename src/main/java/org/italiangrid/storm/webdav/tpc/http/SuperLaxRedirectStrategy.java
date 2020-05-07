@@ -29,7 +29,12 @@ import org.apache.http.protocol.HttpContext;
 
 public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
 
-  public static final String NON_EMPTY_REDIRECT_HEADER = "X-StormRedirect";
+  /*
+   * SUH stands for Sad, Useless Header.
+   */
+  public static final String SUH_HEADER = "X-SUH";
+  
+  public static final String AUTHORIZATION_HEADER = "Authorization";
   
   private static final String[] REDIRECT_METHODS = new String[] {HttpGet.METHOD_NAME,
       HttpPut.METHOD_NAME, HttpPost.METHOD_NAME, HttpHead.METHOD_NAME, HttpDelete.METHOD_NAME};
@@ -57,10 +62,15 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
       redirect.setHeaders(request.getAllHeaders());
     }
 
-    redirect.removeHeaders("Authorization");
+    redirect.removeHeaders(AUTHORIZATION_HEADER);
     
     if (!redirect.headerIterator().hasNext()) {
-      redirect.addHeader(NON_EMPTY_REDIRECT_HEADER, "");
+      /*
+       * If the Authorization header was the only one set in the original request or in the redirect, we need to
+       * add back an empty header otherwise the RedirectExec code  will copy all the headers from the original
+       * request back in (including the Authorization one).
+       */
+      redirect.addHeader(SUH_HEADER, "");
     }
     
     return redirect;
