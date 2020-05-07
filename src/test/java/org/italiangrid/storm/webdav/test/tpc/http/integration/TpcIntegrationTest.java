@@ -19,7 +19,9 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.NottableString.not;
 import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 
@@ -96,11 +98,42 @@ public class TpcIntegrationTest {
     client.handle(putRequest, (r, s) -> {
       assertThat(s.getStatus(), is(TransferStatus.Status.ERROR));
       assertThat(s.getErrorMessage().isPresent(), is(true));
-      assertThat(s.getErrorMessage().get(), containsString("status code: 401, reason phrase: Unauthorized"));
+      assertThat(s.getErrorMessage().get(),
+          containsString("status code: 401, reason phrase: Unauthorized"));
     });
 
     mockServer.verify(request().withMethod("PUT").withPath("/test/example"), exactly(1));
     mockServer.verify(request().withMethod("PUT").withPath("/redirected/test/example"), exactly(1));
 
+  }
+
+  @Test
+  public void testAuthorizationHeaderIsDroppedOnRedirect() {
+    Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
+    emptyHeaders.put("Authorization", "Bearer this-is-a-fake-token");
+    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+
+    mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
+      .respond(HttpResponse.response()
+        .withStatusCode(307)
+        .withHeader("Location", mockUrl("/redirected/test/example")));
+
+    mockServer
+      .when(request().withMethod("PUT").withPath("/redirected/test/example"), Times.exactly(1))
+      .respond(HttpResponse.response().withStatusCode(201));
+
+    client.handle(putRequest, (r, s) -> {
+
+    });
+
+
+    mockServer.verify(
+        request().withMethod("PUT").withPath("/test/example").withHeaders(header("Authorization")),
+        exactly(1));
+    
+    mockServer.verify(request().withMethod("PUT")
+      .withPath("/redirected/test/example")
+      .withHeaders(header(not("Authorization"))), exactly(1));
   }
 }

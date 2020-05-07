@@ -15,12 +15,17 @@
  */
 package org.italiangrid.storm.webdav.tpc.http;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.protocol.HttpContext;
 
 public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
 
@@ -32,6 +37,28 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
   private SuperLaxRedirectStrategy() {
     // empty ctor
   }
+
+  @Override
+  public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
+      throws ProtocolException {
+
+    HttpUriRequest redirect = super.getRedirect(request, response, context);
+
+    /*
+     * If this method returns an HttpUriRequest that has no HTTP headers then the RedirectExec code
+     * will copy all the headers from the original request into the HttpUriRequest.
+     * DefaultRedirectStrategy returns such requests under several circumstances. Therefore, in
+     * order to suppress the Authorization header we <em>must</em> ensure the returned request
+     * includes headers.
+     */
+    if (!redirect.headerIterator().hasNext()) {
+      redirect.setHeaders(request.getAllHeaders());
+    }
+
+    redirect.removeHeaders("Authorization");
+    return redirect;
+  }
+
 
   @Override
   protected boolean isRedirectable(String method) {
