@@ -29,8 +29,10 @@ import java.net.URI;
 import java.util.UUID;
 
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
+import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
+import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -75,7 +77,7 @@ public class TpcIntegrationTest {
   public static void stopMockServer() {
     mockServer.stop();
   }
-  
+
   @Before
   public void before() {
     mockServer.reset();
@@ -114,11 +116,12 @@ public class TpcIntegrationTest {
   }
 
   @Test
-  public void testAuthorizationHeaderIsDroppedOnRedirect() {
-    Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
-    emptyHeaders.put("Authorization", "Bearer this-is-a-fake-token");
+  public void testAuthorizationHeaderIsDroppedOnRedirectForPut() {
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer this-is-a-fake-token");
+
     PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+        "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -130,15 +133,48 @@ public class TpcIntegrationTest {
       .respond(HttpResponse.response().withStatusCode(201));
 
     client.handle(putRequest, (r, s) -> {
-
+      // do nothing here
     });
 
 
     mockServer.verify(
         request().withMethod("PUT").withPath("/test/example").withHeaders(header("Authorization")),
         exactly(1));
-    
+
     mockServer.verify(request().withMethod("PUT")
+      .withPath("/redirected/test/example")
+      .withHeaders(header(not("Authorization"))), exactly(1));
+  }
+
+  @Test
+  public void testAuthorizationHeaderIsDroppedOnRedirectForGet() {
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer this-is-a-fake-token");
+
+
+    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
+
+
+    mockServer.when(request().withMethod("GET").withPath("/test/example"), Times.exactly(1))
+      .respond(HttpResponse.response()
+        .withStatusCode(302)
+        .withHeader("Location", mockUrl("/redirected/test/example")));
+
+    mockServer
+      .when(request().withMethod("GET").withPath("/redirected/test/example"), Times.exactly(1))
+      .respond(HttpResponse.response().withStatusCode(200).withBody("example"));
+
+    client.handle(getRequest, (r, s) -> {
+      // do nothing here
+    });
+
+
+    mockServer.verify(
+        request().withMethod("GET").withPath("/test/example").withHeaders(header("Authorization")),
+        exactly(1));
+
+    mockServer.verify(request().withMethod("GET")
       .withPath("/redirected/test/example")
       .withHeaders(header(not("Authorization"))), exactly(1));
   }

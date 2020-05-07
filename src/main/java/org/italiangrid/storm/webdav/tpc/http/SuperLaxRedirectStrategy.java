@@ -67,8 +67,8 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
     if (!redirect.headerIterator().hasNext()) {
       /*
        * If the Authorization header was the only one set in the original request or in the redirect, we need to
-       * add back an empty header otherwise the RedirectExec code  will copy all the headers from the original
-       * request back in (including the Authorization one).
+       * add back an empty header otherwise the RedirectExec code  will copy the Authorization header from the original
+       * request back in.
        */
       redirect.addHeader(SUH_HEADER, "");
     }
