@@ -6,7 +6,7 @@ WorkingDirectory=/etc/storm/webdav
 EnvironmentFile=-/etc/sysconfig/storm-webdav
 User=storm
 Type=simple
-ExecStart=/bin/bash -ac "/usr/bin/java $STORM_WEBDAV_JVM_OPTS -Djava.io.tmpdir=/var/lib/storm-webdav/work -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION -jar $STORM_WEBDAV_JAR"
+ExecStart=/bin/bash -ac "exec /usr/bin/java $STORM_WEBDAV_JVM_OPTS -Djava.io.tmpdir=/var/lib/storm-webdav/work -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION -jar $STORM_WEBDAV_JAR > ${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR}"
 KillMode=process
 
 [Install]
