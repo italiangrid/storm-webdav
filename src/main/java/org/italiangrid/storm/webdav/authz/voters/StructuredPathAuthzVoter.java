@@ -34,7 +34,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.FilterInvocation;
 
 public class StructuredPathAuthzVoter extends PathAuthzPdpVoterSupport {
-  
+
   public static final Logger LOG = LoggerFactory.getLogger(StructuredPathAuthzVoter.class);
 
   public static final EnumSet<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
@@ -62,7 +62,7 @@ public class StructuredPathAuthzVoter extends PathAuthzPdpVoterSupport {
       return ACCESS_ABSTAIN;
     }
 
-    if (!sa.wlcgStructuredScopeAuthzEnabled()) {
+    if (Boolean.FALSE.equals(sa.wlcgStructuredScopeAuthzEnabled())) {
       return ACCESS_ABSTAIN;
     }
 

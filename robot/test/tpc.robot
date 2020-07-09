@@ -135,7 +135,7 @@ Local pull copy works oauth and https
     [Teardown]  Local pull copy works oauth and https Teardown
 
 Local push copy works
-    [Tags]  voms  oauth  tpc  push
+    [Tags]  voms  oauth  tpc  push  kkk
     [Setup]  Local push copy works Setup
     ${dst}  Remote DAVS URL  tpc_test_push  sa=${sa.oauth}
     ${src}  DAVS URL  tpc_test_push
@@ -156,7 +156,7 @@ Oauth pull copy works
     [Teardown]  Oauth pull copy works Teardown
 
 Oauth push copy works
-    [Tags]   oauth tpc push
+    [Tags]   oauth  tpc  push
     [Setup]   Oauth push copy works Setup 
     ${src}  DAVS URL  oauth_push_copy_works  sa=${sa.oauth}
     ${dst}   Remote DAVS URL  oauth_push_copy_works.copy   sa=${sa.oauth}

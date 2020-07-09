@@ -22,6 +22,12 @@ Get Curl Voms Proxy Options
     ${opts}   Set variable  --cert %{X509_USER_PROXY} --cacert ${eec_file} --capath ${x509.trustdir} 
     [Return]  ${opts}
 
+Curl Voms HEAD Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   --HEAD ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Success  ${url} ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms Get Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X GET ${opts} ${voms_opts}
@@ -50,6 +56,12 @@ Curl Voms Push COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opt
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X COPY -H "Destination: ${dest}" ${opts} ${voms_opts}
     ${rc}  ${out}  Curl Success  ${source}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
+Curl Voms Push COPY Failure  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X COPY -H "Destination: ${dest}" ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Error  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
 
 Curl Voms PUT Success  [Arguments]  ${file}  ${url}  ${opts}=${curl.opts.default}

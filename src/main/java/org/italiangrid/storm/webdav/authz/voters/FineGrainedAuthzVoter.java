@@ -39,7 +39,7 @@ public class FineGrainedAuthzVoter implements AccessDecisionVoter<FilterInvocati
 
   final PathAuthorizationPdp pdp;
   final PathResolver resolver;
-  
+
   public FineGrainedAuthzVoter(PathResolver resolver, PathAuthorizationPdp pdp) {
     this.resolver = resolver;
     this.pdp = pdp;
@@ -57,32 +57,32 @@ public class FineGrainedAuthzVoter implements AccessDecisionVoter<FilterInvocati
 
   public void logAuthorizationSuccess(FilterInvocation invocation, PathAuthorizationResult result) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Authorization SUCCESS for request '{}' authorized by policy '{}'", requestToString(invocation.getHttpRequest()),
-          result.getPolicy().get());
+      LOG.debug("Authorization SUCCESS for request '{}' authorized by policy '{}'",
+          requestToString(invocation.getHttpRequest()), result.getPolicy().get());
     }
   }
 
   public void logAuthorizationFailure(FilterInvocation invocation, PathAuthorizationResult result) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Authorization FAILURE for request '{}'. Policy: '{}'", requestToString(invocation.getHttpRequest()),
-          result.getPolicy());
+      LOG.debug("Authorization FAILURE for request '{}'. Policy: '{}'",
+          requestToString(invocation.getHttpRequest()), result.getPolicy());
     }
   }
 
 
   public StorageAreaInfo resolveStorageArea(HttpServletRequest request) {
-   final String requestPath = getRequestPath(request);
-   return resolver.resolveStorageArea(requestPath);
+    final String requestPath = getRequestPath(request);
+    return resolver.resolveStorageArea(requestPath);
   }
-  
-  
+
+
   @Override
   public int vote(Authentication authentication, FilterInvocation invocation,
       Collection<ConfigAttribute> attributes) {
-    
+
     StorageAreaInfo sa = resolveStorageArea(invocation.getRequest());
-    
-    if (isNull(sa) || !sa.fineGrainedAuthzEnabled()) {
+
+    if (isNull(sa) || Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
       return ACCESS_ABSTAIN;
     }
 

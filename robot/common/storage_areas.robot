@@ -1,17 +1,15 @@
 *** Settings ***
 Library    OperatingSystem
 
+Resource   common/utils.robot
+
 *** Variables ***
 
-${sa.1}   test.vo
-${sa.2}   noauth
-${sa.3}   auth
-${sa.4}   oauth-authz
-
-${sa.default}   ${sa.1}
-${sa.noauth}    ${sa.2}
-${sa.auth}      ${sa.3}
-${sa.oauth}     ${sa.4}
+${sa.default}   test.vo
+${sa.noauth}    noauth
+${sa.auth}      auth
+${sa.oauth}     oauth-authz
+${sa.wlcg}      wlcg
 
 ${storage.root}   /storage
 
@@ -20,6 +18,11 @@ Create Test File  [Arguments]  ${file}  ${content}=${EMPTY}   ${sa}=${sa.default
     ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
     File Should Not Exist   ${path}
     Create File   ${path}  ${content}
+
+Create Test File With Size  [Arguments]  ${file}  ${size}  ${sa}=${sa.default}
+    ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
+    File Should Not Exist   ${path}
+    ${rc}  ${out}  Execute and Check Success  dd if=/dev/zero of=${path} bs=1 count=0 seek=${size}
 
 Remove Test File  [Arguments]  ${file}  ${sa}=${sa.default}
     ${path}=   Normalize Path   ${storage.root}/${sa}/${file}

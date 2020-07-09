@@ -53,6 +53,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -149,8 +150,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     voters.add(new StructuredPathAuthzVoter(serviceConfigurationProperties, pathResolver, pdp));
     voters.add(new StructuredPathCopyMoveVoter(serviceConfigurationProperties, pathResolver, pdp,
         localURLService));
-
-    return new AffirmativeBased(voters);
+    
+    return new UnanimousBased(voters);
   }
 
 
@@ -185,7 +186,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
 
-      if (sa.anonymousReadEnabled() && !sa.fineGrainedAuthzEnabled()) {
+      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())
+          && Boolean.FALSE.equals(sa.anonymousReadEnabled())) {
         anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
       }
     }
@@ -211,6 +213,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 
     if (serviceConfigurationProperties.getAuthz().isDisabled()) {
+      LOG.warn("AUTHORIZATION DISABLED: this shouldn't be used in production!");
       http.authorizeRequests().anyRequest().permitAll();
     } else {
       http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
@@ -233,7 +236,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       .clearAuthentication(true)
       .invalidateHttpSession(true)
       .logoutSuccessUrl("/");
-    
+
     if (!oauthProperties.isEnableOidc()) {
       http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
     }

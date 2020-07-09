@@ -31,6 +31,7 @@ import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
+import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.tracing.RequestIdFilter;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
@@ -149,7 +150,7 @@ public class ServletConfiguration {
       StorageAreaConfiguration saConfig, PathResolver pathResolver, TemplateEngine templateEngine) {
 
     ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
-        new StoRMServlet(serviceConfig, pathResolver, templateEngine));
+        new StoRMServlet(serviceConfig, pathResolver, templateEngine, new StormResourceService()));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");

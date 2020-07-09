@@ -75,6 +75,19 @@ Local copy works teardown  [Arguments]  ${file_name}
     Remove Test File  ${file_name}
     Remove Test File  ${file_name}.copy
     
+Head works on large files setup   [Arguments]   ${file_name}
+    Default setup
+    Create Test File With Size  ${file_name}  2g
+
+Head works on large files teardown   [Arguments]   ${file_name}
+    Default Teardown
+    Remove Test File  ${file_name}
+
+Local copy Across SA enforces authz teardown   [Arguments]   ${file_name}
+    Default Teardown
+    Remove Test File  ${file_name}
+    Remove Test File  ${file_name}  ${sa.wlcg}
+
 *** Test cases ***
 
 Get works
@@ -136,10 +149,20 @@ Local Copy works
     [Tags]  voms  copy
     [Setup]  Single Test File Setup   test_local_copy
     ${src}  DAVS Url   test_local_copy
-    ${rc}  ${out}  Curl Voms Push COPY Success  https://storm.example/test.vo/test_local_copy.copy  ${src}
+    ${dst}  DAVS Url   test_local_copy.copy
+    ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}
     Davix Get Success   ${src} 
     Davix Get Success   ${src}.copy  
     [Teardown]  Local copy works teardown  test_local_copy
+
+Local Copy Across SA enforces authz
+    [Tags]  voms  copy  maghe
+    [Setup]  Single Test File Setup   test_local_copy_x_sa
+    ${src}  DAVS Url   test_local_copy_x_sa
+    ${dst}  DAVS Url   test_local_copy_x_sa  ${sa.wlcg}
+    ${rc}  ${out}  Curl Voms Push COPY Failure  ${dst}  ${src}
+    Should Contain  ${out}  403
+    [Teardown]   Local copy Across SA enforces authz teardown  test_local_copy_x_sa
 
 Post not allowed on content
     [Tags]  voms  post
@@ -148,3 +171,10 @@ Post not allowed on content
     ${rc}  ${out}  Curl Voms Post Failure  ${url}
     Should Contain  ${out}  405 Method Not Allowed
     [Teardown]   Single Test File Teardown  test_post_not_allowed
+
+Head works on large files
+    [Tags]  voms  head
+    [Setup]  Head works on large files setup  maghe
+    ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/maghe
+    Should Contain  ${out}  Content-Length: 2147483648
+    [Teardown]   Head works on large files teardown  maghe

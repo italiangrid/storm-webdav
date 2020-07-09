@@ -42,7 +42,8 @@ public class StaticHostListLocalURLService implements LocalURLService {
 
       URI uri = new URI(url);
 
-      if (isNull(uri.getScheme())) {
+      if (isNull(uri.getScheme())
+          || (!isNull(uri.getHost()) && uri.getHost().equals("localhost"))) {
         return true;
       }
 

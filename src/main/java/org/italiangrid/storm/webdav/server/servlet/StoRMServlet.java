@@ -26,6 +26,7 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceWrapper;
 import org.thymeleaf.TemplateEngine;
 
@@ -39,10 +40,12 @@ public class StoRMServlet extends DefaultServlet {
   final PathResolver pathResolver;
   final TemplateEngine templateEngine;
   final ServiceConfigurationProperties serviceConfig;
+  final StormResourceService resourceService;
 
   public StoRMServlet(ServiceConfigurationProperties serviceConfig, PathResolver resolver,
-      TemplateEngine engine) {
-    ;
+      TemplateEngine engine, StormResourceService rs) {
+    super(rs);
+    resourceService = rs;
     pathResolver = resolver;
     templateEngine = engine;
     this.serviceConfig = serviceConfig;
@@ -72,6 +75,13 @@ public class StoRMServlet extends DefaultServlet {
     return new StormResourceWrapper(serviceConfig, templateEngine, Resource.newResource(f));
 
   }
+
+  @Override
+  protected void doHead(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    resourceService.doHead(request, response);
+  }
+
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
