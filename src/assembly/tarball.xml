@@ -55,6 +55,15 @@
       </includes>
       <directoryMode>0755</directoryMode>
     </fileSet>
+
+    <fileSet>
+      <directory>etc/systemd/system/storm-webdav.service.d</directory>
+      <outputDirectory>etc/systemd/system/storm-webdav.service.d</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+      <directoryMode>0644</directoryMode>
+    </fileSet>
   </fileSets>
 
   <files>
