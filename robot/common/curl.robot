@@ -9,6 +9,9 @@ ${curl.opts.default}  -s -L -i -f --show-error
 ${x509.trustdir}  /etc/grid-security/certificates
 
 *** Keywords ***
+Curl   [Arguments]  ${url}  ${opts}=${curl.opts.default}
+    ${rc}   ${out}    Run and Return RC And Output   curl ${url} ${opts}
+    [Return]  ${rc}  ${out}
 Curl Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${rc}  ${out}   Execute and Check Success  curl ${url} ${opts}
     [Return]  ${rc}  ${out}
@@ -80,6 +83,18 @@ Curl Voms POST Failure  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X POST ${opts} ${voms_opts}
     ${rc}  ${out}  Curl Error  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
+Curl Voms MOVE Success   [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X MOVE -H "Destination: ${dest}" ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Success  ${source}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
+Curl Voms MOVE  [Arguments]  ${dest}  ${source}  ${opts}=-s -L -i
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X MOVE -H "Destination: ${dest}" ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
 
 Curl pull COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}

@@ -24,8 +24,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class StormWebSecurityExpressionHandler extends OAuth2WebSecurityExpressionHandler {
 
-  public StormWebSecurityExpressionHandler() {}
-
   @Override
   protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication,
       FilterInvocation invocation) {

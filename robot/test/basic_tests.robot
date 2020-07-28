@@ -69,12 +69,7 @@ Single Test File Setup  [Arguments]  ${file_name}
 Single Test File Teardown  [Arguments]  ${file_name}
     Default Teardown
     Remove Test File  ${file_name}
-
-Local copy works teardown  [Arguments]  ${file_name}
-    Default Teardown
-    Remove Test File  ${file_name}
-    Remove Test File  ${file_name}.copy
-    
+  
 Head works on large files setup   [Arguments]   ${file_name}
     Default setup
     Create Test File With Size  ${file_name}  2g
@@ -82,11 +77,6 @@ Head works on large files setup   [Arguments]   ${file_name}
 Head works on large files teardown   [Arguments]   ${file_name}
     Default Teardown
     Remove Test File  ${file_name}
-
-Local copy Across SA enforces authz teardown   [Arguments]   ${file_name}
-    Default Teardown
-    Remove Test File  ${file_name}
-    Remove Test File  ${file_name}  ${sa.wlcg}
 
 *** Test cases ***
 
@@ -145,25 +135,6 @@ Partial Put works
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
     [Teardown]  Partial Put Works Teardown
 
-Local Copy works
-    [Tags]  voms  copy
-    [Setup]  Single Test File Setup   test_local_copy
-    ${src}  DAVS Url   test_local_copy
-    ${dst}  DAVS Url   test_local_copy.copy
-    ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}
-    Davix Get Success   ${src} 
-    Davix Get Success   ${src}.copy  
-    [Teardown]  Local copy works teardown  test_local_copy
-
-Local Copy Across SA enforces authz
-    [Tags]  voms  copy  maghe
-    [Setup]  Single Test File Setup   test_local_copy_x_sa
-    ${src}  DAVS Url   test_local_copy_x_sa
-    ${dst}  DAVS Url   test_local_copy_x_sa  ${sa.wlcg}
-    ${rc}  ${out}  Curl Voms Push COPY Failure  ${dst}  ${src}
-    Should Contain  ${out}  403
-    [Teardown]   Local copy Across SA enforces authz teardown  test_local_copy_x_sa
-
 Post not allowed on content
     [Tags]  voms  post
     [Setup]  Single Test File Setup   test_post_not_allowed
@@ -174,7 +145,7 @@ Post not allowed on content
 
 Head works on large files
     [Tags]  voms  head
-    [Setup]  Head works on large files setup  maghe
-    ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/maghe
+    [Setup]  Head works on large files setup  hwlf
+    ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/hwlf
     Should Contain  ${out}  Content-Length: 2147483648
-    [Teardown]   Head works on large files teardown  maghe
+    [Teardown]   Head works on large files teardown   hwlf

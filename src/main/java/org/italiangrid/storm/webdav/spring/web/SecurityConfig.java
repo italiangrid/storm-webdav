@@ -27,10 +27,8 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
-import org.italiangrid.storm.webdav.authz.voters.CopyMoveAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.StructuredPathAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.StructuredPathCopyMoveVoter;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -52,7 +50,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -145,11 +142,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
         serviceConfigurationProperties, pathResolver, localURLService);
 
     voters.add(new WebExpressionVoter());
-    voters.add(new CopyMoveAuthzVoter(saConfiguration, pathResolver, localURLService));
     voters.add(new FineGrainedAuthzVoter(pathResolver, fineGrainedAuthzPdp));
     voters.add(new StructuredPathAuthzVoter(serviceConfigurationProperties, pathResolver, pdp));
-    voters.add(new StructuredPathCopyMoveVoter(serviceConfigurationProperties, pathResolver, pdp,
-        localURLService));
     
     return new UnanimousBased(voters);
   }
@@ -161,9 +155,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
 
-        if (sa.fineGrainedAuthzEnabled()) {
-
-          http.authorizeRequests().antMatchers(ap + "/**").denyAll();
+        if (Boolean.TRUE.equals(sa.fineGrainedAuthzEnabled())) {
+          
+          // This bypasses the WebExpressionVoter and delegates all authz decisions
+          // on the path to the other voters
+          http.authorizeRequests().antMatchers(ap + "/**").permitAll();
 
         } else {
 
@@ -182,12 +178,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   }
 
   protected void addAnonymousAccessRules(HttpSecurity http) throws Exception {
-    final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<GrantedAuthority>();
+    final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
 
       if (Boolean.TRUE.equals(sa.anonymousReadEnabled())
-          && Boolean.FALSE.equals(sa.anonymousReadEnabled())) {
+          && Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
         anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
       }
     }
@@ -207,8 +203,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-
-
+    
     http.csrf().disable();
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 

@@ -19,10 +19,8 @@ import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 
 import java.util.Collection;
-import java.util.EnumSet;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -36,10 +34,6 @@ import org.springframework.security.web.FilterInvocation;
 public class StructuredPathAuthzVoter extends PathAuthzPdpVoterSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(StructuredPathAuthzVoter.class);
-
-  public static final EnumSet<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
-      EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
-          PathAuthorizationResult.Decision.NOT_APPLICABLE);
 
   public StructuredPathAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
       PathAuthorizationPdp pdp) {

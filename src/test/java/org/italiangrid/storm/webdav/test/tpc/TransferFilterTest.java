@@ -42,7 +42,7 @@ public class TransferFilterTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void filterOnlyHandlesTpc() throws IOException, ServletException {
+  public void filterOnlyHandlesCopy() throws IOException, ServletException {
 
     // Ignore Http methods
     for (HttpMethod m : HttpMethod.values()) {
@@ -70,17 +70,17 @@ public class TransferFilterTest extends TransferFilterTestSupport {
     verify(chain).doFilter(request, response);
     reset(chain);
 
-    // Local destination header
-    when(request.getHeader(DESTINATION_HEADER)).thenReturn("/some/other/local/file");
-    filter.doFilter(request, response, chain);
-    verify(chain).doFilter(request, response);
-    reset(chain);
-    
- // Local destination header
-    when(request.getHeader(DESTINATION_HEADER)).thenReturn("https://localhost/some/local/file");
-    filter.doFilter(request, response, chain);
-    verify(chain).doFilter(request, response);
-    reset(chain);
+    // // Local destination header
+    // when(request.getHeader(DESTINATION_HEADER)).thenReturn("/some/other/local/file");
+    // filter.doFilter(request, response, chain);
+    // verify(chain).doFilter(request, response);
+    // reset(chain);
+    //
+    // // Local destination header
+    // when(request.getHeader(DESTINATION_HEADER)).thenReturn("https://localhost/some/local/file");
+    // filter.doFilter(request, response, chain);
+    // verify(chain).doFilter(request, response);
+    // reset(chain);
 
 
     // Remote source header

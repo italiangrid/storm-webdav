@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.authz.pdp;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface PathAuthorizationPolicyRepository {
   List<PathAuthorizationPolicy> getPolicies();
 }

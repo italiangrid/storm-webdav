@@ -8,23 +8,7 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
-*** Variables ***
-
-${remote.dav.host}             ${dav.host}
-${remote.dav.port}             ${dav.port}
-${remote.davs.port}            ${davs.port}
-${remote.davs.endpoint}        https://${remote.dav.host}:${remote.davs.port}
-${remote.dav.endpoint}         http://${remote.dav.host}:${remote.dav.port}
-
 *** Keywords ***
-
-Remote DAVS URL  [Arguments]  ${path}  ${sa}=${sa.default}
-    ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${remote.davs.endpoint}${sa_path}
-
-Remote DAV URL  [Arguments]  ${path}  ${sa}=${sa.noauth}
-    ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${remote.dav.endpoint}${sa_path}
 
 Default Setup
     Default VOMS credential
@@ -135,7 +119,7 @@ Local pull copy works oauth and https
     [Teardown]  Local pull copy works oauth and https Teardown
 
 Local push copy works
-    [Tags]  voms  oauth  tpc  push  kkk
+    [Tags]  voms  oauth  tpc  push  kk
     [Setup]  Local push copy works Setup
     ${dst}  Remote DAVS URL  tpc_test_push  sa=${sa.oauth}
     ${src}  DAVS URL  tpc_test_push

@@ -80,7 +80,7 @@ public class StructuredPathCopyMoveVoter extends PathAuthzPdpVoterSupport {
         return ACCESS_DENIED;
       }
 
-      if (!sa.wlcgStructuredScopeAuthzEnabled()) {
+      if (Boolean.FALSE.equals(sa.wlcgStructuredScopeAuthzEnabled())) {
         return ACCESS_ABSTAIN;
       }
 

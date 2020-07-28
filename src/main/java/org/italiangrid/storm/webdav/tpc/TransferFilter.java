@@ -68,13 +68,12 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;
 
-    if (isTpc(req, localURLService)) {
+    if (isCopy(req)) {
       handleCopy(req, res);
     } else {
       chain.doFilter(request, response);
     }
   }
-
 
 
   protected void handleCopy(HttpServletRequest request, HttpServletResponse response)
@@ -104,18 +103,11 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     if (clientInfoHeader.isPresent()) {
       try {
         ClientInfo.fromHeaderString(clientInfoHeader.get()).addToMDC();
-      } catch(IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
         LOG.warn("Error parsing ClientInfo header: {}", clientInfoHeader.get());
       }
     }
   }
-
-  @Override
-  public void destroy() {
-
-
-  }
-
 
   protected void reportProgress(TransferRequest request, TransferStatus s, HttpServletResponse r) {
     try {
@@ -159,9 +151,10 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   protected void logTransferException(Exception e) {
     LOG.warn("{}: {}", e.getClass().getName(), e.getMessage());
     if (LOG.isDebugEnabled()) {
-      LOG.warn(e.getMessage(),e);
+      LOG.warn(e.getMessage(), e);
     }
   }
+
   protected void handlePullCopy(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 

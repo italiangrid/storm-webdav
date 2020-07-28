@@ -51,12 +51,6 @@ public class StoRMServlet extends DefaultServlet {
     this.serviceConfig = serviceConfig;
   }
 
-
-  @Override
-  public String getWelcomeFile(String pathInContext) {
-    return super.getWelcomeFile(pathInContext);
-  }
-
   @Override
   public Resource getResource(String pathInContext) {
 

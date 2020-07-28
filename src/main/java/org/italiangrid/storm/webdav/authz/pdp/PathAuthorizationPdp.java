@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.authz.pdp;
 
+@FunctionalInterface
 public interface PathAuthorizationPdp {
   
   PathAuthorizationResult authorizeRequest(PathAuthorizationRequest request);

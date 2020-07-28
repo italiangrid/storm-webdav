@@ -43,7 +43,7 @@ public class DefaultPathResolver implements PathResolver {
   public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
-    contextMap = new TreeMap<String, StorageAreaInfo>();
+    contextMap = new TreeMap<>();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {

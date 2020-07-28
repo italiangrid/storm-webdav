@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.authz.voters;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
@@ -33,8 +34,7 @@ import org.springframework.security.web.FilterInvocation;
 public abstract class PathAuthzPdpVoterSupport
     implements MatcherUtils, TpcUtils, AccessDecisionVoter<FilterInvocation> {
 
-
-  public static final EnumSet<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
+  protected static final Set<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
       EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
           PathAuthorizationResult.Decision.NOT_APPLICABLE);
 

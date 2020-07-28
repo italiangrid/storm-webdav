@@ -88,13 +88,12 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
   }
 
   protected boolean verifyChecksumRequested(HttpServletRequest request) {
-    Optional<String> verifyChecksum =
+    Optional<String> verifyChecksumFromHeader =
         Optional.ofNullable(request.getHeader(REQUIRE_CHECKSUM_HEADER));
 
-    if (verifyChecksum.isPresent()) {
-      return "true".equals(verifyChecksum.get());
+    if (verifyChecksumFromHeader.isPresent()) {
+      return "true".equals(verifyChecksumFromHeader.get());
     }
-
     // FIXME: take default from configuration
     return true;
   }
@@ -148,12 +147,12 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
   }
 
   protected void notFound(HttpServletResponse response, String msg) throws IOException {
-    LOG.warn("Not found: {}", msg);
+    LOG.info("Not found: {}", msg);
     response.sendError(HttpStatus.NOT_FOUND.value(), msg);
   }
 
   protected void invalidRequest(HttpServletResponse response, String msg) throws IOException {
-    LOG.warn("Invalid request: {}", msg);
+    LOG.info("Invalid request: {}", msg);
     response.sendError(BAD_REQUEST.value(), msg);
   }
 

@@ -24,10 +24,16 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface TpcUtils extends TransferConstants {
 
-
+  default String destinationHeader(HttpServletRequest request) {
+    return request.getHeader(DESTINATION_HEADER);
+  }
 
   default boolean requestHasSourceHeader(HttpServletRequest request) {
     return Optional.ofNullable(request.getHeader(SOURCE_HEADER)).isPresent();
+  }
+
+  default boolean requestHasDestinationHeader(HttpServletRequest request) {
+    return Optional.ofNullable(request.getHeader(DESTINATION_HEADER)).isPresent();
   }
 
   default boolean requestHasRemoteDestinationHeader(HttpServletRequest request,
@@ -40,6 +46,11 @@ public interface TpcUtils extends TransferConstants {
 
   default boolean isPullTpc(HttpServletRequest request, LocalURLService localUrlService) {
     return "COPY".equals(request.getMethod()) && requestHasSourceHeader(request);
+  }
+
+  default boolean isCopy(HttpServletRequest request) {
+    return "COPY".equals(request.getMethod())
+        && (requestHasSourceHeader(request) || requestHasDestinationHeader(request));
   }
 
   default boolean isTpc(HttpServletRequest request, LocalURLService localUrlService) {
@@ -65,7 +76,7 @@ public interface TpcUtils extends TransferConstants {
     URL url = new URL(destinationUrl);
     return dropSlashWebdavFromPath(url.getPath());
   }
-  
+
 
 
 }

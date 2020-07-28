@@ -44,9 +44,9 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
   protected static final String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
   protected static final Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);
 
-  final protected StorageAreaConfiguration saConfig;
-  final protected PathResolver pathResolver;
-  final protected LocalURLService localURLservice;
+  protected final StorageAreaConfiguration saConfig;
+  protected final PathResolver pathResolver;
+  protected final LocalURLService localURLservice;
 
   public CopyMoveAuthzVoter(StorageAreaConfiguration saConfig, PathResolver pathResolver,
       LocalURLService lus) {
@@ -92,13 +92,12 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
 
       String destinationPath = getSanitizedPathFromUrl(destination);
       StorageAreaInfo sa = pathResolver.resolveStorageArea(destinationPath);
-      
 
       if (isNull(sa)) {
         return ACCESS_DENIED;
       }
-      
-      if (sa.fineGrainedAuthzEnabled()) {
+
+      if (Boolean.TRUE.equals(sa.fineGrainedAuthzEnabled())) {
         return ACCESS_ABSTAIN;
       }
 
@@ -107,9 +106,8 @@ public class CopyMoveAuthzVoter implements AccessDecisionVoter<FilterInvocation>
       }
 
       if (logger.isDebugEnabled()) {
-        logger.debug(
-            "Access denied. PrincipalProperties does not have write permissions on " + "storage area {}",
-            sa.name());
+        logger.debug("Access denied. PrincipalProperties does not have write permissions on "
+            + "storage area {}", sa.name());
       }
 
       return ACCESS_DENIED;

@@ -48,10 +48,7 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
-    
-    
   }
-
 
   @Test
   public void sourceAndDestHeaderPresent() throws IOException, ServletException {
@@ -63,7 +60,6 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
     assertThat(error.getValue(), containsString("both present"));
   }
-
 
   @Test
   public void invalidDestinationURIs() throws IOException, ServletException {

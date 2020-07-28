@@ -62,6 +62,7 @@ public class StormResourceWrapper extends Resource {
    * @return the defanged text.
    */
   private static String hrefEncodeURI(String raw) {
+    
     StringBuffer buf = null;
 
     loop: for (int i = 0; i < raw.length(); i++) {
