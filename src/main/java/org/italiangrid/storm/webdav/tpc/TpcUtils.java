@@ -15,14 +15,36 @@
  */
 package org.italiangrid.storm.webdav.tpc;
 
+import static java.lang.String.format;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.error.ResourceNotFound;
+import org.italiangrid.storm.webdav.server.PathResolver;
+
 public interface TpcUtils extends TransferConstants {
+
+  default Supplier<ResourceNotFound> resourceNotFoundError(String path) {
+    return () -> new ResourceNotFound(format("No storage area found matching path: %s", path));
+  }
+
+  default String getSerlvetRequestPath(HttpServletRequest request) {
+    String url = request.getServletPath();
+
+    if (request.getPathInfo() != null) {
+      url += request.getPathInfo();
+    }
+
+    return url;
+  }
 
   default String destinationHeader(HttpServletRequest request) {
     return request.getHeader(DESTINATION_HEADER);
@@ -36,11 +58,32 @@ public interface TpcUtils extends TransferConstants {
     return Optional.ofNullable(request.getHeader(DESTINATION_HEADER)).isPresent();
   }
 
+  default boolean requestHasLocalDestinationHeader(HttpServletRequest request,
+      LocalURLService localURLService) {
+    Optional<String> destination = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
+
+    return (destination.isPresent() && localURLService.isLocalURL(destination.get()));
+  }
+
   default boolean requestHasRemoteDestinationHeader(HttpServletRequest request,
       LocalURLService localURLService) {
     Optional<String> destination = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
 
     return (destination.isPresent() && !localURLService.isLocalURL(destination.get()));
+  }
+
+  default boolean requestPathAndDestinationHeaderAreInSameStorageArea(HttpServletRequest request,
+      PathResolver resolver) throws MalformedURLException {
+    final String source = getSerlvetRequestPath(request);
+    final String destination = getSanitizedPathFromUrl(destinationHeader(request));
+
+    StorageAreaInfo sourceSa = Optional.ofNullable(resolver.resolveStorageArea(source))
+      .orElseThrow(resourceNotFoundError(source));
+
+    StorageAreaInfo destSa = Optional.ofNullable(resolver.resolveStorageArea(destination))
+      .orElseThrow(resourceNotFoundError(destination));
+
+    return sourceSa.equals(destSa);
   }
 
 
@@ -53,9 +96,21 @@ public interface TpcUtils extends TransferConstants {
         && (requestHasSourceHeader(request) || requestHasDestinationHeader(request));
   }
 
+  default boolean requestHasTranferAuthorizationHeader(HttpServletRequest request) {
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      if (headerName.toLowerCase().startsWith(TRANSFER_HEADER_LC)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   default boolean isTpc(HttpServletRequest request, LocalURLService localUrlService) {
     return "COPY".equals(request.getMethod()) && (requestHasSourceHeader(request)
-        || requestHasRemoteDestinationHeader(request, localUrlService));
+        || requestHasRemoteDestinationHeader(request, localUrlService)
+        || requestHasTranferAuthorizationHeader(request));
   }
 
   default boolean isCopyOrMoveRequest(HttpServletRequest request) {

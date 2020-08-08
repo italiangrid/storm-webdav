@@ -40,7 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class TransferRequestValidationTest extends TransferFilterTestSupport {
   
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     super.setup();
     when(request.getServletPath()).thenReturn(SERVLET_PATH);
     when(request.getPathInfo()).thenReturn(LOCAL_PATH);

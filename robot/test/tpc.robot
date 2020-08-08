@@ -16,20 +16,20 @@ Default Setup
 Default Teardown
     Unset VOMS credential
 
-Local pull copy works Setup
+Pull copy works Setup
     Default Setup
     Create Test File   tpc_test  content=Hello World!  sa=${sa.noauth}
 
-Local pull copy works Teardown
+Pull copy works Teardown
     Default Teardown
     Remove Test File   tpc_test
     Remove Test File   tpc_test  sa=${sa.noauth}
 
-Local pull copy works https Setup
+Pull copy works https Setup
     Default Setup
     Create Test File   tpc_test_https  content=Hello World!  sa=${sa.auth}
 
-Local pull copy works https Teardown
+Pull copy works https Teardown
     Default Teardown
     Remove Test File   tpc_test_https
     Remove Test File   tpc_test_https  ${sa.auth}
@@ -42,20 +42,20 @@ Overwrite header recognized Teardown
     Default Teardown
     Remove Test File   tpc_test
 
-Local pull copy works oauth and https Setup
+Pull copy works oauth and https Setup
     Default Setup
     Create Test File   tpc_test_oauth_https  content=Hello World!  sa=${sa.oauth}
 
-Local pull copy works oauth and https Teardown
+Pull copy works oauth and https Teardown
     Default Teardown
     Remove Test File   tpc_test_oauth_https
     Remove Test File   tpc_test_oauth_https  ${sa.oauth}
 
-Local push copy works Setup
+Push copy works Setup
     Default Setup
     Create Test File   tpc_test_push  content=Hello World!
 
-Local push copy works Teardown
+Push copy works Teardown
     Default Teardown
     Remove Test File  tpc_test_push
     Remove Test File  tpc_test_push  ${sa.oauth}
@@ -80,23 +80,23 @@ Oauth push copy works Teardown
 
 *** Test cases ***
 
-Local pull copy works
+Pull copy works
     [Tags]   voms  tpc
-    [Setup]  Local pull copy works Setup
+    [Setup]  Pull copy works Setup
     ${dest}  DAVS URL  tpc_test
     ${src}  Remote DAV URL  tpc_test
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
-    [Teardown]  Local pull copy works Teardown
+    [Teardown]  Pull copy works Teardown
 
-Local pull copy works https
+Pull copy works https
     [Tags]   voms  tpc
-    [Setup]  Local pull copy works https Setup
+    [Setup]  Pull copy works https Setup
     ${dest}  DAVS URL  tpc_test_https
     ${src}  Remote DAVS URL  tpc_test_https  sa=${sa.auth}
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
-    [Teardown]  Local pull copy works https Teardown
+    [Teardown]  Pull copy works https Teardown
 
 Overwrite header recognized
     [Tags]   voms  tpc
@@ -108,25 +108,25 @@ Overwrite header recognized
     Should Contain  ${out}   412
     [Teardown]  Overwrite header recognized Teardown
 
-Local pull copy works oauth and https
+Pull copy works oauth and https
     [Tags]  oauth  tpc
-    [Setup]  Local pull copy works oauth and https Setup
+    [Setup]  Pull copy works oauth and https Setup
     ${dest}  DAVS URL  tpc_test_oauth_https
     ${src}   Remote DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
     Davix Get Success   ${dest}
-    [Teardown]  Local pull copy works oauth and https Teardown
+    [Teardown]  Pull copy works oauth and https Teardown
 
-Local push copy works
+Push copy works
     [Tags]  voms  oauth  tpc  push  kk
-    [Setup]  Local push copy works Setup
+    [Setup]  Push copy works Setup
     ${dst}  Remote DAVS URL  tpc_test_push  sa=${sa.oauth}
     ${src}  DAVS URL  tpc_test_push
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
     Davix Get Success   ${dst}  ${davix.opts.oauth}
-    [Teardown]  Local push copy works Teardown
+    [Teardown]  Push copy works Teardown
 
 Oauth pull copy works
     [Tags]   oauth  tpc  pull

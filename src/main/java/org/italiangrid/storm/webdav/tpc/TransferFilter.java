@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.tpc;
 import static javax.servlet.http.HttpServletResponse.SC_ACCEPTED;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;
 
@@ -31,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
+import org.italiangrid.storm.webdav.error.BadRequest;
+import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.tracing.RequestIdHolder;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -48,9 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 public class TransferFilter extends TransferFilterSupport implements Filter {
-
   public static final String XFER_ID_KEY = "tpc.xferId";
-
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilter.class);
 
   final TransferClient client;
@@ -61,6 +62,12 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     client = c;
   }
 
+  private void localCopySanityChecks(HttpServletRequest req) throws MalformedURLException {
+    if (!requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
+      throw new BadRequest("Local copy across storage areas is not supported");
+    }
+  }
+
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -68,15 +75,27 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;
 
-    if (isCopy(req)) {
-      handleCopy(req, res);
+    if (isTpc(req, localURLService)) {
+      handleTpc(req, res);
+    } else if (isCopy(req) && requestHasLocalDestinationHeader(req, localURLService)) {
+      try {
+        localCopySanityChecks(req);
+        // Let milton handle the local copy
+        chain.doFilter(request, response);
+      } catch (MalformedURLException | BadRequest | ResourceNotFound e) {
+        res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        res.setContentType("text/plain");
+        res.getWriter().print(e.getMessage());
+        res.flushBuffer();
+      }
     } else {
       chain.doFilter(request, response);
     }
+
   }
 
 
-  protected void handleCopy(HttpServletRequest request, HttpServletResponse response)
+  protected void handleTpc(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
     setupLoggingContext(request);

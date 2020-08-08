@@ -15,8 +15,13 @@
  */
 package org.italiangrid.storm.webdav.test.tpc;
 
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -71,10 +76,16 @@ public class TransferFilterTestSupport implements TransferConstants {
   HttpServletResponse response;
 
   @Mock
+  PrintWriter responseWriter;
+
+  @Mock
   TransferClient client;
 
   @Mock
   PathResolver resolver;
+
+  @Mock
+  Enumeration<String> requestHeaderNames;
 
   TransferFilter filter;
 
@@ -92,8 +103,10 @@ public class TransferFilterTestSupport implements TransferConstants {
 
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
-  protected void setup() {
+  protected void setup() throws IOException {
     filter = new TransferFilter(client, resolver, lus, true);
+    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
+
   }
 
 }

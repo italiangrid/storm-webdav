@@ -67,6 +67,12 @@ Curl Voms Push COPY Failure  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opt
     ${rc}  ${out}  Curl Error  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms Push COPY  [Arguments]  ${dest}  ${source}  ${opts}=-S -l -i
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X COPY -H "Destination: ${dest}" ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl  ${source}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms PUT Success  [Arguments]  ${file}  ${url}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X PUT -T ${file} ${opts} ${voms_opts}

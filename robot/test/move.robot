@@ -8,7 +8,7 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
-Default Tags   mv
+Default Tags   move
 
 *** Keywords ***
 
@@ -18,37 +18,37 @@ Default Setup
 Default Teardown
     Unset VOMS credential
 
-Setup mv file  [Arguments]  ${file_name}
+Setup move file  [Arguments]  ${file_name}
     Default Setup
     Create Test File   ${file_name}  content=Hello World!
 
-Teardown mv file  [Arguments]  ${file_name}
+Teardown move file  [Arguments]  ${file_name}
     Default Teardown
     Remove Test File   ${file_name}
     Remove Test File   ${file_name}.moved
 
-Teardown mv file cross sa  [Arguments]  ${file_name}
+Teardown move file cross sa  [Arguments]  ${file_name}
     Default Teardown
     Remove Test File   ${file_name}
     Remove Test File   ${file_name}.moved  sa=${sa.oauth}
 
 *** Test cases ***
 
-Local mv works
-    [Tags]  voms  mv
-    [Setup]  Setup mv file  mv_works
-    ${dest}  DAVS URL  mv_works.moved
-    ${source}  DAVS URL  mv_works
+Move works
+    [Tags]  voms  move
+    [Setup]  Setup move file  move_works
+    ${dest}  DAVS URL  move_works.moved
+    ${source}  DAVS URL  move_works
     ${rc}  ${out}  Curl Voms MOVE Success  ${dest}  ${source}
     Davix Get Success   ${dest}  ${davix.opts.voms}
-    [Teardown]   Teardown mv file  mv_works
+    [Teardown]   Teardown move file  move_works
 
-Mv across storage areas fails
-    [Tags]  voms  mv
-    [Setup]  Setup mv file  mv_x_sa_works
-    ${dest}  DAVS URL  mv_x_sa_works.moved  sa=${sa.oauth}
-    ${source}  DAVS URL  mv_works
+Move across storage areas fails
+    [Tags]  voms  move
+    [Setup]  Setup move file  move_x_sa_works
+    ${dest}  DAVS URL  move_x_sa_works.moved  sa=${sa.oauth}
+    ${source}  DAVS URL  move_works
     ${rc}  ${out}  Curl Voms MOVE  ${dest}  ${source}
     Should Contain  ${out}   400
     Should Contain  ${out}   Move across storage areas is not supported
-    [Teardown]   Teardown mv file cross sa   mv_x_sa_works
+    [Teardown]   Teardown move file cross sa   move_x_sa_works

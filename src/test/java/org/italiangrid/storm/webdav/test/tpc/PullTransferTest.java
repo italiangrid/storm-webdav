@@ -42,7 +42,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
 
   
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     super.setup();
     when(request.getMethod()).thenReturn(COPY.name());
     when(request.getServletPath()).thenReturn(SERVLET_PATH);

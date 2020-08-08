@@ -23,6 +23,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
@@ -60,6 +62,9 @@ public class ScopePathAuthzPdpTests {
   @Mock
   LocalURLService localUrlService;
 
+  @Mock
+  Enumeration<String> requestHeaderNames;
+
   @Spy
   ServiceConfigurationProperties config = new ServiceConfigurationProperties();
 
@@ -83,6 +88,8 @@ public class ScopePathAuthzPdpTests {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
     when(request.getServletPath()).thenReturn("/");
     when(request.getPathInfo()).thenReturn("test/example");
+    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
+    when(requestHeaderNames.hasMoreElements()).thenReturn(false);
     when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
     when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
   }
