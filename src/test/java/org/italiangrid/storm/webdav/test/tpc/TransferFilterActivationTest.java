@@ -97,6 +97,7 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(responseWriter).print(error.capture());
     assertThat(error.getValue(), is("Local copy across storage areas is not supported"));
+    verifyZeroInteractions(chain);
   }
 
   @Test
