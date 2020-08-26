@@ -18,23 +18,29 @@ package org.italiangrid.storm.webdav.milton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 
+import io.milton.http.Request;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.ConflictException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.CollectionResource;
 import io.milton.resource.CopyableResource;
+import io.milton.resource.DeletableCollectionResource;
 import io.milton.resource.DeletableResource;
 import io.milton.resource.MakeCollectionableResource;
 import io.milton.resource.PutableResource;
 import io.milton.resource.Resource;
 
-public class StoRMDirectoryResource extends StoRMResource
-    implements PutableResource, MakeCollectionableResource, DeletableResource, CopyableResource {
+public class StoRMDirectoryResource extends StoRMResource implements PutableResource,
+    MakeCollectionableResource, DeletableResource, DeletableCollectionResource, CopyableResource {
 
   public StoRMDirectoryResource(StoRMResourceFactory factory, File f) {
 
@@ -65,6 +71,12 @@ public class StoRMDirectoryResource extends StoRMResource
     return null;
   }
 
+  public boolean isEmpty() throws IOException {
+    try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(getFile().toPath())) {
+      return !dirStream.iterator().hasNext();
+    }
+  }
+
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
 
@@ -91,6 +103,14 @@ public class StoRMDirectoryResource extends StoRMResource
 
   @Override
   public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
+
+    try {
+      if (!isEmpty()) {
+        throw new DirectoryNotEmpty(this);
+      }
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
+    }
 
     getFilesystemAccess().rm(getFile());
 
@@ -121,6 +141,11 @@ public class StoRMDirectoryResource extends StoRMResource
   public String toString() {
 
     return "StoRMDirectoryResource [resourceFactory=" + resourceFactory + ", file=" + file + "]";
+  }
+
+  @Override
+  public boolean isLockedOutRecursive(Request request) {
+    return false;
   }
 
 }

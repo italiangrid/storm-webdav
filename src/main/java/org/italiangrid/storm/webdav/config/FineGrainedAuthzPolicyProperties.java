@@ -96,7 +96,6 @@ public class FineGrainedAuthzPolicyProperties {
   @NotEmpty
   EnumSet<Action> actions;
 
-  public FineGrainedAuthzPolicyProperties() {}
 
   public String getDescription() {
     return description;

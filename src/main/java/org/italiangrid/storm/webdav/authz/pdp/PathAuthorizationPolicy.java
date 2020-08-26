@@ -89,8 +89,6 @@ public class PathAuthorizationPolicy {
     private List<RequestMatcher> requestMatchers = Lists.newArrayList();
     private List<PrincipalMatcher> principalMatchers = Lists.newArrayList();
 
-    public Builder() {}
-
     public Builder withSa(String sa) {
       this.sa = sa;
       return this;

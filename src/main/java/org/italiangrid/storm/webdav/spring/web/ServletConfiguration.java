@@ -27,6 +27,7 @@ import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
+import org.italiangrid.storm.webdav.server.servlet.DeleteSanityChecksFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
@@ -65,7 +66,8 @@ public class ServletConfiguration {
   static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
   static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
   static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1007;
 
   @Bean
   FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
@@ -128,12 +130,20 @@ public class ServletConfiguration {
   FilterRegistrationBean<MoveRequestSanityChecksFilter> moveFilter(PathResolver resolver) {
 
     FilterRegistrationBean<MoveRequestSanityChecksFilter> moveFilter =
-        new FilterRegistrationBean<MoveRequestSanityChecksFilter>(
-            new MoveRequestSanityChecksFilter(resolver));
+        new FilterRegistrationBean<>(new MoveRequestSanityChecksFilter(resolver));
 
     moveFilter.addUrlPatterns("/*");
     moveFilter.setOrder(MOVE_FILTER_ORDER);
     return moveFilter;
+  }
+
+  @Bean
+  FilterRegistrationBean<DeleteSanityChecksFilter> deleteFilter(PathResolver resolver) {
+    FilterRegistrationBean<DeleteSanityChecksFilter> deleteFilter =
+        new FilterRegistrationBean<>(new DeleteSanityChecksFilter(resolver));
+    deleteFilter.addUrlPatterns("/*");
+    deleteFilter.setOrder(DELETE_FILTER_ORDER);
+    return deleteFilter;
   }
 
   @Bean

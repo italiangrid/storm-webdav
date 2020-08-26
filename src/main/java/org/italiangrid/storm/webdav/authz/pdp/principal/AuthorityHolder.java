@@ -30,7 +30,7 @@ public class AuthorityHolder implements PrincipalMatcher {
 
   public String toString() {
     return String.format("AuthorityHolder(%s)", authority.getAuthority());
-  };
+  }
 
   public static AuthorityHolder fromAuthority(GrantedAuthority authority) {
     return new AuthorityHolder(authority);

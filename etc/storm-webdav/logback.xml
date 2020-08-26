@@ -4,6 +4,11 @@
   <include resource="org/springframework/boot/logging/logback/defaults.xml" />
 
   <logger name="org.italiangrid.storm.webdav" level="INFO" />
+
+  <!-- Uncomment to show debug authorization information  
+  <logger name="org.italiangrid.storm.webdav.authz.voters" level="DEBUG" />
+  <logger name="org.springframework.security.access" level="DEBUG" />
+  -->
   
   <appender name="FILE"
     class="ch.qos.logback.core.rolling.RollingFileAppender">

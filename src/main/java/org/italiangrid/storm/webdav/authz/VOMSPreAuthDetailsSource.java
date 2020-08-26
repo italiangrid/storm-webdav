@@ -55,7 +55,7 @@ public class VOMSPreAuthDetailsSource
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 
     List<VOMSAttribute> attributes = getAttributes(request);
-    
+
     getSubjectAuthority(request).ifPresent(authorities::add);
 
     authorities.addAll(getAuthoritiesFromAttributes(attributes));
@@ -65,7 +65,7 @@ public class VOMSPreAuthDetailsSource
     }
 
     authorities.addAll(policyService.getSAPermissions(authorities));
-    
+
     return new VOMSAuthenticationDetails(request, authorities, attributes);
 
   }
@@ -119,10 +119,8 @@ public class VOMSPreAuthDetailsSource
 
     Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
 
-    if (chain.isPresent()) {
-      if (chain.get().length > 0) {
-        return validator.validate(chain.get());
-      }
+    if (chain.isPresent() && chain.get().length > 0) {
+      return validator.validate(chain.get());
     }
 
     return Collections.emptyList();

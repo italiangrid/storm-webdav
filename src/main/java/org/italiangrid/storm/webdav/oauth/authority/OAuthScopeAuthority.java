@@ -62,5 +62,8 @@ public class OAuthScopeAuthority extends OAuthAuthority implements Comparable<OA
     return -1;
   }
 
+  public String getScope() {
+    return scope;
+  }
 
 }

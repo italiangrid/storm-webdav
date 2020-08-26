@@ -87,11 +87,11 @@ public class WlcgStructuredPathAuthorizationPdp
     this.localUrlService = localUrlService;
   }
 
-  public boolean isWlcgStorageModifyScope(String scope) {
+  public static boolean isWlcgStorageModifyScope(String scope) {
     return WLCG_STORAGE_SCOPE_PATTERN.matcher(scope).matches() && scope.startsWith(STORAGE_MODIFY);
   }
 
-  public boolean isWlcgStorageScope(String scope) {
+  public static boolean isWlcgStorageScope(String scope) {
     return WLCG_STORAGE_SCOPE_PATTERN.matcher(scope).matches();
   }
 
@@ -106,13 +106,13 @@ public class WlcgStructuredPathAuthorizationPdp
       .orElse("/");
   }
 
-  protected Set<String> resolveWlcgScopes(JwtAuthenticationToken token) {
+  public static Set<String> resolveWlcgScopes(JwtAuthenticationToken token) {
     Set<String> wlcgScopes = Stream.of(token.getToken().getClaimAsString(SCOPE_CLAIM).split(" "))
-      .filter(this::isWlcgStorageScope)
+      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
       .collect(Collectors.toSet());
 
     Set<String> implicitWlcgScopes = wlcgScopes.stream()
-      .filter(this::isWlcgStorageModifyScope)
+      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageModifyScope)
       .map(s -> s.replace(STORAGE_MODIFY, STORAGE_CREATE))
       .collect(Collectors.toSet());
 
@@ -120,10 +120,8 @@ public class WlcgStructuredPathAuthorizationPdp
     return wlcgScopes;
   }
 
-  boolean filterMatcherByRequest(HttpServletRequest request, StructuredPathScopeMatcher m,
-      boolean requestedResourceExists) {
-
-    final String method = request.getMethod();
+  boolean filterMatcherByRequest(HttpServletRequest request, String method,
+      StructuredPathScopeMatcher m, boolean requestedResourceExists) {
 
     String requiredScope = null;
 
@@ -139,18 +137,14 @@ public class WlcgStructuredPathAuthorizationPdp
       requiredScope = STORAGE_MODIFY;
     } else if (COPY_METHOD.equals(method)) {
 
-      if (isTpc(request, localUrlService)) {
-        if (isPullTpc(request, localUrlService)) {
-          if (requestedResourceExists) {
-            requiredScope = STORAGE_MODIFY;
-          } else {
-            requiredScope = STORAGE_CREATE;
-          }
+      requiredScope = STORAGE_READ;
+
+      if (isPullTpc(request, localUrlService)) {
+        if (requestedResourceExists) {
+          requiredScope = STORAGE_MODIFY;
         } else {
-          requiredScope = STORAGE_READ;
+          requiredScope = STORAGE_CREATE;
         }
-      } else {
-        requiredScope = STORAGE_READ;
       }
 
     } else if (MOVE_METHOD.equals(method)) {
@@ -164,8 +158,6 @@ public class WlcgStructuredPathAuthorizationPdp
     return m.getPrefix().equals(requiredScope);
   }
 
-
-
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
 
@@ -173,6 +165,8 @@ public class WlcgStructuredPathAuthorizationPdp
     final Authentication authentication = authzRequest.getAuthentication();
     final String requestPath =
         Optional.ofNullable(authzRequest.getPath()).orElse(getRequestPath(request));
+
+    final String method = Optional.ofNullable(authzRequest.getMethod()).orElse(request.getMethod());
 
     if (!(authentication instanceof JwtAuthenticationToken)) {
       throw new IllegalArgumentException(ERROR_INVALID_AUTHENTICATION);
@@ -193,29 +187,30 @@ public class WlcgStructuredPathAuthorizationPdp
     Set<String> wlcgScopes = resolveWlcgScopes(jwtAuth);
 
     List<StructuredPathScopeMatcher> scopeMatchers = wlcgScopes.stream()
-      .filter(this::isWlcgStorageScope)
+      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
       .map(StructuredPathScopeMatcher::fromString)
       .collect(toList());
 
+    // Here we return indeterminate when no WLCG storage access scopes
+    // are found in the token, so that other authz mechanism can be used to
+    // return a decision
     if (scopeMatchers.isEmpty()) {
-      return deny(ERROR_INSUFFICIENT_TOKEN_SCOPE);
+      return indeterminate(ERROR_INSUFFICIENT_TOKEN_SCOPE);
     }
 
     final boolean requestedResourceExists = pathResolver.pathExists(requestPath);
     final String saPath = getStorageAreaPath(requestPath, sa);
 
     scopeMatchers = scopeMatchers.stream()
-      .filter(m -> filterMatcherByRequest(request, m, requestedResourceExists))
+      .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+      .filter(m -> m.matchesPath(saPath))
       .collect(toList());
 
     if (scopeMatchers.isEmpty()) {
       return deny(ERROR_INSUFFICIENT_TOKEN_SCOPE);
     }
-    if (scopeMatchers.stream().allMatch(s -> s.matchesPath(saPath))) {
-      return permit();
-    }
 
-    return deny(ERROR_INSUFFICIENT_TOKEN_SCOPE);
+    return permit();
   }
 
 }

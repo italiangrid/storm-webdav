@@ -7,16 +7,15 @@ storm:
       - read
       effect: permit
       description: Grant read access to selected vo users
-      paths:
-      - 
+      principals:
+      - type: anyone
+    - sa: example
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to WLCG VOMS vo users
       principals:
       - type: vo
         params:
-          vo: test.vo
-      - type: vo
-        params:
-          vo: dteam
-      - type: oauth-group
-        params:
-          iss: https://wlcg.cloud.cnaf.infn.it/
-          group: /wlcg/xfers
+          vo: wlcg
+      

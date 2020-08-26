@@ -63,9 +63,10 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
 
   @Override
   @DefaultValue("false")
-  public Boolean wlcgStructuredScopeAuthzEnabled();
-  
+  public Boolean wlcgScopeAuthzEnabled();
+
   @Override
   @DefaultValue("false")
   public Boolean fineGrainedAuthzEnabled();
+
 }

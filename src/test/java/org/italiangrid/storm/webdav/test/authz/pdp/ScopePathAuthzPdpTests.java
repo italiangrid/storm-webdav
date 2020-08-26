@@ -126,7 +126,7 @@ public class ScopePathAuthzPdpTests {
 
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.DENY));
+    assertThat(result.getDecision(), is(Decision.INDETERMINATE));
     assertThat(result.getMessage().isPresent(), is(true));
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
   }
@@ -215,7 +215,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testLocalCopyRequiresStorageRead() throws Exception {
+  public void testLocalCopyRequiresStorageCreateOrModify() throws Exception {
 
     when(request.getMethod()).thenReturn(COPY_METHOD);
     when(request.getHeader("Destination")).thenReturn("https://test.example/test/example.2");
@@ -227,7 +227,7 @@ public class ScopePathAuthzPdpTests {
     assertThat(result.getMessage().isPresent(), is(true));
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
    
-    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/ storage.write:/");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
   }

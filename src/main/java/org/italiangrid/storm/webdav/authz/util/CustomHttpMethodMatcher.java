@@ -27,7 +27,7 @@ public class CustomHttpMethodMatcher implements RequestMatcher, MatcherUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(CustomHttpMethodMatcher.class);
 
-  final protected Set<String> supportedMethods;
+  protected final Set<String> supportedMethods;
 
   public CustomHttpMethodMatcher(Set<String> supportedMethods) {
     this.supportedMethods = supportedMethods;

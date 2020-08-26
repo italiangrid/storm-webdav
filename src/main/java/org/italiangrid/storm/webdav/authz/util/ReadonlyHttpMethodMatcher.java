@@ -27,12 +27,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class ReadonlyHttpMethodMatcher implements RequestMatcher {
 
-  // Copy is here since auhtz is done on the
-  // source path, ( and requires read-only access on the source
-  // storage area). The other half of the authorization is done
-  // in the custom CopyMove authorization voter.
   private static final Set<String> METHODS =
-      new TreeSet<String>(Arrays.asList("GET", "HEAD", "OPTIONS", "PROPFIND", "COPY"));
+      new TreeSet<>(Arrays.asList("GET", "HEAD", "OPTIONS", "PROPFIND"));
 
   private final RequestMatcher delegate;
 

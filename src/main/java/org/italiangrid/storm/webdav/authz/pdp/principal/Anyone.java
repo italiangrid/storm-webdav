@@ -19,8 +19,6 @@ import org.springframework.security.core.Authentication;
 
 public class Anyone implements PrincipalMatcher {
 
-  public Anyone() {}
-
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
     return true;

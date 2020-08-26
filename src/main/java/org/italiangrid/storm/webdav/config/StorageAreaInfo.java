@@ -44,8 +44,7 @@ public interface StorageAreaInfo {
 
   public Boolean orgsGrantWritePermission();
 
-  public Boolean wlcgStructuredScopeAuthzEnabled();
+  public Boolean wlcgScopeAuthzEnabled();
   
   public Boolean fineGrainedAuthzEnabled();
-
 }

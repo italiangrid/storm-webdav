@@ -43,7 +43,7 @@ public interface TpcUtils extends TransferConstants {
       url += request.getPathInfo();
     }
 
-    return url;
+    return url.replaceAll("\\/+$", ""); // Drop trailing slashes
   }
 
   default String destinationHeader(HttpServletRequest request) {
@@ -86,6 +86,13 @@ public interface TpcUtils extends TransferConstants {
     return sourceSa.equals(destSa);
   }
 
+  default boolean pathIsStorageAreaRoot(HttpServletRequest request, PathResolver resolver) {
+    final String path = getSerlvetRequestPath(request);
+    StorageAreaInfo sa = Optional.ofNullable(resolver.resolveStorageArea(path))
+      .orElseThrow(resourceNotFoundError(path));
+
+    return sa.accessPoints().contains(path);
+  }
 
   default boolean isPullTpc(HttpServletRequest request, LocalURLService localUrlService) {
     return "COPY".equals(request.getMethod()) && requestHasSourceHeader(request);

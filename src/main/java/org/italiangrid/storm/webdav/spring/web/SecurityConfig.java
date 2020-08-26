@@ -15,6 +15,9 @@
  */
 package org.italiangrid.storm.webdav.spring.web;
 
+import static java.util.Arrays.asList;
+import static org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter.forVoters;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +31,10 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.StructuredPathAuthzVoter;
+import org.italiangrid.storm.webdav.authz.voters.FineGrainedCopyMoveAuthzVoter;
+import org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter;
+import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzCopyMoveVoter;
+import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzVoter;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -50,7 +56,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.UnanimousBased;
+import org.springframework.security.access.vote.ConsensusBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -69,7 +75,7 @@ import com.google.common.collect.Lists;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
 
-  public static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
   ServletContext context;
 
@@ -138,41 +144,46 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   public AccessDecisionManager fineGrainedAccessDecisionManager() {
     List<AccessDecisionVoter<?>> voters = new ArrayList<>();
 
-    WlcgStructuredPathAuthorizationPdp pdp = new WlcgStructuredPathAuthorizationPdp(
+    UnanimousDelegatedVoter fineGrainedVoters = forVoters("FineGrainedAuthz", asList(
+        new FineGrainedAuthzVoter(serviceConfigurationProperties, pathResolver, fineGrainedAuthzPdp,
+            localURLService),
+        new FineGrainedCopyMoveAuthzVoter(serviceConfigurationProperties, pathResolver,
+            fineGrainedAuthzPdp, localURLService)));
+
+    WlcgStructuredPathAuthorizationPdp wlcgPdp = new WlcgStructuredPathAuthorizationPdp(
         serviceConfigurationProperties, pathResolver, localURLService);
 
+    UnanimousDelegatedVoter wlcgVoters = forVoters("WLCGScopeBasedAuthz", asList(
+        new WlcgScopeAuthzVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+            localURLService),
+        new WlcgScopeAuthzCopyMoveVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+            localURLService)));
+
+
     voters.add(new WebExpressionVoter());
-    voters.add(new FineGrainedAuthzVoter(pathResolver, fineGrainedAuthzPdp));
-    voters.add(new StructuredPathAuthzVoter(serviceConfigurationProperties, pathResolver, pdp));
-    
-    return new UnanimousBased(voters);
+    voters.add(fineGrainedVoters);
+    voters.add(wlcgVoters);
+    return new ConsensusBased(voters);
   }
-
-
 
   protected void addAccessRules(HttpSecurity http) throws Exception {
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
+
       for (String ap : sa.accessPoints()) {
 
-        if (Boolean.TRUE.equals(sa.fineGrainedAuthzEnabled())) {
-          
-          // This bypasses the WebExpressionVoter and delegates all authz decisions
-          // on the path to the other voters
-          http.authorizeRequests().antMatchers(ap + "/**").permitAll();
+        String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
+            SAPermission.canRead(sa.name()).getAuthority(),
+            SAPermission.canWrite(sa.name()).getAuthority());
 
-        } else {
+        String readAccessRule =
+            String.format("hasAuthority('%s')", SAPermission.canRead(sa.name()).getAuthority());
 
-          String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
-              SAPermission.canRead(sa.name()).getAuthority(),
-              SAPermission.canWrite(sa.name()).getAuthority());
+        http.authorizeRequests()
+          .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+          .access(readAccessRule);
 
-          http.authorizeRequests()
-            .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-            .hasAuthority(SAPermission.canRead(sa.name()).getAuthority());
-
-          http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
-        }
+        http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
       }
     }
   }
@@ -181,9 +192,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-
-      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())
-          && Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
+      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())) {
         anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
       }
     }
@@ -203,7 +212,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    
+
     http.csrf().disable();
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 

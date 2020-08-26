@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.server.servlet;
 
+import static java.util.Objects.isNull;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -97,7 +99,10 @@ public class MiltonFilter implements Filter {
   public void init(FilterConfig config) throws ServletException {
 
     servletContext = config.getServletContext();
-    initMiltonHTTPManager(servletContext);
+
+    if (isNull(miltonHTTPManager)) {
+      initMiltonHTTPManager(servletContext);
+    }
 
   }
 
@@ -146,6 +151,10 @@ public class MiltonFilter implements Filter {
 
     }
 
+  }
+
+  public void setMiltonHTTPManager(HttpManager miltonHTTPManager) {
+    this.miltonHTTPManager = miltonHTTPManager;
   }
 
   @Override

@@ -30,3 +30,15 @@ vos=test.vo
 # VO map normally grants read-only access to storage area files. To grant 
 # write access set this flag to true. Defaults to false. 
 # voMapGrantsWriteAccess=false
+
+# Enables read access to storage area files to users authenticated using OAuth/OIDC. Defaults to true.
+# orgsGrantReadPermission=true
+
+# Enables write access to storage area files to users authenticated using OAuth/OIDC. Defaults to false.
+# orgsGrantWritePermission=false
+
+# Enables scope-based authorization following the rules imposed by the WLCG JWT profile. Defaults to false.
+# wlcgScopeAuthzEnabled=false
+
+# Enables fine-grained authorization engine. Defaults to false.
+# fineGrainedAuthzEnabled=false

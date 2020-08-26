@@ -1,0 +1,74 @@
+package org.italiangrid.storm.webdav.authz.voters;
+
+import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
+import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.PUT;
+
+import java.net.MalformedURLException;
+import java.util.Collection;
+
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.FilterInvocation;
+
+public class FineGrainedCopyMoveAuthzVoter extends PathAuthzPdpVoterSupport {
+
+  public static final Logger LOG = LoggerFactory.getLogger(FineGrainedCopyMoveAuthzVoter.class);
+
+  public FineGrainedCopyMoveAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
+      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+    super(config, resolver, pdp, localUrlService, true);
+  }
+
+  @Override
+  public int vote(Authentication authentication, FilterInvocation filter,
+      Collection<ConfigAttribute> attributes) {
+
+    if (!isCopyOrMoveRequest(filter.getRequest())) {
+      return ACCESS_ABSTAIN;
+    }
+
+    String destination = filter.getRequest().getHeader(DESTINATION_HEADER);
+
+    if (destination == null) {
+      return ACCESS_ABSTAIN;
+    }
+
+    if (COPY.name().equals(filter.getRequest().getMethod())
+        && requestHasRemoteDestinationHeader(filter.getRequest(), localUrlService)) {
+      return ACCESS_ABSTAIN;
+    }
+
+    try {
+
+      String destinationPath = getSanitizedPathFromUrl(destination);
+      StorageAreaInfo sa = resolver.resolveStorageArea(destinationPath);
+
+      if (isNull(sa)) {
+        return ACCESS_ABSTAIN;
+      }
+
+      if (Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
+        return ACCESS_ABSTAIN;
+      }
+
+      return renderDecision(PathAuthorizationRequest
+        .newAuthorizationRequest(filter.getHttpRequest(), authentication, destinationPath, PUT),
+          LOG);
+
+    } catch (MalformedURLException e) {
+      return renderDecision(PathAuthorizationResult.deny(e.getMessage()));
+    }
+
+  }
+
+}

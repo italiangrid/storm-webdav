@@ -28,6 +28,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
@@ -43,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.google.common.collect.ImmutableSet;
@@ -251,4 +254,95 @@ public class AuthzPdpTests {
     assertThat(result.getPolicy().get(), is(oauthTestPolicy));
   }
 
+  @Test
+  public void multiplePrincipalMatchersWorkAsExpected() {
+
+    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getMethod()).thenReturn("GET");
+
+    PathAuthorizationPolicy multiplePrincipalsPolicy = PathAuthorizationPolicy.builder()
+      .withPermit()
+      .withPrincipalMatcher(
+          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+      .withPrincipalMatcher(AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
+      .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+      .build();
+
+
+    List<PathAuthorizationPolicy> policies = Lists.newArrayList(multiplePrincipalsPolicy);
+    when(repo.getPolicies()).thenReturn(policies);
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/test")));
+
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(PERMIT));
+    assertThat(result.getPolicy().isPresent(), is(true));
+    assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/other")));
+
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+
+    when(authentication.getAuthorities()).thenReturn(authorities(new VOMSVOAuthority("test"),
+        new VOMSFQANAuthority("/test"), new VOMSFQANAuthority("/test/example")));
+
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+
+    assertThat(result.getDecision(), is(PERMIT));
+    assertThat(result.getPolicy().isPresent(), is(true));
+    assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
+
+    when(authentication.isAuthenticated()).thenReturn(false);
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new SimpleGrantedAuthority("ANONYMOUS")));
+
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+
+    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+  }
+
+  @Test
+  public void multiplePathsMatchersWorkAsExpected() {
+
+    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getMethod()).thenReturn("GET");
+
+    PathAuthorizationPolicy multiplePathsPolicy = PathAuthorizationPolicy.builder()
+      .withPermit()
+      .withPrincipalMatcher(
+          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+      .withPrincipalMatcher(AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
+      .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+      .withRequestMatcher(new AntPathRequestMatcher("/other/**", "GET"))
+      .build();
+
+    List<PathAuthorizationPolicy> policies = Lists.newArrayList(multiplePathsPolicy);
+    when(repo.getPolicies()).thenReturn(policies);
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/test")));
+
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(PERMIT));
+    assertThat(result.getPolicy().isPresent(), is(true));
+    assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
+
+    when(request.getServletPath()).thenReturn("/other/file0");
+
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(PERMIT));
+    assertThat(result.getPolicy().isPresent(), is(true));
+    assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
+
+    when(request.getServletPath()).thenReturn("/yet-another");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+
+    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+  }
 }
