@@ -296,8 +296,6 @@ public class AuthzPdpTests {
     assertThat(result.getPolicy().isPresent(), is(true));
     assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
 
-    when(authentication.isAuthenticated()).thenReturn(false);
-
     when(authentication.getAuthorities())
       .thenReturn(authorities(new SimpleGrantedAuthority("ANONYMOUS")));
 

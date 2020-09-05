@@ -88,8 +88,8 @@ public class ScopePathAuthzPdpTests {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
     when(request.getServletPath()).thenReturn("/");
     when(request.getPathInfo()).thenReturn("test/example");
-    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
-    when(requestHeaderNames.hasMoreElements()).thenReturn(false);
+    // when(request.getHeaderNames()).thenReturn(requestHeaderNames);
+    // when(requestHeaderNames.hasMoreElements()).thenReturn(false);
     when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
     when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
   }
@@ -218,8 +218,6 @@ public class ScopePathAuthzPdpTests {
   public void testLocalCopyRequiresStorageCreateOrModify() throws Exception {
 
     when(request.getMethod()).thenReturn(COPY_METHOD);
-    when(request.getHeader("Destination")).thenReturn("https://test.example/test/example.2");
-    when(localUrlService.isLocalURL("https://test.example/test/example.2")).thenReturn(true);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     
@@ -262,8 +260,6 @@ public class ScopePathAuthzPdpTests {
   @Test
   public void testPushTpcRequiresRead() throws Exception {
     when(request.getMethod()).thenReturn(COPY_METHOD);
-    when(request.getHeader("Destination")).thenReturn("https://remote.example/test/example");
-    when(localUrlService.isLocalURL("https://remote.example/test/example")).thenReturn(false);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.create:/ storage.modify:/");
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     
