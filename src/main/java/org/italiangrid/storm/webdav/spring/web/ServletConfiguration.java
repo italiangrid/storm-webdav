@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -169,11 +170,13 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<StoRMServlet> stormServlet(ServiceConfigurationProperties serviceConfig,
-      StorageAreaConfiguration saConfig, PathResolver pathResolver, TemplateEngine templateEngine) {
+  ServletRegistrationBean<StoRMServlet> stormServlet(OAuthProperties oauthProperties,
+      ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration saConfig,
+      PathResolver pathResolver, TemplateEngine templateEngine) {
 
-    ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
-        new StoRMServlet(serviceConfig, pathResolver, templateEngine, new StormResourceService()));
+    ServletRegistrationBean<StoRMServlet> stormServlet =
+        new ServletRegistrationBean<>(new StoRMServlet(oauthProperties, serviceConfig, pathResolver,
+            templateEngine, new StormResourceService()));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");
@@ -188,10 +191,11 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<SAIndexServlet> saIndexServlet(
+  ServletRegistrationBean<SAIndexServlet> saIndexServlet(OAuthProperties oauthProperties,
       ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration config,
       TemplateEngine engine) {
-    return new ServletRegistrationBean<>(new SAIndexServlet(serviceConfig, config, engine), "");
+    return new ServletRegistrationBean<>(
+        new SAIndexServlet(oauthProperties, serviceConfig, config, engine), "");
   }
 
 }

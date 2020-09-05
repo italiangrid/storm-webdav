@@ -29,6 +29,9 @@
         <div class="float-right" th:if="${authn!= null} and ${authn.class.simpleName} != 'PreAuthenticatedAuthenticationToken'">
           <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" href="/logout">Logout</a>
         </div>
+        <div class="float-right" th:if="${authn.class.simpleName} == 'PreAuthenticatedAuthenticationToken' and ${oidcEnabled}">
+          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" href="/oidc-login">Login with OIDC</a>
+        </div>
       </div>
     </div>
   </footer>

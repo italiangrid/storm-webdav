@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -52,16 +53,19 @@ public class SAIndexServlet extends HttpServlet {
   public static final String AUTHN_SUBJECT_KEY = "authnSubject";
 
   public static final String STORM_HOSTNAME_KEY = "storm";
+  public static final String OIDC_ENABLED_KEY = "oidcEnabled";
 
+  private final OAuthProperties oauthProperties;
   private final StorageAreaConfiguration saConfig;
   private final ServiceConfigurationProperties serviceConfig;
   private final TemplateEngine engine;
 
   private final Map<String, String> saIndexMap;
 
-  public SAIndexServlet(ServiceConfigurationProperties serviceConfig,
+  public SAIndexServlet(OAuthProperties oauthP, ServiceConfigurationProperties serviceConfig,
       StorageAreaConfiguration config, TemplateEngine engine) {
 
+    this.oauthProperties = oauthP;
     this.serviceConfig = serviceConfig;
     this.saConfig = config;
     this.engine = engine;
@@ -77,17 +81,17 @@ public class SAIndexServlet extends HttpServlet {
 
     SecurityContext securityContext = SecurityContextHolder.getContext();
     req.setAttribute(SA_INDEX_MAP_KEY, saIndexMap);
-    
-    req.setAttribute(AUTHN_KEY,
-        securityContext.getAuthentication());
-    
-    req.setAttribute(AUTHN_SUBJECT_KEY,
-        getPalatableSubject(securityContext.getAuthentication()));
+
+    req.setAttribute(AUTHN_KEY, securityContext.getAuthentication());
+
+    req.setAttribute(AUTHN_SUBJECT_KEY, getPalatableSubject(securityContext.getAuthentication()));
 
     resp.setHeader(CACHE_CONTROL, NO_CACHE);
     resp.setContentType(CONTENT_TYPE);
 
     req.setAttribute(STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
+    req.setAttribute(OIDC_ENABLED_KEY, oauthProperties.isEnableOidc());
+
     WebContext ctxt = new WebContext(req, resp, getServletContext(), req.getLocale());
 
     engine.process(SA_INDEX_PAGE_NAME, ctxt, resp.getWriter());
