@@ -25,6 +25,7 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport;
 import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,27 +48,30 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
   protected Collection<GrantedAuthority> grantGroupAuthorities(OidcUserAuthority userAuthority) {
     Set<GrantedAuthority> groupAuthorities = Sets.newHashSet();
     String idTokenIssuer = userAuthority.getIdToken().getIssuer().toString();
-    
+
     for (String groupClaimName : OAUTH_GROUP_CLAIM_NAMES) {
       List<String> groups = userAuthority.getIdToken().getClaimAsStringList(groupClaimName);
       if (!isNull(groups)) {
-        groups.stream().map(g->new JwtGroupAuthority(idTokenIssuer, g)).forEach(groupAuthorities::add);
+        groups.stream()
+          .map(g -> new JwtGroupAuthority(idTokenIssuer, g))
+          .forEach(groupAuthorities::add);
         break;
       }
     }
-    
+
     return groupAuthorities;
   }
 
   protected Collection<GrantedAuthority> mapAuthorities(OidcUserAuthority userAuthority) {
     Set<GrantedAuthority> authorities = Sets.newHashSet();
     String idTokenIssuer = userAuthority.getIdToken().getIssuer().toString();
-    
+
     authorities.addAll(authzMap.get(idTokenIssuer));
     authorities.addAll(grantGroupAuthorities(userAuthority));
-    authorities.add(new JwtSubjectAuthority(userAuthority.getIdToken().getIssuer().toString(), 
+    authorities.add(new JwtIssuerAuthority(userAuthority.getIdToken().getIssuer().toString()));
+    authorities.add(new JwtSubjectAuthority(userAuthority.getIdToken().getIssuer().toString(),
         userAuthority.getIdToken().getSubject()));
-    
+
     return authorities;
   }
 
@@ -84,7 +88,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
       .forEach(grantedAuthorities::addAll);
 
     grantedAuthorities.addAll(anonymousGrantedAuthorities);
-    
+
     return grantedAuthorities;
   }
 
