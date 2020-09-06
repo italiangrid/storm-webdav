@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.error;
+package org.italiangrid.storm.webdav.oauth.authority;
 
-import org.italiangrid.storm.webdav.milton.StoRMDirectoryResource;
+public class JwtIssuerAuthority extends JwtAuthority implements Comparable<JwtIssuerAuthority> {
 
-public class DirectoryNotEmpty extends StoRMWebDAVError {
-
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
-  public DirectoryNotEmpty(StoRMDirectoryResource r) {
-    super(String.format("Directory is not empty: %s", r.getName()));
+  public static final String AUTH_TEMPLATE = "O_i(%s)";
+
+  public JwtIssuerAuthority(String issuer) {
+    super(issuer, String.format(AUTH_TEMPLATE, issuer));
   }
 
+  @Override
+  public int compareTo(JwtIssuerAuthority o) {
+    return getIssuer().compareTo(o.getIssuer());
+  }
 }

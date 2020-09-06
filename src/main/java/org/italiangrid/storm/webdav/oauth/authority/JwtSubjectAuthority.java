@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oidc.authority;
+package org.italiangrid.storm.webdav.oauth.authority;
 
-import org.italiangrid.storm.webdav.oauth.authority.OAuthAuthority;
-
-public class OidcSubjectAuthority extends OAuthAuthority {
+public class JwtSubjectAuthority extends JwtAuthority {
 
   /**
    * 
@@ -28,7 +26,7 @@ public class OidcSubjectAuthority extends OAuthAuthority {
 
   private final String subject;
 
-  public OidcSubjectAuthority(String issuer, String subject) {
+  public JwtSubjectAuthority(String issuer, String subject) {
     super(issuer, String.format(AUTH_TEMPLATE, issuer, subject));
     this.subject = subject;
   }

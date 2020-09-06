@@ -172,8 +172,8 @@ A policy contains the following directives:
   principal types require parameters.
   
   For example, the  `anyone` principal is a simple principal type,
-  while the `oauth-group` principal is a complex type that requires
-  two parameters: the oauth token issuer URI, and the  group name.
+  while the `jwt-group` principal is a complex type that requires
+  two parameters: the token issuer URI, and the  group name.
 
   | *Principal*              | *Type*  | *Description*                                                                                      | *Parameters*                                          |
   | ------------------------ | ------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -182,9 +182,10 @@ A policy contains the following directives:
   | `anonymous`              | simple  | will match any anonymous user                                                                      | N/A                                                   |
   | `vo`                     | complex | will match authenticated users presenting a valid VOMS    credential for a given VO.               | `vo`: the name of the VO                              |
   | `fqan`                   | complex | will match authenticated users presenting a valid VOMS    credential that contains the given FQAN. | `fqan`: the VOMS fqan                                 |
-  | `oauth-group`            | complex | will match authenticated users with valid OAuth token and belonging to the given group.            | `iss`: the token issuer, `group`: the group name      |
-  | `oauth-scope`            | complex | will match authenticated users with valid OAuth token bearing the requested scope.                 | `iss`: the token issuer, `scope`: the scope           |
-  | `oidc-subject`           | complex | will match authenticated users with valid OAuth token and presenting the requested subject claim.  | `iss`: the token issuer, `sub`: the subject           |
+  | `jwt-group`              | complex | will match authenticated users with valid JWT token and belonging to the given group.              | `iss`: the token issuer, `group`: the group name      |
+  | `jwt-scope`              | complex | will match authenticated users with valid JWT token bearing the requested scope.                   | `iss`: the token issuer, `scope`: the scope           |
+  | `jwt-issuer`             | complex | will match authenticated users with valid JWT token issued by the required token issuer            | `iss`: the token issuer                               |
+  | `jwt-subject`            | complex | will match authenticated users with valid JWT token and presenting the requested subject claim.    | `iss`: the token issuer, `sub`: the subject           |
   | `x509-subject`           | complex | will match authenticated users presenting a valid x.509 credential and a given subject             | `subject`: the certificate subject, in RFC2253 format |
 
 ## Examples
@@ -209,7 +210,7 @@ storm:
       effect: permit
       description: Grant read/write access to the whole sa to /example/admins group members
       principals:
-      - type: oauth-group
+      - type: jwt-group
         params:
             iss: https://iam.example
             group: /example/admins

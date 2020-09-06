@@ -15,38 +15,29 @@
  */
 package org.italiangrid.storm.webdav.oauth.authority;
 
-public class OAuthGroupAuthority extends OAuthAuthority implements Comparable<OAuthGroupAuthority> {
+import org.springframework.security.core.GrantedAuthority;
+
+public abstract class JwtAuthority implements GrantedAuthority {
 
   private static final long serialVersionUID = 1L;
 
-  public static final String AUTH_TEMPLATE = "O_g(%s,%s)";
-
-  private final String group;
-
-  public OAuthGroupAuthority(String issuer, String group) {
-    super(issuer, String.format(AUTH_TEMPLATE, issuer, group));
-    this.group = group;
+  protected final String authority;
+  protected final String issuer;
+  
+  protected JwtAuthority(String issuer, String authority) {
+    this.issuer = issuer;
+    this.authority = authority;
   }
-
-  public String getGroup() {
-    return group;
-  }
-
-
+  
   @Override
-  public int compareTo(OAuthGroupAuthority o) {
-    if (o.getIssuer().equals(getIssuer())) {
-      return group.compareTo(o.group);
-    }
-
-    return -1;
+  public String getAuthority() {
+    return authority;
   }
-
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + ((group == null) ? 0 : group.hashCode());
+    int result = 1;
+    result = prime * result + ((issuer == null) ? 0 : issuer.hashCode());
     return result;
   }
 
@@ -54,17 +45,27 @@ public class OAuthGroupAuthority extends OAuthAuthority implements Comparable<OA
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    OAuthGroupAuthority other = (OAuthGroupAuthority) obj;
-    if (group == null) {
-      if (other.group != null)
+    JwtAuthority other = (JwtAuthority) obj;
+    if (issuer == null) {
+      if (other.issuer != null)
         return false;
-    } else if (!group.equals(other.group))
+    } else if (!issuer.equals(other.issuer))
       return false;
     return true;
   }
 
+  
+
+  public String getIssuer() {
+    return issuer;
+  }
+  
+  @Override
+  public String toString() {
+    return getAuthority();
+  }
 }

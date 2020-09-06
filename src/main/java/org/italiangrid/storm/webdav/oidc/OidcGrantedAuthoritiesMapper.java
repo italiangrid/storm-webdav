@@ -24,8 +24,8 @@ import java.util.Set;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport;
-import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
-import org.italiangrid.storm.webdav.oidc.authority.OidcSubjectAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -51,7 +51,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
     for (String groupClaimName : OAUTH_GROUP_CLAIM_NAMES) {
       List<String> groups = userAuthority.getIdToken().getClaimAsStringList(groupClaimName);
       if (!isNull(groups)) {
-        groups.stream().map(g->new OAuthGroupAuthority(idTokenIssuer, g)).forEach(groupAuthorities::add);
+        groups.stream().map(g->new JwtGroupAuthority(idTokenIssuer, g)).forEach(groupAuthorities::add);
         break;
       }
     }
@@ -65,7 +65,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
     
     authorities.addAll(authzMap.get(idTokenIssuer));
     authorities.addAll(grantGroupAuthorities(userAuthority));
-    authorities.add(new OidcSubjectAuthority(userAuthority.getIdToken().getIssuer().toString(), 
+    authorities.add(new JwtSubjectAuthority(userAuthority.getIdToken().getIssuer().toString(), 
         userAuthority.getIdToken().getSubject()));
     
     return authorities;

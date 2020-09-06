@@ -36,7 +36,7 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.principal.Anyone;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AuthorityHolder;
-import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,7 +144,7 @@ public class AuthzPdpTests {
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .build();
 
@@ -168,12 +168,12 @@ public class AuthzPdpTests {
   public void oauthGroupHolderPolicyNotAppliedDueToWrongGroup() {
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/toast")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/toast")));
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .build();
 
@@ -197,12 +197,12 @@ public class AuthzPdpTests {
   public void oauthGroupHolderPolicyNotAppliedDueToWrongIssuer() {
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST2_ISSUER, "/test")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST2_ISSUER, "/test")));
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .build();
 
@@ -229,12 +229,12 @@ public class AuthzPdpTests {
     when(request.getMethod()).thenReturn("GET");
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/test")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/test")));
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .build();
 
@@ -263,7 +263,7 @@ public class AuthzPdpTests {
     PathAuthorizationPolicy multiplePrincipalsPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withPrincipalMatcher(AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .build();
@@ -273,7 +273,7 @@ public class AuthzPdpTests {
     when(repo.getPolicies()).thenReturn(policies);
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/test")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/test")));
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
@@ -282,7 +282,7 @@ public class AuthzPdpTests {
     assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/other")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/other")));
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
     assertThat(result.getDecision(), is(NOT_APPLICABLE));
@@ -313,7 +313,7 @@ public class AuthzPdpTests {
     PathAuthorizationPolicy multiplePathsPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
       .withPrincipalMatcher(
-          AuthorityHolder.fromAuthority(new OAuthGroupAuthority(TEST_ISSUER, "/test")))
+          AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
       .withPrincipalMatcher(AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
       .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
       .withRequestMatcher(new AntPathRequestMatcher("/other/**", "GET"))
@@ -323,7 +323,7 @@ public class AuthzPdpTests {
     when(repo.getPolicies()).thenReturn(policies);
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new OAuthGroupAuthority(TEST_ISSUER, "/test")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/test")));
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));

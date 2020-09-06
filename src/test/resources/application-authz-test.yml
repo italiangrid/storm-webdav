@@ -44,7 +44,7 @@ storm:
       - type: fqan
         params:
           fqan: /example/admins
-      - type: oauth-group
+      - type: jwt-group
         params:
          iss: https://issuer.example
          group: /example/admins

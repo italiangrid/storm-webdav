@@ -39,9 +39,10 @@ import org.italiangrid.storm.webdav.authz.util.WriteHttpMethodMatcher;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
-import org.italiangrid.storm.webdav.oauth.authority.OAuthGroupAuthority;
-import org.italiangrid.storm.webdav.oauth.authority.OAuthScopeAuthority;
-import org.italiangrid.storm.webdav.oidc.authority.OidcSubjectAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtScopeAuthority;
+import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -123,19 +124,21 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
       matcher = new Anyone();
     } else if (PrincipalType.FQAN.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSFQANAuthority(p.getParams().get("fqan")));
-    } else if (PrincipalType.OAUTH_GROUP.equals(p.getType())) {
+    } else if (PrincipalType.JWT_GROUP.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(
-          new OAuthGroupAuthority(p.getParams().get("iss"), p.getParams().get("group")));
-    } else if (PrincipalType.OAUTH_SCOPE.equals(p.getType())) {
+          new JwtGroupAuthority(p.getParams().get("iss"), p.getParams().get("group")));
+    } else if (PrincipalType.JWT_SCOPE.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(
-          new OAuthScopeAuthority(p.getParams().get("iss"), p.getParams().get("scope")));
+          new JwtScopeAuthority(p.getParams().get("iss"), p.getParams().get("scope")));
+    } else if (PrincipalType.JWT_ISSUER.equals(p.getType())) {
+      matcher = AuthorityHolder.fromAuthority(new JwtIssuerAuthority(p.getParams().get("iss")));
+    } else if (PrincipalType.JWT_SUBJECT.equals(p.getType())) {
+      matcher = AuthorityHolder.fromAuthority(
+          new JwtSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
     } else if (PrincipalType.VO.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOAuthority(p.getParams().get("vo")));
     } else if (PrincipalType.VO_MAP.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOMapAuthority(p.getParams().get("vo")));
-    } else if (PrincipalType.OIDC_SUBJECT.equals(p.getType())) {
-      matcher = AuthorityHolder.fromAuthority(
-          new OidcSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
     } else if (PrincipalType.X509_SUBJECT.equals(p.getType())) {
       matcher =
           AuthorityHolder.fromAuthority(new X509SubjectAuthority(p.getParams().get("subject")));

@@ -41,12 +41,13 @@ public class FineGrainedAuthzPolicyProperties {
       ANONYMOUS,
       ANY_AUTHENTICATED_USER,
       ANYONE,
-      OAUTH_GROUP,
-      OAUTH_SCOPE,
+      JWT_GROUP,
+      JWT_SCOPE,
+      JWT_ISSUER,
+      JWT_SUBJECT,
       VO,
       FQAN,
       VO_MAP,
-      OIDC_SUBJECT,
       X509_SUBJECT
     }
 

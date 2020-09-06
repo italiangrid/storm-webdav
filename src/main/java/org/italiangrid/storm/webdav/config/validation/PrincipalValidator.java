@@ -19,9 +19,10 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
-import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OAUTH_GROUP;
-import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OAUTH_SCOPE;
-import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.OIDC_SUBJECT;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_GROUP;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_SCOPE;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_ISSUER;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_SUBJECT;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.VO;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.VO_MAP;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.X509_SUBJECT;
@@ -40,16 +41,16 @@ import com.google.common.collect.Multimap;
 public class PrincipalValidator implements
     ConstraintValidator<Principal, FineGrainedAuthzPolicyProperties.PrincipalProperties> {
 
-
-  public static Multimap<PrincipalType, String> REQUIRED_ARGS =
+  public static final Multimap<PrincipalType, String> REQUIRED_ARGS =
       ImmutableMultimap.<FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType, String>builder()
         .put(FQAN, "fqan")
-        .put(OAUTH_GROUP, "iss")
-        .put(OAUTH_GROUP, "group")
-        .put(OAUTH_SCOPE, "iss")
-        .put(OAUTH_SCOPE, "scope")
-        .put(OIDC_SUBJECT, "iss")
-        .put(OIDC_SUBJECT, "sub")
+        .put(JWT_GROUP, "iss")
+        .put(JWT_GROUP, "group")
+        .put(JWT_SCOPE, "iss")
+        .put(JWT_SCOPE, "scope")
+        .put(JWT_SUBJECT, "iss")
+        .put(JWT_SUBJECT, "sub")
+        .put(JWT_ISSUER, "iss")
         .put(VO, "vo")
         .put(VO_MAP, "vo")
         .put(X509_SUBJECT, "subject")

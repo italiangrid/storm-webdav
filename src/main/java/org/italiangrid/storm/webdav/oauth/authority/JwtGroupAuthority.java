@@ -15,24 +15,38 @@
  */
 package org.italiangrid.storm.webdav.oauth.authority;
 
-public class OAuthScopeAuthority extends OAuthAuthority implements Comparable<OAuthScopeAuthority> {
+public class JwtGroupAuthority extends JwtAuthority implements Comparable<JwtGroupAuthority> {
 
   private static final long serialVersionUID = 1L;
 
-  final String scope;
+  public static final String AUTH_TEMPLATE = "O_g(%s,%s)";
 
-  public static final String AUTH_TEMPLATE = "O_s(%s,%s)";
+  private final String group;
 
-  public OAuthScopeAuthority(String issuer, String scope) {
-    super(issuer, String.format(AUTH_TEMPLATE, issuer, scope));
-    this.scope = scope;
+  public JwtGroupAuthority(String issuer, String group) {
+    super(issuer, String.format(AUTH_TEMPLATE, issuer, group));
+    this.group = group;
+  }
+
+  public String getGroup() {
+    return group;
+  }
+
+
+  @Override
+  public int compareTo(JwtGroupAuthority o) {
+    if (o.getIssuer().equals(getIssuer())) {
+      return group.compareTo(o.group);
+    }
+
+    return -1;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((scope == null) ? 0 : scope.hashCode());
+    result = prime * result + ((group == null) ? 0 : group.hashCode());
     return result;
   }
 
@@ -44,26 +58,13 @@ public class OAuthScopeAuthority extends OAuthAuthority implements Comparable<OA
       return false;
     if (getClass() != obj.getClass())
       return false;
-    OAuthScopeAuthority other = (OAuthScopeAuthority) obj;
-    if (scope == null) {
-      if (other.scope != null)
+    JwtGroupAuthority other = (JwtGroupAuthority) obj;
+    if (group == null) {
+      if (other.group != null)
         return false;
-    } else if (!scope.equals(other.scope))
+    } else if (!group.equals(other.group))
       return false;
     return true;
-  }
-
-  @Override
-  public int compareTo(OAuthScopeAuthority o) {
-    if (o.getIssuer().equals(getIssuer())) {
-      return scope.compareTo(o.scope);
-    }
-
-    return -1;
-  }
-
-  public String getScope() {
-    return scope;
   }
 
 }

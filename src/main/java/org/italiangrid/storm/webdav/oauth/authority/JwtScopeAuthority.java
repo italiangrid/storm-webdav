@@ -15,29 +15,24 @@
  */
 package org.italiangrid.storm.webdav.oauth.authority;
 
-import org.springframework.security.core.GrantedAuthority;
-
-public abstract class OAuthAuthority implements GrantedAuthority {
+public class JwtScopeAuthority extends JwtAuthority implements Comparable<JwtScopeAuthority> {
 
   private static final long serialVersionUID = 1L;
 
-  protected final String authority;
-  protected final String issuer;
-  
-  protected OAuthAuthority(String issuer, String authority) {
-    this.issuer = issuer;
-    this.authority = authority;
+  final String scope;
+
+  public static final String AUTH_TEMPLATE = "O_s(%s,%s)";
+
+  public JwtScopeAuthority(String issuer, String scope) {
+    super(issuer, String.format(AUTH_TEMPLATE, issuer, scope));
+    this.scope = scope;
   }
-  
-  @Override
-  public String getAuthority() {
-    return authority;
-  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + ((issuer == null) ? 0 : issuer.hashCode());
+    int result = super.hashCode();
+    result = prime * result + ((scope == null) ? 0 : scope.hashCode());
     return result;
   }
 
@@ -45,27 +40,30 @@ public abstract class OAuthAuthority implements GrantedAuthority {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
+    if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    OAuthAuthority other = (OAuthAuthority) obj;
-    if (issuer == null) {
-      if (other.issuer != null)
+    JwtScopeAuthority other = (JwtScopeAuthority) obj;
+    if (scope == null) {
+      if (other.scope != null)
         return false;
-    } else if (!issuer.equals(other.issuer))
+    } else if (!scope.equals(other.scope))
       return false;
     return true;
   }
 
-  
-
-  public String getIssuer() {
-    return issuer;
-  }
-  
   @Override
-  public String toString() {
-    return getAuthority();
+  public int compareTo(JwtScopeAuthority o) {
+    if (o.getIssuer().equals(getIssuer())) {
+      return scope.compareTo(o.scope);
+    }
+
+    return -1;
   }
+
+  public String getScope() {
+    return scope;
+  }
+
 }
