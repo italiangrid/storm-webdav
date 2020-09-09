@@ -1,12 +1,13 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
 <head>
-<title>StoRM WebDAV service</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Error!</title>
 </head>
-
 <body>
-  <h1>Ops!</h1>
-  <p>Something went wrong</p>
-  <a href="/">Go back to the storage area index page</a>
+  <section layout:fragment="page-content">
+    <h3>Ops!</h3>
+    <p>Something went wrong, and this page is not very informative</p>
+    <a href="/">Go back to the storage area index page</a>
+  </section>
 </body>

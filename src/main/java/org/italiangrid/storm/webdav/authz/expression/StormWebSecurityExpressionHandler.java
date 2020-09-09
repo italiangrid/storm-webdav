@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StormWebSecurityExpressionHandler extends OAuth2WebSecurityExpressionHandler {
-
-  public StormWebSecurityExpressionHandler() {}
 
   @Override
   protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication,

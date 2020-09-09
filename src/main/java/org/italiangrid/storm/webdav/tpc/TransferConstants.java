@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -43,5 +44,7 @@ public interface TransferConstants {
   Set<String> SUPPORTED_PROTOCOLS =
       ImmutableSet.<String>builder().add(HTTP, HTTPS, DAV, DAVS).build();
 
+  String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
+  Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);
 
 }

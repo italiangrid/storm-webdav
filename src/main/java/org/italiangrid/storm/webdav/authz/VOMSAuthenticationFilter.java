@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,8 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
   public static final Logger logger = LoggerFactory.getLogger(VOMSAuthenticationFilter.class);
   
   public VOMSAuthenticationFilter(AuthenticationManager mgr) {
-
-    setCheckForPrincipalChanges(true);
-    setInvalidateSessionOnPrincipalChange(true);
+    setCheckForPrincipalChanges(false);
+    setInvalidateSessionOnPrincipalChange(false);
     setContinueFilterChainOnUnsuccessfulAuthentication(true);
     setAuthenticationManager(mgr);
   }

@@ -3,7 +3,7 @@
 STORM_WEBDAV_USER=storm
 
 # JVM options
-STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m -Djava.io.tmpdir=/var/lib/storm-webdav/work"
+STORM_WEBDAV_JVM_OPTS="-Xms256m -Xmx512m"
 
 # StoRM webdav will bind on this address
 STORM_WEBDAV_SERVER_ADDRESS="0.0.0.0"
@@ -58,6 +58,12 @@ STORM_WEBDAV_JAR="/usr/share/java/storm-webdav/storm-webdav-server.jar"
 
 # The StoRM webdav logfile. Do not change this unless you know what you are doing.
 STORM_WEBDAV_LOG="/var/log/storm/webdav/storm-webdav-server.log"
+
+# The StoRM webdav stdout logfile. Do not change this unless you know what you are doing.
+STORM_WEBDAV_OUT="/var/log/storm/webdav/storm-webdav-server.out"
+
+# The StoRM webdav stderr logfile. Do not change this unless you know what you are doing.
+STORM_WEBDAV_ERR="/var/log/storm/webdav/storm-webdav-server.err"
 
 # The StoRM webdav logging configuration. Do not change this unless you know what you are doing.
 STORM_WEBDAV_LOG_CONFIGURATION="/etc/storm/webdav/logback.xml"

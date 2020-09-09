@@ -1,0 +1,36 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          iam-local:
+            provider: iam-local
+            authorization-grant-type: authorization_code
+            client-name: IAM local
+            client-id: storm-webdav-test
+            client-secret: secret
+            scope:
+            - openid
+            - profile
+          iam-test:
+            provider: indigo
+            authorization-grant-type: authorization_code
+            client-name: INDIGO IAM test instance
+            client-id: storm-webdav-test
+            client-secret: secret
+            scope:
+            - openid
+            - profile
+          wlcg:
+            provider: wlcg
+            authorization-grant-type: authorization_code
+            client-name: WLCG IAM
+            client-id: storm-webdav-test
+            client-secret: secret
+            scope:
+            - openid
+            - profile
+            - wlcg.groups
+        provider:
+          iam-local:
+            issuer-uri: https://iam.local.io/

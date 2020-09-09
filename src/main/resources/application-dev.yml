@@ -2,7 +2,8 @@ server:
   jetty:
     accesslog:
       enabled: false
-
+oauth:
+  enable-oidc: false
 storm:
   sa:
     config-dir: src/test/resources/conf/sa.d

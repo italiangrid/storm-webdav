@@ -2,19 +2,17 @@
 
 ## Introduction
 
-The StoRM WebDAV service provides a storage management solution
-supporting VOMS and token-based authorization.
+The StoRM WebDAV service provides a storage management 
+and data access solution supporting VOMS and OAuth/OpenID Connect
+authentication and authorization mechanisms.
 
 Starting from version 1.1.0, StoRM WebDAV supports third-party WebDAV COPY
-transfers (see [here][doma-tpc] for technical details) and token-based
-authorization.
+transfers (see [here][doma-tpc] for technical details).
 
 ## Install the service package
 
 Grap the latest package from the StoRM repository. See instructions
 [here](https://italiangrid.github.io/storm/download.html).
-
-Note that storm-webdav is currently supported **only** on SL6.
 
 ```bash
 yum install storm-webdav
@@ -76,6 +74,11 @@ To configure the service with yaim, run the following command:
 ```
 /opt/glite/yaim/bin/yaim -c -s SITEINFO.def -n se_storm_webdav
 ```
+
+## Configure the service with Puppet
+
+The [StoRM puppet module][storm-puppet] can be used to configure the service on 
+CENTOS 7. 
 
 ## Service configuration
 
@@ -212,3 +215,4 @@ By default a storage area named `sa` is accessible at the URL
 `http://hostname:8085/sa`
 
 [doma-tpc]: https://twiki.cern.ch/twiki/bin/view/LCG/HttpTpcTechnical
+[storm-puppet]: https://github.com/italiangrid/storm-puppet-module

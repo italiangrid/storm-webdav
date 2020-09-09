@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,6 +39,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
+import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
+import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
@@ -46,8 +49,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -72,15 +77,18 @@ public class JwtIssuerTest {
 
   public static final Instant VOMS_EXPIRATION_INSTANT_EARLY =
       NOW.plusSeconds(100).truncatedTo(ChronoUnit.SECONDS);
-  
+
   public static final Instant VOMS_EXPIRATION_INSTANT_LATE =
       EXPIRATION_INSTANT.plusSeconds(100).truncatedTo(ChronoUnit.SECONDS);
-  
-  public static final Instant REQUESTED_EXPIRATION_INSTANT_EARLY = 
+
+  public static final Instant REQUESTED_EXPIRATION_INSTANT_EARLY =
       NOW.plusSeconds(50).truncatedTo(ChronoUnit.SECONDS);
-  
-  public static final Instant REQUESTED_EXPIRATION_INSTANT_LATE = 
+
+  public static final Instant REQUESTED_EXPIRATION_INSTANT_LATE =
       EXPIRATION_INSTANT.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
+
+  public static final VOMSVOAuthority VO_TEST_AUTHORITY = new VOMSVOAuthority("test");
+  public static final VOMSFQANAuthority FQAN_TEST_AUTHORITY = new VOMSFQANAuthority("/test");
 
   Clock fixedClock = Clock.fixed(NOW, ZoneId.systemDefault());
 
@@ -90,8 +98,9 @@ public class JwtIssuerTest {
   @Mock
   AuthorizationPolicyService ps;
 
-  @Mock
-  Authentication authn;
+  @Spy
+  Authentication authn = new PreAuthenticatedAuthenticationToken(AUTHN_SUBJECT, null,
+      newArrayList(VO_TEST_AUTHORITY, FQAN_TEST_AUTHORITY));
 
   @Mock
   AccessTokenRequest req;
@@ -107,6 +116,7 @@ public class JwtIssuerTest {
   @Before
   public void setup() {
 
+
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));
     when(details.getVomsAttributes()).thenReturn(Lists.newArrayList(vomsAttribute));
     when(props.getIssuer()).thenReturn(ISSUER);
@@ -114,7 +124,6 @@ public class JwtIssuerTest {
     when(props.getMaxTokenLifetimeSec()).thenReturn(MAX_TOKEN_LIFETIME_SEC);
     when(authn.getName()).thenReturn(AUTHN_SUBJECT);
     when(authn.getDetails()).thenReturn(details);
-    
 
     when(ps.getSAPermissions(authn)).thenReturn(emptySet());
 
@@ -130,7 +139,9 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getAudience().get(0), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
     assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
-    assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES), empty());
+    assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
+        hasItems(VO_TEST_AUTHORITY.toString(), FQAN_TEST_AUTHORITY.toString()));
+    
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
 
     JWSVerifier verifier = new MACVerifier(SECRET);
@@ -148,7 +159,6 @@ public class JwtIssuerTest {
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
-
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
@@ -156,7 +166,8 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
     assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES), not(empty()));
     assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
-        hasItems(canReadTest.toString(), canWriteTest.toString()));
+        hasItems(canReadTest.toString(), canWriteTest.toString(), VO_TEST_AUTHORITY.toString(),
+            FQAN_TEST_AUTHORITY.toString()));
 
   }
 
@@ -167,15 +178,16 @@ public class JwtIssuerTest {
 
     when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
-    
+
     SignedJWT jwt = issuer.createAccessToken(req, authn);
-    
+
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY)); 
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+        is(VOMS_EXPIRATION_INSTANT_EARLY));
   }
-  
+
   @Test
   public void tokenIssuerLimitsTokenValidtyWithRequestedLifetime() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
@@ -183,12 +195,13 @@ public class JwtIssuerTest {
     when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
     when(req.getLifetime()).thenReturn(50L);
-    
+
     SignedJWT jwt = issuer.createAccessToken(req, authn);
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(REQUESTED_EXPIRATION_INSTANT_EARLY));  
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+        is(REQUESTED_EXPIRATION_INSTANT_EARLY));
   }
 
 
@@ -199,11 +212,12 @@ public class JwtIssuerTest {
     when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
     when(req.getLifetime()).thenReturn(TimeUnit.DAYS.toSeconds(10));
-    
+
     SignedJWT jwt = issuer.createAccessToken(req, authn);
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));  
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+        is(VOMS_EXPIRATION_INSTANT_EARLY));
   }
 }

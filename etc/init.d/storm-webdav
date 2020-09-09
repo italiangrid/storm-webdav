@@ -53,7 +53,7 @@ prepare_env() {
   fi
 
   export STORM_WEBDAV_LOG_CONFIGURATION=${STORM_WEBDAV_LOG_CONFIGURATION:-/etc/storm/webdav/logback.xml}
-  export STORM_WEBDAV_JVM_OPTS="-Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} ${STORM_WEBDAV_JVM_OPTS}"
+  export STORM_WEBDAV_JVM_OPTS="-Djava.io.tmpdir=/var/lib/storm-webdav/work -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} ${STORM_WEBDAV_JVM_OPTS}"
 }
 
 if [ -r "${config}" ]; then

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.server.servlet;
 
+import static org.italiangrid.storm.webdav.authn.AuthenticationUtils.getPalatableSubject;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,8 +26,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
@@ -43,13 +48,21 @@ public class SAIndexServlet extends HttpServlet {
   private static final String SA_INDEX_PAGE_NAME = "sa-index";
   private static final String SA_INDEX_MAP_KEY = "saIndexMap";
 
+  public static final String AUTHN_KEY = "authn";
+  public static final String AUTHN_SUBJECT_KEY = "authnSubject";
+
+  public static final String STORM_HOSTNAME_KEY = "storm";
+
   private final StorageAreaConfiguration saConfig;
+  private final ServiceConfigurationProperties serviceConfig;
   private final TemplateEngine engine;
 
   private final Map<String, String> saIndexMap;
 
-  public SAIndexServlet(StorageAreaConfiguration config, TemplateEngine engine) {
+  public SAIndexServlet(ServiceConfigurationProperties serviceConfig,
+      StorageAreaConfiguration config, TemplateEngine engine) {
 
+    this.serviceConfig = serviceConfig;
     this.saConfig = config;
     this.engine = engine;
     saIndexMap = new TreeMap<String, String>();
@@ -60,15 +73,22 @@ public class SAIndexServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException, IOException {
+      throws ServletException, IOException {
 
+    SecurityContext securityContext = SecurityContextHolder.getContext();
     req.setAttribute(SA_INDEX_MAP_KEY, saIndexMap);
+    
+    req.setAttribute(AUTHN_KEY,
+        securityContext.getAuthentication());
+    
+    req.setAttribute(AUTHN_SUBJECT_KEY,
+        getPalatableSubject(securityContext.getAuthentication()));
 
     resp.setHeader(CACHE_CONTROL, NO_CACHE);
     resp.setContentType(CONTENT_TYPE);
 
-    WebContext ctxt = new WebContext(req, resp, getServletContext(),
-      req.getLocale());
+    req.setAttribute(STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
+    WebContext ctxt = new WebContext(req, resp, getServletContext(), req.getLocale());
 
     engine.process(SA_INDEX_PAGE_NAME, ctxt, resp.getWriter());
   }

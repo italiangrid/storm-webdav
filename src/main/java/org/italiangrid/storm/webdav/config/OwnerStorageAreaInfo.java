@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @Separator(",")
   public Set<String> vos();
-  
+
   @Override
   @Separator(",")
   public Set<String> orgs();
@@ -44,16 +44,28 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @DefaultValue("false")
   public Boolean authenticatedReadEnabled();
-  
+
   @Override
   @DefaultValue("true")
   public Boolean voMapEnabled();
-  
+
   @Override
   @DefaultValue("false")
   public Boolean voMapGrantsWritePermission();
 
   @Override
   @DefaultValue("true")
+  public Boolean orgsGrantReadPermission();
+
+  @Override
+  @DefaultValue("true")
   public Boolean orgsGrantWritePermission();
+
+  @Override
+  @DefaultValue("false")
+  public Boolean wlcgStructuredScopeAuthzEnabled();
+  
+  @Override
+  @DefaultValue("false")
+  public Boolean fineGrainedAuthzEnabled();
 }

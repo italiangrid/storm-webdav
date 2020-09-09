@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class DefaultPathResolver implements PathResolver {
   public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
-    contextMap = new TreeMap<String, StorageAreaInfo>();
+    contextMap = new TreeMap<>();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {

@@ -1,0 +1,13 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
+<head>
+<title>Access denied!</title>
+</head>
+<body>
+  <section layout:fragment="page-content">
+    <h3>Request method not allowed!</h3>
+    <p>The http method in your request is not allowed for the target resource!</p>
+    <a href="/">Go back to the storage area index page</a>
+  </section>
+</body>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class TransferRequestValidationTest extends TransferFilterTestSupport {
   
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     super.setup();
     when(request.getServletPath()).thenReturn(SERVLET_PATH);
     when(request.getPathInfo()).thenReturn(LOCAL_PATH);
@@ -48,10 +48,7 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
-    
-    
   }
-
 
   @Test
   public void sourceAndDestHeaderPresent() throws IOException, ServletException {
@@ -63,7 +60,6 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
     assertThat(error.getValue(), containsString("both present"));
   }
-
 
   @Test
   public void invalidDestinationURIs() throws IOException, ServletException {

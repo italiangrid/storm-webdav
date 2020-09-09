@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
+import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceWrapper;
+import org.thymeleaf.TemplateEngine;
 
 public class StoRMServlet extends DefaultServlet {
 
@@ -32,20 +36,24 @@ public class StoRMServlet extends DefaultServlet {
    * 
    */
   private static final long serialVersionUID = 4204673943980786498L;
-  
+
   final PathResolver pathResolver;
-  
-  public StoRMServlet(PathResolver resolver) {
+  final TemplateEngine templateEngine;
+  final ServiceConfigurationProperties serviceConfig;
+  final StormResourceService resourceService;
+
+  public StoRMServlet(ServiceConfigurationProperties serviceConfig, PathResolver resolver,
+      TemplateEngine engine, StormResourceService rs) {
+    super(rs);
+    resourceService = rs;
     pathResolver = resolver;
-    
+    templateEngine = engine;
+    this.serviceConfig = serviceConfig;
   }
-  
 
   @Override
   public Resource getResource(String pathInContext) {
-    
-    
-    
+
     String resolvedPath = pathResolver.resolvePath(pathInContext);
 
     if (resolvedPath == null) {
@@ -58,9 +66,16 @@ public class StoRMServlet extends DefaultServlet {
       return null;
     }
 
-    return Resource.newResource(f);
+    return new StormResourceWrapper(serviceConfig, templateEngine, Resource.newResource(f));
 
   }
+
+  @Override
+  protected void doHead(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    resourceService.doHead(request, response);
+  }
+
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)

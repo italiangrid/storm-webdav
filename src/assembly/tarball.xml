@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -54,6 +54,15 @@
         <include>**/*</include>
       </includes>
       <directoryMode>0755</directoryMode>
+    </fileSet>
+
+    <fileSet>
+      <directory>etc/systemd/system/storm-webdav.service.d</directory>
+      <outputDirectory>etc/systemd/system/storm-webdav.service.d</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+      <directoryMode>0644</directoryMode>
     </fileSet>
   </fileSets>
 

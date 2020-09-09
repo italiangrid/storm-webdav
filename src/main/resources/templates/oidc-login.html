@@ -1,0 +1,19 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
+<head>
+<title>StoRM WebDAV service - Login</title>
+</head>
+<body>
+  <section layout:fragment="page-content" class="text-center">
+    <form class="form-login">
+      <p class="please-login">Please login with one of the configured providers:</p>
+      <div class="login-buttons">
+        <a class="btn btn-lg btn-outline-primary btn-block" href="login" th:title="${c.issuer}" th:each="c: ${clients}"
+          th:href="${c.url}" th:text="${c.name}">IAM</a>
+      </div>
+    </form>
+    <a href="/">Go back to the storage area index page</a>
+  </section>
+</body>
+</html>

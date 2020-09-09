@@ -1,0 +1,13 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
+<head>
+<title>Access denied!</title>
+</head>
+<body>
+  <section layout:fragment="page-content">
+    <h3>Unauthorized!</h3>
+    <p>You are not authenticated and are trying to access content that requires authenticated access!</p>
+    <a href="/">Go back to the storage area index page</a>
+  </section>
+</body>

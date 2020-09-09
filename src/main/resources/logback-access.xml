@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+    Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 -->
 <configuration>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- Check http://logback.qos.ch/manual/layouts.html#AccessPatternLayout to get the meaning of the fields -->
     <encoder>
       <pattern>%h %l %u %user %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%r" %s %b %D</pattern>
     </encoder>

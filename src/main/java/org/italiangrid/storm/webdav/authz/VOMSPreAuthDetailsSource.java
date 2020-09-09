@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Sets;
 
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+
 public class VOMSPreAuthDetailsSource
     implements AuthenticationDetailsSource<HttpServletRequest, VOMSAuthenticationDetails> {
 
@@ -53,22 +55,24 @@ public class VOMSPreAuthDetailsSource
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 
     List<VOMSAttribute> attributes = getAttributes(request);
+    
+    getSubjectAuthority(request).ifPresent(authorities::add);
 
     authorities.addAll(getAuthoritiesFromAttributes(attributes));
-    
+
     if (attributes.isEmpty()) {
       authorities.addAll(getAuthoritiesFromVoMapFiles(request));
     }
-    
-    authorities.addAll(policyService.getSAPermissions(authorities));
 
+    authorities.addAll(policyService.getSAPermissions(authorities));
+    
     return new VOMSAuthenticationDetails(request, authorities, attributes);
 
   }
-  
-  
+
+
   protected Set<GrantedAuthority> getAuthoritiesFromVoMapFiles(HttpServletRequest request) {
-    
+
     Optional<X500Principal> principal = Utils.getX500PrincipalFromRequest(request);
 
     if (!principal.isPresent()) {
@@ -80,7 +84,7 @@ public class VOMSPreAuthDetailsSource
     for (String voName : voMapDetailsService.getPrincipalVOs(principal.get())) {
       authorities.add(new VOMSVOMapAuthority(voName));
     }
-    
+
     return authorities;
   }
 
@@ -99,6 +103,16 @@ public class VOMSPreAuthDetailsSource
     }
 
     return authorities;
+  }
+
+  protected Optional<X509SubjectAuthority> getSubjectAuthority(HttpServletRequest request) {
+    Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
+    if (chain.isPresent()) {
+      return Optional.of(new X509SubjectAuthority(
+          ProxyUtils.getEndUserCertificate(chain.get()).getSubjectDN().getName()));
+    }
+
+    return Optional.empty();
   }
 
   protected List<VOMSAttribute> getAttributes(HttpServletRequest request) {

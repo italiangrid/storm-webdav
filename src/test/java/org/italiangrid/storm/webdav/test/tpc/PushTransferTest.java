@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class PushTransferTest extends TransferFilterTestSupport{
   
   
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     super.setup();
     when(request.getMethod()).thenReturn(COPY.name());
     when(request.getServletPath()).thenReturn(SERVLET_PATH);

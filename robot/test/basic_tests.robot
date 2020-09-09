@@ -69,12 +69,15 @@ Single Test File Setup  [Arguments]  ${file_name}
 Single Test File Teardown  [Arguments]  ${file_name}
     Default Teardown
     Remove Test File  ${file_name}
+  
+Head works on large files setup   [Arguments]   ${file_name}
+    Default setup
+    Create Test File With Size  ${file_name}  2g
 
-Local copy works teardown  [Arguments]  ${file_name}
+Head works on large files teardown   [Arguments]   ${file_name}
     Default Teardown
     Remove Test File  ${file_name}
-    Remove Test File  ${file_name}.copy
-    
+
 *** Test cases ***
 
 Get works
@@ -132,15 +135,6 @@ Partial Put works
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
     [Teardown]  Partial Put Works Teardown
 
-Local Copy works
-    [Tags]  voms  copy
-    [Setup]  Single Test File Setup   test_local_copy
-    ${src}  DAVS Url   test_local_copy
-    ${rc}  ${out}  Curl Voms Push COPY Success  https://storm.example/test.vo/test_local_copy.copy  ${src}
-    Davix Get Success   ${src} 
-    Davix Get Success   ${src}.copy  
-    [Teardown]  Local copy works teardown  test_local_copy
-
 Post not allowed on content
     [Tags]  voms  post
     [Setup]  Single Test File Setup   test_post_not_allowed
@@ -148,3 +142,10 @@ Post not allowed on content
     ${rc}  ${out}  Curl Voms Post Failure  ${url}
     Should Contain  ${out}  405 Method Not Allowed
     [Teardown]   Single Test File Teardown  test_post_not_allowed
+
+Head works on large files
+    [Tags]  voms  head
+    [Setup]  Head works on large files setup  hwlf
+    ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/hwlf
+    Should Contain  ${out}  Content-Length: 2147483648
+    [Teardown]   Head works on large files teardown   hwlf

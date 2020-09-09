@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.tpc;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -46,7 +45,7 @@ import org.springframework.http.HttpStatus;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class TransferFilterSupport implements TransferConstants {
+public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
 
@@ -64,22 +63,7 @@ public class TransferFilterSupport implements TransferConstants {
 
   protected String getScopedPathInfo(HttpServletRequest request) {
     return Paths.get(request.getServletPath(), request.getPathInfo()).toString();
-  }
-
-  protected boolean hasRemoteSourceOrDestinationHeader(HttpServletRequest request) {
-
-    Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
-    Optional<String> dest = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
-
-    return (source.isPresent() && !localURLService.isLocalURL(source.get()))
-        || (dest.isPresent() && !localURLService.isLocalURL(dest.get()));
-
-  }
-
-  protected boolean isTpc(HttpServletRequest request) {
-    return COPY.toString().equals(request.getMethod())
-        && hasRemoteSourceOrDestinationHeader(request);
-  }
+  }  
 
   protected Multimap<String, String> getTransferHeaders(HttpServletRequest request,
       HttpServletResponse response) {
@@ -104,13 +88,12 @@ public class TransferFilterSupport implements TransferConstants {
   }
 
   protected boolean verifyChecksumRequested(HttpServletRequest request) {
-    Optional<String> verifyChecksum =
+    Optional<String> verifyChecksumFromHeader =
         Optional.ofNullable(request.getHeader(REQUIRE_CHECKSUM_HEADER));
 
-    if (verifyChecksum.isPresent()) {
-      return "true".equals(verifyChecksum.get());
+    if (verifyChecksumFromHeader.isPresent()) {
+      return "true".equals(verifyChecksumFromHeader.get());
     }
-
     // FIXME: take default from configuration
     return true;
   }
@@ -164,12 +147,12 @@ public class TransferFilterSupport implements TransferConstants {
   }
 
   protected void notFound(HttpServletResponse response, String msg) throws IOException {
-    LOG.warn("Not found: {}", msg);
+    LOG.info("Not found: {}", msg);
     response.sendError(HttpStatus.NOT_FOUND.value(), msg);
   }
 
   protected void invalidRequest(HttpServletResponse response, String msg) throws IOException {
-    LOG.warn("Invalid request: {}", msg);
+    LOG.info("Invalid request: {}", msg);
     response.sendError(BAD_REQUEST.value(), msg);
   }
 

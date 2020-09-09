@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
   @Override
   public Set<String> getPrincipalVOs(X500Principal principal) {
 
-    Assert.notNull(principal, "Principal cannot be null");
+    Assert.notNull(principal, "PrincipalProperties cannot be null");
 
     HashSet<String> voNames = new HashSet<String>();
 

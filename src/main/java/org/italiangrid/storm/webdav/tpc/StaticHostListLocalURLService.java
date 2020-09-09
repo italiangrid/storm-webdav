@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ public class StaticHostListLocalURLService implements LocalURLService {
 
       URI uri = new URI(url);
 
-      if (isNull(uri.getScheme())) {
+      if (isNull(uri.getScheme())
+          || (!isNull(uri.getHost()) && uri.getHost().equals("localhost"))) {
         return true;
       }
 

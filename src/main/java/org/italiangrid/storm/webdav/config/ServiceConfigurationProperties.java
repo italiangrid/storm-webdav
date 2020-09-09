@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,13 @@ import javax.validation.constraints.Positive;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
+
+import com.google.common.collect.Lists;
 
 @Configuration
 @ConfigurationProperties("storm")
+@Validated
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
@@ -62,9 +66,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
 
   }
+
+  @Validated
   public static class AuthorizationProperties {
 
     boolean disabled = false;
+
+    @Valid
+    List<FineGrainedAuthzPolicyProperties> policies = Lists.newArrayList();
 
     public boolean isDisabled() {
       return disabled;
@@ -72,6 +81,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setDisabled(boolean disabled) {
       this.disabled = disabled;
+    }
+
+    public List<FineGrainedAuthzPolicyProperties> getPolicies() {
+      return policies;
+    }
+
+    public void setPolicies(List<FineGrainedAuthzPolicyProperties> policies) {
+      this.policies = policies;
     }
   }
 
@@ -373,7 +390,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
-  private AuthorizationProperties authz;
+  private AuthorizationProperties authz = new AuthorizationProperties();
 
   private ChecksumFilterProperties checksumFilter;
 

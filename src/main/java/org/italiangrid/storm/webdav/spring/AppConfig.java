@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2018.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,6 +49,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
+import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
+import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.InMemoryPolicyRepository;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.SAConfigurationParser;
@@ -74,6 +80,7 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.web.AuthzServerMetadata;
 import org.italiangrid.storm.webdav.oauth.utils.OidcConfigurationFetcher;
 import org.italiangrid.storm.webdav.oauth.utils.TrustedJwtDecoderCacheLoader;
+import org.italiangrid.storm.webdav.oidc.ClientRegistrationCacheLoader;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
@@ -85,10 +92,13 @@ import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.codahale.metrics.MetricRegistry;
@@ -210,7 +220,7 @@ public class AppConfig implements TransferConstants {
     SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
 
     SSLContext ctx;
-    
+
     if (props.isUseConscrypt()) {
       if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
         Security.addProvider(new OpenSSLProvider());
@@ -219,7 +229,7 @@ public class AppConfig implements TransferConstants {
     } else {
       ctx = SSLContext.getInstance(props.getTlsProtocol());
     }
-    
+
     ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
@@ -245,39 +255,79 @@ public class AppConfig implements TransferConstants {
       .build();
   }
 
+  @Bean
+  @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "true")
+  public ClientRegistrationRepository clientRegistrationRepository(
+      OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
+
+
+    ClientRegistrationCacheLoader loader =
+        new ClientRegistrationCacheLoader(clientProperties, props, executor);
+
+
+    LoadingCache<String, ClientRegistration> clients = CacheBuilder.newBuilder()
+      .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+      .build(loader);
+
+
+    clientProperties.getRegistration().forEach((k, v) -> {
+      LOG.info("Initializing OIDC provider: {}", k);
+      try {
+        clients.put(k, loader.load(k));
+      } catch (Exception e) {
+        LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage());
+        if (LOG.isDebugEnabled()) {
+          LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage(), e);
+        }
+      }
+    });
+    
+    LOG.info("OpenID providers configuration will be refreshed every {} minutes",
+        props.getRefreshPeriodMinutes());
+
+    return (k) -> {
+      try {
+        return clients.get(k);
+      } catch (ExecutionException e) {
+        LOG.warn("Error fetching OIDC provider {}: {}", k, e.getMessage(), e);
+        return null;
+      }
+    };
+  }
 
   @Bean
   public JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
-      RestTemplateBuilder builder, OidcConfigurationFetcher fetcher) {
+      RestTemplateBuilder builder, OidcConfigurationFetcher fetcher, ExecutorService executor) {
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
 
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
-    
-    
-    LoadingCache<String, JwtDecoder> decoders =
-        CacheBuilder.newBuilder().refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES).build(loader);
 
+    LoadingCache<String, JwtDecoder> decoders = CacheBuilder.newBuilder()
+      .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+      .build(loader);
     
-    for (AuthorizationServer as: props.getIssuers()) {
+    for (AuthorizationServer as : props.getIssuers()) {
       LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
       try {
         decoders.put(as.getIssuer(), loader.load(as.getIssuer()));
       } catch (Exception e) {
         LOG.warn("Error initializing trusted issuer: {}", e.getMessage());
         if (LOG.isDebugEnabled()) {
-          LOG.warn("Error initializing trusted issuer: {}", e.getMessage(),e);
+          LOG.warn("Error initializing trusted issuer: {}", e.getMessage(), e);
         }
       }
     }
-    
+
     if (sProps.getAuthzServer().isEnabled()) {
-      LOG.info("Initializing local JWT token issuer with issuer: {}", sProps.getAuthzServer().getIssuer());
+      LOG.info("Initializing local JWT token issuer with issuer: {}",
+          sProps.getAuthzServer().getIssuer());
       LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
       decoders.put(sProps.getAuthzServer().getIssuer(), d);
     }
 
+    LOG.info("OAuth trusted issuer configuration will be refreshed every {} minutes",
+        props.getRefreshPeriodMinutes());
     return new CompositeJwtDecoder(decoders);
   }
 
@@ -317,5 +367,26 @@ public class AppConfig implements TransferConstants {
   public ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
     LOG.warn("Checksum strategy: no checksum");
     return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
+  }
+
+  @Bean
+  public PathAuthorizationPolicyRepository pathAuthzPolicyRepository(PathAuthzPolicyParser parser) {
+    return new InMemoryPolicyRepository(parser.parsePolicies());
+  }
+
+  @Bean
+  public PathAuthorizationPdp fineGrainedAuthzPdpd(PathAuthorizationPolicyRepository repo) {
+    return new DefaultPathAuthorizationPdp(repo);
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "false")
+  public ClientRegistrationRepository emptyClientRegistrationRepository() {
+    return (id) -> null;
+  }
+
+  // @Bean
+  public ExecutorService oauthExecutorService() {
+    return Executors.newSingleThreadExecutor();
   }
 }

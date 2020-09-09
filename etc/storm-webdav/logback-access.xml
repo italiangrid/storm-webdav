@@ -9,6 +9,7 @@
       <FileNamePattern>/var/log/storm/webdav/storm-webdav-server-access.%d{yyyyMMdd}.log.gz</FileNamePattern>
     </rollingPolicy>
 
+    <!-- Check http://logback.qos.ch/manual/layouts.html#AccessPatternLayout to get the meaning of the fields -->
     <encoder>
       <pattern>%h %l %u %user %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%r" %s %b %D</pattern>
     </encoder>
