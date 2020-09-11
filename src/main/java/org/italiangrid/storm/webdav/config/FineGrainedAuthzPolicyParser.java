@@ -33,6 +33,7 @@ import org.italiangrid.storm.webdav.authz.pdp.principal.AnyAuthenticatedUser;
 import org.italiangrid.storm.webdav.authz.pdp.principal.Anyone;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AuthorityHolder;
 import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
+import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcherDebugWrapper;
 import org.italiangrid.storm.webdav.authz.util.CustomHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.WriteHttpMethodMatcher;
@@ -143,7 +144,7 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
       matcher =
           AuthorityHolder.fromAuthority(new X509SubjectAuthority(p.getParams().get("subject")));
     }
-    return matcher;
+    return new PrincipalMatcherDebugWrapper(matcher);
   }
 
   PathAuthorizationPolicy parsePolicy(FineGrainedAuthzPolicyProperties policy) {

@@ -38,4 +38,10 @@ public class PrincipalMatcherDebugWrapper implements PrincipalMatcher {
     return result;
   }
 
+  @Override
+  public String toString() {
+   
+    return delegate.toString();
+  }
+
 }

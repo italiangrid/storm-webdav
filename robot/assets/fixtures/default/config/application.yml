@@ -35,8 +35,11 @@ storm:
       actions:
       - all
       effect: permit
-      description: Grant read/write access to WLCG VOMS vo users
+      description: Grant read/write access to test.vo and WLCG VOMS vo users
       principals:
+      - type: vo
+        params:
+          vo: test.vo
       - type: vo
         params:
           vo: wlcg

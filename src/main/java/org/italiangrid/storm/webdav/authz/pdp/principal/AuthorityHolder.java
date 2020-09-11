@@ -39,6 +39,8 @@ public class AuthorityHolder implements PrincipalMatcher {
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
 
-    return !Objects.isNull(authentication) && authentication.getAuthorities().contains(authority);
+    return !Objects.isNull(authentication) && authentication.getAuthorities()
+      .stream()
+      .anyMatch(a -> a.getAuthority().equals(authority.getAuthority()));
   }
 }
