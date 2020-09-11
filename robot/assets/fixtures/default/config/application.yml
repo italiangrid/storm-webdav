@@ -12,6 +12,12 @@ oauth:
     - name: wlcg
       issuer: https://wlcg.cloud.cnaf.infn.it/
 
+    - name: tf-local
+      issuer: http://localhost:8080
+
+    - name: tf
+      issuer: https://tf.cloud.cnaf.infn.it
+
 storm:
   authz:
     policies:
@@ -34,7 +40,7 @@ storm:
       - type: vo
         params:
           vo: wlcg
-      - type: oauth-group
+      - type: jwt-group
         params:
           iss: https://wlcg.cloud.cnaf.infn.it/
           group: /wlcg
@@ -47,7 +53,7 @@ storm:
       - type: vo
         params:
           vo: wlcg
-      - type: oauth-group
+      - type: jwt-group
         params:
           iss: https://wlcg.cloud.cnaf.infn.it/
           group: /wlcg/xfers

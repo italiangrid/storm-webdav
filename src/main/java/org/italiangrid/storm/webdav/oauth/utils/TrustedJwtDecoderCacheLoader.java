@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.oauth.utils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -24,6 +25,7 @@ import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.UnknownTokenIssuerError;
 import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
+import org.italiangrid.storm.webdav.oauth.validator.WlcgProfileValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 
 import com.google.common.cache.CacheLoader;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -78,14 +81,17 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
         new NimbusJwtDecoderJwkSupport(oidcConfiguration.get("jwks_uri").toString());
 
     OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
+    OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();
+
+    List<OAuth2TokenValidator<Jwt>> validators = Lists.newArrayList();
+    validators.add(jwtValidator);
+    validators.add(wlcgProfileValidator);
 
     if (as.isEnforceAudienceChecks()) {
-      OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(as);
-      jwtDecoder
-        .setJwtValidator(new DelegatingOAuth2TokenValidator<>(jwtValidator, audienceValidator));
-    } else {
-      jwtDecoder.setJwtValidator(jwtValidator);
+      validators.add(new AudienceValidator(as));
     }
+
+    jwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<Jwt>(validators));
 
     return jwtDecoder;
   }

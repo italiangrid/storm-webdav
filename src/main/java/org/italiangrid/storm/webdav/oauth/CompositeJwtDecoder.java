@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
@@ -48,7 +49,7 @@ public class CompositeJwtDecoder implements JwtDecoder {
     String issuer = resolveIssuerFromToken(token);
     try {
       return decoders.get(issuer);
-    } catch (ExecutionException e) {
+    } catch (ExecutionException | UncheckedExecutionException e) {
       LOG.warn("Error resolving OAuth issuer configuration for {}", issuer);
       if (LOG.isDebugEnabled()) {
         LOG.warn("Error resolving OAuth issuer configuration for {}", issuer,e);

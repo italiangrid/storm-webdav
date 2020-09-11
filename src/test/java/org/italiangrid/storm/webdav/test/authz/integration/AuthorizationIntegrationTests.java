@@ -53,6 +53,11 @@ public class AuthorizationIntegrationTests {
   public static final String SLASH_WLCG_SLASH_FILE = "/wlcg/file";
   public static final String SLASH_ANONYMOUS_SLASH_FILE = "/anonymous/file";
 
+  public static final String WLCG_ISSUER = "https://wlcg.cloud.cnaf.infn.it/";
+  public static final String UNKNOWN_ISSUER = "https://unknown.example";
+  public static final String EXAMPLE_ISSUER = "https://issuer.example";
+
+
   @Autowired
   MockMvc mvc;
 
@@ -106,11 +111,25 @@ public class AuthorizationIntegrationTests {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isOk());
   }
 
+
+  @Test
+  public void issuerChecksAreEnforcedForWlcgScopeBasedAuthz() throws Exception {
+    Jwt token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(UNKNOWN_ISSUER)
+      .subject("123")
+      .claim("scope", "storage.read:/")
+      .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
+      .andExpect(status().isForbidden());
+  }
+
   @Test
   public void getAccessAsJwtUserWithoutScopeLeadsToAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .build();
 
@@ -123,7 +142,7 @@ public class AuthorizationIntegrationTests {
   public void getAccessAsJwtUserWithTheRightScopeGrantsAccess() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/")
       .build();
@@ -137,7 +156,7 @@ public class AuthorizationIntegrationTests {
   public void getAccessAsJwtWithReadCapabilityForWrongPathResultsInAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/other")
       .build();
@@ -151,7 +170,7 @@ public class AuthorizationIntegrationTests {
   public void getAccessAsJwtWithWriteCapabilityResultsInAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/")
       .build();
@@ -181,7 +200,7 @@ public class AuthorizationIntegrationTests {
   public void tpcJwtPullCopyBlockedWithStorageReadScope() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/")
       .build();
@@ -195,7 +214,7 @@ public class AuthorizationIntegrationTests {
   public void tpcJwtPullCopyRequiresStorageModifyScope() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/")
       .build();
@@ -209,7 +228,7 @@ public class AuthorizationIntegrationTests {
   public void tpcJwtPullCopyRequiresStorageModifyScopeWithRightPath() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/subdir storage.read:/")
       .build();
@@ -224,7 +243,7 @@ public class AuthorizationIntegrationTests {
   public void tpcJwtLocalCopyRequiresAppropriatePermissions() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/")
       .build();
@@ -235,7 +254,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/")
       .build();
@@ -246,7 +265,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/ storage.modify:/")
       .build();
@@ -257,7 +276,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/subdir storage.modify:/")
       .build();
@@ -268,7 +287,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/ storage.modify:/subdir")
       .build();
@@ -279,7 +298,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/source storage.modify:/destination")
       .build();
@@ -293,7 +312,7 @@ public class AuthorizationIntegrationTests {
   public void tpcJwtLocalMoveRequiresAppropriatePermissions() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.read:/")
       .build();
@@ -304,7 +323,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/")
       .build();
@@ -316,7 +335,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "storage.modify:/subdir")
       .build();
@@ -328,7 +347,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.unknown")
+      .issuer(WLCG_ISSUER)
       .subject("123")
       .claim("scope", "openid storage.modify:/source storage.modify:/destination")
       .build();
@@ -343,7 +362,7 @@ public class AuthorizationIntegrationTests {
 
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.example")
+      .issuer(EXAMPLE_ISSUER)
       .claim("scope", "openid")
       .subject("123")
       .build();
@@ -355,7 +374,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.example")
+      .issuer(EXAMPLE_ISSUER)
       .subject("123")
       .claim("groups", "/example/admins")
       .build();
@@ -366,7 +385,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.example")
+      .issuer(EXAMPLE_ISSUER)
       .subject("123")
       .claim("groups", "/example")
       .build();
@@ -377,7 +396,7 @@ public class AuthorizationIntegrationTests {
 
     token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
-      .issuer("https://issuer.another")
+      .issuer(UNKNOWN_ISSUER)
       .subject("123")
       .claim("groups", "/example/admins")
       .build();

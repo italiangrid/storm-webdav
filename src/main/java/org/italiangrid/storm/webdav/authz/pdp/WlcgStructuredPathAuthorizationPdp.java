@@ -66,6 +66,8 @@ public class WlcgStructuredPathAuthorizationPdp
   public static final String ERROR_INSUFFICIENT_TOKEN_SCOPE = "Insufficient token scope";
   public static final String ERROR_UNSUPPORTED_METHOD_PATTERN = "Unsupported method: %s";
 
+  public static final String ERROR_UNKNOWN_TOKEN_ISSUER = "Unknown token issuer: %s";
+
   public static final Set<String> READONLY_METHODS =
       Sets.newHashSet("GET", "OPTIONS", "HEAD", "PROPFIND");
 
@@ -158,6 +160,7 @@ public class WlcgStructuredPathAuthorizationPdp
     return m.getPrefix().equals(requiredScope);
   }
 
+
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
 
@@ -182,6 +185,12 @@ public class WlcgStructuredPathAuthorizationPdp
 
     if (isNull(sa)) {
       return indeterminate(ERROR_SA_NOT_FOUND);
+    }
+    
+    final String tokenIssuer = jwtAuth.getToken().getIssuer().toString();
+
+    if (!sa.orgs().contains(tokenIssuer)) {
+      return deny(String.format(ERROR_UNKNOWN_TOKEN_ISSUER, tokenIssuer));
     }
 
     Set<String> wlcgScopes = resolveWlcgScopes(jwtAuth);
