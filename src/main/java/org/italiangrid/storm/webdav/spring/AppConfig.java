@@ -230,7 +230,11 @@ public class AppConfig implements TransferConstants {
       ctx = SSLContext.getInstance(props.getTlsProtocol());
     }
 
-    ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
+    if (props.isEnableTlsClientAuth()) {
+      ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
+    } else {
+      ctx.init(null, new TrustManager[] {tm}, null);
+    }
 
     ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
     LayeredConnectionSocketFactory tlsSf = new SSLConnectionSocketFactory(ctx);

@@ -47,6 +47,8 @@ public class ThirdPartyCopyProperties {
   
   boolean useConscrypt = false;
 
+  boolean enableTlsClientAuth = false;
+
   public String getTlsProtocol() {
     return tlsProtocol;
   }
@@ -101,5 +103,13 @@ public class ThirdPartyCopyProperties {
 
   public void setUseConscrypt(boolean useConscrypt) {
     this.useConscrypt = useConscrypt;
+  }
+
+  public boolean isEnableTlsClientAuth() {
+    return enableTlsClientAuth;
+  }
+
+  public void setEnableTlsClientAuth(boolean enableTlsClientAuth) {
+    this.enableTlsClientAuth = enableTlsClientAuth;
   }
 }
