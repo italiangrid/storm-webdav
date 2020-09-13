@@ -37,9 +37,11 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
@@ -91,6 +93,7 @@ import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -210,11 +213,10 @@ public class AppConfig implements TransferConstants {
     return new ScheduledThreadPoolExecutor(4);
   }
 
-  @Bean
-  public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
-      ServiceConfiguration conf) throws NoSuchAlgorithmException, KeyManagementException,
-      KeyStoreException, CertificateException, IOException, NoSuchProviderException {
-
+  @Bean("tpcConnectionManager")
+  public HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
+      ServiceConfiguration conf) throws KeyStoreException, CertificateException, IOException,
+      NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
     PEMCredential serviceCredential = serviceCredential(conf);
 
     SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
@@ -231,8 +233,10 @@ public class AppConfig implements TransferConstants {
     }
 
     if (props.isEnableTlsClientAuth()) {
+      LOG.info("TLS client auth for third-party transfers: ENABLED");
       ctx.init(new KeyManager[] {serviceCredential.getKeyManager()}, new TrustManager[] {tm}, null);
     } else {
+      LOG.info("TLS client auth for third-party transfers: DISABLED");
       ctx.init(null, new TrustManager[] {tm}, null);
     }
 
@@ -248,13 +252,28 @@ public class AppConfig implements TransferConstants {
 
     PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
     cm.setMaxTotal(props.getMaxConnections());
+    cm.setDefaultMaxPerRoute(props.getMaxConnectionsPerRoute());
+    return cm;
+  }
+
+  @Bean
+  public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
+      @Qualifier("tpcConnectionManager") HttpClientConnectionManager cm) {
 
     ConnectionConfig connectionConfig =
         ConnectionConfig.custom().setBufferSize(props.getHttpClientSocketBufferSize()).build();
 
+    int timeoutMsec = (int) TimeUnit.SECONDS.toMillis(props.getTimeoutInSecs());
+    RequestConfig config = RequestConfig.custom()
+      .setConnectTimeout(timeoutMsec)
+      .setConnectionRequestTimeout(timeoutMsec)
+      .setSocketTimeout(timeoutMsec)
+      .build();
+
     return HttpClients.custom()
       .setConnectionManager(cm)
       .setDefaultConnectionConfig(connectionConfig)
+      .setDefaultRequestConfig(config)
       .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
       .build();
   }
@@ -285,7 +304,7 @@ public class AppConfig implements TransferConstants {
         }
       }
     });
-    
+
     LOG.info("OpenID providers configuration will be refreshed every {} minutes",
         props.getRefreshPeriodMinutes());
 
@@ -310,7 +329,7 @@ public class AppConfig implements TransferConstants {
     LoadingCache<String, JwtDecoder> decoders = CacheBuilder.newBuilder()
       .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
       .build(loader);
-    
+
     for (AuthorizationServer as : props.getIssuers()) {
       LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
       try {

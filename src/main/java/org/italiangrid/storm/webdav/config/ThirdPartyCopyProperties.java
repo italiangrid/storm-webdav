@@ -34,6 +34,9 @@ public class ThirdPartyCopyProperties {
   @Positive(message = "tpc.maxConnections must be a positive integer (i.e. > 0)")
   int maxConnections;
 
+  @Positive(message = "tpc.maxConnections must be a positive integer (i.e. > 0)")
+  int maxConnectionsPerRoute;
+
   boolean verifyChecksum;
 
   @Positive(message = "tpc.reportDelaySecs must be a positive integer (i.e. > 0)")
@@ -48,6 +51,9 @@ public class ThirdPartyCopyProperties {
   boolean useConscrypt = false;
 
   boolean enableTlsClientAuth = false;
+
+  @Min(value = 0, message = "Timeout in seconds must be >= 0")
+  int timeoutInSecs;
 
   public String getTlsProtocol() {
     return tlsProtocol;
@@ -112,4 +118,21 @@ public class ThirdPartyCopyProperties {
   public void setEnableTlsClientAuth(boolean enableTlsClientAuth) {
     this.enableTlsClientAuth = enableTlsClientAuth;
   }
+
+  public int getMaxConnectionsPerRoute() {
+    return maxConnectionsPerRoute;
+  }
+
+  public void setMaxConnectionsPerRoute(int maxConnectionsPerRoute) {
+    this.maxConnectionsPerRoute = maxConnectionsPerRoute;
+  }
+
+  public int getTimeoutInSecs() {
+    return timeoutInSecs;
+  }
+
+  public void setTimeoutInSecs(int timeoutInSecs) {
+    this.timeoutInSecs = timeoutInSecs;
+  }
+
 }

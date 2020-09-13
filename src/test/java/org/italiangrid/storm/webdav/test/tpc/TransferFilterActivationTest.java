@@ -20,7 +20,7 @@ import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(responseWriter).print(error.capture());
     assertThat(error.getValue(), is("Local copy across storage areas is not supported"));
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
   }
 
   @Test
@@ -117,7 +117,7 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
         TRANSFER_HEADER_AUTHORIZATION_KEY);
 
     filter.doFilter(request, response, chain);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
   }
 
   @Test
@@ -125,7 +125,7 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
     when(request.getMethod()).thenReturn(COPY.toString());
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
     filter.doFilter(request, response, chain);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
   }
 
   @Test
@@ -133,7 +133,7 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
     when(request.getMethod()).thenReturn(COPY.toString());
     when(request.getHeader(DESTINATION_HEADER)).thenReturn(HTTP_URL);
     filter.doFilter(request, response, chain);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
   }
 
 }
