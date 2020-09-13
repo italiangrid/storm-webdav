@@ -40,9 +40,9 @@ public class PutResponseHandler extends ResponseHandlerSupport implements Respon
     
     try {
       checkResponseStatus(response.getStatusLine());
-      EntityUtils.consumeQuietly(response.getEntity());
       return true;
     } finally {
+      EntityUtils.consumeQuietly(response.getEntity());
       MDC.clear();
     }
   }
