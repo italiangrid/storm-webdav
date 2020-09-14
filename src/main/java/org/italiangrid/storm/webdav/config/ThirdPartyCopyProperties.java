@@ -34,7 +34,7 @@ public class ThirdPartyCopyProperties {
   @Positive(message = "tpc.maxConnections must be a positive integer (i.e. > 0)")
   int maxConnections;
 
-  @Positive(message = "tpc.maxConnections must be a positive integer (i.e. > 0)")
+  @Positive(message = "tpc.maxConnectionsPerRoute must be a positive integer (i.e. > 0)")
   int maxConnectionsPerRoute;
 
   boolean verifyChecksum;
