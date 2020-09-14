@@ -7,6 +7,13 @@
 <body>
   <section layout:fragment="page-content" class="text-center">
     <form class="form-login">
+    
+      <div class="alert alert-danger" th:if="${param.error}">
+        <h4 class="alert-heading">Login error</h4>
+      	<p th:text="${param.error}">error</p>
+      	<p th:text="${param.error_description}">error description</p>
+      </div>
+      
       <p class="please-login">Please login with one of the configured providers:</p>
       <div class="login-buttons">
         <a class="btn btn-lg btn-outline-primary btn-block" href="login" th:title="${c.issuer}" th:each="c: ${clients}"
