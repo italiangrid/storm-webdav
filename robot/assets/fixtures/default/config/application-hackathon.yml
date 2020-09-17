@@ -1,0 +1,70 @@
+spring:
+  profiles:
+    active: oidc
+
+oauth:
+  enable-oidc: true
+
+  issuers:
+    - name: iam-test
+      issuer: https://iam-test.indigo-datacloud.eu/
+
+    - name: wlcg
+      issuer: https://wlcg.cloud.cnaf.infn.it/
+
+    - name: tf-local
+      issuer: http://localhost:8080
+
+    - name: tf
+      issuer: https://tf.cloud.cnaf.infn.it
+
+storm:
+  authz:
+    policies:
+    - sa: tf
+      description: Grant read access to the SA to tf members
+      actions:
+        - list
+        - read
+      effect: permit
+      principals:
+        - type: jwt-issuer
+          params:
+            iss: https://tf.cloud.cnaf.infn.it
+    - sa: wlcg
+      description: Grant read access to the SA to wlcg members
+      actions:
+        - list
+        - read
+      effect: permit
+      principals:
+        - type: vo
+          params:
+            vo: wlcg
+        - type: jwt-issuer
+          params:
+            iss: https://wlcg.cloud.cnaf.infn.it/
+    - sa: wlcg
+      description: Grant all access to /wlcg/protected to /wlcg/test members
+      actions:
+        - all
+      paths:
+        - protected/**
+      effect: permit
+      principals:
+        - type: fqan
+          params:
+            fqan: /wlcg/Role=test
+        - type: jwt-group
+          params:
+            iss: https://wlcg.cloud.cnaf.infn.it/
+            group: /wlcg/test
+    - sa: wlcg
+      description: Grant all access to /wlcg VOMS members
+      actions:
+        - all
+      effect: permit
+      principals:
+        - type: vo
+          params:
+            vo: wlcg

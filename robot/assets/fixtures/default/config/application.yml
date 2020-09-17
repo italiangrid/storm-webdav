@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: oidc
+    active: oidc,hackathon
 
 oauth:
   enable-oidc: true
