@@ -16,16 +16,22 @@
 package org.italiangrid.storm.webdav.authz.pdp;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.google.common.collect.Lists;
 
 public class PathAuthorizationPolicy {
+
+  public static final Logger LOG = LoggerFactory.getLogger(PathAuthorizationPolicy.class);
 
   private final String id;
   private final String sa;
@@ -44,8 +50,23 @@ public class PathAuthorizationPolicy {
   }
 
   public boolean appliesToRequest(HttpServletRequest request, Authentication authentication) {
-    return principalMatchers.stream().anyMatch(m -> m.matchesPrincipal(authentication))
-        && requestMatchers.stream().anyMatch(p -> p.matches(request));
+
+    boolean requestMatched = requestMatchers.stream().anyMatch(p -> p.matches(request));
+
+    LOG.debug("Policy {} ({}) matches request: {}", getId(), getDecription(), requestMatched);
+
+    if (!requestMatched) {
+      return false;
+    }
+
+    boolean principalMatched =
+        principalMatchers.stream().anyMatch(m -> m.matchesPrincipal(authentication));
+
+    LOG.debug("Policy {} ({}) matches principal: {}", getId(), getDecription(), principalMatched);
+
+
+    return principalMatched;
+
   }
 
   public String getSa() {
@@ -137,6 +158,9 @@ public class PathAuthorizationPolicy {
     }
 
     public PathAuthorizationPolicy build() {
+      if (Objects.isNull(id)) {
+        id = UUID.randomUUID().toString();
+      }
       return new PathAuthorizationPolicy(this);
     }
   }
@@ -147,5 +171,5 @@ public class PathAuthorizationPolicy {
         + ", effect=" + effect + ", requestMatchers=" + requestMatchers + ", principalMatchers="
         + principalMatchers + "]";
   }
-  
+
 }
