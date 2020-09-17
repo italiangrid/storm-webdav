@@ -96,6 +96,4 @@ public class PolicyParserTests {
     assertThat(parsedPolicy.getRequestMatchers(), hasSize(5));
   }
 
-
-
 }

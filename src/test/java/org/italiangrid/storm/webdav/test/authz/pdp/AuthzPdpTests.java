@@ -137,9 +137,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void oauthGroupHolderPolicyNotApplied() {
-    when(authentication.getAuthorities()).thenReturn(emptyList());
-
+  public void oauthGroupHolderPolicyNotAppliedAsItDoesNotMatchPath() {
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
@@ -168,9 +166,10 @@ public class AuthzPdpTests {
   public void oauthGroupHolderPolicyNotAppliedDueToWrongGroup() {
 
     when(authentication.getAuthorities())
-      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/toast")));
+      .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/test/subgroup")));
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
+      .withDescription("Allow GET on /test/** to members of /test group")
       .withPermit()
       .withPrincipalMatcher(
           AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
@@ -178,6 +177,7 @@ public class AuthzPdpTests {
       .build();
 
     PathAuthorizationPolicy denyAllPolicy = PathAuthorizationPolicy.builder()
+      .withDescription("Deny all")
       .withDeny()
       .withPrincipalMatcher(new Anyone())
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
@@ -185,6 +185,8 @@ public class AuthzPdpTests {
 
     List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
+
+    when(request.getServletPath()).thenReturn("/test/ciccio");
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
@@ -200,6 +202,7 @@ public class AuthzPdpTests {
       .thenReturn(authorities(new JwtGroupAuthority(TEST2_ISSUER, "/test")));
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
+      .withDescription("Allow GET on /test/** to members of /test group")
       .withPermit()
       .withPrincipalMatcher(
           AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
@@ -214,6 +217,7 @@ public class AuthzPdpTests {
 
     List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
+    when(request.getServletPath()).thenReturn("/test/ciccio");
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
