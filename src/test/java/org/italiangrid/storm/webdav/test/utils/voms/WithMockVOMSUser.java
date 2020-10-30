@@ -27,6 +27,11 @@ public @interface WithMockVOMSUser {
 
   String subject() default "/CN=test";
   String[] vos() default {"test.vo"};
+
+  String[] saReadPermissions() default {};
+
+  String[] saWritePermissions() default {};
+
   int acExpirationSecs() default 100;
   
 }

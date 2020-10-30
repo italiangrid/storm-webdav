@@ -24,8 +24,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
+import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
+import org.italiangrid.storm.webdav.authz.X509SubjectAuthority;
 import org.italiangrid.voms.VOMSAttribute;
 import org.mockito.Mockito;
 import org.springframework.security.core.GrantedAuthority;
@@ -72,9 +74,32 @@ public class VOMSSecurityContextBuilder {
     return this;
   }
 
+  public VOMSSecurityContextBuilder saReadPermissions(String... sas) {
+    for (String sa : sas) {
+      if (!isNull(authorities)) {
+        authorities.add(SAPermission.canRead(sa));
+      } else {
+        authorities = Lists.newArrayList(SAPermission.canRead(sa));
+      }
+    }
+    return this;
+  }
+
+  public VOMSSecurityContextBuilder saWritePermissions(String... sas) {
+    for (String sa : sas) {
+      if (!isNull(authorities)) {
+        authorities.add(SAPermission.canWrite(sa));
+      } else {
+        authorities = Lists.newArrayList(SAPermission.canWrite(sa));
+      }
+    }
+    return this;
+  }
 
   public SecurityContext buildSecurityContext() {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+    authorities.add(new X509SubjectAuthority(subject));
 
     PreAuthenticatedAuthenticationToken token =
         new PreAuthenticatedAuthenticationToken(subject, new Object(), authorities);

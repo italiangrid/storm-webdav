@@ -20,82 +20,40 @@ import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.ne
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
-import org.italiangrid.storm.webdav.authz.util.MatcherUtils;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
-public class FineGrainedAuthzVoter implements AccessDecisionVoter<FilterInvocation>, MatcherUtils {
+
+public class FineGrainedAuthzVoter extends PathAuthzPdpVoterSupport {
+
   public static final Logger LOG = LoggerFactory.getLogger(FineGrainedAuthzVoter.class);
 
-  final PathAuthorizationPdp pdp;
-  final PathResolver resolver;
-
-  public FineGrainedAuthzVoter(PathResolver resolver, PathAuthorizationPdp pdp) {
-    this.resolver = resolver;
-    this.pdp = pdp;
+  public FineGrainedAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
+      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+    super(config, resolver, pdp, localUrlService, true);
   }
 
   @Override
-  public boolean supports(ConfigAttribute attribute) {
-    return false;
-  }
-
-  @Override
-  public boolean supports(Class<?> clazz) {
-    return FilterInvocation.class.isAssignableFrom(clazz);
-  }
-
-  public void logAuthorizationSuccess(FilterInvocation invocation, PathAuthorizationResult result) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Authorization SUCCESS for request '{}' authorized by policy '{}'",
-          requestToString(invocation.getHttpRequest()), result.getPolicy().get());
-    }
-  }
-
-  public void logAuthorizationFailure(FilterInvocation invocation, PathAuthorizationResult result) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Authorization FAILURE for request '{}'. Policy: '{}'",
-          requestToString(invocation.getHttpRequest()), result.getPolicy());
-    }
-  }
-
-
-  public StorageAreaInfo resolveStorageArea(HttpServletRequest request) {
-    final String requestPath = getRequestPath(request);
-    return resolver.resolveStorageArea(requestPath);
-  }
-
-
-  @Override
-  public int vote(Authentication authentication, FilterInvocation invocation,
+  public int vote(Authentication authentication, FilterInvocation filter,
       Collection<ConfigAttribute> attributes) {
 
-    StorageAreaInfo sa = resolveStorageArea(invocation.getRequest());
+    final String requestPath = getRequestPath(filter.getHttpRequest());
+    StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
 
     if (isNull(sa) || Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
       return ACCESS_ABSTAIN;
     }
 
-    PathAuthorizationResult result =
-        pdp.authorizeRequest(newAuthorizationRequest(invocation.getHttpRequest(), authentication));
+    return renderDecision(newAuthorizationRequest(filter.getHttpRequest(), authentication), LOG);
 
-    if (PathAuthorizationResult.Decision.PERMIT.equals(result.getDecision())) {
-      logAuthorizationSuccess(invocation, result);
-      return ACCESS_GRANTED;
-    }
-
-    logAuthorizationFailure(invocation, result);
-    return ACCESS_DENIED;
   }
 
 }

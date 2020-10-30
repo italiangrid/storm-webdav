@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.server;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -36,11 +39,14 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.webapp.AbstractConfiguration;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.server.util.JettyErrorPageHandler;
 import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
 import org.italiangrid.utils.jetty.ThreadPoolBuilder;
 import org.slf4j.Logger;
@@ -50,6 +56,7 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.MetricRegistry;
@@ -88,7 +95,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
-    
+
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
 
@@ -227,13 +234,6 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   @Override
   protected void postProcessWebAppContext(WebAppContext context) {
     context.setCompactPath(true);
-
-    ErrorPageErrorHandler eh = new ErrorPageErrorHandler();
-
-    eh.setShowStacks(false);
-    addJettyErrorPages(eh, getErrorPages());
-    context.setErrorHandler(eh);
-
   }
 
   @Override
@@ -252,9 +252,35 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     server.setDumpBeforeStop(false);
     server.setStopAtShutdown(true);
 
+  }
 
+  @Override
+  protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
+      ServletContextInitializer... initializers) {
+
+    List<Configuration> configurations = newArrayList(
+        Arrays.asList(super.getWebAppContextConfigurations(webAppContext, initializers)));
+
+    configurations.add(getStormErrorPageConfiguration());
+    return configurations.toArray(new Configuration[0]);
 
   }
+
+
+  private Configuration getStormErrorPageConfiguration() {
+    return new AbstractConfiguration() {
+
+      @Override
+      public void configure(WebAppContext context) throws Exception {
+        JettyErrorPageHandler errorHandler = new JettyErrorPageHandler();
+        context.setErrorHandler(errorHandler);
+        addJettyErrorPages(errorHandler, getErrorPages());
+        errorHandler.setShowStacks(false);
+      }
+
+    };
+  }
+
 
   @PostConstruct
   protected void after() {

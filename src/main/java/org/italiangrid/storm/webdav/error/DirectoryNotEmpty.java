@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oidc.authority;
+package org.italiangrid.storm.webdav.error;
 
-import org.italiangrid.storm.webdav.oauth.authority.OAuthAuthority;
+import org.italiangrid.storm.webdav.milton.StoRMDirectoryResource;
 
-public class OidcSubjectAuthority extends OAuthAuthority {
+public class DirectoryNotEmpty extends StoRMWebDAVError {
+
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  public static final String AUTH_TEMPLATE = "O_sub(%s,%s)";
-
-  private final String subject;
-
-  public OidcSubjectAuthority(String issuer, String subject) {
-    super(issuer, String.format(AUTH_TEMPLATE, issuer, subject));
-    this.subject = subject;
+  public DirectoryNotEmpty(StoRMDirectoryResource r) {
+    super(String.format("Directory is not empty: %s", r.getName()));
   }
 
-  public String getSubject() {
-    return subject;
-  }
 }

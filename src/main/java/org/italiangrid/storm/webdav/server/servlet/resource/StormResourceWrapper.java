@@ -30,6 +30,7 @@ import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
@@ -41,11 +42,13 @@ public class StormResourceWrapper extends Resource {
 
   final Resource delegate;
   final TemplateEngine engine;
+  final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
 
-  public StormResourceWrapper(ServiceConfigurationProperties serviceConfig, TemplateEngine engine,
-      Resource delegate) {
+  public StormResourceWrapper(OAuthProperties oauth, ServiceConfigurationProperties serviceConfig,
+      TemplateEngine engine, Resource delegate) {
 
+    this.oauthProperties = oauth;
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
@@ -62,7 +65,7 @@ public class StormResourceWrapper extends Resource {
    * @return the defanged text.
    */
   private static String hrefEncodeURI(String raw) {
-    
+
     StringBuffer buf = null;
 
     loop: for (int i = 0; i < raw.length(); i++) {
@@ -127,6 +130,8 @@ public class StormResourceWrapper extends Resource {
     context.setVariable("authn", SecurityContextHolder.getContext().getAuthentication());
     context.setVariable("authnSubject", AuthenticationUtils
       .getPalatableSubject(SecurityContextHolder.getContext().getAuthentication()));
+
+    context.setVariable("oidcEnabled", oauthProperties.isEnableOidc());
 
     String encodedBase = hrefEncodeURI(decodedBase);
 

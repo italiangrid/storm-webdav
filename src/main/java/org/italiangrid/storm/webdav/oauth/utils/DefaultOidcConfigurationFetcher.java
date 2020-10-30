@@ -35,7 +35,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
 
   public static final String WELL_KNOWN_FRAGMENT = "/.well-known/openid-configuration";
   public static final String ISSUER_MISMATCH_ERROR_TEMPLATE =
-      "Isser in medatadata '%s' does not match with requested issuer '%s'";
+      "Issuer in metadata '%s' does not match with requested issuer '%s'";
   public static final String NO_JWKS_URI_ERROR_TEMPLATE = 
       "No jwks_uri found in metadata for issuer '%s'";
 

@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -38,10 +39,10 @@ public class PutResponseHandler extends ResponseHandlerSupport implements Respon
     setupMDC();
     
     try {
-      LOG.debug("Response: {}", response);
       checkResponseStatus(response.getStatusLine());
       return true;
     } finally {
+      EntityUtils.consumeQuietly(response.getEntity());
       MDC.clear();
     }
   }

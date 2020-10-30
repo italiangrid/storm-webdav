@@ -30,7 +30,7 @@ public class AuthorityHolder implements PrincipalMatcher {
 
   public String toString() {
     return String.format("AuthorityHolder(%s)", authority.getAuthority());
-  };
+  }
 
   public static AuthorityHolder fromAuthority(GrantedAuthority authority) {
     return new AuthorityHolder(authority);
@@ -39,6 +39,8 @@ public class AuthorityHolder implements PrincipalMatcher {
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
 
-    return !Objects.isNull(authentication) && authentication.getAuthorities().contains(authority);
+    return !Objects.isNull(authentication) && authentication.getAuthorities()
+      .stream()
+      .anyMatch(a -> a.getAuthority().equals(authority.getAuthority()));
   }
 }

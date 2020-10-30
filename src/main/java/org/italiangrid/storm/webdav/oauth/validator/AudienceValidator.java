@@ -36,12 +36,12 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
   private final Set<String> requiredAudiences = Sets.newHashSet();
 
-  private final OAuth2Error INVALID_AUDIENCE_ERROR = new OAuth2Error("invalid_audience",
+  private static final OAuth2Error INVALID_AUDIENCE_ERROR = new OAuth2Error("invalid_audience",
       "The token audience does not match audience requirements defined for this server", null);
 
-  private final OAuth2TokenValidatorResult SUCCESS = OAuth2TokenValidatorResult.success();
+  private static final OAuth2TokenValidatorResult SUCCESS = OAuth2TokenValidatorResult.success();
 
-  private final OAuth2TokenValidatorResult INVALID_AUDIENCE =
+  private static final OAuth2TokenValidatorResult INVALID_AUDIENCE =
       OAuth2TokenValidatorResult.failure(INVALID_AUDIENCE_ERROR);
 
   public AudienceValidator(AuthorizationServer server) {

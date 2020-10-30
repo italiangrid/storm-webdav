@@ -38,6 +38,8 @@ public class WithMockVOMSUserSecurityContextFactory
     return builder.subject(annotation.subject())
       .vos(annotation.vos())
       .acExpirationSecs(annotation.acExpirationSecs())
+      .saReadPermissions(annotation.saReadPermissions())
+      .saWritePermissions(annotation.saWritePermissions())
       .buildSecurityContext();
   }
 

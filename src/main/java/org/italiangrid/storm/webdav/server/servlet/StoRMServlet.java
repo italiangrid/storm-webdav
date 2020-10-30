@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
@@ -40,11 +41,13 @@ public class StoRMServlet extends DefaultServlet {
   final PathResolver pathResolver;
   final TemplateEngine templateEngine;
   final ServiceConfigurationProperties serviceConfig;
+  final OAuthProperties oauthProperties;
   final StormResourceService resourceService;
 
-  public StoRMServlet(ServiceConfigurationProperties serviceConfig, PathResolver resolver,
-      TemplateEngine engine, StormResourceService rs) {
+  public StoRMServlet(OAuthProperties oauthP, ServiceConfigurationProperties serviceConfig,
+      PathResolver resolver, TemplateEngine engine, StormResourceService rs) {
     super(rs);
+    oauthProperties = oauthP;
     resourceService = rs;
     pathResolver = resolver;
     templateEngine = engine;
@@ -66,7 +69,8 @@ public class StoRMServlet extends DefaultServlet {
       return null;
     }
 
-    return new StormResourceWrapper(serviceConfig, templateEngine, Resource.newResource(f));
+    return new StormResourceWrapper(oauthProperties, serviceConfig, templateEngine,
+        Resource.newResource(f));
 
   }
 

@@ -15,7 +15,8 @@
  */
 package org.italiangrid.storm.webdav.authz.util;
 
-import java.util.Arrays;
+import static java.util.Arrays.asList;
+
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,8 +28,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class WriteHttpMethodMatcher implements RequestMatcher {
 
+  // COPY is now classified as a write method since there's a single case
+  // where COPY is a read-only method: TPC push copy, while local COPY (in the same storage
+  // area) and TPC pull COPY all require write privileges
   private static final Set<String> METHODS =
-      new TreeSet<String>(Arrays.asList("PUT", "MKCOL", "MOVE"));
+      new TreeSet<>(asList("PUT", "MKCOL", "MOVE", "COPY"));
 
   private final RequestMatcher delegate;
 

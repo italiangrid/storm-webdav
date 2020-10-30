@@ -65,6 +65,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
       if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()) {
         authenticatedPerms.add(SAPermission.canRead(sa.name()));
       }
+
     }
   }
 

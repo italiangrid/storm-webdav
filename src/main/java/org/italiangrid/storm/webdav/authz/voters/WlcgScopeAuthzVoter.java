@@ -16,13 +16,11 @@
 package org.italiangrid.storm.webdav.authz.voters;
 
 import static java.util.Objects.isNull;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
+import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 
-import java.net.MalformedURLException;
 import java.util.Collection;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -34,17 +32,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.FilterInvocation;
 
-public class StructuredPathCopyMoveVoter extends PathAuthzPdpVoterSupport {
-  public static final Logger LOG = LoggerFactory.getLogger(StructuredPathCopyMoveVoter.class);
+public class WlcgScopeAuthzVoter extends PathAuthzPdpVoterSupport {
 
-  protected final LocalURLService localUrlService;
+  public static final Logger LOG = LoggerFactory.getLogger(WlcgScopeAuthzVoter.class);
 
-  public StructuredPathCopyMoveVoter(ServiceConfigurationProperties config, PathResolver resolver,
+
+  public WlcgScopeAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
       PathAuthorizationPdp pdp, LocalURLService localUrlService) {
-    super(config, resolver, pdp);
-    this.localUrlService = localUrlService;
+    super(config, resolver, pdp, localUrlService, true);
   }
-
 
   @Override
   public int vote(Authentication authentication, FilterInvocation filter,
@@ -54,43 +50,19 @@ public class StructuredPathCopyMoveVoter extends PathAuthzPdpVoterSupport {
       return ACCESS_ABSTAIN;
     }
 
-    JwtAuthenticationToken authToken = (JwtAuthenticationToken) authentication;
+    final String requestPath = getRequestPath(filter.getHttpRequest());
+    StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
 
-    if (!isCopyOrMoveRequest(filter.getRequest())) {
+    if (isNull(sa)) {
       return ACCESS_ABSTAIN;
     }
 
-    String destination = filter.getRequest().getHeader(DESTINATION_HEADER);
-
-    if (destination == null) {
+    if (Boolean.FALSE.equals(sa.wlcgScopeAuthzEnabled())) {
       return ACCESS_ABSTAIN;
     }
 
-    if (COPY.name().equals(filter.getRequest().getMethod())
-        && requestHasRemoteDestinationHeader(filter.getRequest(), localUrlService)) {
-      return ACCESS_ABSTAIN;
-    }
+    return renderDecision(newAuthorizationRequest(filter.getHttpRequest(), authentication), LOG);
 
-    try {
-
-      String destinationPath = getSanitizedPathFromUrl(destination);
-      StorageAreaInfo sa = resolver.resolveStorageArea(destinationPath);
-
-      if (isNull(sa)) {
-        return ACCESS_DENIED;
-      }
-
-      if (Boolean.FALSE.equals(sa.wlcgStructuredScopeAuthzEnabled())) {
-        return ACCESS_ABSTAIN;
-      }
-
-      return renderDecision(PathAuthorizationRequest
-        .newAuthorizationRequest(filter.getHttpRequest(), authToken, destinationPath), LOG);
-
-
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e.getMessage(), e);
-    }
   }
 
 }

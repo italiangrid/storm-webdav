@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -27,6 +28,7 @@ import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
+import org.italiangrid.storm.webdav.server.servlet.DeleteSanityChecksFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
@@ -65,7 +67,8 @@ public class ServletConfiguration {
   static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
   static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
   static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1007;
 
   @Bean
   FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
@@ -128,12 +131,20 @@ public class ServletConfiguration {
   FilterRegistrationBean<MoveRequestSanityChecksFilter> moveFilter(PathResolver resolver) {
 
     FilterRegistrationBean<MoveRequestSanityChecksFilter> moveFilter =
-        new FilterRegistrationBean<MoveRequestSanityChecksFilter>(
-            new MoveRequestSanityChecksFilter(resolver));
+        new FilterRegistrationBean<>(new MoveRequestSanityChecksFilter(resolver));
 
     moveFilter.addUrlPatterns("/*");
     moveFilter.setOrder(MOVE_FILTER_ORDER);
     return moveFilter;
+  }
+
+  @Bean
+  FilterRegistrationBean<DeleteSanityChecksFilter> deleteFilter(PathResolver resolver) {
+    FilterRegistrationBean<DeleteSanityChecksFilter> deleteFilter =
+        new FilterRegistrationBean<>(new DeleteSanityChecksFilter(resolver));
+    deleteFilter.addUrlPatterns("/*");
+    deleteFilter.setOrder(DELETE_FILTER_ORDER);
+    return deleteFilter;
   }
 
   @Bean
@@ -159,11 +170,13 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<StoRMServlet> stormServlet(ServiceConfigurationProperties serviceConfig,
-      StorageAreaConfiguration saConfig, PathResolver pathResolver, TemplateEngine templateEngine) {
+  ServletRegistrationBean<StoRMServlet> stormServlet(OAuthProperties oauthProperties,
+      ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration saConfig,
+      PathResolver pathResolver, TemplateEngine templateEngine) {
 
-    ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
-        new StoRMServlet(serviceConfig, pathResolver, templateEngine, new StormResourceService()));
+    ServletRegistrationBean<StoRMServlet> stormServlet =
+        new ServletRegistrationBean<>(new StoRMServlet(oauthProperties, serviceConfig, pathResolver,
+            templateEngine, new StormResourceService()));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");
@@ -178,10 +191,11 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<SAIndexServlet> saIndexServlet(
+  ServletRegistrationBean<SAIndexServlet> saIndexServlet(OAuthProperties oauthProperties,
       ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration config,
       TemplateEngine engine) {
-    return new ServletRegistrationBean<>(new SAIndexServlet(serviceConfig, config, engine), "");
+    return new ServletRegistrationBean<>(
+        new SAIndexServlet(oauthProperties, serviceConfig, config, engine), "");
   }
 
 }

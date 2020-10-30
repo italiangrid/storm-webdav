@@ -19,11 +19,14 @@ server:
 tpc:
   tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
   maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
+  max-connections-per-route: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS_PER_ROUTE:25}
+  timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:5}
   verifyChecksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
-  reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:1}
+  reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
   httpClientSocketBufferSize: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
   localFileBufferSize: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
+  enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
   
 
 oauth:

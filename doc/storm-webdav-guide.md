@@ -139,7 +139,7 @@ voms-admin --host voms.cern.ch --vo cms list-users > /etc/storm/webdav/vo-mapfil
 ### Storage area configuration
 
 StoRM WebDAV service configuration lives in the directory `/etc/storm/webdav`.
-See the README.md in that dir for more help.
+See [Storage area configuration][storage-area-conf] for more information.
 
 ## Service operation
 
@@ -216,3 +216,4 @@ By default a storage area named `sa` is accessible at the URL
 
 [doma-tpc]: https://twiki.cern.ch/twiki/bin/view/LCG/HttpTpcTechnical
 [storm-puppet]: https://github.com/italiangrid/storm-puppet-module
+[storage-area-conf]: storage-area-configuration.md

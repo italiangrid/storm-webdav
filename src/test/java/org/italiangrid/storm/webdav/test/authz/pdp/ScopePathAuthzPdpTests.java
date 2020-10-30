@@ -23,6 +23,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScopePathAuthzPdpTests {
@@ -83,14 +86,14 @@ public class ScopePathAuthzPdpTests {
   WlcgStructuredPathAuthorizationPdp pdp;
 
   @Before
-  public void setup() {
+  public void setup() throws MalformedURLException {
     jwtAuth = new JwtAuthenticationToken(jwt);
+    when(jwt.getIssuer()).thenReturn(new URL("https://issuer.example"));
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
     when(request.getServletPath()).thenReturn("/");
     when(request.getPathInfo()).thenReturn("test/example");
-    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
-    when(requestHeaderNames.hasMoreElements()).thenReturn(false);
     when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
+    when(sa.orgs()).thenReturn(Sets.newHashSet("https://issuer.example"));
     when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
   }
 
@@ -126,7 +129,7 @@ public class ScopePathAuthzPdpTests {
 
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.DENY));
+    assertThat(result.getDecision(), is(Decision.INDETERMINATE));
     assertThat(result.getMessage().isPresent(), is(true));
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
   }
@@ -215,11 +218,9 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testLocalCopyRequiresStorageRead() throws Exception {
+  public void testLocalCopyRequiresStorageCreateOrModify() throws Exception {
 
     when(request.getMethod()).thenReturn(COPY_METHOD);
-    when(request.getHeader("Destination")).thenReturn("https://test.example/test/example.2");
-    when(localUrlService.isLocalURL("https://test.example/test/example.2")).thenReturn(true);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     
@@ -227,7 +228,7 @@ public class ScopePathAuthzPdpTests {
     assertThat(result.getMessage().isPresent(), is(true));
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
    
-    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/ storage.write:/");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
   }
@@ -262,8 +263,6 @@ public class ScopePathAuthzPdpTests {
   @Test
   public void testPushTpcRequiresRead() throws Exception {
     when(request.getMethod()).thenReturn(COPY_METHOD);
-    when(request.getHeader("Destination")).thenReturn("https://remote.example/test/example");
-    when(localUrlService.isLocalURL("https://remote.example/test/example")).thenReturn(false);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.create:/ storage.modify:/");
     PathAuthorizationResult result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     
@@ -322,5 +321,16 @@ public class ScopePathAuthzPdpTests {
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
     
+  }
+
+  @Test
+  public void issuerChecksAreEnforced() throws Exception {
+    when(jwt.getIssuer()).thenReturn(new URL("https://unknown.example"));
+    when(request.getMethod()).thenReturn("GET");
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThat(result.getDecision(), is(Decision.DENY));
+    assertThat(result.getMessage().isPresent(), is(true));
+    assertThat(result.getMessage().get(), containsString("Unknown token issuer"));
   }
 }

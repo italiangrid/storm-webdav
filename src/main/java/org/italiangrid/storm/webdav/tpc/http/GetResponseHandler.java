@@ -23,6 +23,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.util.EntityUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -80,6 +81,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     } finally {
       fileStream.close();
+      EntityUtils.consumeQuietly(entity);
       MDC.clear();
     }
 

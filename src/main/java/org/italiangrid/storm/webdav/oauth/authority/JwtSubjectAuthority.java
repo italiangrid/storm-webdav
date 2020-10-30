@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.test.authz.vomap;
+package org.italiangrid.storm.webdav.oauth.authority;
 
-import org.springframework.context.annotation.Configuration;
+public class JwtSubjectAuthority extends JwtAuthority {
 
-@Configuration
-public class TestConfig {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
-	
+  public static final String AUTH_TEMPLATE = "O_sub(%s,%s)";
 
+  private final String subject;
+
+  public JwtSubjectAuthority(String issuer, String subject) {
+    super(issuer, String.format(AUTH_TEMPLATE, issuer, subject));
+    this.subject = subject;
+  }
+
+  public String getSubject() {
+    return subject;
+  }
 }

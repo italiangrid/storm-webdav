@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.authz.voters;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
@@ -23,8 +24,8 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.util.MatcherUtils;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -41,12 +42,16 @@ public abstract class PathAuthzPdpVoterSupport
   protected final ServiceConfigurationProperties config;
   protected final PathResolver resolver;
   protected final PathAuthorizationPdp pdp;
+  protected final LocalURLService localUrlService;
+  protected final boolean permissive;
 
   public PathAuthzPdpVoterSupport(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp) {
+      PathAuthorizationPdp pdp, LocalURLService localUrlService, boolean permissive) {
     this.config = config;
     this.resolver = resolver;
     this.pdp = pdp;
+    this.localUrlService = localUrlService;
+    this.permissive = permissive;
   }
 
   @Override
@@ -59,29 +64,17 @@ public abstract class PathAuthzPdpVoterSupport
     return FilterInvocation.class.isAssignableFrom(clazz);
   }
 
-  public String getStorageAreaPath(String requestPath, StorageAreaInfo sa) {
-    return sa.accessPoints()
-      .stream()
-      .filter(requestPath::startsWith)
-      .findFirst()
-      .map(s -> requestPath.substring(s.length()))
-      .filter(s -> !s.isEmpty())
-      .orElse("/");
+
+  protected void logPdpDecision(PathAuthorizationRequest request, PathAuthorizationResult result,
+      Logger logger) {
+    String requestString = requestToString(request);
+    logger.debug("Request: {}. Path: {}. Decision: {}. message: {}. Policy: {}", requestString,
+        Optional.ofNullable(request.getPath()), result.getDecision(), result.getMessage(),
+        result.getPolicy());
   }
 
-  protected void abstainlogPdpMessage(PathAuthorizationRequest request, Logger logger, String m) {
-    logger.debug("Abstained. Request: {}. Pdp message: {}", request, m);
-  }
-
-  protected void denylogPdpMessage(PathAuthorizationRequest request, Logger logger, String m) {
-    logger.debug("Access denied. Request: {}. Pdp message: {}", request, m);
-  }
-
-  public int renderDecision(PathAuthorizationRequest request, Logger log) {
-    PathAuthorizationResult result = pdp.authorizeRequest(request);
-
-    if (ABSTAIN_DECISIONS.contains(result.getDecision())) {
-      result.getMessage().ifPresent(m -> abstainlogPdpMessage(request, log, m));
+  public int renderDecision(PathAuthorizationResult result) {
+    if (ABSTAIN_DECISIONS.contains(result.getDecision()) && permissive) {
       return ACCESS_ABSTAIN;
     }
 
@@ -89,7 +82,19 @@ public abstract class PathAuthzPdpVoterSupport
       return ACCESS_GRANTED;
     }
 
-    result.getMessage().ifPresent(m -> denylogPdpMessage(request, log, m));
     return ACCESS_DENIED;
+  }
+
+  public int renderDecision(PathAuthorizationRequest request, Logger log) {
+    PathAuthorizationResult result = pdp.authorizeRequest(request);
+
+    logPdpDecision(request, result, log);
+
+    return renderDecision(result);
+  }
+
+
+  public boolean isPermissive() {
+    return permissive;
   }
 }

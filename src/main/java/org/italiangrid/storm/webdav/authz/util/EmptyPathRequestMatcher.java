@@ -23,8 +23,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class EmptyPathRequestMatcher implements RequestMatcher {
 
-  public EmptyPathRequestMatcher() {}
-
   @Override
   public boolean matches(HttpServletRequest request) {
     return isNullOrEmpty(getRequestPath(request));

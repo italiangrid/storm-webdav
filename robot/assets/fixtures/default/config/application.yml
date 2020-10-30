@@ -1,0 +1,62 @@
+spring:
+  profiles:
+    active: oidc,hackathon
+
+oauth:
+  enable-oidc: true
+
+  issuers:
+    - name: iam-test
+      issuer: https://iam-test.indigo-datacloud.eu/
+
+    - name: wlcg
+      issuer: https://wlcg.cloud.cnaf.infn.it/
+
+    - name: tf-local
+      issuer: http://localhost:8080
+
+    - name: tf
+      issuer: https://tf.cloud.cnaf.infn.it
+
+storm:
+  authz:
+    policies:
+    - sa: fga
+      actions:
+      - list
+      - read
+      effect: permit
+      description: Grant read access to anyone to the public area
+      paths:
+      - /public/**
+      principals:
+      - type: anyone
+    - sa: fga
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to test.vo and WLCG VOMS vo users
+      principals:
+      - type: vo
+        params:
+          vo: test.vo
+      - type: vo
+        params:
+          vo: wlcg
+      - type: jwt-group
+        params:
+          iss: https://wlcg.cloud.cnaf.infn.it/
+          group: /wlcg
+    - sa: wlcg
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to WLCG VOMS vo users
+      principals:
+      - type: vo
+        params:
+          vo: wlcg
+      - type: jwt-group
+        params:
+          iss: https://wlcg.cloud.cnaf.infn.it/
+          group: /wlcg/xfers

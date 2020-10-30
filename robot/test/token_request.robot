@@ -34,11 +34,27 @@ Get works with locally issued token Teardown
     Default Teardown
     Remove Test File   token_get_test
 
+Get works with locally issued token fga Setup
+    Default Setup
+    Create Test File   token_get_test   sa=fga
+
+Get works with locally issued token fga Teardown
+    Default Teardown
+    Remove Test File   token_get_test   sa=fga
+
 Put works with locally issued token Setup
     Default Setup
     Create Temporary File   token_put_test   12345678
 
 Put works with locally issued token Teardown
+    Default Teardown
+    Remove Temporary File   token_put_test
+
+Put works with locally issued token fga Setup
+    Default Setup
+    Create Temporary File   token_put_test   12345678
+
+Put works with locally issued token fga Teardown
     Default Teardown
     Remove Temporary File   token_put_test
 
@@ -63,3 +79,23 @@ Put works with locally issued token
     Davix Get Success  ${url}  ${opts}
     Remove file  token_put_test
     [Teardown]  Put works with locally issued token Teardown
+
+Get works with locally issued token fga
+    [Tags]   voms  token  Get   fga
+    [Setup]   Get works with locally issued token fga Setup
+    ${token}  Get access token
+    ${url}   DAVS Url  token_get_test  sa=fga
+    ${opts}  Set variable  -H "Authorization: Bearer ${token}"
+    Davix Get Success  ${url}  ${opts}
+    [Teardown]  Get works with locally issued token fga Teardown
+
+Put works with locally issued token fga
+    [Tags]   voms  token  Put   fga
+    [Setup]   Put works with locally issued token fga Setup
+    ${token}  Get access token
+    ${url}   DAVS Url  token_put_test   sa=fga
+    ${opts}  Set variable  -H "Authorization: Bearer ${token}"
+    Davix Put Success  ${TEMPDIR}/token_put_test  ${url}  ${opts}
+    Davix Get Success  ${url}  ${opts}
+    Remove file  token_put_test
+    [Teardown]  Put works with locally issued token fga Teardown
