@@ -16,6 +16,11 @@ server:
   error:
     whitelabel:
       enabled: false
+  
+  jetty:
+    max-threads: ${storm.connector.max-connections}
+     
+
 tpc:
   tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
   maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
@@ -55,10 +60,10 @@ storm:
     
   connector:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
-    securePort: ${STORM_WEBDAV_HTTPS_PORT:8443}
-    maxConnections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
-    maxQueueSize:  ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
-    maxIdleTimeMsec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
+    max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
+    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
     
   tls:
     certificatePath: ${STORM_WEBDAV_CERTIFICATE_PATH:/etc/grid-security/storm-webdav/hostcert.pem}

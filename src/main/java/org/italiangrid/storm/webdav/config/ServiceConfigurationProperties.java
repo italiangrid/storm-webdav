@@ -35,9 +35,7 @@ import com.google.common.collect.Lists;
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
-    NO_CHECKSUM,
-    EARLY,
-    LATE
+    NO_CHECKSUM, EARLY, LATE
   }
 
   public static class MacaroonFilterProperties {
@@ -111,6 +109,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Positive
     int maxIdleTimeMsec = 30000;
 
+    int jettyAcceptors = -1;
+
+    int jettySelectors = -1;
+
     public int getPort() {
       return port;
     }
@@ -149,6 +151,22 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setMaxIdleTimeMsec(int maxIdleTimeMsec) {
       this.maxIdleTimeMsec = maxIdleTimeMsec;
+    }
+
+    public void setJettyAcceptors(int jettyAcceptors) {
+      this.jettyAcceptors = jettyAcceptors;
+    }
+
+    public int getJettyAcceptors() {
+      return jettyAcceptors;
+    }
+
+    public void setJettySelectors(int jettySelectors) {
+      this.jettySelectors = jettySelectors;
+    }
+
+    public int getJettySelectors() {
+      return jettySelectors;
     }
   }
 

@@ -81,17 +81,16 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   final ServiceConfiguration configuration;
   final StorageAreaConfiguration saConf;
 
-  @Autowired
-  ServerProperties serverProperties;
+  final ServerProperties serverProperties;
 
-  @Autowired
-  MetricRegistry metricRegistry;
+  // @Autowired
+  final MetricRegistry metricRegistry;
 
-  @Autowired
-  ConfigurationLogger confLogger;
+  // @Autowired
+  final ConfigurationLogger confLogger;
 
-  @Autowired
-  X509CertChainValidatorExt certChainValidator;
+  // @Autowired
+  final X509CertChainValidatorExt certChainValidator;
 
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
@@ -113,6 +112,8 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withHttp2(configuration.enableHttp2())
       .withDisableJsseHostnameVerification(true)
       .withTlsProtocol("TLS")
+      .withAcceptors(serverProperties.getJetty().getAcceptors())
+      .withSelectors(serverProperties.getJetty().getSelectors())
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
@@ -171,18 +172,23 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   private ThreadPool configureThreadPool() {
     return ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(configuration.getMaxConnections())
-      .withMinThreads(5)
+      .withMaxThreads(serverProperties.getJetty().getMaxThreads())
+      .withMinThreads(serverProperties.getJetty().getMinThreads())
       .registry(metricRegistry)
       .build();
   }
 
   @Autowired
   public JettyWebServerFactory(ServiceConfiguration serviceConfiguration,
-      StorageAreaConfiguration saConf) {
+      StorageAreaConfiguration saConf, ServerProperties serverProperties, MetricRegistry registry,
+      ConfigurationLogger confLogger, X509CertChainValidatorExt certChainValidator) {
     super(serviceConfiguration.getHTTPPort());
     this.configuration = serviceConfiguration;
     this.saConf = saConf;
+    this.serverProperties = serverProperties;
+    this.certChainValidator = certChainValidator;
+    this.metricRegistry = registry;
+    this.confLogger = confLogger;
     this.addServerCustomizers(this);
     setRegisterDefaultServlet(false);
     setThreadPool(configureThreadPool());
