@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
@@ -77,8 +77,8 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
 
     Map<String, Object> oidcConfiguration = fetcher.loadConfigurationForIssuer(issuer);
 
-    NimbusJwtDecoderJwkSupport jwtDecoder =
-        new NimbusJwtDecoderJwkSupport(oidcConfiguration.get("jwks_uri").toString());
+    NimbusJwtDecoder decoder =
+        NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString())).build();
 
     OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
     OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();
@@ -91,9 +91,9 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
       validators.add(new AudienceValidator(as));
     }
 
-    jwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<Jwt>(validators));
+    decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<Jwt>(validators));
 
-    return jwtDecoder;
+    return decoder;
   }
 
   private boolean localTokenIssuer(String issuer) {
@@ -103,9 +103,9 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
 
   @Override
   public ListenableFuture<JwtDecoder> reload(String issuer, JwtDecoder oldValue) throws Exception {
-    
+
     LOG.debug("Scheduling reload configuration for OAuth issuer '{}'", issuer);
-    
+
     if (localTokenIssuer(issuer)) {
       return Futures.immediateFuture(oldValue);
     }

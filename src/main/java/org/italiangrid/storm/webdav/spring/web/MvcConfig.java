@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import java.util.concurrent.TimeUnit;
 
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.web.ViewUtilsInterceptor;
@@ -35,11 +36,14 @@ public class MvcConfig implements WebMvcConfigurer {
   ServiceConfigurationProperties properties;
   
   @Autowired
+  OAuthProperties oauthProperties;
+
+  @Autowired
   StorageAreaConfiguration saConfig;
   
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-   registry.addInterceptor(new ViewUtilsInterceptor(properties, saConfig));
+    registry.addInterceptor(new ViewUtilsInterceptor(properties, saConfig, oauthProperties));
   }
 
   @Override
