@@ -11,6 +11,9 @@ spring:
             issuer-uri: https://iam-escape.cloud.cnaf.infn.it/
           indigo:
             issuer-uri: https://iam-test.indigo-datacloud.eu/
+  session:
+    store-type: none
+
 server:
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
