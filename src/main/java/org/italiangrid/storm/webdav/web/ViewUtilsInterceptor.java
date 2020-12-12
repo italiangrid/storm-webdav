@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
@@ -30,12 +31,14 @@ public class ViewUtilsInterceptor extends HandlerInterceptorAdapter {
 
   final ServiceConfigurationProperties serviceConfig;
   final StorageAreaConfiguration saConfig;
+  final OAuthProperties oauthProperties;
 
   public ViewUtilsInterceptor(ServiceConfigurationProperties properties,
-      StorageAreaConfiguration saConfig) {
+      StorageAreaConfiguration saConfig, OAuthProperties oauthProperties) {
 
     this.serviceConfig = properties;
     this.saConfig = saConfig;
+    this.oauthProperties = oauthProperties;
   }
 
   @Override
@@ -47,7 +50,7 @@ public class ViewUtilsInterceptor extends HandlerInterceptorAdapter {
     request.setAttribute(SAIndexServlet.AUTHN_SUBJECT_KEY,
         AuthenticationUtils.getPalatableSubject(context.getAuthentication()));
     request.setAttribute(SAIndexServlet.STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
-
+    request.setAttribute(SAIndexServlet.OIDC_ENABLED_KEY, oauthProperties.isEnableOidc());
     return true;
   }
 
