@@ -16,11 +16,13 @@
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
-import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status;
 
 import com.google.common.collect.Multimap;
 
@@ -37,8 +39,10 @@ public abstract class TransferRequestImpl implements TransferRequest {
   final boolean verifyChecksum;
 
   final boolean overwrite;
-  
-  long startEpochSecond;
+
+  Instant startTime;
+
+  Instant endTime;
 
   private Optional<TransferStatus> lastTransferStatus = Optional.empty();
 
@@ -80,10 +84,15 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   @Override
   public void setTransferStatus(TransferStatus status) {
+    if (!lastTransferStatus.isPresent()) {
+      startTime = status.getInstant();
+    }
+
     this.lastTransferStatus = Optional.of(status);
-    
-    if (status.getStatus().equals(Status.STARTED)) {
-      startEpochSecond = status.epochSecond();
+
+    if (TransferStatus.Status.ERROR.equals(status.getStatus())
+        || TransferStatus.Status.DONE.equals(status.getStatus())) {
+      endTime = status.getInstant();
     }
   }
 
@@ -96,9 +105,58 @@ public abstract class TransferRequestImpl implements TransferRequest {
   public String uuid() {
     return uuid;
   }
-  
+
   @Override
-  public long startEpochSecond() {
-    return startEpochSecond;
+  public Optional<Double> transferThroughputBytesPerSec() {
+    if (!lastTransferStatus.isPresent()) {
+      return Optional.empty();
+    }
+
+    if (!lastTransferStatus.get().getStatus().equals(TransferStatus.Status.DONE)) {
+      return Optional.empty();
+    }
+
+    TransferStatus lastStatus = lastTransferStatus.get();
+
+    Duration xferDuration = Duration.between(startTime, endTime).abs();
+
+    if (xferDuration.isZero()) {
+      // the transfer lasted less than a msec
+      return Optional.of((double) lastStatus.getTransferByteCount() * 1000);
+    }
+
+    double bytesPerSecond =
+        ((double) lastStatus.getTransferByteCount() / xferDuration.toMillis()) * 1000;
+
+    return Optional.of(bytesPerSecond);
+  }
+
+  @Override
+  public long bytesTransferred() {
+    if (!lastTransferStatus.isPresent()) {
+      return 0;
+    }
+    return lastTransferStatus.get().getTransferByteCount();
+  }
+
+
+  @Override
+  public Duration duration() {
+
+    if (Objects.isNull(startTime) || Objects.isNull(endTime)) {
+      return Duration.ZERO;
+    }
+
+    return Duration.between(startTime, endTime);
+  }
+
+  @Override
+  public Instant startTime() {
+    return startTime;
+  }
+
+  @Override
+  public Instant endTime() {
+    return endTime;
   }
 }

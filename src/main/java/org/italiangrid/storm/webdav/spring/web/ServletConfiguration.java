@@ -17,6 +17,8 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import java.time.Clock;
+
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -148,14 +150,14 @@ public class ServletConfiguration {
   }
 
   @Bean
-  FilterRegistrationBean<TransferFilter> tpcFilter(FilesystemAccess fs,
+  FilterRegistrationBean<TransferFilter> tpcFilter(Clock clock, FilesystemAccess fs,
       ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client,
       ThirdPartyCopyProperties props, LocalURLService lus, MetricRegistry registry) {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(metricsClient, resolver, lus, props.isVerifyChecksum()));
+        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

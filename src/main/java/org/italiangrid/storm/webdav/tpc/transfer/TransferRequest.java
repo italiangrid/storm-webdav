@@ -16,30 +16,40 @@
 package org.italiangrid.storm.webdav.tpc.transfer;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 import com.google.common.collect.Multimap;
 
 public interface TransferRequest {
-  
+
   String uuid();
-  
+
   String path();
-  
+
   URI remoteURI();
-  
+
   Multimap<String, String> transferHeaders();
-  
+
   boolean verifyChecksum();
-  
+
   boolean overwrite();
-  
+
   Optional<TransferStatus> lastTransferStatus();
-  
+
   void setTransferStatus(TransferStatus status);
-  
+
   String statusString();
-  
-  long startEpochSecond();
-  
+
+  long bytesTransferred();
+
+  Duration duration();
+
+  Optional<Double> transferThroughputBytesPerSec();
+
+  Instant startTime();
+
+  Instant endTime();
+
 }

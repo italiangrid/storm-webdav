@@ -27,12 +27,12 @@ Pull copy works Teardown
 
 Pull copy works https Setup
     Default Setup
-    Create Test File   tpc_test_https  content=Hello World!  sa=${sa.auth}
+    Create Test File   tpc_test_https  content=Hello World!  sa=${sa.noauth}
 
 Pull copy works https Teardown
     Default Teardown
     Remove Test File   tpc_test_https
-    Remove Test File   tpc_test_https  ${sa.auth}
+    Remove Test File   tpc_test_https  ${sa.noauth}
 
 Overwrite header recognized Setup
     Default Setup
@@ -90,10 +90,10 @@ Pull copy works
     [Teardown]  Pull copy works Teardown
 
 Pull copy works https
-    [Tags]   voms  tpc
+    [Tags]   voms  tpc  dbg
     [Setup]  Pull copy works https Setup
     ${dest}  DAVS URL  tpc_test_https
-    ${src}  Remote DAVS URL  tpc_test_https  sa=${sa.auth}
+    ${src}  Remote DAVS URL  tpc_test_https   sa=${sa.noauth}
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
     [Teardown]  Pull copy works https Teardown

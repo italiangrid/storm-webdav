@@ -20,6 +20,9 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -40,6 +43,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 public class TransferFilterTestSupport implements TransferConstants {
+
+  public static final Instant NOW = Instant.parse("2021-01-01T00:00:00.00Z");
+
+  Clock clock = Clock.fixed(NOW, ZoneId.systemDefault());
 
   public static final String SERVLET_PATH = "/test";
   public static final String LOCAL_PATH = "/some/file";
@@ -104,7 +111,7 @@ public class TransferFilterTestSupport implements TransferConstants {
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
   protected void setup() throws IOException {
-    filter = new TransferFilter(client, resolver, lus, true);
+    filter = new TransferFilter(clock, client, resolver, lus, true);
     when(request.getHeaderNames()).thenReturn(requestHeaderNames);
 
   }
