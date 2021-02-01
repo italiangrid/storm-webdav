@@ -30,6 +30,15 @@
     <!-- Empty fileset to create empty directory -->
     <fileSet>
       <directory>src</directory>
+      <outputDirectory>var/log/storm</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+      <directoryMode>0750</directoryMode>
+    </fileSet>
+
+    <fileSet>
+      <directory>src</directory>
       <outputDirectory>var/log/storm/webdav</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
@@ -67,19 +76,6 @@
   </fileSets>
 
   <files>
-    <file>
-      <source>etc/sysconfig/storm-webdav</source>
-      <outputDirectory>etc/sysconfig</outputDirectory>
-      <fileMode>0644</fileMode>
-    </file>
-
-    <file>
-      <source>etc/init.d/storm-webdav</source>
-      <outputDirectory>etc/init.d</outputDirectory>
-      <destName>storm-webdav</destName>
-      <fileMode>0755</fileMode>
-    </file>
-
     <file>
       <source>etc/systemd/system/storm-webdav.service</source>
       <outputDirectory>usr/lib/systemd/system</outputDirectory>
