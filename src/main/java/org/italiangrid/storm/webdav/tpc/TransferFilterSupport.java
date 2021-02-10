@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.tpc;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.util.Enumeration;
 import java.util.Optional;
 
@@ -36,6 +36,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.slf4j.Logger;
@@ -49,21 +50,25 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
 
+  protected final Clock clock;
   protected final PathResolver resolver;
   protected final LocalURLService localURLService;
   protected final boolean verifyChecksum;
+  protected final TransferStatus.Builder status;
 
 
-  protected TransferFilterSupport(PathResolver resolver, LocalURLService lus,
+  protected TransferFilterSupport(Clock clock, PathResolver resolver, LocalURLService lus,
       boolean verifyChecksum) {
+    this.clock = clock;
     this.resolver = resolver;
     this.localURLService = lus;
     this.verifyChecksum = verifyChecksum;
+    status = TransferStatus.builder(clock);
   }
 
   protected String getScopedPathInfo(HttpServletRequest request) {
     return Paths.get(request.getServletPath(), request.getPathInfo()).toString();
-  }  
+  }
 
   protected Multimap<String, String> getTransferHeaders(HttpServletRequest request,
       HttpServletResponse response) {
@@ -296,32 +301,32 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
   public void handleChecksumVerificationError(TransferRequest req, ChecksumVerificationError e,
       HttpServletResponse response) throws IOException {
-    req.setTransferStatus(error(e.getMessage()));
+    req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
-    
+
   }
 
   public void handleTransferError(TransferRequest req, TransferError e,
       HttpServletResponse response) throws IOException {
-    req.setTransferStatus(error(e.getMessage()));
+    req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
-    
+
   }
 
   public void handleClientProtocolException(TransferRequest req, ClientProtocolException e,
       HttpServletResponse response) throws IOException {
-    req.setTransferStatus(error(e.getMessage()));
+    req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %s", e.getMessage()));
-    
+
   }
 
   public void handleHttpResponseException(TransferRequest req, HttpResponseException e,
       HttpServletResponse response) throws IOException {
-    req.setTransferStatus(error(e.getMessage()));
+    req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED,
         format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
-   
+
   }
 
 }

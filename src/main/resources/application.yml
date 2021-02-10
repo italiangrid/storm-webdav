@@ -84,7 +84,7 @@ storm:
   
   authz-server:
     enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:true}
-    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.securePort}}
+    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.secure-port}}
     secret: ${STORM_WEBDAV_AUTHZ_SERVER_SECRET:${random.value}}
     max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
   

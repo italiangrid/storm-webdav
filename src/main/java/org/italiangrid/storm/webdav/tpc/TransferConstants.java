@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 public interface TransferConstants {
 
+  String AUTHORIZATION_HEADER = "Authorization";
   String CLIENT_INFO_HEADER = "ClientInfo";
   String SOURCE_HEADER = "Source";
   String DESTINATION_HEADER = "Destination";

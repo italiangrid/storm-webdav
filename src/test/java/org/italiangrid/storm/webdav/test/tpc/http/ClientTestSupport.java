@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.test.tpc.http;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
+import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
@@ -71,7 +72,7 @@ public class ClientTestSupport {
   @SuppressWarnings("rawtypes")
   @Mock
   ScheduledFuture sf;
-  
+
   HttpTransferClient client;
 
   @Captor
@@ -91,7 +92,8 @@ public class ClientTestSupport {
 
   @Before
   public void setup() throws IOException {
-    client = new HttpTransferClient(httpClient, resolver, eah, es, 1, 4096);
+    client =
+        new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, 1, 4096);
   }
 
 }

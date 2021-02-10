@@ -6,8 +6,9 @@ Resource   common/utils.robot
 *** Variables ***
 
 ${sa.default}   test.vo
-${sa.noauth}    noauth
 ${sa.auth}      auth
+${sa.noauth}    noauth
+${sa.fga}       fga
 ${sa.oauth}     oauth-authz
 ${sa.wlcg}      wlcg
 
