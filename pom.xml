@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.italiangrid</groupId>
   <artifactId>storm-webdav-server</artifactId>
-  <version>1.4.0.202110225</version>
+  <version>1.4.0.20210225</version>
   <packaging>jar</packaging>
   <name>storm-webdav-server</name>
 
