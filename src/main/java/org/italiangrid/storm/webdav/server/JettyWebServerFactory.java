@@ -44,6 +44,7 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.server.util.JettyErrorPageHandler;
@@ -92,6 +93,8 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   // @Autowired
   final X509CertChainValidatorExt certChainValidator;
 
+  final ServiceConfigurationProperties serviceConfig;
+
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
 
@@ -100,6 +103,12 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     connectorBuilder.httpConfiguration().setSendServerVersion(false);
     connectorBuilder.httpConfiguration().setSendDateHeader(false);
+    connectorBuilder.httpConfiguration()
+      .setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
+
+    connectorBuilder.httpConfiguration()
+      .setOutputBufferSize(serviceConfig.getConnector().getOutputBufferSizeBytes());
+
 
     ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
       .withWantClientAuth(true)
@@ -117,6 +126,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
+
     server.addConnector(connector);
     LOG.info("Configured TLS connector on port: {}. Conscrypt enabled: {}. HTTP/2 enabled: {}",
         configuration.getHTTPSPort(), configuration.useConscrypt(), configuration.enableHttp2());
@@ -179,11 +189,12 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   }
 
   @Autowired
-  public JettyWebServerFactory(ServiceConfiguration serviceConfiguration,
+  public JettyWebServerFactory(ServiceConfigurationProperties serviceConfigurationProperties,
       StorageAreaConfiguration saConf, ServerProperties serverProperties, MetricRegistry registry,
       ConfigurationLogger confLogger, X509CertChainValidatorExt certChainValidator) {
-    super(serviceConfiguration.getHTTPPort());
-    this.configuration = serviceConfiguration;
+    super(serviceConfigurationProperties.getHTTPPort());
+    this.configuration = serviceConfigurationProperties;
+    this.serviceConfig = serviceConfigurationProperties;
     this.saConf = saConf;
     this.serverProperties = serverProperties;
     this.certChainValidator = certChainValidator;

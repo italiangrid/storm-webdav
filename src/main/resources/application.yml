@@ -22,14 +22,14 @@ server:
      
 
 tpc:
-  tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
-  maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
+  tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
+  max-connections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
   max-connections-per-route: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS_PER_ROUTE:25}
   timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:5}
-  verifyChecksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
-  reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
-  httpClientSocketBufferSize: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
-  localFileBufferSize: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
+  verify-checksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
+  report-delay-secs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
+  http-client-socket-buffer-size: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:65536}
+  local-file-buffer-size: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:65536}
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
   enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
   
@@ -61,9 +61,11 @@ storm:
   connector:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
     secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
-    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
+    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:200}
     max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
     max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    output-buffer-size-bytes: ${STORM_WEBDAV_CONNECTOR_OUTPUT_BUFFER_SIZE_BYTES:32768}
+     
     
   tls:
     certificatePath: ${STORM_WEBDAV_CERTIFICATE_PATH:/etc/grid-security/storm-webdav/hostcert.pem}

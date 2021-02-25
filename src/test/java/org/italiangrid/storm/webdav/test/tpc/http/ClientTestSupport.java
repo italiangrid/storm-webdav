@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
@@ -92,8 +93,9 @@ public class ClientTestSupport {
 
   @Before
   public void setup() throws IOException {
+    ThirdPartyCopyProperties props = new ThirdPartyCopyProperties();
     client =
-        new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, 1, 4096);
+        new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, props);
   }
 
 }

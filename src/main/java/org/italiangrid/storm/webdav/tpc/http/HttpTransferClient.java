@@ -39,6 +39,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -55,7 +56,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -81,15 +81,14 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   @Autowired
   public HttpTransferClient(Clock clock, CloseableHttpClient client, PathResolver pr,
       ExtendedAttributesHelper ah, ScheduledExecutorService es,
-      @Value("${tpc.reportDelaySecs}") int reportDelaySeconds,
-      @Value("${tpc.localFileBufferSize}") int lfbs) {
+      ThirdPartyCopyProperties properties) {
     this.clock = clock;
     httpClient = client;
     resolver = pr;
     attributesHelper = ah;
     executorService = es;
-    reportDelaySec = reportDelaySeconds;
-    localFileBufferSize = lfbs;
+    reportDelaySec = properties.getReportDelaySecs();
+    localFileBufferSize = properties.getLocalFileBufferSize();
     statusBuilder = TransferStatus.builder(clock);
   }
 

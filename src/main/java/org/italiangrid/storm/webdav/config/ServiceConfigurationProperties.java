@@ -113,6 +113,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     int jettySelectors = -1;
 
+    int outputBufferSizeBytes = 32 * 1024;
+
     public int getPort() {
       return port;
     }
@@ -167,6 +169,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public int getJettySelectors() {
       return jettySelectors;
+    }
+
+    public int getOutputBufferSizeBytes() {
+      return outputBufferSizeBytes;
+    }
+
+    public void setOutputBufferSizeBytes(int outputBufferSizeBytes) {
+      this.outputBufferSizeBytes = outputBufferSizeBytes;
     }
   }
 

@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
@@ -44,6 +45,7 @@ public class StormResourceWrapper extends Resource {
   final TemplateEngine engine;
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
+  final int bufferSize;
 
   public StormResourceWrapper(OAuthProperties oauth, ServiceConfigurationProperties serviceConfig,
       TemplateEngine engine, Resource delegate) {
@@ -52,6 +54,7 @@ public class StormResourceWrapper extends Resource {
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
+    this.bufferSize = serviceConfig.getConnector().getOutputBufferSizeBytes();
   }
 
   /**
@@ -235,5 +238,51 @@ public class StormResourceWrapper extends Resource {
   public Resource addPath(String path) throws IOException, MalformedURLException {
     return delegate.addPath(path);
   }
+
+  @Override
+  public void writeTo(OutputStream out, long start, long count) throws IOException {
+
+    try (InputStream in = getInputStream()) {
+      in.skip(start);
+      if (count < 0) {
+        internalCopy(in, out);
+      } else {
+        internalCopy(in, out, count);
+      }
+    }
+
+  }
+
+  private void internalCopy(InputStream in, OutputStream out, long byteCount) throws IOException {
+
+    byte[] buffer = new byte[bufferSize];
+    int len = bufferSize;
+
+    if (byteCount >= 0) {
+      while (byteCount > 0) {
+        int max = byteCount < bufferSize ? (int) byteCount : bufferSize;
+        len = in.read(buffer, 0, max);
+
+        if (len == -1)
+          break;
+
+        byteCount -= len;
+        out.write(buffer, 0, len);
+      }
+    } else {
+      while (true) {
+        len = in.read(buffer, 0, bufferSize);
+        if (len < 0)
+          break;
+        out.write(buffer, 0, len);
+      }
+    }
+
+  }
+
+  private void internalCopy(InputStream in, OutputStream out) throws IOException {
+    internalCopy(in, out, -1);
+  }
+
 
 }
