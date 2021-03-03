@@ -30,7 +30,6 @@ import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 public class GetResponseHandler extends ResponseHandlerSupport
     implements org.apache.http.client.ResponseHandler<Boolean> {
@@ -82,7 +81,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
     } finally {
       fileStream.close();
       EntityUtils.consumeQuietly(entity);
-      MDC.clear();
+
     }
 
   }

@@ -142,8 +142,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   protected void logTransferStart(GetTransferRequest req) {
 
     LOG.info(
-        "Pull third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}",
-        req.remoteURI(), req.path(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER));
+        "Pull third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
+        req.remoteURI(), req.path(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER),
+        req.uuid());
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
     }
@@ -151,8 +152,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   protected void logTransferStart(PutTransferRequest req) {
     LOG.info(
-        "Push third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}",
-        req.path(), req.remoteURI(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER));
+        "Push third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
+        req.path(), req.remoteURI(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER),
+        req.uuid());
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
     }
@@ -163,12 +165,13 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       TransferStatus lastStatus = req.lastTransferStatus().get();
       if (TransferStatus.Status.DONE.equals(lastStatus.getStatus())) {
         LOG.info(
-            "Pull third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration: {}, Throughput: {}/sec",
+            "Pull third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
             lastStatus, req.remoteURI(), req.path(),
-            FileUtils.byteCountToDisplaySize(req.bytesTransferred()),
-            req.duration(),
+            req.bytesTransferred(),
+            req.duration().toMillis(),
             FileUtils
-              .byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()));
+              .byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()),
+            req.uuid());
       } else {
         LOG.warn("Pull third-party transfer completed: {}. Source: {}, Destination: {}", lastStatus,
             req.remoteURI(), req.path());
@@ -179,15 +182,17 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   protected void logTransferDone(PutTransferRequest req) {
     if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
       LOG.info(
-          "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration: {}, Throughput: {}/sec",
+          "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
           req.lastTransferStatus().get(), req.path(), req.remoteURI(),
-          FileUtils.byteCountToDisplaySize(req.bytesTransferred()), req.duration(),
-          FileUtils.byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()));
+          req.bytesTransferred(), req.duration().toMillis(),
+          FileUtils.byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()),
+          req.uuid());
     }
   }
 
-  protected void logTransferException(Exception e) {
-    LOG.warn("{}: {}", e.getClass().getName(), e.getMessage());
+  protected void logTransferException(TransferRequest request, Exception e) {
+    LOG.warn("Third-party transfer {} terminated with an error: {} - {}", request.uuid(),
+        e.getClass().getName(), e.getMessage());
     if (LOG.isDebugEnabled()) {
       LOG.warn(e.getMessage(), e);
     }
@@ -216,16 +221,16 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
 
     } catch (ChecksumVerificationError e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleTransferError(xferRequest, e, response);
     } catch (HttpResponseException e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleHttpResponseException(xferRequest, e, response);
     } catch (ClientProtocolException e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleClientProtocolException(xferRequest, e, response);
     } finally {
       logTransferDone(xferRequest);
@@ -254,16 +259,16 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
 
     } catch (ChecksumVerificationError e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleTransferError(xferRequest, e, response);
     } catch (HttpResponseException e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleHttpResponseException(xferRequest, e, response);
     } catch (ClientProtocolException e) {
-      logTransferException(e);
+      logTransferException(xferRequest, e);
       handleClientProtocolException(xferRequest, e, response);
     } finally {
       logTransferDone(xferRequest);

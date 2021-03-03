@@ -41,6 +41,36 @@ public class TransferStatsTest {
 
   }
 
+  @Test
+  public void testOneMsecByteCountPull() {
+
+    GetTransferRequest req = GetTransferRequestBuilder.create().build();
+    req.setTransferStatus(status.inProgress(0));
+    status.withClock(Clock.offset(clock, Duration.ofMillis(1)));
+    req.setTransferStatus(status.done(1000));
+
+    assertThat(req.bytesTransferred(), is(1000L));
+    assertThat(req.duration().toMillis(), is(1L));
+
+    assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
+
+  }
+
+  @Test
+  public void testHalfMsecByteCountPull() {
+
+    GetTransferRequest req = GetTransferRequestBuilder.create().build();
+    req.setTransferStatus(status.inProgress(0));
+    status.withClock(Clock.offset(clock, Duration.ofNanos(1000)));
+    req.setTransferStatus(status.done(1000));
+
+    assertThat(req.bytesTransferred(), is(1000L));
+    assertThat(req.duration().toMillis(), is(0L));
+
+    assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
+
+  }
+
 
 
 }

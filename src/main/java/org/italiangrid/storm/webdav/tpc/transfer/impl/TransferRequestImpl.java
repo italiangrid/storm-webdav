@@ -23,10 +23,13 @@ import java.util.Optional;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 
 public abstract class TransferRequestImpl implements TransferRequest {
+  public static final Logger LOG = LoggerFactory.getLogger(TransferRequestImpl.class);
 
   final String uuid;
 
@@ -84,6 +87,10 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   @Override
   public void setTransferStatus(TransferStatus status) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("TPC id: {}, status: {}", uuid, status);
+    }
+
     if (!lastTransferStatus.isPresent()) {
       startTime = status.getInstant();
     }
@@ -120,8 +127,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
     Duration xferDuration = Duration.between(startTime, endTime).abs();
 
-    if (xferDuration.isZero()) {
-      // the transfer lasted less than a msec
+    if (xferDuration.isZero() || xferDuration.toMillis() == 0) {
       return Optional.of((double) lastStatus.getTransferByteCount() * 1000);
     }
 
@@ -144,6 +150,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
   public Duration duration() {
 
     if (Objects.isNull(startTime) || Objects.isNull(endTime)) {
+      LOG.debug("Duration called before end of trasnfer, will return ZERO");
       return Duration.ZERO;
     }
 

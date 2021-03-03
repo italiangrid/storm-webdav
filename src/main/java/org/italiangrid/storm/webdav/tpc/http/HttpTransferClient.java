@@ -100,6 +100,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   HttpGet prepareRequest(GetTransferRequest request) {
+    request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
+
     HttpGet get = new HttpGet(request.remoteURI());
 
     for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
@@ -109,6 +111,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) throws IOException {
+
+    request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
 
     HttpPut put = new HttpPut(request.remoteURI());
 
