@@ -53,7 +53,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 public class TransferFilter extends TransferFilterSupport implements Filter {
+
   public static final String XFER_ID_KEY = "tpc.xferId";
+  private static final String EMPTY_VALUE = "-";
+
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilter.class);
 
   final TransferClient client;
@@ -160,6 +163,17 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+  private String getUserFriendlyThroughputString(TransferRequest req) {
+    String xferThroughputString = EMPTY_VALUE;
+
+    if (req.transferThroughputBytesPerSec().isPresent()) {
+      xferThroughputString =
+          FileUtils.byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue());
+    }
+
+    return xferThroughputString;
+  }
+
   protected void logTransferDone(GetTransferRequest req) {
     if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
       TransferStatus lastStatus = req.lastTransferStatus().get();
@@ -169,8 +183,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
             lastStatus, req.remoteURI(), req.path(),
             req.bytesTransferred(),
             req.duration().toMillis(),
-            FileUtils
-              .byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()),
+            getUserFriendlyThroughputString(req),
             req.uuid());
       } else {
         LOG.warn("Pull third-party transfer completed: {}. Source: {}, Destination: {}", lastStatus,
@@ -181,11 +194,11 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   protected void logTransferDone(PutTransferRequest req) {
     if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
+
       LOG.info(
           "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
           req.lastTransferStatus().get(), req.path(), req.remoteURI(),
-          req.bytesTransferred(), req.duration().toMillis(),
-          FileUtils.byteCountToDisplaySize(req.transferThroughputBytesPerSec().get().longValue()),
+          req.bytesTransferred(), req.duration().toMillis(), getUserFriendlyThroughputString(req),
           req.uuid());
     }
   }
