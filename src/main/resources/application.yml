@@ -32,7 +32,7 @@ tpc:
   local-file-buffer-size: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:65536}
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
   enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
-  
+  progress-report-thread-pool-size: ${STORM_WEBDAV_TPC_PROGRESS_REPORT_THREAD_POOL_SIZE:4}
 
 oauth:
   refresh-period-minutes: 60

@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -108,6 +108,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -210,7 +211,13 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
-    return new ScheduledThreadPoolExecutor(4);
+
+    final int tpSize = props.getProgressReportThreadPoolSize();
+    ThreadFactory namedThreadFactory =
+        new ThreadFactoryBuilder().setNameFormat("tpc-progress-%d").setDaemon(true).build();
+
+
+    return Executors.newScheduledThreadPool(tpSize, namedThreadFactory);
   }
 
   @Bean("tpcConnectionManager")

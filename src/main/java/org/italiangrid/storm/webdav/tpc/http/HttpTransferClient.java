@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -80,7 +81,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
   @Autowired
   public HttpTransferClient(Clock clock, CloseableHttpClient client, PathResolver pr,
-      ExtendedAttributesHelper ah, ScheduledExecutorService es,
+      ExtendedAttributesHelper ah, @Qualifier("tpcProgressReportEs") ScheduledExecutorService es,
       ThirdPartyCopyProperties properties) {
     this.clock = clock;
     httpClient = client;

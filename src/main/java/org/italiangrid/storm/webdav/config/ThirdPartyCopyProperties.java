@@ -55,6 +55,9 @@ public class ThirdPartyCopyProperties {
   @Min(value = 0, message = "Timeout in seconds must be >= 0")
   int timeoutInSecs;
 
+  @Positive(message = "tpc.progressReportThreadPoolSize must be a positive integer (i.e. > 0)")
+  int progressReportThreadPoolSize;
+
   public String getTlsProtocol() {
     return tlsProtocol;
   }
@@ -133,6 +136,14 @@ public class ThirdPartyCopyProperties {
 
   public void setTimeoutInSecs(int timeoutInSecs) {
     this.timeoutInSecs = timeoutInSecs;
+  }
+
+  public int getProgressReportThreadPoolSize() {
+    return progressReportThreadPoolSize;
+  }
+
+  public void setProgressReportThreadPoolSize(int progressReportThreadPoolSize) {
+    this.progressReportThreadPoolSize = progressReportThreadPoolSize;
   }
 
 }
