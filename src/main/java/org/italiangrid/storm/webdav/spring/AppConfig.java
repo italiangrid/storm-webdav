@@ -76,6 +76,7 @@ import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
 import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
+import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerServiceMetricsWrapper;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
@@ -106,6 +107,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -135,8 +139,12 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
-      SignedJwtTokenIssuer tokenIssuer, Clock clock) {
-    return new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
+      SignedJwtTokenIssuer tokenIssuer, Clock clock, MetricRegistry registry) {
+
+    TokenIssuerService service =
+        new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
+
+    return new TokenIssuerServiceMetricsWrapper(service, registry);
   }
 
   @Bean
@@ -171,7 +179,12 @@ public class AppConfig implements TransferConstants {
   @Bean
   public MetricRegistry metricRegistry() {
 
-    return new MetricRegistry();
+    MetricRegistry registry = new MetricRegistry();
+
+    registry.registerAll("jvm.mem", new MemoryUsageGaugeSet());
+    registry.registerAll("jvm.gc", new GarbageCollectorMetricSet());
+    registry.registerAll("jvm.threads", new CachedThreadStatesGaugeSet(1, TimeUnit.MINUTES));
+    return registry;
   }
 
   @Bean
@@ -215,7 +228,6 @@ public class AppConfig implements TransferConstants {
     final int tpSize = props.getProgressReportThreadPoolSize();
     ThreadFactory namedThreadFactory =
         new ThreadFactoryBuilder().setNameFormat("tpc-progress-%d").setDaemon(true).build();
-
 
     return Executors.newScheduledThreadPool(tpSize, namedThreadFactory);
   }

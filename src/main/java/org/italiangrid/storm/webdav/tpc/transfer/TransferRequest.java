@@ -52,4 +52,8 @@ public interface TransferRequest {
 
   Instant endTime();
 
+  boolean endedSuccesfully();
+
+  boolean endedInError();
+
 }

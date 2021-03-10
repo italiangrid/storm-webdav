@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,5 +166,19 @@ public abstract class TransferRequestImpl implements TransferRequest {
   @Override
   public Instant endTime() {
     return endTime;
+  }
+
+  @Override
+  public boolean endedSuccesfully() {
+
+    return lastTransferStatus.isPresent()
+        && lastTransferStatus.get().getStatus().equals(Status.DONE);
+
+  }
+
+  @Override
+  public boolean endedInError() {
+    return lastTransferStatus.isPresent()
+        && lastTransferStatus.get().getStatus().equals(Status.ERROR);
   }
 }

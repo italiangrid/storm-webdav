@@ -63,6 +63,7 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
+import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -84,13 +85,10 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   final ServerProperties serverProperties;
 
-  // @Autowired
   final MetricRegistry metricRegistry;
 
-  // @Autowired
   final ConfigurationLogger confLogger;
 
-  // @Autowired
   final X509CertChainValidatorExt certChainValidator;
 
   final ServiceConfigurationProperties serviceConfig;
@@ -180,12 +178,18 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   }
 
   private ThreadPool configureThreadPool() {
-    return ThreadPoolBuilder.instance()
+
+    InstrumentedQueuedThreadPool tp = (InstrumentedQueuedThreadPool) ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
       .withMaxThreads(serverProperties.getJetty().getMaxThreads())
       .withMinThreads(serverProperties.getJetty().getMinThreads())
       .registry(metricRegistry)
       .build();
+
+    // FIXME: the prefix setting should be moved to the ThreadPoolBuilder
+    tp.setPrefix("storm.http");
+    tp.setName("thread-pool");
+    return tp;
   }
 
   @Autowired
