@@ -16,6 +16,8 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
 
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 public class GetResponseHandler extends ResponseHandlerSupport
     implements org.apache.http.client.ResponseHandler<Boolean> {
 
+  public static final int OUTPUT_BUFFER_SIZE = 1024 * 1024;
   public static final Logger LOG = LoggerFactory.getLogger(GetResponseHandler.class);
 
   final GetTransferRequest request;
@@ -54,6 +57,22 @@ public class GetResponseHandler extends ResponseHandlerSupport
     this(req, fs, ah, Collections.emptyMap());
   }
 
+  private void writeEntityToStream(HttpEntity entity, OutputStream os)
+      throws UnsupportedOperationException, IOException {
+    
+    final InputStream inStream = entity.getContent();
+    try {
+        int l;
+        final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
+        while ((l = inStream.read(tmp)) != -1) {
+            os.write(tmp, 0, l);
+        }
+    } finally {
+        inStream.close();
+    }
+  }
+  
+  
   @Override
   public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
 
@@ -71,7 +90,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
       if (entity != null) {
 
-        entity.writeTo(checkedStream);
+        writeEntityToStream(entity, checkedStream);
         attributesHelper.setChecksumAttribute(fileStream.getPath(),
             checkedStream.getChecksumValue());
       }
