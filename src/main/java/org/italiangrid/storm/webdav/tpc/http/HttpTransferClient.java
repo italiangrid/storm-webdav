@@ -22,6 +22,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,6 +40,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -72,6 +74,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   final TransferStatus.Builder statusBuilder;
   final int reportDelaySec;
   final int localFileBufferSize;
+  final int socketBufferSize;
 
 
   private void reportStatus(TransferStatusCallback cb, TransferRequest req, TransferStatus s) {
@@ -82,14 +85,15 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   @Autowired
   public HttpTransferClient(Clock clock, CloseableHttpClient client, PathResolver pr,
       ExtendedAttributesHelper ah, @Qualifier("tpcProgressReportEs") ScheduledExecutorService es,
-      ThirdPartyCopyProperties properties) {
+      ThirdPartyCopyProperties properties, ServiceConfigurationProperties config) {
     this.clock = clock;
     httpClient = client;
     resolver = pr;
     attributesHelper = ah;
     executorService = es;
     reportDelaySec = properties.getReportDelaySecs();
-    localFileBufferSize = properties.getLocalFileBufferSize();
+    localFileBufferSize = config.getBuffer().getFileBufferSizeBytes();
+    socketBufferSize = properties.getHttpClientSocketBufferSize();
     statusBuilder = TransferStatus.builder(clock);
   }
 
@@ -143,9 +147,12 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       if (!p.toFile().exists()) {
         p = Files.createFile(p);
       }
-
-      BufferedOutputStream fos = new BufferedOutputStream(
-          new FileOutputStream(new File(p.toString())), localFileBufferSize);
+      
+      OutputStream fos = new FileOutputStream(new File(p.toString()));
+      
+      if (localFileBufferSize > 0) {
+        fos = new BufferedOutputStream(fos, localFileBufferSize);
+      }
 
       return StormCountingOutputStream.create(fos, p.toString());
 
@@ -168,7 +175,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
 
       httpClient.execute(get,
-          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap()));
+          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap(),
+              socketBufferSize, true));
 
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));

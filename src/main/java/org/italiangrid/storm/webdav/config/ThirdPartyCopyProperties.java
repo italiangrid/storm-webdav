@@ -44,9 +44,6 @@ public class ThirdPartyCopyProperties {
 
   @Min(value = 4096, message = "tpc.httpClientSocketBufferSize must be > 4096")
   int httpClientSocketBufferSize = 8192;
-
-  @Min(value = 4096, message = "tpc.localFileBufferSize must be > 4096")
-  int localFileBufferSize = 8192;
   
   boolean useConscrypt = false;
 
@@ -96,14 +93,6 @@ public class ThirdPartyCopyProperties {
 
   public void setHttpClientSocketBufferSize(int httpClientSocketBufferSize) {
     this.httpClientSocketBufferSize = httpClientSocketBufferSize;
-  }
-
-  public int getLocalFileBufferSize() {
-    return localFileBufferSize;
-  }
-
-  public void setLocalFileBufferSize(int localFileBufferSize) {
-    this.localFileBufferSize = localFileBufferSize;
   }
 
   public boolean isUseConscrypt() {

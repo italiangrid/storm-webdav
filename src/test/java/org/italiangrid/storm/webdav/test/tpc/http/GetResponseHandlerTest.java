@@ -69,7 +69,7 @@ public class GetResponseHandlerTest extends ClientTestSupport {
     
     handler.handleResponse(response);
     
-    verify(entity).writeTo(any());
+    verify(entity).getContent();
     verify(ah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
   }
 }

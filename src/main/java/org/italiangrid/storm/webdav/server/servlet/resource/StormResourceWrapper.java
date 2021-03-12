@@ -45,7 +45,6 @@ public class StormResourceWrapper extends Resource {
   final TemplateEngine engine;
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
-  final int bufferSize;
 
   public StormResourceWrapper(OAuthProperties oauth, ServiceConfigurationProperties serviceConfig,
       TemplateEngine engine, Resource delegate) {
@@ -54,7 +53,7 @@ public class StormResourceWrapper extends Resource {
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
-    this.bufferSize = serviceConfig.getConnector().getOutputBufferSizeBytes();
+
   }
 
   /**
@@ -255,6 +254,7 @@ public class StormResourceWrapper extends Resource {
 
   private void internalCopy(InputStream in, OutputStream out, long byteCount) throws IOException {
 
+    int bufferSize = serviceConfig.getBuffer().getFileBufferSizeBytes();
     byte[] buffer = new byte[bufferSize];
     int len = bufferSize;
 

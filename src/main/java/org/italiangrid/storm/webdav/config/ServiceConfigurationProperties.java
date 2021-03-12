@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
@@ -36,6 +37,22 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
     NO_CHECKSUM, EARLY, LATE
+  }
+
+  @Validated
+  public static class BufferProperties {
+
+    @Min(value = 4096, message = "storm.buffer.file-buffer-size-bytes must be >= 4096")
+    int fileBufferSizeBytes = 1048576;
+
+    public int getFileBufferSizeBytes() {
+      return fileBufferSizeBytes;
+    }
+
+    public void setFileBufferSizeBytes(int fileBufferSizeBytes) {
+      this.fileBufferSizeBytes = fileBufferSizeBytes;
+    }
+
   }
 
   public static class MacaroonFilterProperties {
@@ -113,6 +130,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     int jettySelectors = -1;
 
+    @Positive
+    @Min(4096)
     int outputBufferSizeBytes = 32 * 1024;
 
     public int getPort() {
@@ -442,6 +461,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private ChecksumStrategy checksumStrategy = ChecksumStrategy.EARLY;
 
+  private BufferProperties buffer;
+
   @NotEmpty
   private List<String> hostnames;
 
@@ -674,5 +695,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public boolean enableHttp2() {
     return getTls().isEnableHttp2();
+  }
+
+  public BufferProperties getBuffer() {
+    return buffer;
+  }
+
+  public void setBuffer(BufferProperties buffer) {
+    this.buffer = buffer;
   }
 }
