@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
+package org.italiangrid.storm.webdav.redirector;
 
-import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
-import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
-import org.springframework.security.core.Authentication;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 
-import com.nimbusds.jwt.SignedJWT;
+public class RedirectError extends StoRMWebDAVError {
 
-public interface SignedJwtTokenIssuer {
-  
-  public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
-  public SignedJWT createResourceAccessToken(ResourceAccessTokenRequest request,
-      Authentication authentication);
+  public RedirectError() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+  public RedirectError(String message) {
+    super(message);
+    // TODO Auto-generated constructor stub
+  }
 
 }

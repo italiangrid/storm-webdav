@@ -1,0 +1,24 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          iam-test:
+            provider: indigo
+            authorization-grant-type: authorization_code
+            client-name: INDIGO IAM test instance
+            client-id: ${IAM_TEST_CLIENT_ID}
+            client-secret: ${IAM_TEST_CLIENT_SECRET}
+            scope:
+            - openid
+            - profile
+          wlcg:
+            provider: wlcg
+            authorization-grant-type: authorization_code
+            client-name: WLCG IAM
+            client-id: ${WLCG_CLIENT_ID}
+            client-secret: ${WLCG_CLIENT_SECRET}
+            scope:
+            - openid
+            - profile
+            - wlcg.groups

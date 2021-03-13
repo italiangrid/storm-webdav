@@ -40,6 +40,9 @@ oauth:
 storm:
   checksum-strategy: early
   
+  redirector:
+    enabled: false
+  
   buffer:
     file-buffer-size-bytes: ${STORM_WEBDAV_BUFFER_FILE_BUFFER_SIZE_BYTES:1048576}
     

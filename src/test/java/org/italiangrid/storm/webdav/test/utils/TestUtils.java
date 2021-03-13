@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
+package org.italiangrid.storm.webdav.test.utils;
 
-import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
-import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
-import org.springframework.security.core.Authentication;
+import java.util.function.Supplier;
 
-import com.nimbusds.jwt.SignedJWT;
+public interface TestUtils {
 
-public interface SignedJwtTokenIssuer {
-  
-  public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
-
-  public SignedJWT createResourceAccessToken(ResourceAccessTokenRequest request,
-      Authentication authentication);
+  default Supplier<AssertionError> assertionError(String msg) {
+    return () -> new AssertionError(msg);
+  }
 
 }

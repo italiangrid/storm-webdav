@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
+package org.italiangrid.storm.webdav.redirector;
 
-import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
-import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
-import org.springframework.security.core.Authentication;
+public interface RedirectConstants {
 
-import com.nimbusds.jwt.SignedJWT;
-
-public interface SignedJwtTokenIssuer {
-  
-  public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
-
-  public SignedJWT createResourceAccessToken(ResourceAccessTokenRequest request,
-      Authentication authentication);
+  String ACCESS_TOKEN_PARAMETER = "access_token";
 
 }

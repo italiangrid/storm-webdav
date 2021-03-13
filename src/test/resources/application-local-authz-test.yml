@@ -2,10 +2,17 @@ server:
   jetty:
     accesslog:
       enabled: false
+
+
 oauth:
   enable-oidc: false
 
 storm:
+  authz-server:
+    enabled: true
+    issuer: https://issuer.example
+    max-token-lifetime-sec: 43200
+    
   sa:
     config-dir: src/test/resources/authz-test/sa.d
   
@@ -19,7 +26,13 @@ storm:
       dir: src/test/resources/vomsdir
   
   redirector:
-    enabled: false
+    enabled: true
+    max-token-lifetime-secs: 600
+    pool:
+      policy: random
+      endpoints:
+      - endpoint: http://example:8085
+          
     
   authz:
     policies:

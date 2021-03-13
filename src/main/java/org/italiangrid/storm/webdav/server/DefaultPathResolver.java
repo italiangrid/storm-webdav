@@ -71,20 +71,10 @@ public class DefaultPathResolver implements PathResolver {
       return null;
     }
 
-    for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
+    Path p = getPath(pathInContext);
 
-      if (pathInContext.startsWith(e.getKey())) {
-
-        Path resolvedPath =
-            Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
-
-        if (logger.isDebugEnabled()) {
-          logger.debug("{} matches with access point {}. Resolved path: {}", pathInContext,
-              e.getKey(), resolvedPath);
-        }
-
-        return resolvedPath.toAbsolutePath().toString();
-      }
+    if (!isNull(p)) {
+      return p.toString();
     }
 
     return null;
@@ -119,8 +109,30 @@ public class DefaultPathResolver implements PathResolver {
     return Files.exists(Paths.get(resolvedPath), NOFOLLOW_LINKS);
   }
 
+  @Override
+  public Path getPath(String pathInContext) {
 
-  
+    if (isNull(pathInContext)) {
+      return null;
+    }
 
+    for (Map.Entry<String, StorageAreaInfo> e : contextMap.descendingMap().entrySet()) {
+
+      if (pathInContext.startsWith(e.getKey())) {
+
+        Path resolvedPath =
+            Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
+
+        if (logger.isDebugEnabled()) {
+          logger.debug("{} matches with access point {}. Resolved path: {}", pathInContext,
+              e.getKey(), resolvedPath);
+        }
+
+        return resolvedPath.toAbsolutePath();
+      }
+    }
+
+    return null;
+  }
 
 }

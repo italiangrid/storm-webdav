@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import java.nio.file.Path;
+
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 
 
@@ -24,8 +26,12 @@ public interface PathResolver {
   
   String resolvePath(String pathInContext);
   
+  Path getPath(String pathInContext);
+
   StorageAreaInfo resolveStorageArea(String pathInContext);
   
   boolean pathExists(String pathInContext);
+
+
 
 }

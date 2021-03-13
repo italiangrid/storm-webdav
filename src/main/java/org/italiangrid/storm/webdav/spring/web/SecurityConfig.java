@@ -18,20 +18,25 @@ package org.italiangrid.storm.webdav.spring.web;
 import static java.util.Arrays.asList;
 import static org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter.forVoters;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletContext;
 
 import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
+import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
+import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
+import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedCopyMoveAuthzVoter;
+import org.italiangrid.storm.webdav.authz.voters.LocalAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzCopyMoveVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzVoter;
@@ -63,6 +68,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -110,6 +116,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Autowired
   PathAuthorizationPdp fineGrainedAuthzPdp;
 
+  @Autowired
+  PrincipalHelper principalHelper;
+
   @Bean
   public static ErrorPageRegistrar securityErrorPageRegistrar() {
     return registry -> registry.addErrorPages(
@@ -141,25 +150,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     return firewall;
   }
 
-  public AccessDecisionManager fineGrainedAccessDecisionManager() {
+  public AccessDecisionManager fineGrainedAccessDecisionManager() throws MalformedURLException {
     List<AccessDecisionVoter<?>> voters = new ArrayList<>();
 
-    UnanimousDelegatedVoter fineGrainedVoters = forVoters("FineGrainedAuthz", asList(
-        new FineGrainedAuthzVoter(serviceConfigurationProperties, pathResolver, fineGrainedAuthzPdp,
-            localURLService),
-        new FineGrainedCopyMoveAuthzVoter(serviceConfigurationProperties, pathResolver,
-            fineGrainedAuthzPdp, localURLService)));
+    UnanimousDelegatedVoter fineGrainedVoters = forVoters("FineGrainedAuthz",
+        asList(
+            new FineGrainedAuthzVoter(serviceConfigurationProperties, pathResolver,
+                fineGrainedAuthzPdp, localURLService),
+            new FineGrainedCopyMoveAuthzVoter(serviceConfigurationProperties, pathResolver,
+                fineGrainedAuthzPdp, localURLService)));
 
     WlcgStructuredPathAuthorizationPdp wlcgPdp = new WlcgStructuredPathAuthorizationPdp(
         serviceConfigurationProperties, pathResolver, localURLService);
 
-    UnanimousDelegatedVoter wlcgVoters = forVoters("WLCGScopeBasedAuthz", asList(
-        new WlcgScopeAuthzVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
-            localURLService),
-        new WlcgScopeAuthzCopyMoveVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
-            localURLService)));
+    UnanimousDelegatedVoter wlcgVoters = forVoters("WLCGScopeBasedAuthz",
+        asList(
+            new WlcgScopeAuthzVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+                localURLService),
+            new WlcgScopeAuthzCopyMoveVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+                localURLService)));
 
-
+    if (serviceConfigurationProperties.getRedirector().isEnabled()) {
+      voters.add(new LocalAuthzVoter(serviceConfigurationProperties, pathResolver,
+          new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
+    }
     voters.add(new WebExpressionVoter());
     voters.add(fineGrainedVoters);
     voters.add(wlcgVoters);
@@ -225,6 +239,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
       addAnonymousAccessRules(http);
     }
 
+    if (serviceConfigurationProperties.getRedirector().isEnabled()) {
+      http.headers().httpStrictTransportSecurity().disable();
+    }
+
     http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
 
     http.authorizeRequests().antMatchers(HttpMethod.GET, "/errors/**").permitAll();
@@ -234,7 +252,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
           "/.well-known/openid-configuration")
       .permitAll();
 
-    http.exceptionHandling().accessDeniedPage("/errors/403");
+    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
+    handler.setErrorPage("/errors/403");
+    http.exceptionHandling()
+      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
+
     http.logout()
       .logoutUrl("/logout")
       .clearAuthentication(true)

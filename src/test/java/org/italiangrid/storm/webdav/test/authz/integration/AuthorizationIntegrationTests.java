@@ -59,16 +59,16 @@ public class AuthorizationIntegrationTests {
 
 
   @Autowired
-  MockMvc mvc;
+  private MockMvc mvc;
 
   @Autowired
-  VOMSAuthenticationFilter filter;
+  private VOMSAuthenticationFilter filter;
 
   @Autowired
-  FilterRegistrationBean<MiltonFilter> miltonFilter;
+  private FilterRegistrationBean<MiltonFilter> miltonFilter;
 
   @Autowired
-  StormJwtAuthoritiesConverter authConverter;
+  private StormJwtAuthoritiesConverter authConverter;
 
   @Before
   public void setup() {

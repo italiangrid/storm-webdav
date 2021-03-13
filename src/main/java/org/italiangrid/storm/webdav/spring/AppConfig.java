@@ -19,6 +19,7 @@ import static java.util.Objects.isNull;
 import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -50,6 +51,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.conscrypt.OpenSSLProvider;
+import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
 import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
@@ -82,6 +84,7 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecode
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.web.AuthzServerMetadata;
 import org.italiangrid.storm.webdav.oauth.utils.OidcConfigurationFetcher;
+import org.italiangrid.storm.webdav.oauth.utils.PermissiveBearerTokenResolver;
 import org.italiangrid.storm.webdav.oauth.utils.TrustedJwtDecoderCacheLoader;
 import org.italiangrid.storm.webdav.oidc.ClientRegistrationCacheLoader;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
@@ -104,6 +107,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -133,8 +137,8 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
-      AuthorizationPolicyService policyService, Clock clock) {
-    return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService);
+      AuthorizationPolicyService policyService, PrincipalHelper helper, Clock clock) {
+    return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService, helper);
   }
 
   @Bean
@@ -427,8 +431,18 @@ public class AppConfig implements TransferConstants {
     return (id) -> null;
   }
 
-  // @Bean
-  public ExecutorService oauthExecutorService() {
-    return Executors.newSingleThreadExecutor();
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
+  public BearerTokenResolver bearerTokenResolver(ServiceConfigurationProperties config) {
+    return new PermissiveBearerTokenResolver();
+  }
+
+  @Bean
+  public PrincipalHelper principalHelper(ServiceConfigurationProperties config)
+      throws MalformedURLException {
+    return new PrincipalHelper(config);
   }
 }
+
+
