@@ -238,11 +238,14 @@ public class JwtIssuerTest {
     when(resourceAtRequest.getPath()).thenReturn("/example/resource");
     when(resourceAtRequest.getPermission()).thenReturn(Permission.r);
     when(resourceAtRequest.getLifetimeSecs()).thenReturn((int) TimeUnit.MINUTES.toSeconds(10));
+    when(resourceAtRequest.getOrigin()).thenReturn("192.168.1.1");
 
     SignedJWT jwt = issuer.createResourceAccessToken(resourceAtRequest, authn);
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
+    assertThat(jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM),
+        is("192.168.1.1"));
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
         is(NOW.plusSeconds(TimeUnit.MINUTES.toSeconds(10)).truncatedTo(ChronoUnit.SECONDS)));
     assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM),
