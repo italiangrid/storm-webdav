@@ -1,0 +1,8 @@
+spring:
+  redis:
+    host: 
+    port: 
+    password:
+ 
+  session:
+    store-type: redis

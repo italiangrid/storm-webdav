@@ -5,7 +5,7 @@ StoRM WebDAV will look for configuration in all files ending with `.properties` 
 
 ## Storage area configuration properties
 
-| *Name*                     | *Description*                                                                                                                | *Required* | *Example*                               | *Default* |
+| _Name_                     | _Description_                                                                                                                | _Required_ | _Example_                               | _Default_ |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------- | --------- |
 | `name`                     | The name of the storage area                                                                                                 | True       | `name=sa`                               | N/A       |
 | `rootPath`                 | Root path for the storage area. Files will be served from this path.                                                         | True       | `rootPath=/storage/sa`                  | N/A       |
@@ -143,50 +143,52 @@ fist applicable one is used to render the authorization decision.
 
 A policy contains the following directives:
 
-- `sa`: The nome of the storage area to which the policy applies.
-- `actions`: a list of actions that the policy is authorizing. Possible
-  values:
+-   `sa`: The nome of the storage area to which the policy applies.
 
-  - `list`: the ability to list directory contents
-  - `read`: the ability to read files
-  - `write`: the ability to write files and create directories
-  - `delete`: the ability to delete files/directories
-  - `all`: a catchall for all other actions
+-   `actions`: a list of actions that the policy is authorizing. Possible
+    values:
 
-- `paths`: the list of paths, within the storage area, the policy
-  applies to. If omitted, the policy will apply to all paths.
+    -   `list`: the ability to list directory contents
+    -   `read`: the ability to read files
+    -   `write`: the ability to write files and create directories
+    -   `delete`: the ability to delete files/directories
+    -   `all`: a catchall for all other actions
 
-  To match a directory and all its contents, use a wildcard like the
-  following: `/some/dir/**`
+-   `paths`: the list of paths, within the storage area, the policy
+    applies to. If omitted, the policy will apply to all paths.
 
-- `effect`:
-  
-  - `permit`: defines a permit policy
-  - `deny`: defines a deny policy
+    To match a directory and all its contents, use a wildcard like the
+    following: `/some/dir/**`
 
-- `description`: A textual description of the policy. This is a required
-  field, and is mainly useful to help debugging authorization problems.
+-   `effect`:
 
-- `principals`: a list of principals that the policy will apply to.
-  Simple principal types are defined by a string value, while complex
-  principal types require parameters.
-  
-  For example, the  `anyone` principal is a simple principal type,
-  while the `jwt-group` principal is a complex type that requires
-  two parameters: the token issuer URI, and the  group name.
+    -   `permit`: defines a permit policy
+    -   `deny`: defines a deny policy
 
-  | *Principal*              | *Type*  | *Description*                                                                                      | *Parameters*                                          |
-  | ------------------------ | ------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-  | `anyone`                 | simple  | will match any user (authenticated or not)                                                         | N/A                                                   |
-  | `any-authenticated-user` | simple  | will match any authenticated user                                                                  | N/A                                                   |
-  | `anonymous`              | simple  | will match any anonymous user                                                                      | N/A                                                   |
-  | `vo`                     | complex | will match authenticated users presenting a valid VOMS    credential for a given VO.               | `vo`: the name of the VO                              |
-  | `fqan`                   | complex | will match authenticated users presenting a valid VOMS    credential that contains the given FQAN. | `fqan`: the VOMS fqan                                 |
-  | `jwt-group`              | complex | will match authenticated users with valid JWT token and belonging to the given group.              | `iss`: the token issuer, `group`: the group name      |
-  | `jwt-scope`              | complex | will match authenticated users with valid JWT token bearing the requested scope.                   | `iss`: the token issuer, `scope`: the scope           |
-  | `jwt-issuer`             | complex | will match authenticated users with valid JWT token issued by the required token issuer            | `iss`: the token issuer                               |
-  | `jwt-subject`            | complex | will match authenticated users with valid JWT token and presenting the requested subject claim.    | `iss`: the token issuer, `sub`: the subject           |
-  | `x509-subject`           | complex | will match authenticated users presenting a valid x.509 credential and a given subject             | `subject`: the certificate subject, in RFC2253 format |
+-   `description`: A textual description of the policy. This is a required
+    field, and is mainly useful to help debugging authorization problems.
+
+-   `principals`: a list of principals that the policy will apply to.
+    Simple principal types are defined by a string value, while complex
+    principal types require parameters.
+
+    For example, the  `anyone` principal is a simple principal type,
+    while the `jwt-group` principal is a complex type that requires
+    two parameters: the token issuer URI, and the  group name.
+
+    | _Principal_              | _Type_  | _Description_                                                                                      | _Parameters_                                          |
+    | ------------------------ | ------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+    | `anyone`                 | simple  | will match any user (authenticated or not)                                                         | N/A                                                   |
+    | `any-authenticated-user` | simple  | will match any authenticated user                                                                  | N/A                                                   |
+    | `anonymous`              | simple  | will match any anonymous user                                                                      | N/A                                                   |
+    | `vo`                     | complex | will match authenticated users presenting a valid VOMS    credential for a given VO.               | `vo`: the name of the VO                              |
+    | `vo-map`                 | complex | will match authenticated mapped to a VO through a vomap configuration                              | `vo`: the name of the VO                              |
+    | `fqan`                   | complex | will match authenticated users presenting a valid VOMS    credential that contains the given FQAN. | `fqan`: the VOMS fqan                                 |
+    | `jwt-group`              | complex | will match authenticated users with valid JWT token and belonging to the given group.              | `iss`: the token issuer, `group`: the group name      |
+    | `jwt-scope`              | complex | will match authenticated users with valid JWT token bearing the requested scope.                   | `iss`: the token issuer, `scope`: the scope           |
+    | `jwt-issuer`             | complex | will match authenticated users with valid JWT token issued by the required token issuer            | `iss`: the token issuer                               |
+    | `jwt-subject`            | complex | will match authenticated users with valid JWT token and presenting the requested subject claim.    | `iss`: the token issuer, `sub`: the subject           |
+    | `x509-subject`           | complex | will match authenticated users presenting a valid x.509 credential and a given subject             | `subject`: the certificate subject, in RFC2253 format |
 
 ## Examples
 
@@ -221,6 +223,6 @@ storm:
 
 The policies above grant:
 
-- read-only access to anyone on the `/read-only` folder, in the `example` storage area
-- all access to the `example` storage area to users in the group
-  `/example/admins`, authenticated with VOMS or OpenID Connect
+-   read-only access to anyone on the `/read-only` folder, in the `example` storage area
+-   all access to the `example` storage area to users in the group
+    `/example/admins`, authenticated with VOMS or OpenID Connect
