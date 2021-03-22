@@ -5,6 +5,7 @@
 ### Added
 
 - [Add support for externalized session management](https://issues.infn.it/jira/browse/STOR-1336)
+
 ### Fixed
 
 - [Login with OIDC button not shown for error
