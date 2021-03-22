@@ -10,8 +10,6 @@ Test Teardown   Default Teardown
 
 *** Keywords ***
 
-
-
 Default Setup
     Default VOMS credential
 
@@ -118,7 +116,7 @@ Pull copy works oauth and https
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=454; retry=0" ${opts}
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
-    Davix Get Success   ${dest}
+    Curl Success   ${dest}   ${davix.opts.oauth}
     [Teardown]  Pull copy works oauth and https Teardown
 
 Push copy works
@@ -129,7 +127,7 @@ Push copy works
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=455; retry=0" ${opts}
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
-    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Push copy works Teardown
 
 Oauth pull copy works
@@ -141,7 +139,7 @@ Oauth pull copy works
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=456; retry=0" ${opts}
     ${rc}  ${out}  Curl Pull COPY Success  ${dst}  ${src}  ${opts}
-    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Oauth pull copy works Teardown
 
 Oauth push copy works
@@ -153,5 +151,5 @@ Oauth push copy works
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=457; retry=0" ${opts}
     ${rc}  ${out}  Curl Push COPY Success  ${dst}  ${src}  ${opts}
-    Davix Get Success   ${dst}  ${davix.opts.oauth}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Oauth push copy works Teardown

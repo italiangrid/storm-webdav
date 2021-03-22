@@ -8,6 +8,7 @@ oauth:
 storm:
   sa:
     config-dir: src/test/resources/authz-test/sa.d
+  
   tls:
     trust-anchors-dir: src/test/resources/trust-anchors
     certificate-path: src/test/resources/hostcert/hostcert.pem
@@ -17,6 +18,9 @@ storm:
     trust-store:
       dir: src/test/resources/vomsdir
   
+  redirector:
+    enabled: false
+    
   authz:
     policies:
     - sa: anonymous

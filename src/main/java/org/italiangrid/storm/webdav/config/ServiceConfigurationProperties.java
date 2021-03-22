@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.italiangrid.storm.webdav.config;
 
+import static org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaPoolProperties.ReplicaSelectionPolicy.RANDOM;
+
+import java.net.URI;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -37,6 +40,116 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
     NO_CHECKSUM, EARLY, LATE
+  }
+
+  @Validated
+  public static class RedirectorProperties {
+
+    @Validated
+    public static class ReplicaEndpointProperties {
+
+      URI endpoint;
+
+      public URI getEndpoint() {
+        return endpoint;
+      }
+
+      public void setEndpoint(URI endpoint) {
+        this.endpoint = endpoint;
+      }
+
+      @Override
+      public String toString() {
+        return "[endpoint=" + endpoint + "]";
+      }
+
+      @Override
+      public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((endpoint == null) ? 0 : endpoint.hashCode());
+        return result;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        if (this == obj)
+          return true;
+        if (obj == null)
+          return false;
+        if (getClass() != obj.getClass())
+          return false;
+        ReplicaEndpointProperties other = (ReplicaEndpointProperties) obj;
+        if (endpoint == null) {
+          if (other.endpoint != null)
+            return false;
+        } else if (!endpoint.equals(other.endpoint))
+          return false;
+        return true;
+      }
+
+    }
+
+    @Validated
+    public static class ReplicaPoolProperties {
+
+      public enum ReplicaSelectionPolicy {
+        RANDOM
+      }
+
+      @NotEmpty
+      List<ReplicaEndpointProperties> endpoints = Lists.newArrayList();
+
+      ReplicaSelectionPolicy policy = RANDOM;
+
+      public List<ReplicaEndpointProperties> getEndpoints() {
+        return endpoints;
+      }
+
+      public void setEndpoints(List<ReplicaEndpointProperties> endpoints) {
+        this.endpoints = endpoints;
+      }
+
+      public ReplicaSelectionPolicy getPolicy() {
+        return policy;
+      }
+
+      public void setPolicy(ReplicaSelectionPolicy policy) {
+        this.policy = policy;
+      }
+    }
+
+    boolean enabled = false;
+
+    @Positive
+    int maxTokenLifetimeSecs = 1200;
+
+    ReplicaPoolProperties pool = new ReplicaPoolProperties();
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public int getMaxTokenLifetimeSecs() {
+      return maxTokenLifetimeSecs;
+    }
+
+    public void setMaxTokenLifetimeSecs(int maxTokenLifetimeSecs) {
+      this.maxTokenLifetimeSecs = maxTokenLifetimeSecs;
+    }
+
+    public ReplicaPoolProperties getPool() {
+      return pool;
+    }
+
+    public void setPool(ReplicaPoolProperties pool) {
+      this.pool = pool;
+    }
+
   }
 
   @Validated
@@ -364,6 +477,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setMaxTokenLifetimeSec(int maxTokenLifetimeSec) {
       this.maxTokenLifetimeSec = maxTokenLifetimeSec;
     }
+
   }
 
   @Valid
@@ -462,6 +576,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private ChecksumStrategy checksumStrategy = ChecksumStrategy.EARLY;
 
   private BufferProperties buffer;
+
+  private RedirectorProperties redirector;
 
   @NotEmpty
   private List<String> hostnames;
@@ -703,5 +819,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setBuffer(BufferProperties buffer) {
     this.buffer = buffer;
+  }
+
+
+  public RedirectorProperties getRedirector() {
+    return redirector;
+  }
+
+  public void setRedirector(RedirectorProperties redirector) {
+    this.redirector = redirector;
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
 
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
+import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
 import org.springframework.security.core.Authentication;
 
 import com.nimbusds.jwt.SignedJWT;
@@ -23,5 +24,8 @@ import com.nimbusds.jwt.SignedJWT;
 public interface SignedJwtTokenIssuer {
   
   public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
+
+  public SignedJWT createResourceAccessToken(ResourceAccessTokenRequest request,
+      Authentication authentication);
 
 }

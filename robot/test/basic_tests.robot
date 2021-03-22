@@ -123,7 +123,7 @@ Partial Get works
     ${opts}  Set Variable  -H "Range: 0-3" ${curl.opts.default}
     ${rc}  ${out}  Curl Voms Get Success   ${davs.endpoint}/${sa.default}/pget_test  ${opts}
     Should Contain  ${out}  1x2y  
-    Should Contain  ${out}  Content-Length: 4
+    Should Contain  ${out}  ength: 4
     [Teardown]  Partial Get Works Teardown
 
 Partial Put works
@@ -140,12 +140,12 @@ Post not allowed on content
     [Setup]  Single Test File Setup   test_post_not_allowed
     ${url}  DAVS Url   test_post_not_allowed
     ${rc}  ${out}  Curl Voms Post Failure  ${url}
-    Should Contain  ${out}  405 Method Not Allowed
+    Should Contain  ${out}  405
     [Teardown]   Single Test File Teardown  test_post_not_allowed
 
 Head works on large files
     [Tags]  voms  head
     [Setup]  Head works on large files setup  hwlf
     ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/hwlf
-    Should Contain  ${out}  Content-Length: 2147483648
+    Should Contain  ${out}  ength: 2147483648
     [Teardown]   Head works on large files teardown   hwlf
