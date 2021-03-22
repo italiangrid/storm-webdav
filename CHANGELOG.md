@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.4.0 (2021-04-01)
+
+### Added
+
+- [Add support for externalized session management](https://issues.infn.it/jira/browse/STOR-1336)
+### Fixed
+
+- [Login with OIDC button not shown for error
+  pages](https://issues.infn.it/jira/browse/STOR-1335) 
+- [StoRM WebDAV: Login with OIDC button displayed only on storage area index
+  page]( https://issues.infn.it/jira/browse/STOR-1332)
+- [StoRM WebDAV rpm doesn't set the proper ownership on
+  /var/log/storm](https://issues.infn.it/jira/browse/STOR-1298)
+- [StoRM WebDAV package should install Java
+  11](https://issues.infn.it/jira/browse/STOR-1358)
+
 ## 1.2.0 (2019-08-??)
 
 ### Added
