@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtToken
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.SAPermission;
@@ -54,9 +55,10 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
   protected Set<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 
-    jwt.getClaimAsStringList(CLAIM_AUTHORITIES)
-      .forEach(a -> authorities.add(SAPermission.fromString(a)));
-
+    Optional.ofNullable(
+        jwt.getClaimAsStringList(CLAIM_AUTHORITIES))
+      .ifPresent(a -> a.forEach(at -> authorities.add(SAPermission.fromString(at))));
+      
     return authorities;
   }
 

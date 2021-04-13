@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,8 +91,9 @@ public class TpcIntegrationTest {
   public void testPutRedirectHandled() {
     Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
 
-    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+    PutTransferRequest putRequest =
+        new PutTransferRequestImpl(UUID.randomUUID().toString(),
+            "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -120,8 +121,9 @@ public class TpcIntegrationTest {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
-    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
+    PutTransferRequest putRequest =
+        new PutTransferRequestImpl(UUID.randomUUID().toString(),
+            "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -152,8 +154,9 @@ public class TpcIntegrationTest {
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
 
-    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
+    GetTransferRequest getRequest =
+        new GetTransferRequestImpl(UUID.randomUUID().toString(),
+            "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
 
 
     mockServer.when(request().withMethod("GET").withPath("/test/example"), Times.exactly(1))

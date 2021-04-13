@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,8 +149,9 @@ public class TpcClientRedirectionTest {
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
 
-    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockHttpsUrl("/test/example")), headers, false, false);
+    GetTransferRequest getRequest =
+        new GetTransferRequestImpl(UUID.randomUUID().toString(),
+            "/test/example", URI.create(mockHttpsUrl("/test/example")), headers, false, false);
 
     mockServer
       .when(request().withMethod("GET").withPath("/test/example").withSecure(true),

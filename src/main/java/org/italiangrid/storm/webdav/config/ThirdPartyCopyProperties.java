@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,6 @@ public class ThirdPartyCopyProperties {
 
   @Min(value = 4096, message = "tpc.httpClientSocketBufferSize must be > 4096")
   int httpClientSocketBufferSize = 8192;
-
-  @Min(value = 4096, message = "tpc.localFileBufferSize must be > 4096")
-  int localFileBufferSize = 8192;
   
   boolean useConscrypt = false;
 
@@ -54,6 +51,9 @@ public class ThirdPartyCopyProperties {
 
   @Min(value = 0, message = "Timeout in seconds must be >= 0")
   int timeoutInSecs;
+
+  @Positive(message = "tpc.progressReportThreadPoolSize must be a positive integer (i.e. > 0)")
+  int progressReportThreadPoolSize;
 
   public String getTlsProtocol() {
     return tlsProtocol;
@@ -95,14 +95,6 @@ public class ThirdPartyCopyProperties {
     this.httpClientSocketBufferSize = httpClientSocketBufferSize;
   }
 
-  public int getLocalFileBufferSize() {
-    return localFileBufferSize;
-  }
-
-  public void setLocalFileBufferSize(int localFileBufferSize) {
-    this.localFileBufferSize = localFileBufferSize;
-  }
-
   public boolean isUseConscrypt() {
     return useConscrypt;
   }
@@ -133,6 +125,14 @@ public class ThirdPartyCopyProperties {
 
   public void setTimeoutInSecs(int timeoutInSecs) {
     this.timeoutInSecs = timeoutInSecs;
+  }
+
+  public int getProgressReportThreadPoolSize() {
+    return progressReportThreadPoolSize;
+  }
+
+  public void setProgressReportThreadPoolSize(int progressReportThreadPoolSize) {
+    this.progressReportThreadPoolSize = progressReportThreadPoolSize;
   }
 
 }

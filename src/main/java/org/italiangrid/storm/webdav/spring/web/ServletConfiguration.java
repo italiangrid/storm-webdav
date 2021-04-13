@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import java.time.Clock;
+
+import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -25,7 +28,10 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.macaroon.MacaroonIssuerService;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
+import org.italiangrid.storm.webdav.metrics.StorageAreaStatsFilter;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
+import org.italiangrid.storm.webdav.redirector.RedirectFilter;
+import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
 import org.italiangrid.storm.webdav.server.servlet.DeleteSanityChecksFilter;
@@ -35,6 +41,7 @@ import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
+import org.italiangrid.storm.webdav.server.tracing.LogbackAccessAuthnInfoFilter;
 import org.italiangrid.storm.webdav.server.tracing.RequestIdFilter;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
@@ -62,13 +69,16 @@ public class ServletConfiguration {
   public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
 
   static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
-  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1001;
-  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
-  static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
-  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
-  static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
-  static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
-  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1007;
+  static final int LOGBACK_ACCESS_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
+  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
+  static final int REDIRECT_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
+  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
+  static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1007;
+  static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1008;
+  static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1009;
+  static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
+  static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
 
   @Bean
   FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
@@ -81,6 +91,17 @@ public class ServletConfiguration {
     return requestIdFilter;
   }
 
+  @Bean
+  FilterRegistrationBean<LogbackAccessAuthnInfoFilter> authnInfoFilter(PrincipalHelper helper) {
+    FilterRegistrationBean<LogbackAccessAuthnInfoFilter> filter =
+        new FilterRegistrationBean<>(new LogbackAccessAuthnInfoFilter(helper));
+
+    filter.addUrlPatterns("/*");
+    filter.setOrder(LOGBACK_ACCESS_FILTER_ORDER);
+
+    return filter;
+  }
+
 
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
@@ -90,6 +111,20 @@ public class ServletConfiguration {
     logRequestFilter.addUrlPatterns("/*");
     logRequestFilter.setOrder(LOG_REQ_FILTER_ORDER);
     return logRequestFilter;
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
+  FilterRegistrationBean<RedirectFilter> redirectFilter(PathResolver pathResolver,
+      RedirectionService redirectionService) {
+    LOG.info("Redirector filter enabled");
+
+    FilterRegistrationBean<RedirectFilter> filter = new FilterRegistrationBean<RedirectFilter>(
+        new RedirectFilter(pathResolver, redirectionService));
+
+    filter.addUrlPatterns("/*");
+    filter.setOrder(REDIRECT_REQ_FILTER_ORDER);
+    return filter;
   }
 
   @Bean
@@ -148,18 +183,31 @@ public class ServletConfiguration {
   }
 
   @Bean
-  FilterRegistrationBean<TransferFilter> tpcFilter(FilesystemAccess fs,
+  FilterRegistrationBean<TransferFilter> tpcFilter(Clock clock, FilesystemAccess fs,
       ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client,
       ThirdPartyCopyProperties props, LocalURLService lus, MetricRegistry registry) {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(metricsClient, resolver, lus, props.isVerifyChecksum()));
+        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
   }
+
+  @Bean
+  FilterRegistrationBean<StorageAreaStatsFilter> statsFilter(MetricRegistry registry,
+      PathResolver resolver) {
+
+    FilterRegistrationBean<StorageAreaStatsFilter> filter =
+        new FilterRegistrationBean<StorageAreaStatsFilter>(
+            new StorageAreaStatsFilter(registry, resolver));
+    filter.addUrlPatterns("/*");
+    filter.setOrder(STATS_FILTER_ORDER);
+    return filter;
+  }
+
 
   @Bean
   ServletRegistrationBean<MetricsServlet> metricsServlet(MetricRegistry registry) {

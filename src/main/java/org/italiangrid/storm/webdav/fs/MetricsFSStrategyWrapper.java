@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package org.italiangrid.storm.webdav.fs;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 import java.io.File;
 import java.io.InputStream;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
 public class MetricsFSStrategyWrapper implements FilesystemAccess {
+  public static final String METRIC_NAME = "fs";
 
   final FilesystemAccess delegate;
   final MetricRegistry registry;
@@ -41,12 +42,12 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
     this.delegate = delegate;
     this.registry = registry;
 
-    mkdirTimer = registry.timer(name(FilesystemAccess.class, "mkdir"));
-    rmTimer = registry.timer(name(FilesystemAccess.class, "rm"));
-    cpTimer = registry.timer(name(FilesystemAccess.class, "cp"));
-    lsTimer = registry.timer(name(FilesystemAccess.class, "ls"));
-    mvTimer = registry.timer(name(FilesystemAccess.class, "mv"));
-    createTimer = registry.timer(name(FilesystemAccess.class, "create"));
+    mkdirTimer = registry.timer(name(METRIC_NAME, "mkdir"));
+    rmTimer = registry.timer(name(METRIC_NAME, "rm"));
+    cpTimer = registry.timer(name(METRIC_NAME, "cp"));
+    lsTimer = registry.timer(name(METRIC_NAME, "ls"));
+    mvTimer = registry.timer(name(METRIC_NAME, "mv"));
+    createTimer = registry.timer(name(METRIC_NAME, "create"));
 
   }
 

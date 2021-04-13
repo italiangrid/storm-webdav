@@ -6,7 +6,7 @@ Resource   common/credentials.robot
 *** Variables ***
 
 ${davix.opts.voms}   -P grid
-${davix.opts.oauth}   -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
+${davix.opts.oauth}   -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" --capath /etc/grid-security/certificates
 
 *** Keywords ***
 Davix Push Copy Success  [Arguments]  ${src}  ${dst}  ${opts}=${davix.opts.voms}

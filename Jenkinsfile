@@ -9,7 +9,7 @@ pipeline {
       label "${kubeLabel}"
       cloud 'Kube mwdevel'
       defaultContainer 'runner'
-      inheritFrom 'ci-template'
+      inheritFrom 'ci-template-java11'
     }
   }
 

@@ -1,0 +1,68 @@
+server:
+  jetty:
+    accesslog:
+      enabled: false
+
+
+oauth:
+  enable-oidc: false
+
+storm:
+  authz-server:
+    enabled: true
+    issuer: https://issuer.example
+    max-token-lifetime-sec: 43200
+    
+  sa:
+    config-dir: src/test/resources/authz-test/sa.d
+  
+  tls:
+    trust-anchors-dir: src/test/resources/trust-anchors
+    certificate-path: src/test/resources/hostcert/hostcert.pem
+    private-key-path: src/test/resources/hostcert/hostkey.pem
+    
+  voms:
+    trust-store:
+      dir: src/test/resources/vomsdir
+  
+  redirector:
+    enabled: true
+    max-token-lifetime-secs: 600
+    pool:
+      policy: random
+      endpoints:
+      - endpoint: http://example:8085
+          
+    
+  authz:
+    policies:
+    - sa: anonymous
+      actions:
+      - list
+      - read
+      effect: permit
+      description: Allow read access to anonymous users
+      principals:
+      - type: anonymous
+    - sa: anonymous
+      actions:
+      - delete
+      - write
+      effect: deny
+      description: Deny other access to anonymous users
+      principals:
+      - type: anonymous
+    - sa: wlcg
+      description: Grant access to wlcg for /example/admins (VOMS & OIDC) users
+      actions:
+       - all
+      effect: permit
+      principals:
+      - type: fqan
+        params:
+          fqan: /example/admins
+      - type: jwt-group
+        params:
+         iss: https://issuer.example
+         group: /example/admins
+         

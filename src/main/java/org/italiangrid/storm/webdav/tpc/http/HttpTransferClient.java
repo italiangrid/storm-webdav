@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.done;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.error;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.inProgress;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -41,6 +40,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -57,7 +58,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -65,12 +66,16 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
   public static final Logger LOG = LoggerFactory.getLogger(HttpTransferClient.class);
 
+  final Clock clock;
   final PathResolver resolver;
   final ExtendedAttributesHelper attributesHelper;
   final CloseableHttpClient httpClient;
   final ScheduledExecutorService executorService;
+  final TransferStatus.Builder statusBuilder;
   final int reportDelaySec;
   final int localFileBufferSize;
+  final int socketBufferSize;
+
 
   private void reportStatus(TransferStatusCallback cb, TransferRequest req, TransferStatus s) {
     req.setTransferStatus(s);
@@ -78,16 +83,18 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   @Autowired
-  public HttpTransferClient(CloseableHttpClient client, PathResolver pr,
-      ExtendedAttributesHelper ah, ScheduledExecutorService es,
-      @Value("${tpc.reportDelaySecs}") int reportDelaySeconds,
-      @Value("${tpc.localFileBufferSize}") int lfbs) {
+  public HttpTransferClient(Clock clock, CloseableHttpClient client, PathResolver pr,
+      ExtendedAttributesHelper ah, @Qualifier("tpcProgressReportEs") ScheduledExecutorService es,
+      ThirdPartyCopyProperties properties, ServiceConfigurationProperties config) {
+    this.clock = clock;
     httpClient = client;
     resolver = pr;
     attributesHelper = ah;
     executorService = es;
-    reportDelaySec = reportDelaySeconds;
-    localFileBufferSize = lfbs;
+    reportDelaySec = properties.getReportDelaySecs();
+    localFileBufferSize = config.getBuffer().getFileBufferSizeBytes();
+    socketBufferSize = properties.getHttpClientSocketBufferSize();
+    statusBuilder = TransferStatus.builder(clock);
   }
 
 
@@ -98,6 +105,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   HttpGet prepareRequest(GetTransferRequest request) {
+    request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
+
     HttpGet get = new HttpGet(request.remoteURI());
 
     for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
@@ -107,6 +116,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   }
 
   HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) throws IOException {
+
+    request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
 
     HttpPut put = new HttpPut(request.remoteURI());
 
@@ -136,9 +147,12 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       if (!p.toFile().exists()) {
         p = Files.createFile(p);
       }
-
-      BufferedOutputStream fos = new BufferedOutputStream(
-          new FileOutputStream(new File(p.toString())), localFileBufferSize);
+      
+      OutputStream fos = new FileOutputStream(new File(p.toString()));
+      
+      if (localFileBufferSize > 0) {
+        fos = new BufferedOutputStream(fos, localFileBufferSize);
+      }
 
       return StormCountingOutputStream.create(fos, p.toString());
 
@@ -155,30 +169,31 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     HttpGet get = prepareRequest(request);
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(() -> {
-      reportStatus(cb, request, inProgress(os.getCount()));
+      reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
     }, reportDelaySec, reportDelaySec, TimeUnit.SECONDS);
 
     try {
 
       httpClient.execute(get,
-          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap()));
+          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap(),
+              socketBufferSize, true));
 
       reportTask.cancel(true);
-      reportStatus(cb, request, done(os.getCount()));
+      reportStatus(cb, request, statusBuilder.done(os.getCount()));
 
     } catch (HttpResponseException e) {
       logException(e);
-      reportStatus(cb, request, error(format("Error fetching %s: %d %s",
+      reportStatus(cb, request, statusBuilder.error(format("Error fetching %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
 
     } catch (ClientProtocolException e) {
       logException(e);
-      reportStatus(cb, request,
-          error(format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+      reportStatus(cb, request, statusBuilder
+        .error(format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
 
     } catch (Throwable e) {
       logException(e);
-      reportStatus(cb, request, error(format("%s while fetching %s: %s",
+      reportStatus(cb, request, statusBuilder.error(format("%s while fetching %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
       if (!reportTask.isCancelled()) {
@@ -214,30 +229,30 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       put = prepareRequest(request, cfe);
     } catch (IOException e) {
       logException(e);
-      reportStatus(cb, request,
-          error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+      reportStatus(cb, request, statusBuilder
+        .error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     }
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(
-        () -> reportStatus(cb, request, inProgress(cfe.getCount())), reportDelaySec, reportDelaySec,
-        TimeUnit.SECONDS);
+        () -> reportStatus(cb, request, statusBuilder.inProgress(cfe.getCount())), reportDelaySec,
+        reportDelaySec, TimeUnit.SECONDS);
 
     try {
       checkOverwrite(request);
       httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()));
       reportTask.cancel(true);
-      reportStatus(cb, request, done(cfe.getCount()));
+      reportStatus(cb, request, statusBuilder.done(cfe.getCount()));
     } catch (HttpResponseException e) {
       logException(e);
-      reportStatus(cb, request, error(format("Error pushing %s: %d %s",
+      reportStatus(cb, request, statusBuilder.error(format("Error pushing %s: %d %s",
           request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
     } catch (ClientProtocolException e) {
       logException(e);
-      reportStatus(cb, request,
-          error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+      reportStatus(cb, request, statusBuilder
+        .error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e); // we explicitly always log a generic error
-      reportStatus(cb, request, error(format("%s while pushing %s: %s",
+      reportStatus(cb, request, statusBuilder.error(format("%s while pushing %s: %s",
           e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     } finally {
       if (!reportTask.isCancelled()) {

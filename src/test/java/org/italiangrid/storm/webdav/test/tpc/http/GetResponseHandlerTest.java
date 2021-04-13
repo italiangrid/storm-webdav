@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class GetResponseHandlerTest extends ClientTestSupport {
     
     handler.handleResponse(response);
     
-    verify(entity).writeTo(any());
+    verify(entity).getContent();
     verify(ah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
   }
 }

@@ -6,8 +6,9 @@ Resource   common/utils.robot
 *** Variables ***
 
 ${sa.default}   test.vo
-${sa.noauth}    noauth
 ${sa.auth}      auth
+${sa.noauth}    noauth
+${sa.fga}       fga
 ${sa.oauth}     oauth-authz
 ${sa.wlcg}      wlcg
 
@@ -24,6 +25,11 @@ Create Test File With Size  [Arguments]  ${file}  ${size}  ${sa}=${sa.default}
     File Should Not Exist   ${path}
     ${rc}  ${out}  Execute and Check Success  dd if=/dev/zero of=${path} bs=1 count=0 seek=${size}
 
+Create 1MB Test File  [Arguments]  ${file}  ${sa}=${sa.default}
+    ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
+    File Should Not Exist   ${path}
+    ${rc}  ${out}  Execute and Check Success  dd if=/dev/zero of=${path} bs=1 count=0 seek=1048576
+    
 Remove Test File  [Arguments]  ${file}  ${sa}=${sa.default}
     ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
     Remove file  ${path}

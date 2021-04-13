@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
@@ -43,12 +44,15 @@ import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
+import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
+import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest.Permission;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.voms.VOMSAttribute;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
@@ -106,10 +110,16 @@ public class JwtIssuerTest {
   AccessTokenRequest req;
 
   @Mock
+  ResourceAccessTokenRequest resourceAtRequest;
+
+  @Mock
   VOMSAuthenticationDetails details;
 
   @Mock
   VOMSAttribute vomsAttribute;
+
+  @Mock
+  PrincipalHelper helper;
 
   DefaultJwtTokenIssuer issuer;
 
@@ -124,10 +134,11 @@ public class JwtIssuerTest {
     when(props.getMaxTokenLifetimeSec()).thenReturn(MAX_TOKEN_LIFETIME_SEC);
     when(authn.getName()).thenReturn(AUTHN_SUBJECT);
     when(authn.getDetails()).thenReturn(details);
+    when(helper.getPrincipalAsString(Mockito.any())).thenReturn(AUTHN_SUBJECT);
 
     when(ps.getSAPermissions(authn)).thenReturn(emptySet());
 
-    issuer = new DefaultJwtTokenIssuer(fixedClock, props, ps);
+    issuer = new DefaultJwtTokenIssuer(fixedClock, props, ps, helper);
   }
 
   @Test
@@ -219,5 +230,27 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
         is(VOMS_EXPIRATION_INSTANT_EARLY));
+  }
+
+  @Test
+  public void tokenIssuerCreatesResourceAccessToken() throws ParseException {
+
+    when(resourceAtRequest.getPath()).thenReturn("/example/resource");
+    when(resourceAtRequest.getPermission()).thenReturn(Permission.r);
+    when(resourceAtRequest.getLifetimeSecs()).thenReturn((int) TimeUnit.MINUTES.toSeconds(10));
+    when(resourceAtRequest.getOrigin()).thenReturn("192.168.1.1");
+
+    SignedJWT jwt = issuer.createResourceAccessToken(resourceAtRequest, authn);
+    assertThat(jwt, notNullValue());
+    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
+    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
+    assertThat(jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM),
+        is("192.168.1.1"));
+    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+        is(NOW.plusSeconds(TimeUnit.MINUTES.toSeconds(10)).truncatedTo(ChronoUnit.SECONDS)));
+    assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM),
+        is("/example/resource"));
+    assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PERMS_CLAIM), is("r"));
+
   }
 }

@@ -11,23 +11,30 @@ spring:
             issuer-uri: https://iam-escape.cloud.cnaf.infn.it/
           indigo:
             issuer-uri: https://iam-test.indigo-datacloud.eu/
+  session:
+    store-type: none
+
 server:
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
     whitelabel:
       enabled: false
+  
+  jetty:
+    max-threads: ${storm.connector.max-connections}
+     
+
 tpc:
-  tlsProtocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
-  maxConnections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
+  tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
+  max-connections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
   max-connections-per-route: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS_PER_ROUTE:25}
   timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:5}
-  verifyChecksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
-  reportDelaySecs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
-  httpClientSocketBufferSize: ${STORM_WEBDAV_TPC_HTTP_CLIENT_SOCKET_BUFFER_SIZE:8192}
-  localFileBufferSize: ${STORM_WEBDAV_TPC_LOCAL_FILE_BUFFER_SIZE:4096}
+  verify-checksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
+  report-delay-secs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
+  http-client-socket-buffer-size: ${storm.buffer.file-buffer-size-bytes}
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
   enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
-  
+  progress-report-thread-pool-size: ${STORM_WEBDAV_TPC_PROGRESS_REPORT_THREAD_POOL_SIZE:4}
 
 oauth:
   refresh-period-minutes: 60
@@ -36,6 +43,12 @@ oauth:
 storm:
   checksum-strategy: early
   
+  redirector:
+    enabled: false
+  
+  buffer:
+    file-buffer-size-bytes: ${STORM_WEBDAV_BUFFER_FILE_BUFFER_SIZE_BYTES:1048576}
+    
   access-log-configuration-path: ${STORM_WEBDAV_ACCESS_LOG_CONFIGURATION:}
   
   hostnames:
@@ -55,10 +68,12 @@ storm:
     
   connector:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
-    securePort: ${STORM_WEBDAV_HTTPS_PORT:8443}
-    maxConnections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
-    maxQueueSize:  ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
-    maxIdleTimeMsec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:200}
+    max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
+    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    output-buffer-size-bytes: ${storm.buffer.file-buffer-size-bytes}
+     
     
   tls:
     certificatePath: ${STORM_WEBDAV_CERTIFICATE_PATH:/etc/grid-security/storm-webdav/hostcert.pem}
@@ -79,7 +94,7 @@ storm:
   
   authz-server:
     enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:true}
-    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.securePort}}
+    issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.secure-port}}
     secret: ${STORM_WEBDAV_AUTHZ_SERVER_SECRET:${random.value}}
     max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
   

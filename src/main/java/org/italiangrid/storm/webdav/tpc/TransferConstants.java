@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 public interface TransferConstants {
 
+  String AUTHORIZATION_HEADER = "Authorization";
   String CLIENT_INFO_HEADER = "ClientInfo";
   String SOURCE_HEADER = "Source";
   String DESTINATION_HEADER = "Destination";

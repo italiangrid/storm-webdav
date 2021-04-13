@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static java.util.Objects.isNull;
 import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -50,6 +51,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.conscrypt.OpenSSLProvider;
+import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
 import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
@@ -76,11 +78,13 @@ import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
 import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
+import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerServiceMetricsWrapper;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.web.AuthzServerMetadata;
 import org.italiangrid.storm.webdav.oauth.utils.OidcConfigurationFetcher;
+import org.italiangrid.storm.webdav.oauth.utils.PermissiveBearerTokenResolver;
 import org.italiangrid.storm.webdav.oauth.utils.TrustedJwtDecoderCacheLoader;
 import org.italiangrid.storm.webdav.oidc.ClientRegistrationCacheLoader;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
@@ -103,11 +107,16 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -128,14 +137,18 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
-      AuthorizationPolicyService policyService, Clock clock) {
-    return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService);
+      AuthorizationPolicyService policyService, PrincipalHelper helper, Clock clock) {
+    return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService, helper);
   }
 
   @Bean
   public TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
-      SignedJwtTokenIssuer tokenIssuer, Clock clock) {
-    return new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
+      SignedJwtTokenIssuer tokenIssuer, Clock clock, MetricRegistry registry) {
+
+    TokenIssuerService service =
+        new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
+
+    return new TokenIssuerServiceMetricsWrapper(service, registry);
   }
 
   @Bean
@@ -170,7 +183,12 @@ public class AppConfig implements TransferConstants {
   @Bean
   public MetricRegistry metricRegistry() {
 
-    return new MetricRegistry();
+    MetricRegistry registry = new MetricRegistry();
+
+    registry.registerAll("jvm.mem", new MemoryUsageGaugeSet());
+    registry.registerAll("jvm.gc", new GarbageCollectorMetricSet());
+    registry.registerAll("jvm.threads", new CachedThreadStatesGaugeSet(1, TimeUnit.MINUTES));
+    return registry;
   }
 
   @Bean
@@ -210,7 +228,12 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   public ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
-    return new ScheduledThreadPoolExecutor(4);
+
+    final int tpSize = props.getProgressReportThreadPoolSize();
+    ThreadFactory namedThreadFactory =
+        new ThreadFactoryBuilder().setNameFormat("tpc-progress-%d").setDaemon(true).build();
+
+    return Executors.newScheduledThreadPool(tpSize, namedThreadFactory);
   }
 
   @Bean("tpcConnectionManager")
@@ -408,8 +431,18 @@ public class AppConfig implements TransferConstants {
     return (id) -> null;
   }
 
-  // @Bean
-  public ExecutorService oauthExecutorService() {
-    return Executors.newSingleThreadExecutor();
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
+  public BearerTokenResolver bearerTokenResolver(ServiceConfigurationProperties config) {
+    return new PermissiveBearerTokenResolver();
+  }
+
+  @Bean
+  public PrincipalHelper principalHelper(ServiceConfigurationProperties config)
+      throws MalformedURLException {
+    return new PrincipalHelper(config);
   }
 }
+
+

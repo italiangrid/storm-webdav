@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,16 +59,16 @@ public class AuthorizationIntegrationTests {
 
 
   @Autowired
-  MockMvc mvc;
+  private MockMvc mvc;
 
   @Autowired
-  VOMSAuthenticationFilter filter;
+  private VOMSAuthenticationFilter filter;
 
   @Autowired
-  FilterRegistrationBean<MiltonFilter> miltonFilter;
+  private FilterRegistrationBean<MiltonFilter> miltonFilter;
 
   @Autowired
-  StormJwtAuthoritiesConverter authConverter;
+  private StormJwtAuthoritiesConverter authConverter;
 
   @Before
   public void setup() {

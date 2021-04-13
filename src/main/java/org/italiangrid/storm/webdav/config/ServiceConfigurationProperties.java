@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,14 @@
  */
 package org.italiangrid.storm.webdav.config;
 
+import static org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaPoolProperties.ReplicaSelectionPolicy.RANDOM;
+
+import java.net.URI;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
@@ -35,9 +39,133 @@ import com.google.common.collect.Lists;
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public enum ChecksumStrategy {
-    NO_CHECKSUM,
-    EARLY,
-    LATE
+    NO_CHECKSUM, EARLY, LATE
+  }
+
+  @Validated
+  public static class RedirectorProperties {
+
+    @Validated
+    public static class ReplicaEndpointProperties {
+
+      URI endpoint;
+
+      public URI getEndpoint() {
+        return endpoint;
+      }
+
+      public void setEndpoint(URI endpoint) {
+        this.endpoint = endpoint;
+      }
+
+      @Override
+      public String toString() {
+        return "[endpoint=" + endpoint + "]";
+      }
+
+      @Override
+      public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((endpoint == null) ? 0 : endpoint.hashCode());
+        return result;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        if (this == obj)
+          return true;
+        if (obj == null)
+          return false;
+        if (getClass() != obj.getClass())
+          return false;
+        ReplicaEndpointProperties other = (ReplicaEndpointProperties) obj;
+        if (endpoint == null) {
+          if (other.endpoint != null)
+            return false;
+        } else if (!endpoint.equals(other.endpoint))
+          return false;
+        return true;
+      }
+
+    }
+
+    @Validated
+    public static class ReplicaPoolProperties {
+
+      public enum ReplicaSelectionPolicy {
+        RANDOM
+      }
+
+      @NotEmpty
+      List<ReplicaEndpointProperties> endpoints = Lists.newArrayList();
+
+      ReplicaSelectionPolicy policy = RANDOM;
+
+      public List<ReplicaEndpointProperties> getEndpoints() {
+        return endpoints;
+      }
+
+      public void setEndpoints(List<ReplicaEndpointProperties> endpoints) {
+        this.endpoints = endpoints;
+      }
+
+      public ReplicaSelectionPolicy getPolicy() {
+        return policy;
+      }
+
+      public void setPolicy(ReplicaSelectionPolicy policy) {
+        this.policy = policy;
+      }
+    }
+
+    boolean enabled = false;
+
+    @Positive
+    int maxTokenLifetimeSecs = 1200;
+
+    ReplicaPoolProperties pool = new ReplicaPoolProperties();
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public int getMaxTokenLifetimeSecs() {
+      return maxTokenLifetimeSecs;
+    }
+
+    public void setMaxTokenLifetimeSecs(int maxTokenLifetimeSecs) {
+      this.maxTokenLifetimeSecs = maxTokenLifetimeSecs;
+    }
+
+    public ReplicaPoolProperties getPool() {
+      return pool;
+    }
+
+    public void setPool(ReplicaPoolProperties pool) {
+      this.pool = pool;
+    }
+
+  }
+
+  @Validated
+  public static class BufferProperties {
+
+    @Min(value = 4096, message = "storm.buffer.file-buffer-size-bytes must be >= 4096")
+    int fileBufferSizeBytes = 1048576;
+
+    public int getFileBufferSizeBytes() {
+      return fileBufferSizeBytes;
+    }
+
+    public void setFileBufferSizeBytes(int fileBufferSizeBytes) {
+      this.fileBufferSizeBytes = fileBufferSizeBytes;
+    }
+
   }
 
   public static class MacaroonFilterProperties {
@@ -111,6 +239,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Positive
     int maxIdleTimeMsec = 30000;
 
+    int jettyAcceptors = -1;
+
+    int jettySelectors = -1;
+
+    @Positive
+    @Min(4096)
+    int outputBufferSizeBytes = 32 * 1024;
+
     public int getPort() {
       return port;
     }
@@ -149,6 +285,30 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setMaxIdleTimeMsec(int maxIdleTimeMsec) {
       this.maxIdleTimeMsec = maxIdleTimeMsec;
+    }
+
+    public void setJettyAcceptors(int jettyAcceptors) {
+      this.jettyAcceptors = jettyAcceptors;
+    }
+
+    public int getJettyAcceptors() {
+      return jettyAcceptors;
+    }
+
+    public void setJettySelectors(int jettySelectors) {
+      this.jettySelectors = jettySelectors;
+    }
+
+    public int getJettySelectors() {
+      return jettySelectors;
+    }
+
+    public int getOutputBufferSizeBytes() {
+      return outputBufferSizeBytes;
+    }
+
+    public void setOutputBufferSizeBytes(int outputBufferSizeBytes) {
+      this.outputBufferSizeBytes = outputBufferSizeBytes;
     }
   }
 
@@ -317,6 +477,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setMaxTokenLifetimeSec(int maxTokenLifetimeSec) {
       this.maxTokenLifetimeSec = maxTokenLifetimeSec;
     }
+
   }
 
   @Valid
@@ -413,6 +574,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private String accessLogConfigurationPath;
 
   private ChecksumStrategy checksumStrategy = ChecksumStrategy.EARLY;
+
+  private BufferProperties buffer;
+
+  private RedirectorProperties redirector;
 
   @NotEmpty
   private List<String> hostnames;
@@ -646,5 +811,22 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public boolean enableHttp2() {
     return getTls().isEnableHttp2();
+  }
+
+  public BufferProperties getBuffer() {
+    return buffer;
+  }
+
+  public void setBuffer(BufferProperties buffer) {
+    this.buffer = buffer;
+  }
+
+
+  public RedirectorProperties getRedirector() {
+    return redirector;
+  }
+
+  public void setRedirector(RedirectorProperties redirector) {
+    this.redirector = redirector;
   }
 }

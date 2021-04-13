@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,15 @@ package org.italiangrid.storm.webdav.test.tpc.http;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
+import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.BufferProperties;
+import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
@@ -71,7 +75,7 @@ public class ClientTestSupport {
   @SuppressWarnings("rawtypes")
   @Mock
   ScheduledFuture sf;
-  
+
   HttpTransferClient client;
 
   @Captor
@@ -91,7 +95,14 @@ public class ClientTestSupport {
 
   @Before
   public void setup() throws IOException {
-    client = new HttpTransferClient(httpClient, resolver, eah, es, 1, 4096);
+    ThirdPartyCopyProperties props = new ThirdPartyCopyProperties();
+    ServiceConfigurationProperties config = new ServiceConfigurationProperties();
+    BufferProperties buffer = new BufferProperties();
+    config.setBuffer(buffer);
+
+    client =
+        new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, props,
+            config);
   }
 
 }

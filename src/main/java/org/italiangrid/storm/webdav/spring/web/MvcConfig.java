@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import java.util.concurrent.TimeUnit;
 
+import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.web.ViewUtilsInterceptor;
@@ -35,11 +36,14 @@ public class MvcConfig implements WebMvcConfigurer {
   ServiceConfigurationProperties properties;
   
   @Autowired
+  OAuthProperties oauthProperties;
+
+  @Autowired
   StorageAreaConfiguration saConfig;
   
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-   registry.addInterceptor(new ViewUtilsInterceptor(properties, saConfig));
+    registry.addInterceptor(new ViewUtilsInterceptor(properties, saConfig, oauthProperties));
   }
 
   @Override

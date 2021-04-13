@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2020.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.server.util.JettyErrorPageHandler;
@@ -62,6 +63,7 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
+import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -81,17 +83,15 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   final ServiceConfiguration configuration;
   final StorageAreaConfiguration saConf;
 
-  @Autowired
-  ServerProperties serverProperties;
+  final ServerProperties serverProperties;
 
-  @Autowired
-  MetricRegistry metricRegistry;
+  final MetricRegistry metricRegistry;
 
-  @Autowired
-  ConfigurationLogger confLogger;
+  final ConfigurationLogger confLogger;
 
-  @Autowired
-  X509CertChainValidatorExt certChainValidator;
+  final X509CertChainValidatorExt certChainValidator;
+
+  final ServiceConfigurationProperties serviceConfig;
 
   private void configureTLSConnector(Server server)
       throws KeyStoreException, CertificateException, IOException {
@@ -101,6 +101,12 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     connectorBuilder.httpConfiguration().setSendServerVersion(false);
     connectorBuilder.httpConfiguration().setSendDateHeader(false);
+    connectorBuilder.httpConfiguration()
+      .setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
+
+    connectorBuilder.httpConfiguration()
+      .setOutputBufferSize(serviceConfig.getConnector().getOutputBufferSizeBytes());
+
 
     ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
       .withWantClientAuth(true)
@@ -113,9 +119,12 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withHttp2(configuration.enableHttp2())
       .withDisableJsseHostnameVerification(true)
       .withTlsProtocol("TLS")
+      .withAcceptors(serverProperties.getJetty().getAcceptors())
+      .withSelectors(serverProperties.getJetty().getSelectors())
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
+
     server.addConnector(connector);
     LOG.info("Configured TLS connector on port: {}. Conscrypt enabled: {}. HTTP/2 enabled: {}",
         configuration.getHTTPSPort(), configuration.useConscrypt(), configuration.enableHttp2());
@@ -169,20 +178,32 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
   }
 
   private ThreadPool configureThreadPool() {
-    return ThreadPoolBuilder.instance()
+
+    InstrumentedQueuedThreadPool tp = (InstrumentedQueuedThreadPool) ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(configuration.getMaxConnections())
-      .withMinThreads(5)
+      .withMaxThreads(serverProperties.getJetty().getMaxThreads())
+      .withMinThreads(serverProperties.getJetty().getMinThreads())
       .registry(metricRegistry)
       .build();
+
+    // FIXME: the prefix setting should be moved to the ThreadPoolBuilder
+    tp.setPrefix("storm.http");
+    tp.setName("thread-pool");
+    return tp;
   }
 
   @Autowired
-  public JettyWebServerFactory(ServiceConfiguration serviceConfiguration,
-      StorageAreaConfiguration saConf) {
-    super(serviceConfiguration.getHTTPPort());
-    this.configuration = serviceConfiguration;
+  public JettyWebServerFactory(ServiceConfigurationProperties serviceConfigurationProperties,
+      StorageAreaConfiguration saConf, ServerProperties serverProperties, MetricRegistry registry,
+      ConfigurationLogger confLogger, X509CertChainValidatorExt certChainValidator) {
+    super(serviceConfigurationProperties.getHTTPPort());
+    this.configuration = serviceConfigurationProperties;
+    this.serviceConfig = serviceConfigurationProperties;
     this.saConf = saConf;
+    this.serverProperties = serverProperties;
+    this.certChainValidator = certChainValidator;
+    this.metricRegistry = registry;
+    this.confLogger = confLogger;
     this.addServerCustomizers(this);
     setRegisterDefaultServlet(false);
     setThreadPool(configureThreadPool());
