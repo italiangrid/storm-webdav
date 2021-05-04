@@ -2,9 +2,9 @@
 
 ## Introduction
 
-The StoRM WebDAV service provides a storage management 
-and data access solution supporting VOMS and OAuth/OpenID Connect
-authentication and authorization mechanisms.
+The StoRM WebDAV service provides a storage management and data access solution
+supporting VOMS and OAuth/OpenID Connect authentication and authorization
+mechanisms.
 
 Starting from version 1.1.0, StoRM WebDAV supports third-party WebDAV COPY
 transfers (see [here][doma-tpc] for technical details).
@@ -18,84 +18,111 @@ Grap the latest package from the StoRM repository. See instructions
 yum install storm-webdav
 ```
 
-## Configure the service with YAIM
+## Service configuration defaults
 
-StoRM webdav provides minimal support for YAIM.
+### `/etc/systemd/system/storm-webdav.service.d/storm-webdav.conf`
 
-Minimal example configuration:
+The storm-webdav service configuration lives in this file. Typically the
+configuration works out of the box, but changes are required for instance to
+enable third-party transfer support.
 
-```bash
-## The site name
-SITE_NAME="storm-testbed"
+StoRM can also be configured using (one or more) YAML files.
 
-## List of NTP hosts
-NTP_HOSTS_IP="131.154.1.103 193.206.144.10"
+You can find an empty YAML configuration file in
+`/etc/storm/webdav/config/application.yml` together with a `README.md` file in
+the same directory that provides configuration instructions.
 
-## Location of the JVM. Java 7 is required
-JAVA_LOCATION="/usr/lib/jvm/jre-1.7.0"
+That configuration file is used to override settings in the configuration file
+embedded in the storm webdav jar package:
 
-## Users configuration
-USERS_CONF=/etc/storm/siteinfo/storm-users.conf
+https://github.com/italiangrid/storm-webdav/blob/master/src/main/resources/application.yml
 
-## Groups configuration
-GROUPS_CONF=/etc/storm/siteinfo/storm-groups.conf
+that you can consult to see what are the default settings.
 
-## Supported VOs.
-VOS="testers.eu-emi.eu dteam"
+### Memory
 
-## List of storage areas
-STORM_STORAGEAREA_LIST="testers.eu-emi.eu tape"
+You should give a reasonable amount of memory to StoRM WebDAV to do its work.
+The amount depends on the number of concurrent requests that the server needs
+to handle.
 
-## Root for the storage area directories
-STORM_DEFAULT_ROOT="/storage"
+A good starting point is giving the server 2G of heap memory, by setting the
+following env variable:
 
-## Enables authenticated read access to the testers.eu-emi.eu 
-## storage area to all clients authenticated with a trusted certificate
-STORM_TESTERSEUEMIEU_AUTHENTICATED_HTTP_READ=true
-
-## Sets the dteam VO as the trusted VO for storage area
-## tape
-STORM_TAPE_VONAME=dteam
+```env
+STORM_WEBDAV_JVM_OPTS=-Xms2048m -Xmx2048m
 ```
 
-The above configuration will configure two storage areas, `testers.eu-emi.eu`
-and `tape`. Access to the `testers.eu-emi.eu` storage area will be granted to
-all members of the VO `testers.eu-emi.eu` (this is configured by default when
-the storage area name is identical to the VO name) authenticated with a valid
-VOMS proxy certificate.
+In general, allowing for `256Mb + (# threads * 6Mb)` should give StoRM WebDAV
+enough memory to do its work.
 
-In addition, access is granted to all clients authenticated with a valid X.509
-certificate signed by a trusted CA.
+### Threadpool sizes
 
-Access to the `tape` storage area is granted to all members of the dteam VO.
+The size of the thread pool used to serve incoming requests and
+third-party-copy requests can be set with the following variables:
 
-To configure the service with yaim, run the following command:
-
+```yaml
+storm:
+  connector:
+    max-connections: 300
+	max-queue-size: 900
+  tpc:
+    max-connections: 200
+	max-connections-per-route: 150
+	progress-report-thread-pool-size: (# of cores of your machine)
 ```
-/opt/glite/yaim/bin/yaim -c -s SITEINFO.def -n se_storm_webdav
+
+### Conscrypt
+
+Conscrypt improves TLS performance and can be enabled as follows:
+
+```yaml
+storm:
+  tpc:
+     use-conscrypt: true
+  tls:
+    use-conscrypt: true
+    enable-http2: true
 ```
 
+### Use `/dev/urandom` for random number generation
+
+Using `/dev/random` can lead to the service being blocked if not enough entropy
+is available in the system.
+
+To avoid this scenario, use `/dev/urandom`, by setting the JVM options as
+follows:
+
+```env
+STORM_WEBDAV_JVM_OPTS=-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom
+```
 ## Configure the service with Puppet
 
 The [StoRM puppet module][storm-puppet] can be used to configure the service on 
-CENTOS 7. 
+CENTOS 7.  
 
-## Service configuration
+We recommend to use directly the StoRM WebDAV YAML configuration to tune your
+deployment configuration, instead of using variables defined at the puppet
+level, i.e.:
 
-### `/etc/sysconfig/storm-webdav`
+```puppet
+class { 'storm::webdav':
+  hostnames => ['storm-webdav.test.example'],
+}
+...
+storm::webdav::application_file { 'application.yml':
+  source => 'puppet:///the/path/to/the/application.yml',
+}
 
-The storm-webdav service configuration lives in this file.
-Typically the configuration works out of the box, but changes are required for
-instance to enable third-party transfer support.
+```
 
 #### VO mapfiles
 
 When VO map files are enabled, users can authenticate to the StoRM webdav
 service using the certificate in their browser and be granted VOMS attributes
-if their subject is listed in one of the supported VO mapfile.
-You can configure whether users listed in VO map files will be granted read-only 
-or write permissions in the storage area configuration in the `/etc/storm/webdav/sa.d` 
-directory.
+if their subject is listed in one of the supported VO mapfile. You can
+configure whether users listed in VO map files will be granted read-only or
+write permissions in the storage area configuration in the
+`/etc/storm/webdav/sa.d` directory.
 
 This mechanism is very similar to the traditional Gridmap file but is just used
 to know whether a given user is registered as a member in a VOMS managed VO and
@@ -105,7 +132,9 @@ not to map his/her certificate subject to a local unix account.
 
 VO map files support is disabled by default in StoRM WebDAV.
 
-Set `STORM_WEBDAV_VO_MAP_FILES_ENABLE=true` in `/etc/sysconfig/storm-webdav` to enable VO map file support.
+Set `STORM_WEBDAV_VO_MAP_FILES_ENABLE=true` in 
+
+`/etc/systemd/system/storm-webdav.service.d/storm-webdav.conf` to enable VO map file support.
 
 ### VO map files format and location
 
@@ -148,25 +177,26 @@ See [Storage area configuration][storage-area-conf] for more information.
 Start the service:
 
 ```
-service storm-webdav start
+systemct start storm-webdav
 ```
 
 Stop the service:
 
 ```
-  service storm-webdav stop
+systemctl stop storm-webdav
 ```
 
 Check service status:
+
 ```
-  service storm-webdav status
+systemctl status storm-webdav
 ```
 
 Check that the service responds:
 
 ```
-# curl http://localhost:8085/status/ping
-pong
+$ curl http://localhost:8085/actuator/health
+{"status":"UP"}
 ```
 
 Get service metrics:
@@ -174,30 +204,16 @@ Get service metrics:
 ```
 # curl http://localhost:8085/status/metrics?pretty=true
 {
-  "version" : "3.0.0",
+  "version" : "4.0.0",
   "gauges" : {
-    "jvm.gc.Copy.count" : {
-      "value" : 1
-    },
-    "jvm.gc.Copy.time" : {
-      "value" : 29
-    },
-    "jvm.gc.MarkSweepCompact.count" : {
+    "jvm.gc.G1-Old-Generation.count" : {
       "value" : 0
     },
-    "jvm.gc.MarkSweepCompact.time" : {
+    "jvm.gc.G1-Old-Generation.time" : {
       "value" : 0
-    },
-    "jvm.memory.heap.committed" : {
-      "value" : 259522560
-    },
-    "jvm.memory.heap.init" : {
-      "value" : 268435456
-    },
-    "jvm.memory.heap.max" : {
-      "value" : 518979584
-    },
+    }
     ...
+}
 
 ```
 
