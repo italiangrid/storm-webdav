@@ -11,6 +11,7 @@ ExecStart=/bin/bash -ac "exec /usr/bin/java \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
     -jar ${STORM_WEBDAV_JAR} > ${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR}"
 KillMode=process
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
