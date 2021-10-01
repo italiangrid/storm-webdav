@@ -28,7 +28,7 @@ tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
   max-connections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
   max-connections-per-route: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS_PER_ROUTE:25}
-  timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:5}
+  timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:30}
   verify-checksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
   report-delay-secs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
   http-client-socket-buffer-size: ${storm.buffer.file-buffer-size-bytes}
