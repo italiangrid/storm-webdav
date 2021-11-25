@@ -32,7 +32,7 @@
     <!-- Keep this aligned with the parent project version! -->
     <spring-boot.version>2.2.9.RELEASE</spring-boot.version>
 
-    <jetty-utils.version>0.4.4.v20201211</jetty-utils.version>
+    <jetty-utils.version>0.4.5.v20211125</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
