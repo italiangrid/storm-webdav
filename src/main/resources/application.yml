@@ -23,6 +23,10 @@ server:
   jetty:
     max-threads: ${storm.connector.max-connections}
      
+management:
+  health:
+    redis:
+      enabled: false  
 
 tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
