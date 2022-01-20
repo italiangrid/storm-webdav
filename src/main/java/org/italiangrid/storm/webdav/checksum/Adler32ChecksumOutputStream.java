@@ -26,7 +26,11 @@ public class Adler32ChecksumOutputStream extends CheckedOutputStream {
   }
   
   public String getChecksumValue() {
-    return Long.toHexString(getChecksum().getValue());
+    return formatChecksumValue(Long.toHexString(getChecksum().getValue()));
+  }
+
+  private String formatChecksumValue(String checksum) {
+    return ("00000000" + checksum).substring(checksum.length());
   }
 
 }
