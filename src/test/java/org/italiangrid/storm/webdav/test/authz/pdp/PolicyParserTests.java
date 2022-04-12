@@ -19,7 +19,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
@@ -52,7 +52,7 @@ public class PolicyParserTests {
 
   @Mock
   StorageAreaInfo saInfo;
-  
+
   FineGrainedAuthzPolicyParser parser;
 
   @Before
@@ -60,10 +60,10 @@ public class PolicyParserTests {
     when(saConfig.getStorageAreaInfo()).thenReturn(newArrayList(saInfo));
     when(saInfo.name()).thenReturn("test");
     when(saInfo.accessPoints()).thenReturn(newArrayList("/test"));
-    
+
     parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
   }
-  
+
   @Test
   public void testNoPolicyParsing() throws Exception {
     assertThat(parser.parsePolicies(), empty());

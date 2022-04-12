@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.test.oauth.jwt;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService.BEARER_TOKEN_TYPE;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
@@ -75,7 +75,7 @@ public class TokenServiceTest {
   public void setup() throws ParseException {
 
     issuerService = new DefaultTokenIssuerService(props, tokenIssuer, mockClock);
-    
+
     when(tokenIssuer.createAccessToken(request, auth)).thenReturn(jwt);
     when(jwt.serialize()).thenReturn(JWT_SERIALIZED_FORM);
     when(jwt.getJWTClaimsSet()).thenReturn(claimsSet);

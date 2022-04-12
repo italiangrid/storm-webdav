@@ -20,7 +20,7 @@ import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.enumeration;
 import static org.hamcrest.Matchers.is;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ import com.google.common.collect.Multimap;
 @RunWith(MockitoJUnitRunner.class)
 public class PullTransferTest extends TransferFilterTestSupport {
 
-  
+
   @Before
   public void setup() throws IOException {
     super.setup();
@@ -61,7 +61,8 @@ public class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
-    assertTrue("Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
+    assertTrue("Expected empty xfer headers",
+        getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
@@ -73,7 +74,8 @@ public class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat("Overwrite header not recognized", getXferRequest.getValue().overwrite(), is(false));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
-    assertTrue("Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
+    assertTrue("Expected empty xfer headers",
+        getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
@@ -86,7 +88,8 @@ public class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat("RequireChecksumVerification header not recognized",
         getXferRequest.getValue().verifyChecksum(), is(false));
-    assertTrue("Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
+    assertTrue("Expected empty xfer headers",
+        getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
@@ -116,15 +119,15 @@ public class PullTransferTest extends TransferFilterTestSupport {
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
   }
-  
+
   @Test
   public void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
-    
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
-    
+
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
 
@@ -136,9 +139,9 @@ public class PullTransferTest extends TransferFilterTestSupport {
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(1));
-    
+
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
   }
-  
+
 }

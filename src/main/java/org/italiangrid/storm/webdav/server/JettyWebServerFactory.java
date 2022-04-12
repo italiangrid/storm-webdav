@@ -119,8 +119,8 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withHttp2(configuration.enableHttp2())
       .withDisableJsseHostnameVerification(true)
       .withTlsProtocol("TLS")
-      .withAcceptors(serverProperties.getJetty().getAcceptors())
-      .withSelectors(serverProperties.getJetty().getSelectors())
+      .withAcceptors(serverProperties.getJetty().getThreads().getAcceptors())
+      .withSelectors(serverProperties.getJetty().getThreads().getSelectors())
       .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
@@ -181,8 +181,8 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
     InstrumentedQueuedThreadPool tp = (InstrumentedQueuedThreadPool) ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(serverProperties.getJetty().getMaxThreads())
-      .withMinThreads(serverProperties.getJetty().getMinThreads())
+      .withMaxThreads(serverProperties.getJetty().getThreads().getMax())
+      .withMinThreads(serverProperties.getJetty().getThreads().getMin())
       .registry(metricRegistry)
       .build();
 

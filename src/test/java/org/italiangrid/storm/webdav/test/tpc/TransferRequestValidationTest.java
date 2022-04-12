@@ -20,7 +20,7 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +38,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransferRequestValidationTest extends TransferFilterTestSupport {
-  
+
   @Before
   public void setup() throws IOException {
     super.setup();
@@ -124,8 +124,8 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     String[] invalidPathInfos = {null, "", "does/not/start/with/slash"};
     String[] expectedErrorMsgs = {"Null or empty", "Null or empty", "Invalid local path"};
-    
-    for (int i=0; i < invalidPathInfos.length; i++) {
+
+    for (int i = 0; i < invalidPathInfos.length; i++) {
       when(request.getPathInfo()).thenReturn(invalidPathInfos[i]);
 
       filter.doFilter(request, response, chain);
@@ -136,7 +136,7 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     }
   }
-  
+
   @Test
   public void invalidCredentialHeader() throws IOException, ServletException {
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
@@ -144,16 +144,16 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_BAD_REQUEST));
-    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite")); 
+    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite"));
   }
-  
+
   @Test
   public void noneCredentialHeaderAccepted() throws IOException, ServletException {
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
     when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("none");
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
-   
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED)); 
+
+    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED));
   }
 }

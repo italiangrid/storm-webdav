@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.test.utils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.utils.RangeCopyHelper.rangeCopy;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -137,7 +137,7 @@ public class IOUtilsTest {
       for (int i = 100; i < 200; i++) {
         assertThat("Expected 0", fis.read(), is(0));
       }
-      
+
       for (int i = 200; i < dest.length(); i++) {
         assertThat("Expected 1", fis.read(), is(1));
       }

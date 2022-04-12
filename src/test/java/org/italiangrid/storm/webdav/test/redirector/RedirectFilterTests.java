@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.italiangrid.storm.webdav.redirector.RedirectFilter;
 import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -126,7 +126,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   public void filterIgnoresRequestWithNoRedirect() throws IOException, ServletException {
     Map<String, String[]> parameterMap = Maps.newHashMap();
     parameterMap.put("no_redirect", new String[] {});
-    
+
     when(request.getParameterMap()).thenReturn(parameterMap);
 
     filter.doFilter(request, response, filterChain);
@@ -167,7 +167,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     verify(response).setStatus(Mockito.eq(SC_TEMPORARY_REDIRECT));
     verify(response).setHeader(Mockito.eq("Location"), redirectUrl.capture());
 
-    Assert.assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));
+    assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));
     verifyNoInteractions(filterChain);
 
 

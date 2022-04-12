@@ -16,6 +16,8 @@
 package org.italiangrid.storm.webdav.test.macaroon;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,7 +35,6 @@ import org.italiangrid.storm.webdav.macaroon.MacaroonRequestDTO;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.italiangrid.storm.webdav.macaroon.MacaroonResponseDTO;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,8 +146,7 @@ public class MacaroonRequestIntegrationTests {
 
     SignedJWT signedJwt = SignedJWT.parse(res.getMacaroon());
 
-    Assert.assertThat(signedJwt.getJWTClaimsSet().getExpirationTime().toInstant(),
-        is(NOW_PLUS_2H));
+    assertThat(signedJwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(NOW_PLUS_2H));
 
   }
 }

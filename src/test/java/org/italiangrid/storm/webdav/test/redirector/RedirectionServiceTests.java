@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.test.redirector;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +109,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
 
 
     URI uri = URI.create(uriString);
-    
+
     assertThat(uri.getHost(), is(URI_0_HOST));
     assertThat(uri.getScheme(), is(URI_0_SCHEME));
     assertThat(uri.getPath(), is(PATH));
@@ -118,7 +118,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
     assertThat(tokenRequest.getValue().getPermission(), is(Permission.r));
     assertThat(tokenRequest.getValue().getLifetimeSecs(),
         is(config.getRedirector().getMaxTokenLifetimeSecs()));
-    
+
   }
 
   @Test

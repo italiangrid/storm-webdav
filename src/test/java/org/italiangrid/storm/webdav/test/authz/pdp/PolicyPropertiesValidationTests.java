@@ -16,10 +16,11 @@
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
 import static java.util.Collections.emptyList;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -52,7 +53,6 @@ public class PolicyPropertiesValidationTests {
     ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
     this.validator = vf.getValidator();
 
-
   }
 
   public FineGrainedAuthzPolicyProperties minimalValidPolicy() {
@@ -78,10 +78,9 @@ public class PolicyPropertiesValidationTests {
         validator.validate(props);
 
     assertThat(violations, empty());
-    
 
   }
-  
+
   @Test
   public void testDescriptionRequired() throws Exception {
 
@@ -94,9 +93,9 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("description"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-    
+
   }
-  
+
   @Test
   public void testSaRequired() throws Exception {
 
@@ -109,9 +108,9 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("sa"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-    
+
   }
-  
+
   @Test
   public void testPrincipalsNotEmpty() throws Exception {
 
@@ -124,10 +123,7 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("principals"));
     assertThat(violations.iterator().next().getMessage(), is("must not be empty"));
-    
+
   }
-  
-  
-  
 
 }

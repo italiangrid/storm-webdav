@@ -21,7 +21,7 @@ import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.ne
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.DENY;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.NOT_APPLICABLE;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.PERMIT;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
