@@ -1,0 +1,29 @@
+# Trusted OAuth/OIDC token issuers
+# Note that this list only define the issuers recognized by this storm-webdav
+# instance. 
+#
+# In order to enable an OAuth token issuer in the context of a storage area, such
+# issuer must be included in the list of trusted issuer specified in this file 
+# __and__ in the list of trusted organizations for the storage area in the storage area
+# properties in /etc/storm/webdav/sa.d.
+#
+# Example: 
+#
+# To trust the iam-test.indigo-datacloud.eu organization for the storage area
+# example, this must be list among the trusted OAuth token issuers, in 
+# `/etc/storm/webdav/config/application.yml:`
+#
+# oauth:
+#   issuers:
+#     - name: iam-test
+#       issuer: https://iam-test.indigo-datacloud.eu/
+# 
+# And in the storage area configuration `/etc/storm/sa.d/example.properties`:
+#
+# ...
+# orgs=https://iam-test.indigo-datacloud.eu
+#
+oauth:
+  issuers:
+    - name: wlcg
+      issuer: https://wlcg.cloud.cnaf.infn.it/
