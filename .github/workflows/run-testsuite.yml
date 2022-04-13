@@ -2,8 +2,8 @@ name: Run testsuite
 
 on:
   push:
-    paths:
-      - robot/**
+#    paths:
+#      - robot/**
 
 jobs:
   run-testsuite:
