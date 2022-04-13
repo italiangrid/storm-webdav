@@ -10,6 +10,9 @@ jobs:
     name: WebDAV test suite
 
     runs-on: ubuntu-latest
+
+    env:
+      ARTIFACTS: artifacts
     
     steps:
       - uses: actions/checkout@v2
@@ -28,8 +31,16 @@ jobs:
           docker-compose up -d ts 
           docker-compose exec -T ts bash -c '/scripts/wait-and-run-testsuite.sh'
 
+      - name: Create artifacts directory
+        if: ${{ always() }}
+        run: mkdir -p ${ARTIFACTS}
+
       - name: Collect test reports
-        run: docker cp storm-webdav-ts-1:/home/test/robot/reports .
+        run: docker cp storm-webdav-ts-1:/home/test/robot/reports ${ARTIFACTS}
+
+      - name: Collect service log
+        if: ${{ always() }}
+        run: docker logs storm-webdav-webdav-1 > ${ARTIFACTS}/storm-webdav-server.log
         
       - name: Stop compose
         if: ${{ always() }}
@@ -37,7 +48,8 @@ jobs:
         run: docker-compose down -v
 
       - name: Archive reports
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: reports
-          path: reports
+          name: logs-and-reports
+          path: ${{ env.ARTIFACTS}}
