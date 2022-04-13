@@ -15,20 +15,31 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Fetch crls
+        working-directory: compose
         run: docker-compose up trust
 
       - name: Set up WebDAV
+        working-directory: compose
         run: docker-compose up webdav-setup
 
       - name: Start WebDAV services
+        working-directory: compose
         run: docker-compose up -d webdav nginx
 
       - name: Run testsuite
+        working-directory: compose
         run: |
           docker-compose up -d ts 
           docker-compose exec -T ts bash -c 'cd test-suite && sh ci/run.sh'
           docker cp storm-webdav-ts-1:/home/test/robot/reports .
-          docker-compose down -v
+
+      - name: Collect test reports
+        run: docker cp storm-webdav-ts-1:/home/test/robot/reports .
+        
+      - name: Stop compose
+        if: ${{ always() }}
+        working-directory: compose
+        run: docker-compose down -v
 
       - name: Archive reports
         uses: actions/upload-artifact@v2
