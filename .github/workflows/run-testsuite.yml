@@ -30,7 +30,7 @@ jobs:
         working-directory: compose
         run: |
           docker-compose up -d ts 
-          docker-compose exec -T ts bash -c 'cd test-suite && sh ci/run.sh'
+          docker-compose exec -T ts bash -c '/scripts/wait-and-run-testsuite.sh'
           docker cp storm-webdav-ts-1:/home/test/robot/reports .
 
       - name: Collect test reports
