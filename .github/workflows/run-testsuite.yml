@@ -1,0 +1,37 @@
+name: Run testsuite
+
+on:
+  push:
+    paths:
+      - robot/**
+
+jobs:
+  run-testsuite:
+    name: WebDAV test suite
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Fetch crls
+        run: docker-compose up trust
+
+      - name: Set up WebDAV
+        run: docker-compose up webdav-setup
+
+      - name: Start WebDAV services
+        run: docker-compose up -d webdav nginx
+
+      - name: Run testsuite
+        run: |
+          docker-compose up -d ts 
+          docker-compose exec -T ts bash -c 'cd test-suite && sh ci/run.sh'
+          docker cp storm-webdav-ts-1:/home/test/robot/reports .
+          docker-compose down -v
+
+      - name: Archive reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: reports
+          path: reports
