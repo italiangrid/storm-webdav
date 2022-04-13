@@ -8,6 +8,7 @@ volumes:
   hostcert:
   saconfig:
   mapfilesconfig:
+  config:
 
 services:
   trust:
@@ -28,9 +29,11 @@ services:
       - ./assets/scripts:/scripts:ro
       - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
       - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
+      - ./assets/etc/storm/webdav/config/:/config:ro
       - hostcert:/etc/grid-security/storm-webdav
       - saconfig:/etc/storm/webdav/sa.d
       - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - config:/etc/storm/webdav/config
       - storage:/storage
 
     user: root
@@ -64,6 +67,7 @@ services:
       - hostcert:/etc/grid-security/storm-webdav
       - saconfig:/etc/storm/webdav/sa.d
       - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - config:/etc/storm/webdav/config
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ${HOME}/git/storm-webdav:/code:ro
