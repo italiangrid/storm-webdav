@@ -10,9 +10,8 @@ echo "pass" | voms-proxy-init --cert /tmp/usercerts/test0.p12 -voms test.vo --pw
 
 /scripts/wait-for-it.sh ${DAV_HOST}:8085 --timeout=${WAIT_TIMEOUT}
 
-rsync -avhu --exclude='.git/' /code/robot .
+cp -r /code/robot .
 
 pushd robot
-
 
 sh run-testsuite.sh

@@ -19,7 +19,7 @@ services:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
   webdav-setup:
-    image: italiangrid/storm-webdav:latest
+    image: italiangrid/storm-webdav-centos7:latest
     environment:
       TZ: UTC
 
@@ -33,11 +33,12 @@ services:
       - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
       - storage:/storage
 
+    user: root
     entrypoint:
       - /scripts/setup.sh
 
   webdav:
-    image: italiangrid/storm-webdav:latest
+    image: italiangrid/storm-webdav-centos7:latest
     dns_search: example
     ports:
       - "9443:8443"
@@ -67,6 +68,7 @@ services:
       - ./assets/scripts:/scripts:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
+    user: root
     entrypoint:
       - /scripts/run.sh
 
@@ -76,9 +78,10 @@ services:
           - storm.example
 
   ts:
-    image: italiangrid/storm-webdav-ts:latest
+  #  image: italiangrid/storm-webdav:1.1.0-latest
+    image: indigoiam/robot-framework
     environment:
-      - IAM_ACCESS_TOKEN
+      - IAM_ACCESS_TOKEN=AT
       - TZ=UTC 
       - DAV_HOST=storm.example
       - REMOTE_DAV_HOST=storm-alias.example
@@ -97,7 +100,7 @@ services:
       - ${HOME}/git/storm-webdav:/code:ro
 
     entrypoint:  sleep infinity
-    
+
     #entrypoint: 
     # - /scripts/wait-and-run-testsuite.sh
 
