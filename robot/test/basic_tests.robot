@@ -72,7 +72,7 @@ Single Test File Teardown  [Arguments]  ${file_name}
   
 Head works on large files setup   [Arguments]   ${file_name}
     Default setup
-    Create Test File With Size  ${file_name}  2g
+    Create Test File With Size  ${file_name}  2G
 
 Head works on large files teardown   [Arguments]   ${file_name}
     Default Teardown
