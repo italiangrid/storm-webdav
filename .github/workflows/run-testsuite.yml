@@ -18,10 +18,6 @@ jobs:
         working-directory: compose
         run: docker-compose up trust
 
-      - name: Set up WebDAV
-        working-directory: compose
-        run: docker-compose up webdav-setup
-
       - name: Start WebDAV services
         working-directory: compose
         run: docker-compose up -d webdav nginx
@@ -31,7 +27,6 @@ jobs:
         run: |
           docker-compose up -d ts 
           docker-compose exec -T ts bash -c '/scripts/wait-and-run-testsuite.sh'
-          docker cp storm-webdav-ts-1:/home/test/robot/reports .
 
       - name: Collect test reports
         run: docker cp storm-webdav-ts-1:/home/test/robot/reports .
