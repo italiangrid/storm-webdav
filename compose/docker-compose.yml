@@ -102,7 +102,7 @@ services:
       - ./assets/vomsdir:/etc/grid-security/vomsdir
       - ./assets/scripts:/scripts:ro
       - ./assets/usercerts/:/usercerts:ro
-      - ${HOME}/git/storm-webdav:/code:ro
+      - ../:/code:ro
 
     entrypoint:  sleep infinity
 
