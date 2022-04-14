@@ -40,7 +40,7 @@ jobs:
 
       - name: Collect service log
         if: ${{ always() }}
-        run: docker logs storm-webdav_webdav_1 2> ${ARTIFACTS}/storm-webdav-server.log
+        run: docker logs storm-webdav_webdav_1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
 
       - name: Archive reports
         if: ${{ always() }}
