@@ -36,6 +36,7 @@ jobs:
         run: mkdir -p ${ARTIFACTS}
 
       - name: Collect test reports
+        if: ${{ always() }}
         run: docker cp storm-webdav_ts_1:/home/test/robot/reports ${ARTIFACTS}
 
       - name: Collect service log
