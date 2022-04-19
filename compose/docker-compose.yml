@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 
 volumes:
   trustanchors:
@@ -42,7 +42,7 @@ services:
 
   webdav:
     image: italiangrid/storm-webdav-centos7:latest
-    dns_search: example
+    hostname: storm.example
     ports:
       - "9443:8443"
       - "9444:1044"
@@ -114,8 +114,7 @@ services:
 
   nginx:
     image: storm2/ngx-voms:latest
-    dns_search: example 
-
+    hostname: storm-alias.example
     ports:
       - "9553:443"
 
