@@ -90,7 +90,7 @@ Pull copy works
     [Teardown]  Pull copy works Teardown
 
 Pull copy works https
-    [Tags]   voms  tpc  dbg
+    [Tags]   voms  tpc
     [Setup]  Pull copy works https Setup
     ${dest}  DAVS URL  tpc_test_https
     ${src}  Remote DAVS URL  tpc_test_https   sa=${sa.noauth}
@@ -120,7 +120,7 @@ Pull copy works oauth and https
     [Teardown]  Pull copy works oauth and https Teardown
 
 Push copy works
-    [Tags]  voms  oauth  tpc  push  kk
+    [Tags]  voms  oauth  tpc  push
     [Setup]  Push copy works Setup
     ${dst}  Remote DAVS URL  tpc_test_push  sa=${sa.oauth}
     ${src}  DAVS URL  tpc_test_push
@@ -131,7 +131,7 @@ Push copy works
     [Teardown]  Push copy works Teardown
 
 Oauth pull copy works
-    [Tags]   oauth  tpc  pull  maghe987
+    [Tags]   oauth  tpc  pull
     [Setup]   Oauth pull copy works Setup 
     ${src}  Remote DAVS URL  oauth_pull_copy_works  sa=${sa.oauth}
     ${dst}   DAVS URL   oauth_pull_copy_works.copy  sa=${sa.oauth}
