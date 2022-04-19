@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequestBuilder;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 

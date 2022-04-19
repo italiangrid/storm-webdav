@@ -17,31 +17,37 @@ package org.italiangrid.storm.webdav.test.tpc.urlservice;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.URLResolutionError;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class URLServiceTest {
 
   public static final String[] SERVICE_ALIASES =
       {"storm.example", "alias.storm.example", "localhost"};
 
-
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testEmptyList() {
-    new StaticHostListLocalURLService(Collections.emptyList());
+
+    assertThrows(IllegalArgumentException.class, () -> {
+      new StaticHostListLocalURLService(Collections.emptyList());
+    });
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testNullList() {
-    new StaticHostListLocalURLService(null);
+
+    assertThrows(NullPointerException.class, () -> {
+      new StaticHostListLocalURLService(null);
+    });
   }
 
   @Test
@@ -59,12 +65,15 @@ public class URLServiceTest {
 
   }
 
-  @Test(expected = URLResolutionError.class)
+  @Test
   public void testInvalidUrlResolution() {
+
     StaticHostListLocalURLService service =
         new StaticHostListLocalURLService(Arrays.asList(SERVICE_ALIASES));
 
-    assertThat(service.isLocalURL("http://example.invalid/sososo[/]"), is(false));
+    assertThrows(URLResolutionError.class, () -> {
+      service.isLocalURL("http://example.invalid/sososo[/]");
+    });
 
   }
 }

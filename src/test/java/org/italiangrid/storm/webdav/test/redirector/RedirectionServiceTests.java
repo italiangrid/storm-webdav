@@ -18,6 +18,8 @@ package org.italiangrid.storm.webdav.test.redirector;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,19 +36,19 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.redirector.DefaultRedirectionService;
 import org.italiangrid.storm.webdav.redirector.RedirectError;
 import org.italiangrid.storm.webdav.redirector.ReplicaSelector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
 import com.nimbusds.jwt.SignedJWT;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedirectionServiceTests extends RedirectorTestSupport {
 
 
@@ -76,28 +78,25 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
   ServiceConfigurationProperties config;
   DefaultRedirectionService service;
 
-  @Before
+  @BeforeEach
   public void setup() {
     config = buildConfigurationProperties();
-    when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any())).thenReturn(token);
-    when(token.serialize()).thenReturn(RANDOM_TOKEN_STRING);
-    when(selector.selectReplica()).thenReturn(Optional.empty());
-    when(request.getServletPath()).thenReturn(PATH);
-    when(request.getMethod()).thenReturn("GET");
+    lenient().when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any())).thenReturn(token);
+    lenient().when(token.serialize()).thenReturn(RANDOM_TOKEN_STRING);
+    lenient().when(selector.selectReplica()).thenReturn(Optional.empty());
+    lenient().when(request.getServletPath()).thenReturn(PATH);
+    lenient().when(request.getMethod()).thenReturn("GET");
     service = new DefaultRedirectionService(config, tokenIssuer, selector);
   }
 
 
-  @Test(expected = RedirectError.class)
+  @Test
   public void testRedirectFailureOnEmptyReplica() {
 
-    try {
+    Exception e = assertThrows(RedirectError.class, () -> {
       service.buildRedirect(authentication, request, response);
-    } catch (RedirectError e) {
-      assertThat(e.getMessage(), containsString("No replica found"));
-      throw e;
-    }
-
+    });
+    assertThat(e.getMessage(), containsString("No replica found"));
   }
 
   @Test

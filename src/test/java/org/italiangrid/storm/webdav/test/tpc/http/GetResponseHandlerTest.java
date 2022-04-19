@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.test.tpc.http;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,17 +26,16 @@ import java.nio.file.Path;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock
@@ -50,17 +50,14 @@ public class GetResponseHandlerTest extends ClientTestSupport {
   @Mock
   StormCountingOutputStream os;
   
-  @Mock
-  ExtendedAttributesHelper ah;
-  
   GetResponseHandler handler;
 
-  @Before
+  @BeforeEach
   public void setup() {
     
-    handler = new GetResponseHandler(null, os, ah);
-    when(response.getStatusLine()).thenReturn(status);
-    when(response.getEntity()).thenReturn(entity);
+    handler = new GetResponseHandler(null, os, eah);
+    lenient().when(response.getStatusLine()).thenReturn(status);
+    lenient().when(response.getEntity()).thenReturn(entity);
   }
   
   @Test
@@ -70,6 +67,6 @@ public class GetResponseHandlerTest extends ClientTestSupport {
     handler.handleResponse(response);
     
     verify(entity).getContent();
-    verify(ah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
+    verify(eah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
   }
 }

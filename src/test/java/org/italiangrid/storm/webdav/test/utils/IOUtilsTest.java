@@ -16,28 +16,27 @@
 package org.italiangrid.storm.webdav.test.utils;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.italiangrid.storm.webdav.utils.RangeCopyHelper.rangeCopy;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.italiangrid.storm.webdav.utils.RangeCopyHelper.rangeCopy;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class IOUtilsTest {
 
-  @Rule
-  public TemporaryFolder testFolder = new TemporaryFolder();
+  @TempDir
+  public File testFolder;
 
   public File tempFileOfChar(String name, int b, int size) throws IOException {
-    File f = testFolder.newFile(name);
+    File f = new File(testFolder, name);
 
     try (FileOutputStream fos = new FileOutputStream(f)) {
       for (int i = 0; i < size; i++) {

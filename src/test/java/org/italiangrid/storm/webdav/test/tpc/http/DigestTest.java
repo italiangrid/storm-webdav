@@ -16,19 +16,19 @@
 package org.italiangrid.storm.webdav.test.tpc.http;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper.extractAdler32DigestFromResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper.extractAdler32DigestFromResponse;
+import static org.mockito.Mockito.lenient;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DigestTest {
 
   @Mock
@@ -45,9 +45,9 @@ public class DigestTest {
 
 
   protected void instrumentResponse(String headerValue) {
-    when(response.getFirstHeader(Adler32DigestHeaderHelper.DIGEST_HEADER)).thenReturn(header);
-    when(header.getName()).thenReturn(Adler32DigestHeaderHelper.DIGEST_HEADER);
-    when(header.getValue()).thenReturn(headerValue);
+    lenient().when(response.getFirstHeader(Adler32DigestHeaderHelper.DIGEST_HEADER)).thenReturn(header);
+    lenient().when(header.getName()).thenReturn(Adler32DigestHeaderHelper.DIGEST_HEADER);
+    lenient().when(header.getValue()).thenReturn(headerValue);
   }
 
   @Test

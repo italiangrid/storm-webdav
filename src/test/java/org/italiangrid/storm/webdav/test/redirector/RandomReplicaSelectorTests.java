@@ -24,8 +24,8 @@ import java.util.Set;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.italiangrid.storm.webdav.redirector.RandomReplicaSelector;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -37,7 +37,7 @@ public class RandomReplicaSelectorTests extends RedirectorTestSupport {
   ServiceConfigurationProperties config;
   RandomReplicaSelector selector;
 
-  @Before
+  @BeforeEach
   public void setup() {
     config = buildConfigurationProperties();
     selector = new RandomReplicaSelector(config);

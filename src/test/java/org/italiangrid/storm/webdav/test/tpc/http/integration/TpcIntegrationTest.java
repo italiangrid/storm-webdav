@@ -34,10 +34,10 @@ import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.Times;
@@ -67,18 +67,18 @@ public class TpcIntegrationTest {
   HttpTransferClient client;
 
 
-  @BeforeClass
+  @BeforeAll
   public static void startMockServer() {
     port = findAvailableTcpPort(15000);
     mockServer = startClientAndServer(port);
   }
 
-  @AfterClass
+  @AfterAll
   public static void stopMockServer() {
     mockServer.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() {
     mockServer.reset();
   }

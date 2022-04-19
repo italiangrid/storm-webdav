@@ -19,7 +19,7 @@ import java.io.File;
 
 import org.italiangrid.storm.webdav.authz.vomap.MapfileVOMembershipSource;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 public class VOMSMapTests {

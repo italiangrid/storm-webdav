@@ -18,10 +18,11 @@ package org.italiangrid.storm.webdav.test.tpc;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.enumeration;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,28 +30,33 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Multimap;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PullTransferTest extends TransferFilterTestSupport {
 
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     super.setup();
-    when(request.getMethod()).thenReturn(COPY.name());
-    when(request.getServletPath()).thenReturn(SERVLET_PATH);
-    when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeaderNames()).thenReturn(emptyEnumeration());
-    when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
-    when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
+    lenient().when(request.getMethod()).thenReturn(COPY.name());
+    lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
+    lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
+    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+    lenient().when(request.getHeader(OVERWRITE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(DESTINATION_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(CLIENT_INFO_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(CREDENTIAL_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
+    lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
+    lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
+    lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
   }
 
   @Test

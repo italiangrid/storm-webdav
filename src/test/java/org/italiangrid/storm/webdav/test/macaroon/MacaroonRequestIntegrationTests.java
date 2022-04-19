@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.test.macaroon;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,8 +34,8 @@ import org.italiangrid.storm.webdav.macaroon.MacaroonRequestDTO;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.italiangrid.storm.webdav.macaroon.MacaroonResponseDTO;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -86,7 +85,7 @@ public class MacaroonRequestIntegrationTests {
   @Autowired
   ObjectMapper mapper;
 
-  @Before
+  @BeforeEach
   public void setup() {
     filter.setCheckForPrincipalChanges(false);
   }

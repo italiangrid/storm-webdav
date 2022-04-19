@@ -48,10 +48,10 @@ import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.Times;
@@ -113,7 +113,7 @@ public class TpcClientRedirectionTest {
     }
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void startMockServer() {
     // port = findAvailableTcpPort(15000);
 
@@ -124,12 +124,12 @@ public class TpcClientRedirectionTest {
 
   }
 
-  @AfterClass
+  @AfterAll
   public static void stopMockServer() {
     mockServer.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() {
     mockServer.reset();
 

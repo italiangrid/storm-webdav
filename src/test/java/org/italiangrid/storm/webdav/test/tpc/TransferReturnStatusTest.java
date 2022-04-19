@@ -19,8 +19,8 @@ import static java.util.Collections.emptyEnumeration;
 import static javax.servlet.http.HttpServletResponse.SC_ACCEPTED;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.hamcrest.CoreMatchers.is;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,17 +34,17 @@ import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransferReturnStatusTest extends TransferFilterTestSupport {
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     super.setup();
     when(request.getMethod()).thenReturn(COPY.name());

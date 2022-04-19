@@ -15,7 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -112,7 +112,7 @@ public class TransferFilterTestSupport implements TransferConstants {
 
   protected void setup() throws IOException {
     filter = new TransferFilter(clock, client, resolver, lus, true);
-    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
+    lenient().when(request.getHeaderNames()).thenReturn(requestHeaderNames);
 
   }
 

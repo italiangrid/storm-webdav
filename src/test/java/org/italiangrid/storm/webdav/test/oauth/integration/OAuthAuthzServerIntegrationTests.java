@@ -34,8 +34,8 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -87,7 +87,7 @@ public class OAuthAuthzServerIntegrationTests {
   @Autowired
   ObjectMapper mapper;
 
-  @Before
+  @BeforeEach
   public void setup() {
     filter.setCheckForPrincipalChanges(false);
   }

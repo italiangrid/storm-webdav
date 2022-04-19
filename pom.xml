@@ -28,7 +28,7 @@
     <plugin.license.version>1.9.0</plugin.license.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.2.9.RELEASE</spring-boot.version>
+    <spring-boot.version>2.6.6</spring-boot.version>
 
     <jetty-utils.version>0.4.5.v20211125</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>

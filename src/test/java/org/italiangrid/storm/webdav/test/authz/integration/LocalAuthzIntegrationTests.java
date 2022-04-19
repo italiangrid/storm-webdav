@@ -24,8 +24,8 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthoritiesConverter;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +68,7 @@ public class LocalAuthzIntegrationTests {
   @Autowired
   SignedJwtTokenIssuer tokenIssuer;
 
-  @Before
+  @BeforeEach
   public void setup() {
     filter.setCheckForPrincipalChanges(false);
 

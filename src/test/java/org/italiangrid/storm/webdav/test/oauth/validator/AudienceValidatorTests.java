@@ -19,20 +19,22 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AudienceValidatorTests {
 
   @Mock
@@ -43,22 +45,26 @@ public class AudienceValidatorTests {
   @Mock
   Jwt jwt;
 
-  @Before
+  @BeforeEach
   public void setup() {
-    when(server.getAudiences()).thenReturn(newArrayList("https://storm.example:8443", "any"));
+    lenient().when(server.getAudiences()).thenReturn(newArrayList("https://storm.example:8443", "any"));
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testNullAudiences() {
     when(server.getAudiences()).thenReturn(null);
-    validator = new AudienceValidator(server);
+    assertThrows(IllegalArgumentException.class, () -> {
+      validator = new AudienceValidator(server);
+    });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testEmptyAudiences() {
     when(server.getAudiences()).thenReturn(emptyList());
-    validator = new AudienceValidator(server);
+    assertThrows(IllegalArgumentException.class, () -> {
+      validator = new AudienceValidator(server);
+    });
   }
 
   @Test

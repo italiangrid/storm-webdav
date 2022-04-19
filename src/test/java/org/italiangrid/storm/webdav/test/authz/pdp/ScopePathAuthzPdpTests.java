@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 import static org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp.SCOPE_CLAIM;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,13 +38,13 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -50,7 +52,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ScopePathAuthzPdpTests {
 
   public static final String[] READ_METHODS = {"GET", "PROPFIND", "OPTIONS", "HEAD"};
@@ -85,23 +87,25 @@ public class ScopePathAuthzPdpTests {
   @InjectMocks
   WlcgStructuredPathAuthorizationPdp pdp;
 
-  @Before
+  @BeforeEach
   public void setup() throws MalformedURLException {
     jwtAuth = new JwtAuthenticationToken(jwt);
-    when(jwt.getIssuer()).thenReturn(new URL("https://issuer.example"));
-    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
-    when(request.getServletPath()).thenReturn("/");
-    when(request.getPathInfo()).thenReturn("test/example");
-    when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
-    when(sa.orgs()).thenReturn(Sets.newHashSet("https://issuer.example"));
-    when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
+    lenient().when(jwt.getIssuer()).thenReturn(new URL("https://issuer.example"));
+    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
+    lenient().when(request.getServletPath()).thenReturn("/");
+    lenient().when(request.getPathInfo()).thenReturn("test/example");
+    lenient().when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
+    lenient().when(sa.orgs()).thenReturn(Sets.newHashSet("https://issuer.example"));
+    lenient().when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void invalidAuthentication() throws Exception {
+  @Test
+  public void invalidAuthentication() {
 
     Authentication auth = mock(Authentication.class);
-    pdp.authorizeRequest(newAuthorizationRequest(request, auth));
+    assertThrows(IllegalArgumentException.class, () -> {
+      pdp.authorizeRequest(newAuthorizationRequest(request, auth));
+    });
   }
 
   @Test
@@ -318,10 +322,12 @@ public class ScopePathAuthzPdpTests {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testUnsupportedMethod() throws Exception {
     when(request.getMethod()).thenReturn("TRACE");
-    pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThrows(IllegalArgumentException.class, () -> {
+      pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    });
   }
 
   @Test

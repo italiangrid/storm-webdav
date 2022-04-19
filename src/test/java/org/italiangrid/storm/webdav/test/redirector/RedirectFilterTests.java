@@ -17,10 +17,11 @@ package org.italiangrid.storm.webdav.test.redirector;
 
 import static javax.servlet.http.HttpServletResponse.SC_TEMPORARY_REDIRECT;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,18 +36,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.italiangrid.storm.webdav.redirector.RedirectFilter;
 import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Maps;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedirectFilterTests extends RedirectorTestSupport {
 
   public static final String REDIRECTED_URL =
@@ -78,17 +79,17 @@ public class RedirectFilterTests extends RedirectorTestSupport {
 
   RedirectFilter filter;
 
-  @Before
+  @BeforeEach
   public void setup() {
 
     filter = new RedirectFilter(pathResolver, redirectionService);
-    when(request.getScheme()).thenReturn("https");
-    when(request.getMethod()).thenReturn("GET");
-    when(request.getServletPath()).thenReturn("/example/file");
-    when(pathResolver.getPath("/example/file")).thenReturn(path);
-    when(path.toFile()).thenReturn(file);
-    when(file.isFile()).thenReturn(true);
-    when(redirectionService.buildRedirect(Mockito.any(), Mockito.any(), Mockito.any()))
+    lenient().when(request.getScheme()).thenReturn("https");
+    lenient().when(request.getMethod()).thenReturn("GET");
+    lenient().when(request.getServletPath()).thenReturn("/example/file");
+    lenient().when(pathResolver.getPath("/example/file")).thenReturn(path);
+    lenient().when(path.toFile()).thenReturn(file);
+    lenient().when(file.isFile()).thenReturn(true);
+    lenient().when(redirectionService.buildRedirect(Mockito.any(), Mockito.any(), Mockito.any()))
       .thenReturn("http://redirected.org/example/file?access_token=123456");
   }
 

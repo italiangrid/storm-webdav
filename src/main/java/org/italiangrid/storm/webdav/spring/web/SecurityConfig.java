@@ -139,6 +139,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     List<String> allowedMethods = Lists.newArrayList();
 
     for (HttpMethod m : HttpMethod.values()) {
+      if (HttpMethod.TRACE.equals(m)) {
+        continue;
+      }
       allowedMethods.add(m.name());
     }
 
