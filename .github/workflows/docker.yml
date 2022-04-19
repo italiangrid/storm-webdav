@@ -2,8 +2,8 @@ name: Build and push docker image
 
 on:
   push:
-    paths: 
-      - docker/**
+#    paths: 
+#      - docker/**
   pull_request:
     paths: 
       - docker/**

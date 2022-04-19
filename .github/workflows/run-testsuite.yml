@@ -2,8 +2,10 @@ name: Run testsuite
 
 on:
   push:
-#    paths:
-#      - robot/**
+    paths:
+      - robot/**
+      - compose/**
+      - docker/**
 
 jobs:
   run-testsuite:
