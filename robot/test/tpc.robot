@@ -8,6 +8,10 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
+*** Variables ***
+
+${file.content}   tpc-push-copy
+
 *** Keywords ***
 
 Default Setup
@@ -53,7 +57,7 @@ Pull copy works oauth and https Teardown
 
 Push copy works Setup
     Default Setup
-    Create Test File With Size   tpc_test_push  size=10485760
+    Create Test File   tpc_test_push   content=${file.content}
 
 Push copy works Teardown
     Default Teardown
@@ -71,7 +75,7 @@ Oauth pull copy works Teardown
 
 Oauth push copy works Setup
     Default Setup
-    Create Test File With Size   oauth_push_copy_works  size=10485760  sa=${sa.oauth}
+    Create Test File   oauth_push_copy_works   content=${file.content}   sa=${sa.oauth}
 
 Oauth push copy works Teardown
     Default Teardown
@@ -127,7 +131,8 @@ Push copy works
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=455; retry=0" ${opts}
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
-    Curl Success   ${dst}   ${davix.opts.oauth}
+    ${rc}  ${out}  Curl Success   ${dst}   ${davix.opts.oauth}
+    Should Contain   ${out}   ${file.content}
     [Teardown]  Push copy works Teardown
 
 Oauth pull copy works
@@ -151,5 +156,6 @@ Oauth push copy works
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=457; retry=0" ${opts}
     ${rc}  ${out}  Curl Push COPY Success  ${dst}  ${src}  ${opts}
-    Curl Success   ${dst}   ${davix.opts.oauth}
+    ${rc}  ${out}  Curl Success   ${dst}   ${davix.opts.oauth}
+    Should Contain   ${out}   ${file.content}
     [Teardown]  Oauth push copy works Teardown
