@@ -20,11 +20,13 @@ DAV_HOST=${DAV_HOST:-localhost}
 
 REMOTE_DAV_HOST=${REMOTE_DAV_HOST:-${DAV_HOST:-localhost}}
 
+REMOTE_DAVS_PORT=${REMOTE_DAVS_PORT:-8443}
+
 REPORTS_DIR=${REPORTS_DIR:-reports}
 
 ROBOT_ARGS=${ROBOT_ARGS:-}
 
-DEFAULT_ARGS="--pythonpath .:common --variable dav.host:${DAV_HOST} --variable remote.dav.host:${REMOTE_DAV_HOST} -d ${REPORTS_DIR}"
+DEFAULT_ARGS="--pythonpath .:common --variable dav.host:${DAV_HOST} --variable remote.dav.host:${REMOTE_DAV_HOST} --variable remote.davs.port:${REMOTE_DAVS_PORT} -d ${REPORTS_DIR}"
 
 ARGS=${DEFAULT_ARGS}
 
