@@ -4,7 +4,6 @@ volumes:
   trustanchors:
   cabundle:
   storage:
-  storage2:
   hostcert:
   saconfig:
   mapfilesconfig:
@@ -134,7 +133,7 @@ services:
       - ./assets/vomsdir:/vomsdir
       - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
-      - storage2:/storage
+      - storage:/tmp/storage
 
     networks:
       default:

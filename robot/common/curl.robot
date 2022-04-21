@@ -15,6 +15,7 @@ Curl   [Arguments]  ${url}  ${opts}=${curl.opts.default}
 
 Curl Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${rc}  ${out}   Execute and Check Success  curl ${url} ${opts}
+    Log   ${out}   DEBUG
     [Return]  ${rc}  ${out}
 
 Curl Error   [Arguments]  ${url}  ${opts}=${curl.opts.default}
