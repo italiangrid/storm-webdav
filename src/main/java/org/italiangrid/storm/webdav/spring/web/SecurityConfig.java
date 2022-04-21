@@ -72,6 +72,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.context.ServletContextAware;
 
@@ -82,6 +83,26 @@ import com.google.common.collect.Lists;
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+
+  private final static List<String> ALLOWED_METHODS;
+
+  static {
+    ALLOWED_METHODS = Lists.newArrayList();
+    ALLOWED_METHODS.add(HttpMethod.HEAD.name());
+    ALLOWED_METHODS.add(HttpMethod.GET.name());
+    ALLOWED_METHODS.add(HttpMethod.POST.name());
+    ALLOWED_METHODS.add(HttpMethod.PUT.name());
+    ALLOWED_METHODS.add(HttpMethod.DELETE.name());
+    ALLOWED_METHODS.add(HttpMethod.OPTIONS.name());
+    ALLOWED_METHODS.add(HttpMethod.PATCH.name());
+    ALLOWED_METHODS.add(WebDAVMethod.PROPFIND.name());
+    ALLOWED_METHODS.add(WebDAVMethod.PROPPATCH.name());
+    ALLOWED_METHODS.add(WebDAVMethod.MKCOL.name());
+    ALLOWED_METHODS.add(WebDAVMethod.COPY.name());
+    ALLOWED_METHODS.add(WebDAVMethod.MOVE.name());
+    ALLOWED_METHODS.add(WebDAVMethod.LOCK.name());
+    ALLOWED_METHODS.add(WebDAVMethod.UNLOCK.name());
+  }
 
   ServletContext context;
 
@@ -136,20 +157,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   public HttpFirewall allowWebDAVMethodsFirewall() {
 
     StrictHttpFirewall firewall = new StrictHttpFirewall();
-    List<String> allowedMethods = Lists.newArrayList();
-
-    for (HttpMethod m : HttpMethod.values()) {
-      if (HttpMethod.TRACE.equals(m)) {
-        continue;
-      }
-      allowedMethods.add(m.name());
-    }
-
-    for (WebDAVMethod m : WebDAVMethod.values()) {
-      allowedMethods.add(m.name());
-    }
-
-    firewall.setAllowedHttpMethods(allowedMethods);
+    firewall.setAllowedHttpMethods(ALLOWED_METHODS);
     return firewall;
   }
 
@@ -283,4 +291,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     web.ignoring().antMatchers("/css/*", "/js/*");
   }
 
+  @Bean
+  RequestRejectedHandler requestRejectedHandler() {
+
+     return new FineGrainedRequestRejectedHandler();
+  }
 }
