@@ -11,7 +11,8 @@ storm:
     trust-anchors-dir: src/test/resources/trust-anchors
     certificate-path: src/test/resources/hostcert/hostcert.pem
     private-key-path: src/test/resources/hostcert/hostkey.pem
-    
+  authz-server:
+    enabled: true
   voms:
     trust-store:
       dir: src/test/resources/vomsdir

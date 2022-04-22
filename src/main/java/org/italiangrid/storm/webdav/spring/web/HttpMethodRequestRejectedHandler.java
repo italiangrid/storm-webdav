@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.spring.web;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,9 +28,19 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 
-public class FineGrainedRequestRejectedHandler implements RequestRejectedHandler {
+import com.google.common.collect.Lists;
 
-  private static final Log logger = LogFactory.getLog(FineGrainedRequestRejectedHandler.class);
+public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler {
+
+  private static final Log logger = LogFactory.getLog(HttpMethodRequestRejectedHandler.class);
+
+  private final List<String> allowedMethods;
+
+  public HttpMethodRequestRejectedHandler(List<String> allowedMethods) {
+
+    this.allowedMethods = Lists.newArrayList();
+    this.allowedMethods.addAll(allowedMethods);
+  }
 
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response,
@@ -39,8 +50,7 @@ public class FineGrainedRequestRejectedHandler implements RequestRejectedHandler
         LogMessage.format("Rejecting request due to: %s", requestRejectedException.getMessage()),
         requestRejectedException);
 
-    if (requestRejectedException.getMessage()
-      .contains("The request was rejected because the HTTP method")) {
+    if (!allowedMethods.contains(request.getMethod())) {
       response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     } else {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);

@@ -294,6 +294,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   @Bean
   RequestRejectedHandler requestRejectedHandler() {
 
-     return new FineGrainedRequestRejectedHandler();
+     return new HttpMethodRequestRejectedHandler(ALLOWED_METHODS);
   }
 }
