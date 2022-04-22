@@ -15,14 +15,15 @@ spring:
     store-type: none
 
 server:
+  # StoRM webdav will bind on this address
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
   error:
     whitelabel:
       enabled: false
-  
+
   jetty:
     max-threads: ${storm.connector.max-connections}
-     
+
 management:
   health:
     redis:
@@ -30,12 +31,18 @@ management:
 
 tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
+  # Max number of active third party copy connections
   max-connections: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS:50}
   max-connections-per-route: ${STORM_WEBDAV_TPC_MAX_CONNECTIONS_PER_ROUTE:25}
   timeout-in-secs: ${STORM_WEBDAV_TPC_TIMEOUT_IN_SECS:30}
+  # Proactively verify checksums in third party copy
   verify-checksum: ${STORM_WEBDAV_TPC_VERIFY_CHECKSUM:false}
   report-delay-secs: ${STORM_WEBDAV_TPC_REPORT_DELAY_SECS:5}
   http-client-socket-buffer-size: ${storm.buffer.file-buffer-size-bytes}
+  # Use Conscrypt JSSE provider for TPC client connections?
+  # Default: false
+  # Set to 'true' if you want to use a faster TLS implementation which can improve dramatically
+  # the performance on data transfers. This flag controls the use of Conscrypt for TPC client connections.
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
   enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
   progress-report-thread-pool-size: ${STORM_WEBDAV_TPC_PROGRESS_REPORT_THREAD_POOL_SIZE:4}
@@ -46,15 +53,17 @@ oauth:
 
 storm:
   checksum-strategy: early
-  
+
   redirector:
     enabled: false
-  
+
   buffer:
     file-buffer-size-bytes: ${STORM_WEBDAV_BUFFER_FILE_BUFFER_SIZE_BYTES:1048576}
-    
-  access-log-configuration-path: ${STORM_WEBDAV_ACCESS_LOG_CONFIGURATION:}
-  
+
+  access-log-configuration-path: ${STORM_WEBDAV_ACCESS_LOG_CONFIGURATION:/etc/storm/webdav/logback-access.xml}
+
+  # In order to handle tpc requests, webdav needs to know for which hostnames
+  # is handling requests (and possibly any alias)
   hostnames:
     - ${STORM_WEBDAV_HOSTNAME_0:${server.address}}
     - ${STORM_WEBDAV_HOSTNAME_1:}
@@ -66,47 +75,79 @@ storm:
 
   checksum-filter:
     enabled: ${STORM_WEBDAV_CHECKSUM_FILTER_ENABLED:true}
-    
+
   macaroon-filter:
     enabled: ${STORM_WEBDAV_MACAROON_FILTER_ENABLED:true}
-    
+
   connector:
+    # HTTP connector port
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
+    # HTTPS connector port
     secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
-    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:200}
+    # Max concurrent connections
+    max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
+    # Connection queue size
     max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
+    # Connector Maximum idle time (in milliseconds)
     max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
     output-buffer-size-bytes: ${storm.buffer.file-buffer-size-bytes}
-     
-    
+
   tls:
+    # Path to the service certificate.
     certificatePath: ${STORM_WEBDAV_CERTIFICATE_PATH:/etc/grid-security/storm-webdav/hostcert.pem}
+    # Path to the service certificate private key.
     privateKeyPath: ${STORM_WEBDAV_PRIVATE_KEY_PATH:/etc/grid-security/storm-webdav/hostkey.pem}
+    # Trust anchors directory
     trustAnchorsDir: ${STORM_WEBDAV_TRUST_ANCHORS_DIR:/etc/grid-security/certificates}
+    # How often (seconds) trust anchors are refreshed from the trust anchors directory
     trustAnchorsRefreshIntervalSecs: ${STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL:86400}
+    # Should StoRM WebDAV always require a valid client certificate on the HTTPS endpoint?
+    # Set to 'false' if you want token-based authentication to work (and thus third-party copy)
     requireClientCert: ${STORM_WEBDAV_REQUIRE_CLIENT_CERT:true}
+    # Use Conscrypt JSSE provider?
+    # Default: false
+    # Set to 'true' if you want to use a faster TLS implementation which can improve dramatically
+    # the performance on data transfers. This flag must also set to "true" when HTTP/2 is enabled
     use-conscrypt: ${STORM_WEBDAV_USE_CONSCRYPT:false}
+    # Enable HTTP/2 support?
+    # Default: false
+    # Set to 'true' if you want to enable HTTP/2 (and remember to enable conscrypt too!)
     enable-http2: ${STORM_WEBDAV_ENABLE_HTTP2:false}
-  
+
   sa:
+    # Storage area configuration directory
     configDir: ${STORM_WEBDAV_SA_CONFIG_DIR:/etc/storm/webdav/sa.d}
-  
+
   voMapFiles:
+    # Where StoRM WebDAV should look for voms map files.
     configDir: ${STORM_WEBDAV_VO_MAP_FILES_CONFIG_DIR:/etc/storm/webdav/vo-mapfiles.d}
+    # Enables/disables  support for VO map files
     enabled: ${STORM_WEBDAV_VO_MAP_FILES_ENABLE:false}
+    # VOMS map files refresh period (in seconds)
     refreshIntervalSec: ${STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL:21600}
-  
+
   authz-server:
-    enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:true}
+    # Enables the OAuth authorization server, used to issue bearer tokens
+    # to clients presenting a VOMS credential
+    enabled: ${STORM_WEBDAV_AUTHZ_SERVER_ENABLE:false}
+    # The issuer setting for the token
+    # Default: https://${STORM_WEBDAV_HOSTNAME_0}:${STORM_WEBDAV_HTTPS_PORT}
     issuer: ${STORM_WEBDAV_AUTHZ_SERVER_ISSUER:https://${storm.hostnames[0]}:${storm.connector.secure-port}}
+    # The WebDAV authz server secret
+    # This secret is used to sign bearer tokens, so if you have multiple
+    # instances of storm-webdav serving for the same VOs, you should use
+    # the same secret
+    # IMPORTANT: set this in production, do not rely on the default random
+    # value as that will cause problems across service restarts
     secret: ${STORM_WEBDAV_AUTHZ_SERVER_SECRET:${random.value}}
+    # Maximum token lifetime in seconds
     max-token-lifetime-sec: ${STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC:43200}
-  
+
   voms:
     trust-store:
       dir:  ${STORM_WEBDAV_VOMS_TRUST_STORE_DIR:/etc/grid-security/vomsdir}
       refresh-interval-sec: ${STORM_WEBDAV_VOMS_TRUST_STORE_REFRESH_INTERVAL_SEC:43200}
-      
+
     cache:
       enabled: ${STORM_WEBDAV_VOMS_CACHE_ENABLE:true}
       entry-lifetime-sec: ${STORM_WEBDAV_VOMS_CACHE_ENTRY_LIFETIME_SEC:300}
