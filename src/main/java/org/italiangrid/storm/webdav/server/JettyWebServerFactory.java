@@ -63,7 +63,6 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
-import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -118,7 +117,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       .withConscrypt(configuration.useConscrypt())
       .withHttp2(configuration.enableHttp2())
       .withDisableJsseHostnameVerification(true)
-      .withTlsProtocol("TLS")
+      .withTlsProtocol(configuration.getTlsProtocol())
       .withAcceptors(serverProperties.getJetty().getThreads().getAcceptors())
       .withSelectors(serverProperties.getJetty().getThreads().getSelectors())
       .build();
@@ -179,17 +178,15 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   private ThreadPool configureThreadPool() {
 
-    InstrumentedQueuedThreadPool tp = (InstrumentedQueuedThreadPool) ThreadPoolBuilder.instance()
+    // InstrumentedQueuedThreadPool is returned
+    return ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
       .withMaxThreads(serverProperties.getJetty().getThreads().getMax())
       .withMinThreads(serverProperties.getJetty().getThreads().getMin())
       .registry(metricRegistry)
+      .withPrefix("storm.http")
+      .withName("thread-pool")
       .build();
-
-    // FIXME: the prefix setting should be moved to the ThreadPoolBuilder
-    tp.setPrefix("storm.http");
-    tp.setName("thread-pool");
-    return tp;
   }
 
   @Autowired

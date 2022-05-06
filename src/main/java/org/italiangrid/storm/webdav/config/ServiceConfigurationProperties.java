@@ -331,6 +331,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     boolean enableHttp2 = false;
 
+    @NotBlank
+    String protocol = "TLS";
+
     public String getCertificatePath() {
       return certificatePath;
     }
@@ -385,6 +388,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public boolean isEnableHttp2() {
       return enableHttp2;
+    }
+
+    public String getProtocol() {
+      return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+      this.protocol = protocol;
     }
   }
 
@@ -828,5 +839,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setRedirector(RedirectorProperties redirector) {
     this.redirector = redirector;
+  }
+
+
+  @Override
+  public String getTlsProtocol() {
+    return getTls().getProtocol();
   }
 }

@@ -55,4 +55,6 @@ public interface ServiceConfiguration {
   
   public boolean enableHttp2();
 
+  public String getTlsProtocol();
+
 }

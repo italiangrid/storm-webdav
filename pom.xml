@@ -30,7 +30,7 @@
     <!-- Keep this aligned with the parent project version! -->
     <spring-boot.version>2.6.6</spring-boot.version>
 
-    <jetty-utils.version>0.4.5.v20211125</jetty-utils.version>
+    <jetty-utils.version>0.4.6.v20220506</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
@@ -40,8 +40,6 @@
 
     <http-core.version>4.2.2</http-core.version>
     <http-client.version>4.2.1</http-client.version>
-
-    <metrics.version>4.0.0</metrics.version>
 
     <guava.version>20.0</guava.version>
 

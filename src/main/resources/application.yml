@@ -22,7 +22,8 @@ server:
       enabled: false
 
   jetty:
-    max-threads: ${storm.connector.max-connections}
+    threads:
+      max: ${storm.connector.max-connections}
 
 management:
   health:
@@ -113,6 +114,8 @@ storm:
     # Default: false
     # Set to 'true' if you want to enable HTTP/2 (and remember to enable conscrypt too!)
     enable-http2: ${STORM_WEBDAV_ENABLE_HTTP2:false}
+    # protocol
+    protocol: ${STORM_WEBDAV_TLS_PROTOCOL:TLS}
 
   sa:
     # Storage area configuration directory
