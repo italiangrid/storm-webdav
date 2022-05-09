@@ -2,6 +2,11 @@
 Description=StoRM WebDAV service
 
 [Service]
+Environment="STORM_WEBDAV_JVM_OPTS=-Xms1024m -Xmx1024m"
+Environment="STORM_WEBDAV_JAR=/usr/share/java/storm-webdav/storm-webdav-server.jar"
+Environment="STORM_WEBDAV_OUT=/var/log/storm/webdav/storm-webdav-server.out"
+Environment="STORM_WEBDAV_ERR=/var/log/storm/webdav/storm-webdav-server.err"
+Environment="STORM_WEBDAV_LOG_CONFIGURATION=/etc/storm/webdav/logback.xml"
 WorkingDirectory=/etc/storm/webdav
 User=storm
 Type=simple
