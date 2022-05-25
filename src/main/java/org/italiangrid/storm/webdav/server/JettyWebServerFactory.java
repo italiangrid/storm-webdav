@@ -27,6 +27,9 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -63,6 +66,7 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 import com.codahale.metrics.jetty9.InstrumentedHandler;
+import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -178,15 +182,17 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
 
   private ThreadPool configureThreadPool() {
 
-    // InstrumentedQueuedThreadPool is returned
-    return ThreadPoolBuilder.instance()
-      .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(serverProperties.getJetty().getThreads().getMax())
-      .withMinThreads(serverProperties.getJetty().getThreads().getMin())
-      .registry(metricRegistry)
-      .withPrefix("storm.http")
-      .withName("thread-pool")
-      .build();
+    final int DEFAULT_IDLE_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(60);
+    BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(configuration.getMaxQueueSize());
+    final String PREFIX = "storm.http.thread-pool";
+
+    InstrumentedQueuedThreadPool tp = new InstrumentedQueuedThreadPool(metricRegistry,
+        serverProperties.getJetty().getThreads().getMax(),
+        serverProperties.getJetty().getThreads().getMin(),
+        DEFAULT_IDLE_TIMEOUT,
+        queue,
+        PREFIX);
+    return tp;
   }
 
   @Autowired
