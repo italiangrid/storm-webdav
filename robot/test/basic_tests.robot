@@ -98,7 +98,7 @@ Put works
     [Setup]  Put works Setup
     Davix Put Success  ${TEMPDIR}/put_test  ${davs.endpoint}/${sa.default}/put_test
     Davix Get Success  ${davs.endpoint}/${sa.default}/put_test
-    Remove File   put_test
+    Remove Test File   put_test
     [Teardown]  Put works Teardown
 
 Rm works
