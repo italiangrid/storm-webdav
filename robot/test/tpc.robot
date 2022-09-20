@@ -8,10 +8,6 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
-*** Variables ***
-
-${curl.opts.oauth}   -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" -f
-
 *** Keywords ***
 
 Default Setup
@@ -83,8 +79,8 @@ Oauth push copy works Teardown
     Remove Test File   oauth_push_copy_works.copy  ${sa.oauth}
 
 Oauth resource size is 10M  [Arguments]  ${url}
-    ${all_opts}   Set variable   --HEAD ${curl.opts.oauth}
-    ${rc}  ${out}  Curl Success  ${url}   ${all_opts}
+    ${opts}   Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" -f --head
+    ${rc}  ${out}  Curl Success  ${url}   ${opts}
     Should Contain   ${out}   ength: 10485760
 
 *** Test cases ***

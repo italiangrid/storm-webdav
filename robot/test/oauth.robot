@@ -27,5 +27,5 @@ OAuth Put works
     ${url}  DAVS URL  oauth_put_test  ${sa.oauth}
     Davix Put Success  ${TEMPDIR}/oauth_put_test  ${url}  ${davix.opts.oauth}
     Davix Get Success  ${url}  ${davix.opts.oauth}
-    Remove File   oauth_put_test
+    Remove Test File   oauth_put_test  ${sa.oauth}
     [Teardown]  Remove Temporary File  oauth_put_test

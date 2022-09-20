@@ -77,7 +77,7 @@ Put works with locally issued token
     ${opts}  Set variable  -H "Authorization: Bearer ${token}" --capath /etc/grid-security/certificates
     Davix Put Success  ${TEMPDIR}/token_put_test  ${url}  ${opts}
     Davix Get Success  ${url}  ${opts}
-    Remove file  token_put_test
+    Remove Test File  token_put_test
     [Teardown]  Put works with locally issued token Teardown
 
 Get works with locally issued token fga
@@ -97,5 +97,5 @@ Put works with locally issued token fga
     ${opts}  Set variable  -H "Authorization: Bearer ${token}" --capath /etc/grid-security/certificates
     Davix Put Success  ${TEMPDIR}/token_put_test  ${url}  ${opts}
     Davix Get Success  ${url}  ${opts}
-    Remove file  token_put_test
+    Remove Test File  token_put_test  ${sa.fga}
     [Teardown]  Put works with locally issued token fga Teardown
