@@ -13,7 +13,7 @@ export IAM_ACCESS_TOKEN=$(curl -d grant_type=client_credentials \
     | jq .access_token | tr -d '"')
 
 /scripts/init-usercerts.sh
-echo "pass" | voms-proxy-init --cert /tmp/usercerts/test0.p12 -voms test.vo --pwstdin
+echo "pass123" | voms-proxy-init --cert /tmp/usercerts/test0.p12 -voms test.vo --pwstdin
 
 /scripts/wait-for-it.sh ${DAV_HOST}:8085 --timeout=${WAIT_TIMEOUT}
 
