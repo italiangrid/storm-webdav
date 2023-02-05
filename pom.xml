@@ -31,6 +31,11 @@
     <!-- Keep this aligned with the parent project version! -->
     <spring-boot.version>2.6.8</spring-boot.version>
 
+    <!-- Sonarcloud.io properties -->
+    <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
+    <sonar.organization>italiangrid</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
     <jetty-utils.version>0.4.6.v20220506</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>
 
