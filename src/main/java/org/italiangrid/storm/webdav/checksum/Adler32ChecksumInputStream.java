@@ -15,9 +15,13 @@
  */
 package org.italiangrid.storm.webdav.checksum;
 
+import static org.italiangrid.storm.webdav.utils.ChecksumHelper.ADLER32_CHECKSUM_LENGTH;
+
 import java.io.InputStream;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedInputStream;
+
+import org.italiangrid.storm.webdav.utils.ChecksumHelper;
 
 public class Adler32ChecksumInputStream extends CheckedInputStream {
 
@@ -27,11 +31,8 @@ public class Adler32ChecksumInputStream extends CheckedInputStream {
   }
 
   public String getChecksumValue() {
-    return formatChecksumValue(Long.toHexString(getChecksum().getValue()));
-  }
-
-  private String formatChecksumValue(String checksum) {
-    return ("00000000" + checksum).substring(checksum.length());
+    return ChecksumHelper.addLeadingZero(Long.toHexString(getChecksum().getValue()),
+        ADLER32_CHECKSUM_LENGTH);
   }
 
 }
