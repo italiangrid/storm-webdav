@@ -31,10 +31,6 @@
     <!-- Keep this aligned with the parent project version! -->
     <spring-boot.version>2.6.8</spring-boot.version>
 
-    <!-- Sonarcloud.io properties -->
-    <sonar.organization>italiangrid</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
     <jetty-utils.version>0.4.6.v20220506</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>
 
@@ -54,6 +50,7 @@
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
     <bouncycastle.version>1.67</bouncycastle.version>
+
   </properties>
 
   <build>
@@ -129,6 +126,9 @@
             <exclude>Jenkinsfile</exclude>
             <exlude>src/main/resources/static/**</exlude>
             <exclude>src/main/resources/META-INF/spring.factories</exclude>
+            <exclude>maven/**</exclude>
+            <exclude>cnaf-mirror-settings.xml</exclude>
+            <exclude>sonar-project.properties</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <strictCheck>true</strictCheck>
@@ -190,17 +190,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
