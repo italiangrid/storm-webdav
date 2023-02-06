@@ -20,11 +20,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <plugin.compiler.version>3.0</plugin.compiler.version>
+    <plugin.compiler.version>3.6.0</plugin.compiler.version>
+    <maven.compiler.release>11</maven.compiler.release>
+
     <plugin.jar.version>2.4</plugin.jar.version>
     <plugin.assembly.version>2.4</plugin.assembly.version>
     <plugin.shade.version>2.3</plugin.shade.version>
     <plugin.license.version>1.9.0</plugin.license.version>
+    <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
 
     <java.version>11</java.version>
 
@@ -145,6 +148,31 @@
             <goals>
               <goal>check</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${plugin.jacoco.version}</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <formats>
+                <format>XML</format>
+              </formats>
+            </configuration>
           </execution>
         </executions>
       </plugin>
