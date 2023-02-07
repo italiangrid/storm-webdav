@@ -141,7 +141,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   PrincipalHelper principalHelper;
 
   @Bean
-  public static ErrorPageRegistrar securityErrorPageRegistrar() {
+  static ErrorPageRegistrar securityErrorPageRegistrar() {
     return registry -> registry.addErrorPages(
         new ErrorPage(RequestRejectedException.class, "/errors/400"),
         new ErrorPage(InsufficientAuthenticationException.class, "/errors/401"),
@@ -154,7 +154,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   }
 
   @Bean
-  public HttpFirewall allowWebDAVMethodsFirewall() {
+  HttpFirewall allowWebDAVMethodsFirewall() {
 
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowedHttpMethods(ALLOWED_METHODS);

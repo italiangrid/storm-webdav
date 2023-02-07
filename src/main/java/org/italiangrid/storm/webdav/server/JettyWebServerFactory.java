@@ -52,10 +52,8 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.server.util.JettyErrorPageHandler;
 import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
-import org.italiangrid.utils.jetty.ThreadPoolBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
@@ -195,7 +193,6 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     return tp;
   }
 
-  @Autowired
   public JettyWebServerFactory(ServiceConfigurationProperties serviceConfigurationProperties,
       StorageAreaConfiguration saConf, ServerProperties serverProperties, MetricRegistry registry,
       ConfigurationLogger confLogger, X509CertChainValidatorExt certChainValidator) {
@@ -238,7 +235,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
     server.setRequestLog(rli);
   }
 
-  private void addJettyErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
+  private void addErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
     if (errorHandler instanceof ErrorPageErrorHandler) {
       ErrorPageErrorHandler handler = (ErrorPageErrorHandler) errorHandler;
       for (ErrorPage errorPage : errorPages) {
@@ -298,7 +295,7 @@ public class JettyWebServerFactory extends JettyServletWebServerFactory
       public void configure(WebAppContext context) throws Exception {
         JettyErrorPageHandler errorHandler = new JettyErrorPageHandler();
         context.setErrorHandler(errorHandler);
-        addJettyErrorPages(errorHandler, getErrorPages());
+        addErrorPages(errorHandler, getErrorPages());
         errorHandler.setShowStacks(false);
       }
 
