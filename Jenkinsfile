@@ -4,14 +4,7 @@ def kubeLabel = getKubeLabel()
 
 pipeline {
 
-  agent {
-    kubernetes {
-      label "${kubeLabel}"
-      cloud 'Kube mwdevel'
-      defaultContainer 'runner'
-      inheritFrom 'ci-template-java11'
-    }
-  }
+  agent { label 'java11' }
 
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
