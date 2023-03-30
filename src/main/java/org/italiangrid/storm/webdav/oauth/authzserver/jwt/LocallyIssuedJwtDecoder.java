@@ -101,7 +101,9 @@ public class LocallyIssuedJwtDecoder implements JwtDecoder {
 
         Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
         Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
-
+        if (claims == null) {
+          throw new Exception("Error on claims set conversion");
+        }
         Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
         Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
         jwt = new Jwt(token, issuedAt, expiresAt, headers, claims);

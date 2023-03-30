@@ -142,7 +142,7 @@ public class DefaultExtendedFileAttributesHelper implements
 
   @Override
   public String getChecksumAttribute(Path p) throws IOException {
-    return getChecksumAttribute(p);
+    return getChecksumAttribute(p.toFile());
   }
 
 }

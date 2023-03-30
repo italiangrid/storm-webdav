@@ -35,21 +35,20 @@ public class RangeCopyHelper {
     checkArgument(rangeStart >= 0, "rangeStart must be >= 0");
     checkArgument(rangeCount > 0, "rangeCount must be > 0");
 
-    ReadableByteChannel src = Channels.newChannel(is);
-    
-    try (RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
-      
+    try (ReadableByteChannel src = Channels.newChannel(is);
+        RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
+
       FileChannel fc = raf.getChannel();
-      
+
       long bytesTransferred = 0;
-      
+
       while (bytesTransferred < rangeCount) {
         long start = rangeStart + bytesTransferred;
         long count = rangeCount - bytesTransferred;
         bytesTransferred = fc.transferFrom(src, start, count);
       }
-      
-      return bytesTransferred; 
+
+      return bytesTransferred;
     }
   }
 

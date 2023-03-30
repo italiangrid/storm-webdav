@@ -62,7 +62,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
 
   @Test
-  public void pushEmptyTransferHeaders() throws IOException, ServletException {
+  void pushEmptyTransferHeaders() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
 
@@ -80,7 +80,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void overwriteHeaderRecognized() throws IOException, ServletException {
+  void overwriteHeaderRecognized() throws IOException, ServletException {
     when(request.getHeader(OVERWRITE_HEADER)).thenReturn("F");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -93,7 +93,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checksumRecognized() throws IOException, ServletException {
+  void checksumRecognized() throws IOException, ServletException {
     when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -107,7 +107,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checkTransferHeaderPassing() throws IOException, ServletException {
+  void checkTransferHeaderPassing() throws IOException, ServletException {
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
@@ -135,7 +135,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
+  void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
     when(request.getHeaderNames())
       .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
@@ -160,7 +160,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
 
   @Test
-  public void unresolvedSourcePathFailsRequest() throws IOException, ServletException {
+  void unresolvedSourcePathFailsRequest() throws IOException, ServletException {
     when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     filter.doFilter(request, response, chain);
 
@@ -171,7 +171,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checkExpectContinueHeaderIsSet() throws IOException, ServletException {
+  void checkExpectContinueHeaderIsSet() throws IOException, ServletException {
 
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
@@ -191,7 +191,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checkExpectContinueHeaderIsNotSet() throws IOException, ServletException {
+  void checkExpectContinueHeaderIsNotSet() throws IOException, ServletException {
 
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);

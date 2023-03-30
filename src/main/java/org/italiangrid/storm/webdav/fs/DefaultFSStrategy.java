@@ -28,7 +28,6 @@ import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.io.Files;
@@ -41,7 +40,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
   final ExtendedAttributesHelper attrsHelper;
 
-  @Autowired
   public DefaultFSStrategy(ExtendedAttributesHelper helper) {
 
     attrsHelper = helper;
@@ -129,7 +127,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
     LOG.debug("create: file={}", file.getAbsolutePath());
 
-    try {
+    try (FileOutputStream fos = new FileOutputStream(file)) {
 
       if (!file.createNewFile()) {
         LOG.warn("Create file on a file that already exists: {}",
@@ -138,7 +136,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
       Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
 
-      IOUtils.copy(cis, new FileOutputStream(file));
+      IOUtils.copy(cis, fos);
       attrsHelper.setChecksumAttribute(file, cis.getChecksumValue());
 
       return file;

@@ -77,8 +77,8 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
     for (File f : saFiles) {
 
       Properties p = new Properties();
-      try {
-        p.load(new FileReader(f));
+      try (FileReader fr = new FileReader(f)) {
+        p.load(fr);
       } catch (Exception e) {
         throw new StoRMIntializationError("Error reading properties: " + e.getMessage(), e);
       }

@@ -50,17 +50,15 @@ public class AuthzServerController {
     this.tokenService = tis;
   }
 
-  protected void handleValidationError(BindingResult bindingResult) {
+  protected void handleValidationError(FieldError e) {
 
-    FieldError e = bindingResult.getFieldError();
-    
-    if (e.getDefaultMessage().equals(GRANT_TYPE_NOT_FOUND)) {
+    if (GRANT_TYPE_NOT_FOUND.equals(e.getDefaultMessage())) {
       throw new InvalidTokenRequestError(e.getDefaultMessage());
-    } else if (e.getDefaultMessage().equals(INVALID_GRANT_TYPE)) {
-      throw new UnsupportedGrantTypeError(format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
-    } else {
-      throw new InvalidScopeError(e.getDefaultMessage());
     }
+    if (INVALID_GRANT_TYPE.equals(e.getDefaultMessage())) {
+      throw new UnsupportedGrantTypeError(format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
+    }
+    throw new InvalidScopeError(e.getDefaultMessage() != null ? e.getDefaultMessage() : "");
   }
 
 
@@ -71,7 +69,7 @@ public class AuthzServerController {
       BindingResult bindingResult, Authentication authentication) {
 
     if (bindingResult.hasErrors()) {
-      handleValidationError(bindingResult);
+      handleValidationError(bindingResult.getFieldError());
     }
 
     return tokenService.createAccessToken(tokenRequest, authentication);

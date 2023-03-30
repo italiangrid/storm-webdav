@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class PutResponseHandler extends ResponseHandlerSupport implements Respon
   }
 
   @Override
-  public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+  public Boolean handleResponse(HttpResponse response) throws IOException {
     setupMDC();
     
     try {

@@ -60,7 +60,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void pullEmptyTransferHeaders() throws IOException, ServletException {
+  void pullEmptyTransferHeaders() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
     assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
@@ -72,7 +72,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void overwriteHeaderRecognized() throws IOException, ServletException {
+  void overwriteHeaderRecognized() throws IOException, ServletException {
     when(request.getHeader(OVERWRITE_HEADER)).thenReturn("F");
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -85,7 +85,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checksumRecognized() throws IOException, ServletException {
+  void checksumRecognized() throws IOException, ServletException {
     when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -99,7 +99,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checkTransferHeaderPassing() throws IOException, ServletException {
+  void checkTransferHeaderPassing() throws IOException, ServletException {
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
@@ -127,7 +127,7 @@ public class PullTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
+  void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
     when(request.getHeaderNames())
       .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 

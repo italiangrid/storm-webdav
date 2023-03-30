@@ -36,6 +36,6 @@ public class RequestIdHolder {
   }
   
   public static void cleanup() {
-    requestId.set(null);
+    requestId.remove();
   }
 }
