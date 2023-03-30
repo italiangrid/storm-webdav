@@ -5,6 +5,9 @@ server:
 oauth:
   enable-oidc: false
 storm:
+  connector:
+    port: 8086
+    securePort: 9443
   sa:
     config-dir: src/test/resources/conf/sa.d
   tls:

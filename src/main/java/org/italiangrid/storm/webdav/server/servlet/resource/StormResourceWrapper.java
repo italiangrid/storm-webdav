@@ -234,7 +234,7 @@ public class StormResourceWrapper extends Resource {
   }
 
   @Override
-  public Resource addPath(String path) throws IOException, MalformedURLException {
+  public Resource addPath(String path) throws IOException {
     return delegate.addPath(path);
   }
 

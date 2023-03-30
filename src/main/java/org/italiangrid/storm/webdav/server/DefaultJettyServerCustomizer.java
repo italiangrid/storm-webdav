@@ -18,11 +18,7 @@ package org.italiangrid.storm.webdav.server;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Paths;
-import java.security.KeyStoreException;
-import java.security.cert.CertificateException;
 
 import javax.annotation.PostConstruct;
 
@@ -36,7 +32,6 @@ import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,13 +79,9 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     server.setConnectors(null);
     configurePlainConnector(server);
-    try {
-      configureTLSConnector(server);
-      configureRewriteHandler(server);
-      configureAccessLog(server);
-    } catch (KeyStoreException | CertificateException | IOException e) {
-      throw new StoRMWebDAVError(e);
-    }
+    configureTLSConnector(server);
+    configureRewriteHandler(server);
+    configureAccessLog(server);
 
     server.setDumpAfterStart(false);
     server.setDumpBeforeStop(false);
@@ -118,8 +109,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     LOG.info("Configured plain HTTP connector on port: {}", configuration.getHTTPPort());
   }
 
-  private void configureTLSConnector(Server server)
-      throws KeyStoreException, CertificateException, IOException {
+  private void configureTLSConnector(Server server) {
 
     TLSServerConnectorBuilder connectorBuilder =
         TLSServerConnectorBuilder.instance(server, certChainValidator);
@@ -155,7 +145,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         configuration.getHTTPSPort(), configuration.useConscrypt(), configuration.enableHttp2());
   }
 
-  private void configureRewriteHandler(Server server) throws MalformedURLException, IOException {
+  private void configureRewriteHandler(Server server) {
 
     RewriteHandler rh = new RewriteHandler();
 
