@@ -169,4 +169,42 @@ public class PushTransferTest extends TransferFilterTestSupport {
     assertThat(error.getValue(), is("Local source path not found: " + SERVLET_PATH + LOCAL_PATH));
 
   }
+
+  @Test
+  public void checkExpectContinueHeaderIsSet() throws IOException, ServletException {
+
+    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
+      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024*1024+1);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(putXferRequest.capture(), Mockito.any());
+
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(2));
+
+    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(true));
+    assertThat(xferHeaders.get(EXPECTED_HEADER).iterator().next(), is(EXPECTED_VALUE));
+
+  }
+
+  @Test
+  public void checkExpectContinueHeaderIsNotSet() throws IOException, ServletException {
+
+    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
+      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024*1024-1);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(putXferRequest.capture(), Mockito.any());
+
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(1));
+
+    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(false));
+  }
 }

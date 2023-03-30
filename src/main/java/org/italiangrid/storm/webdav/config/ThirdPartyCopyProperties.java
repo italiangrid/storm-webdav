@@ -55,6 +55,9 @@ public class ThirdPartyCopyProperties {
   @Positive(message = "tpc.progressReportThreadPoolSize must be a positive integer (i.e. > 0)")
   int progressReportThreadPoolSize;
 
+  @Min(value = 0, message = "Threshold of content size to reach before sending 'Expect: 100-continue' header.")
+  long enableExpectContinueThreshold;
+
   public String getTlsProtocol() {
     return tlsProtocol;
   }
@@ -133,6 +136,14 @@ public class ThirdPartyCopyProperties {
 
   public void setProgressReportThreadPoolSize(int progressReportThreadPoolSize) {
     this.progressReportThreadPoolSize = progressReportThreadPoolSize;
+  }
+
+  public long getEnableExpectContinueThreshold() {
+    return enableExpectContinueThreshold;
+  }
+
+  public void setEnableExpectContinueThreshold(long enableExpectContinueThreshold) {
+    this.enableExpectContinueThreshold = enableExpectContinueThreshold;
   }
 
 }

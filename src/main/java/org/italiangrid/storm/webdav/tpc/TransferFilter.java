@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.protocol.HTTP;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -52,6 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.google.common.collect.Multimap;
+
 public class TransferFilter extends TransferFilterSupport implements Filter {
 
   public static final String XFER_ID_KEY = "tpc.xferId";
@@ -62,8 +65,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   final TransferClient client;
 
   public TransferFilter(Clock clock, TransferClient c, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum) {
-    super(clock, resolver, lus, verifyChecksum);
+      boolean verifyChecksum, long enableExpectContinueThreshold) {
+    super(clock, resolver, lus, verifyChecksum, enableExpectContinueThreshold);
     client = c;
   }
 
@@ -98,7 +101,6 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
 
   }
-
 
   protected void handleTpc(HttpServletRequest request, HttpServletResponse response)
       throws IOException {

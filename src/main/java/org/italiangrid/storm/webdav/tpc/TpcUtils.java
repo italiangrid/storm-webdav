@@ -103,6 +103,11 @@ public interface TpcUtils extends TransferConstants {
         && (requestHasSourceHeader(request) || requestHasDestinationHeader(request));
   }
 
+  default boolean isPushTpc(HttpServletRequest request, LocalURLService localUrlService) {
+    return "COPY".equals(request.getMethod()) && (requestHasRemoteDestinationHeader(request, localUrlService)
+        || requestHasTranferHeader(request));
+  }
+
   default boolean requestHasTranferHeader(HttpServletRequest request) {
     Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {

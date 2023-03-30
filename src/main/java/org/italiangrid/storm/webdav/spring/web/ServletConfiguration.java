@@ -190,7 +190,8 @@ public class ServletConfiguration {
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum()));
+        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum(),
+            props.getEnableExpectContinueThreshold()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

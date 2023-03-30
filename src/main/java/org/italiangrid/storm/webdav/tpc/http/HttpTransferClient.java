@@ -57,7 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -82,7 +81,6 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     cb.reportStatus(req, s);
   }
 
-  @Autowired
   public HttpTransferClient(Clock clock, CloseableHttpClient client, PathResolver pr,
       ExtendedAttributesHelper ah, @Qualifier("tpcProgressReportEs") ScheduledExecutorService es,
       ThirdPartyCopyProperties properties, ServiceConfigurationProperties config) {
@@ -147,9 +145,9 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       if (!p.toFile().exists()) {
         p = Files.createFile(p);
       }
-      
+
       OutputStream fos = new FileOutputStream(new File(p.toString()));
-      
+
       if (localFileBufferSize > 0) {
         fos = new BufferedOutputStream(fos, localFileBufferSize);
       }
@@ -174,9 +172,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     try {
 
-      httpClient.execute(get,
-          new GetResponseHandler(request, os, attributesHelper, MDC.getCopyOfContextMap(),
-              socketBufferSize, true));
+      httpClient.execute(get, new GetResponseHandler(request, os, attributesHelper,
+          MDC.getCopyOfContextMap(), socketBufferSize, true));
 
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
