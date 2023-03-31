@@ -126,6 +126,12 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
     TransferStatus lastStatus = lastTransferStatus.get();
 
+    // Return an empty throughput in case the last successful transfer is older than 10 seconds
+    Duration res = Duration.between(Instant.now(), lastTransferStatus.get().getInstant());
+    if (res.getSeconds() > 10) {
+      return Optional.empty();
+    }
+
     Duration xferDuration = Duration.between(startTime, endTime).abs();
 
     if (xferDuration.isZero() || xferDuration.toMillis() == 0) {
