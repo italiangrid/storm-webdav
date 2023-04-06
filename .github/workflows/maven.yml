@@ -39,3 +39,5 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       run: mvn -B clean package -s maven/cnaf-mirror-settings.xml
+    - name: Checkstyle with Maven
+      run: mvn clean compile -s maven/cnaf-mirror-settings.xml -U -Dmaven.test.failure.ignore -DfailIfNoTests=false checkstyle:check -Dcheckstyle.config.location=google_checks.xml
