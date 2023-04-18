@@ -35,13 +35,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 @WithAnonymousUser
-public class JettyServerTest {
+class JettyServerTest {
 
   @Autowired
   private JettyServletWebServerFactory factory;
 
   @Test
-  public void startJettyServer() throws Exception {
+  void startJettyServer() throws Exception {
     JettyWebServer jettyServer = (JettyWebServer) factory.getWebServer();
     jettyServer.start();
     assertThat(jettyServer.getServer().getConnectors().length, is(2));

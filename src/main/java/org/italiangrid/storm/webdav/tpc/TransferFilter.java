@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.protocol.HTTP;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -52,8 +51,6 @@ import org.italiangrid.storm.webdav.tpc.utils.ClientInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import com.google.common.collect.Multimap;
 
 public class TransferFilter extends TransferFilterSupport implements Filter {
 
