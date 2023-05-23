@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ public class DefaultExtendedFileAttributesHelper implements
 
   @Override
   public String getChecksumAttribute(Path p) throws IOException {
-    return getChecksumAttribute(p);
+    return getChecksumAttribute(p.toFile());
   }
 
 }

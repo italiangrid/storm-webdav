@@ -47,6 +47,7 @@ tpc:
   use-conscrypt: ${STORM_WEBDAV_TPC_USE_CONSCRYPT:false}
   enable-tls-client-auth: ${STORM_WEBDAV_TPC_ENABLE_TLS_CLIENT_AUTH:false}
   progress-report-thread-pool-size: ${STORM_WEBDAV_TPC_PROGRESS_REPORT_THREAD_POOL_SIZE:4}
+  enable-expect-continue-threshold: ${STORM_WEBDAV_TPC_ENABLE_EXPECT_CONTINUE_THRESHOLD:1048576}
 
 oauth:
   refresh-period-minutes: 60

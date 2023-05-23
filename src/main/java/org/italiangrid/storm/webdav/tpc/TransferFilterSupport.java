@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,14 +55,16 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
   protected final LocalURLService localURLService;
   protected final boolean verifyChecksum;
   protected final TransferStatus.Builder status;
+  protected long enableExpectContinueThreshold;
 
 
   protected TransferFilterSupport(Clock clock, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum) {
+      boolean verifyChecksum, long enableExpectContinueThreshold) {
     this.clock = clock;
     this.resolver = resolver;
     this.localURLService = lus;
     this.verifyChecksum = verifyChecksum;
+    this.enableExpectContinueThreshold = enableExpectContinueThreshold;
     status = TransferStatus.builder(clock);
   }
 
@@ -87,6 +89,11 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
         }
         xferHeaders.put(xferHeaderName.trim(), request.getHeader(headerName));
       }
+    }
+
+    if (isPushTpc(request, localURLService) && request.getContentLength() >= enableExpectContinueThreshold) {
+      xferHeaders.put(org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE,
+          org.apache.http.protocol.HTTP.EXPECT_CONTINUE);
     }
 
     return xferHeaders;
@@ -328,5 +335,4 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
         format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
 
   }
-
 }

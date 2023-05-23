@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,21 +35,20 @@ public class RangeCopyHelper {
     checkArgument(rangeStart >= 0, "rangeStart must be >= 0");
     checkArgument(rangeCount > 0, "rangeCount must be > 0");
 
-    ReadableByteChannel src = Channels.newChannel(is);
-    
-    try (RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
-      
+    try (ReadableByteChannel src = Channels.newChannel(is);
+        RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
+
       FileChannel fc = raf.getChannel();
-      
+
       long bytesTransferred = 0;
-      
+
       while (bytesTransferred < rangeCount) {
         long start = rangeStart + bytesTransferred;
         long count = rangeCount - bytesTransferred;
         bytesTransferred = fc.transferFrom(src, start, count);
       }
-      
-      return bytesTransferred; 
+
+      return bytesTransferred;
     }
   }
 

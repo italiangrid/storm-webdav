@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,6 +125,12 @@ public abstract class TransferRequestImpl implements TransferRequest {
     }
 
     TransferStatus lastStatus = lastTransferStatus.get();
+
+    // Return an empty throughput in case the last successful transfer is older than 10 seconds
+    Duration res = Duration.between(Instant.now(), lastTransferStatus.get().getInstant());
+    if (res.getSeconds() > 10) {
+      return Optional.empty();
+    }
 
     Duration xferDuration = Duration.between(startTime, endTime).abs();
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
@@ -30,8 +28,6 @@ import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 
-  public static final Logger logger = LoggerFactory.getLogger(VOMSAuthenticationFilter.class);
-  
   public VOMSAuthenticationFilter(AuthenticationManager mgr) {
     setCheckForPrincipalChanges(false);
     setInvalidateSessionOnPrincipalChange(false);

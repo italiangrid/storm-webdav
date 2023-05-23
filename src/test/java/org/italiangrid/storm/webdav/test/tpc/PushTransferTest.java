@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
 
   @Test
-  public void pushEmptyTransferHeaders() throws IOException, ServletException {
+  void pushEmptyTransferHeaders() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
 
@@ -80,7 +80,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void overwriteHeaderRecognized() throws IOException, ServletException {
+  void overwriteHeaderRecognized() throws IOException, ServletException {
     when(request.getHeader(OVERWRITE_HEADER)).thenReturn("F");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -93,7 +93,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checksumRecognized() throws IOException, ServletException {
+  void checksumRecognized() throws IOException, ServletException {
     when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -107,7 +107,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void checkTransferHeaderPassing() throws IOException, ServletException {
+  void checkTransferHeaderPassing() throws IOException, ServletException {
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
@@ -135,7 +135,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
+  void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
     when(request.getHeaderNames())
       .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
@@ -160,7 +160,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
 
   @Test
-  public void unresolvedSourcePathFailsRequest() throws IOException, ServletException {
+  void unresolvedSourcePathFailsRequest() throws IOException, ServletException {
     when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     filter.doFilter(request, response, chain);
 
@@ -168,5 +168,43 @@ public class PushTransferTest extends TransferFilterTestSupport {
     assertThat(httpStatus.getValue(), is(SC_NOT_FOUND));
     assertThat(error.getValue(), is("Local source path not found: " + SERVLET_PATH + LOCAL_PATH));
 
+  }
+
+  @Test
+  void checkExpectContinueHeaderIsSet() throws IOException, ServletException {
+
+    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
+      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024*1024+1);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(putXferRequest.capture(), Mockito.any());
+
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(2));
+
+    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(true));
+    assertThat(xferHeaders.get(EXPECTED_HEADER).iterator().next(), is(EXPECTED_VALUE));
+
+  }
+
+  @Test
+  void checkExpectContinueHeaderIsNotSet() throws IOException, ServletException {
+
+    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
+      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024*1024-1);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(putXferRequest.capture(), Mockito.any());
+
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(1));
+
+    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(false));
   }
 }

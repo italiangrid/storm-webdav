@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,19 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static java.util.Arrays.asList;
 import static org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter.forVoters;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import javax.servlet.ServletContext;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
@@ -41,7 +48,6 @@ import org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzCopyMoveVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzVoter;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
-import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -58,29 +64,25 @@ import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.ConsensusBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.collect.Lists;
 
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter implements ServletContextAware {
+public class SecurityConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
@@ -104,28 +106,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     ALLOWED_METHODS.add(WebDAVMethod.UNLOCK.name());
   }
 
-  ServletContext context;
-
   @Autowired
-  ServiceConfiguration serviceConfiguration;
-
-  @Autowired
-  ServiceConfigurationProperties serviceConfigurationProperties;
+  OAuthProperties oauthProperties;
 
   @Autowired
   StorageAreaConfiguration saConfiguration;
 
   @Autowired
+  ServiceConfigurationProperties serviceConfigurationProperties;
+
+  @Autowired
   PathResolver pathResolver;
-
-  @Autowired
-  StormJwtAuthenticationConverter authConverter;
-
-  @Autowired
-  OAuthProperties oauthProperties;
-
-  @Autowired
-  VOMSAuthenticationProvider vomsProvider;
 
   @Autowired
   @Qualifier("vomsAuthenticationFilter")
@@ -141,19 +132,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
   PrincipalHelper principalHelper;
 
   @Bean
-  static ErrorPageRegistrar securityErrorPageRegistrar() {
-    return registry -> registry.addErrorPages(
-        new ErrorPage(RequestRejectedException.class, "/errors/400"),
-        new ErrorPage(InsufficientAuthenticationException.class, "/errors/401"),
-        new ErrorPage(HttpStatus.BAD_REQUEST, "/errors/400"),
-        new ErrorPage(HttpStatus.UNAUTHORIZED, "/errors/401"),
-        new ErrorPage(HttpStatus.FORBIDDEN, "/errors/403"),
-        new ErrorPage(HttpStatus.NOT_FOUND, "/errors/404"),
-        new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, "/errors/405"));
-
-  }
-
-  @Bean
   HttpFirewall allowWebDAVMethodsFirewall() {
 
     StrictHttpFirewall firewall = new StrictHttpFirewall();
@@ -161,7 +139,126 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     return firewall;
   }
 
-  public AccessDecisionManager fineGrainedAccessDecisionManager() throws MalformedURLException {
+  @Bean
+  SecurityFilterChain filterChain(HttpSecurity http, VOMSAuthenticationProvider vomsProvider,
+      StormJwtAuthenticationConverter authConverter) throws Exception {
+
+    http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
+
+    if (serviceConfigurationProperties.getAuthz().isDisabled()) {
+      LOG.warn("AUTHORIZATION DISABLED: this shouldn't be used in production!");
+      http.authorizeRequests().anyRequest().permitAll();
+    } else {
+      http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
+      addAccessRules(http);
+      addAnonymousAccessRules(http);
+    }
+
+    if (serviceConfigurationProperties.getRedirector().isEnabled()) {
+      http.headers().httpStrictTransportSecurity().disable();
+    }
+
+    http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
+
+    http.authorizeRequests().antMatchers("/errors/**").permitAll();
+
+    http.authorizeRequests()
+      .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
+          "/.well-known/openid-configuration")
+      .permitAll();
+
+    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
+    handler.setErrorPage("/errors/403");
+    http.exceptionHandling()
+      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
+
+    http.logout()
+      .logoutUrl("/logout")
+      .clearAuthentication(true)
+      .invalidateHttpSession(true)
+      .logoutSuccessUrl("/");
+
+    if (!oauthProperties.isEnableOidc()) {
+      http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
+    }
+
+    configureOidcAuthn(http);
+
+    http.csrf().disable();
+    http.cors().disable();
+
+    return http.build();
+  }
+
+
+
+  @Bean
+  static ErrorPageRegistrar securityErrorPageRegistrar() {
+    return r -> {
+      r.addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
+      r.addErrorPages(new ErrorPage(InsufficientAuthenticationException.class, "/errors/401"));
+      r.addErrorPages(new ErrorPage(BAD_REQUEST, "/errors/400"));
+      r.addErrorPages(new ErrorPage(UNAUTHORIZED, "/errors/401"));
+      r.addErrorPages(new ErrorPage(FORBIDDEN, "/errors/403"));
+      r.addErrorPages(new ErrorPage(NOT_FOUND, "/errors/404"));
+      r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, "/errors/405"));
+    };
+  }
+
+  @Bean
+  WebSecurityCustomizer webSecurityCustomizer() {
+    return web -> web.ignoring().antMatchers("/css/*", "/js/*");
+  }
+
+  @Bean
+  RequestRejectedHandler requestRejectedHandler() {
+    return new HttpMethodRequestRejectedHandler(ALLOWED_METHODS);
+  }
+
+  protected void addAnonymousAccessRules(HttpSecurity http) throws Exception {
+    final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
+
+    for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
+      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())) {
+        anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
+      }
+    }
+
+    if (!anonymousAccessPermissions.isEmpty()) {
+      http.anonymous().authorities(anonymousAccessPermissions);
+    }
+  }
+
+  protected void configureOidcAuthn(HttpSecurity http) throws Exception {
+    if (oauthProperties.isEnableOidc()) {
+      http.oauth2Login().loginPage("/oidc-login");
+    }
+  }
+
+  protected void addAccessRules(HttpSecurity http) throws Exception {
+
+    Map<String, String> accessPoints = new TreeMap<>(Comparator.reverseOrder());
+    saConfiguration.getStorageAreaInfo()
+      .forEach(sa -> sa.accessPoints().forEach(ap -> accessPoints.put(ap, sa.name())));
+    for (Entry<String, String> e : accessPoints.entrySet()) {
+      String ap = e.getKey();
+      String sa = e.getValue();
+      LOG.debug("Evaluating access rules for access-point '{}' and storage area '{}'", ap, sa);
+      String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
+          SAPermission.canRead(sa).getAuthority(), SAPermission.canWrite(sa).getAuthority());
+      LOG.debug("Write access rule: {}", writeAccessRule);
+      String readAccessRule =
+          String.format("hasAuthority('%s')", SAPermission.canRead(sa).getAuthority());
+      LOG.debug("Read access rule: {}", readAccessRule);
+      http.authorizeRequests()
+        .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+        .access(readAccessRule);
+
+      http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
+    }
+  }
+
+  protected AccessDecisionManager fineGrainedAccessDecisionManager() throws MalformedURLException {
     List<AccessDecisionVoter<?>> voters = new ArrayList<>();
 
     UnanimousDelegatedVoter fineGrainedVoters = forVoters("FineGrainedAuthz",
@@ -189,111 +286,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serv
     voters.add(fineGrainedVoters);
     voters.add(wlcgVoters);
     return new ConsensusBased(voters);
-  }
-
-  protected void addAccessRules(HttpSecurity http) throws Exception {
-
-    for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-
-      for (String ap : sa.accessPoints()) {
-
-        String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
-            SAPermission.canRead(sa.name()).getAuthority(),
-            SAPermission.canWrite(sa.name()).getAuthority());
-
-        String readAccessRule =
-            String.format("hasAuthority('%s')", SAPermission.canRead(sa.name()).getAuthority());
-
-        http.authorizeRequests()
-          .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-          .access(readAccessRule);
-
-        http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
-      }
-    }
-  }
-
-  protected void addAnonymousAccessRules(HttpSecurity http) throws Exception {
-    final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
-
-    for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())) {
-        anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
-      }
-    }
-
-    if (!anonymousAccessPermissions.isEmpty()) {
-      http.anonymous().authorities(anonymousAccessPermissions);
-    }
-  }
-
-
-
-  protected void configureOidcAuthn(HttpSecurity http) throws Exception {
-    if (oauthProperties.isEnableOidc()) {
-      http.oauth2Login().loginPage("/oidc-login");
-    }
-  }
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-
-    http.csrf().disable();
-    http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
-
-    if (serviceConfigurationProperties.getAuthz().isDisabled()) {
-      LOG.warn("AUTHORIZATION DISABLED: this shouldn't be used in production!");
-      http.authorizeRequests().anyRequest().permitAll();
-    } else {
-      http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
-      addAccessRules(http);
-      addAnonymousAccessRules(http);
-    }
-
-    if (serviceConfigurationProperties.getRedirector().isEnabled()) {
-      http.headers().httpStrictTransportSecurity().disable();
-    }
-
-    http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
-
-    http.authorizeRequests().antMatchers(HttpMethod.GET, "/errors/**").permitAll();
-
-    http.authorizeRequests()
-      .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
-          "/.well-known/openid-configuration")
-      .permitAll();
-
-    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
-    handler.setErrorPage("/errors/403");
-    http.exceptionHandling()
-      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
-
-    http.logout()
-      .logoutUrl("/logout")
-      .clearAuthentication(true)
-      .invalidateHttpSession(true)
-      .logoutSuccessUrl("/");
-
-    if (!oauthProperties.isEnableOidc()) {
-      http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
-    }
-
-    configureOidcAuthn(http);
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    context = servletContext;
-  }
-
-  @Override
-  public void configure(WebSecurity web) throws Exception {
-    web.ignoring().antMatchers("/css/*", "/js/*");
-  }
-
-  @Bean
-  RequestRejectedHandler requestRejectedHandler() {
-
-     return new HttpMethodRequestRejectedHandler(ALLOWED_METHODS);
   }
 }

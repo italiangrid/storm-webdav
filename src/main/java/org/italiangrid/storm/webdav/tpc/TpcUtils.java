@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,11 @@ public interface TpcUtils extends TransferConstants {
   default boolean isCopy(HttpServletRequest request) {
     return "COPY".equals(request.getMethod())
         && (requestHasSourceHeader(request) || requestHasDestinationHeader(request));
+  }
+
+  default boolean isPushTpc(HttpServletRequest request, LocalURLService localUrlService) {
+    return "COPY".equals(request.getMethod()) && (requestHasRemoteDestinationHeader(request, localUrlService)
+        || requestHasTranferHeader(request));
   }
 
   default boolean requestHasTranferHeader(HttpServletRequest request) {
