@@ -19,7 +19,7 @@ services:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
   webdav-setup:
-    image: italiangrid/storm-webdav:latest
+    image: cnafsd/storm-webdav
     environment:
       TZ: UTC
 
@@ -37,7 +37,7 @@ services:
       - /scripts/setup.sh
 
   webdav:
-    image: italiangrid/storm-webdav:latest
+    image: cnafsd/storm-webdav
     dns_search: example
     ports:
       - "9443:8443"
