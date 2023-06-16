@@ -164,7 +164,7 @@ public class SecurityConfig {
 
     http.authorizeRequests()
       .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
-          "/.well-known/openid-configuration")
+          "/.well-known/openid-configuration", "/.well-known/wlcg-tape-rest-api")
       .permitAll();
 
     AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();

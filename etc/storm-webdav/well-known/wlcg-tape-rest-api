@@ -1,0 +1,13 @@
+{
+  "sitename": "StoRM@CNAF",
+  "description": "This is the tape REST API endpoint for CNAF-T1",
+  "endpoints": [
+    {
+      "uri": "https://storm-tape.example.org:8443/api/v1",
+      "version": "v1",
+      "metadata": {
+        
+      }
+    }
+  ]
+}

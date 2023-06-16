@@ -15,9 +15,11 @@
  */
 package org.italiangrid.storm.webdav.spring;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyManagementException;
@@ -90,6 +92,7 @@ import org.italiangrid.storm.webdav.oidc.ClientRegistrationCacheLoader;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
+import org.italiangrid.storm.webdav.tape.web.TapeRestApiMetadata;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
@@ -114,6 +117,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -391,6 +395,20 @@ public class AppConfig implements TransferConstants {
     String tokenEndpoint = String.format("%s/oauth/token", props.getAuthzServer().getIssuer());
     md.setTokenEndpoint(tokenEndpoint);
     return md;
+  }
+
+  @Bean
+  TapeRestApiMetadata tapeRestApiMetadata(ServiceConfigurationProperties props) {
+    if (TRUE.equals(props.getTape().getWellKnown().isEnabled())) {
+      ObjectMapper mapper = new ObjectMapper();
+      try {
+        return mapper.readValue(new File(props.getTape().getWellKnown().getSource()),
+            TapeRestApiMetadata.class);
+      } catch (IOException e) {
+        LOG.error(e.getMessage(), e);
+      }
+    }
+    return new TapeRestApiMetadata();
   }
 
   @Bean

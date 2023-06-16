@@ -19,3 +19,7 @@ storm:
   voms:
     trust-store:
       dir: src/test/resources/vomsdir
+  tape:
+    well-known:
+      enabled: true
+      source: etc/storm-webdav/well-known/wlcg-tape-rest-api

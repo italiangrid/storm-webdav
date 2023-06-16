@@ -155,3 +155,8 @@ storm:
     cache:
       enabled: ${STORM_WEBDAV_VOMS_CACHE_ENABLE:true}
       entry-lifetime-sec: ${STORM_WEBDAV_VOMS_CACHE_ENTRY_LIFETIME_SEC:300}
+
+  tape:
+    well-known:
+      enabled: ${STORM_WEBDAV_TAPE_WELLKNOWN_ENABLED:false}
+      source: ${STORM_WEBDAV_TAPE_WELLKNOWN_SOURCE:/etc/storm/webdav/wlcg-tape-rest-api.json}

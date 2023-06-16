@@ -38,6 +38,45 @@ import com.google.common.collect.Lists;
 @Validated
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
+  @Validated
+  public static class TapeProperties {
+
+    @Validated
+    public static class TapeWellKnownProperties {
+
+      Boolean enabled;
+
+      @NotEmpty
+      String source;
+
+      public Boolean isEnabled() {
+        return enabled;
+      }
+
+      public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+      }
+
+      public String getSource() {
+        return source;
+      }
+
+      public void setSource(String source) {
+        this.source = source;
+      }
+    }
+
+    TapeWellKnownProperties wellKnown;
+
+    public TapeWellKnownProperties getWellKnown() {
+      return wellKnown;
+    }
+
+    public void setWellKnown(TapeWellKnownProperties wellKnown) {
+      this.wellKnown = wellKnown;
+    }
+  }
+
   public enum ChecksumStrategy {
     NO_CHECKSUM, EARLY, LATE
   }
@@ -590,6 +629,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private RedirectorProperties redirector;
 
+  private TapeProperties tape;
+
   @NotEmpty
   private List<String> hostnames;
 
@@ -845,5 +886,15 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public String getTlsProtocol() {
     return getTls().getProtocol();
+  }
+
+
+  public TapeProperties getTape() {
+    return tape;
+  }
+
+
+  public void setTape(TapeProperties tape) {
+    this.tape = tape;
   }
 }
