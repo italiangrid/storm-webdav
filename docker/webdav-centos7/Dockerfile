@@ -12,7 +12,7 @@ RUN \
   yum install -y http://repository.egi.eu/sw/production/umd/4/centos7/x86_64/updates/umd-release-4.1.3-1.el7.centos.noarch.rpm && \
   adduser --uid ${STORM_USER_UID} storm && \
   usermod -a -G wheel storm && \
-  yum-config-manager --add-repo https://repo.cloud.cnaf.infn.it/repository/storm/storm-stable-centos7.repo && \
+  yum-config-manager --add-repo https://repo.cloud.cnaf.infn.it/repository/storm/nightly/storm-nightly-centos7.repo && \
   yum install -y storm-webdav voms-clients-java jq && \
   yum clean all
 
