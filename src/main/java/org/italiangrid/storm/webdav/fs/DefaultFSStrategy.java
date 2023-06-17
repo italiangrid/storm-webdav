@@ -142,7 +142,10 @@ public class DefaultFSStrategy implements FilesystemAccess {
       return file;
 
     } catch (IOException e) {
+
+      LOG.error(e.getMessage(), e);
       throw new StoRMWebDAVError(e.getMessage(), e);
+
     }
 
   }
