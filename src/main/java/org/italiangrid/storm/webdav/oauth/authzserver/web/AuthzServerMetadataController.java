@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth.authzserver.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +23,6 @@ public class AuthzServerMetadataController {
 
   private final AuthzServerMetadata metadata;
 
-  @Autowired
   public AuthzServerMetadataController(AuthzServerMetadata md) {
     this.metadata = md;
   }
