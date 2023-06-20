@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.italiangrid.storm.webdav.tape.web;
+package org.italiangrid.storm.webdav.tape.model;
 
 import java.net.URI;
 import java.util.Map;
 
-public class TapeRestApiEndpoint {
+public class WlcgTapeRestApiEndpoint {
 
   private URI uri;
   private String version;
@@ -48,6 +48,5 @@ public class TapeRestApiEndpoint {
   public void setMetadata(Map<String, String> metadata) {
     this.metadata = metadata;
   }
-
-
+  
 }

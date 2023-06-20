@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.italiangrid.storm.webdav.tape.web;
+package org.italiangrid.storm.webdav.tape.model;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-public class TapeRestApiMetadata {
+public class WlcgTapeRestApi {
 
-  private String sitename = "StoRM";
-  private String description = "StoRM Tape REST API endpoints";
-  private List<TapeRestApiEndpoint> endpoints = Lists.newArrayList();
+  private String sitename;
+  private String description;
+  private List<WlcgTapeRestApiEndpoint> endpoints = Lists.newArrayList();
 
   public String getSitename() {
     return sitename;
@@ -42,11 +42,11 @@ public class TapeRestApiMetadata {
     this.description = description;
   }
 
-  public List<TapeRestApiEndpoint> getEndpoints() {
+  public List<WlcgTapeRestApiEndpoint> getEndpoints() {
     return endpoints;
   }
 
-  public void setEndpoints(List<TapeRestApiEndpoint> endpoints) {
+  public void setEndpoints(List<WlcgTapeRestApiEndpoint> endpoints) {
     this.endpoints = endpoints;
   }
 

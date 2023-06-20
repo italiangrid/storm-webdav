@@ -44,18 +44,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Validated
     public static class TapeWellKnownProperties {
 
-      Boolean enabled;
-
       @NotEmpty
       String source;
-
-      public Boolean isEnabled() {
-        return enabled;
-      }
-
-      public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-      }
 
       public String getSource() {
         return source;

@@ -6,7 +6,7 @@
       "uri": "https://storm-tape.example.org:8443/api/v1",
       "version": "v1",
       "metadata": {
-        
+        "test": "test"
       }
     }
   ]

@@ -158,5 +158,4 @@ storm:
 
   tape:
     well-known:
-      enabled: ${STORM_WEBDAV_TAPE_WELLKNOWN_ENABLED:false}
       source: ${STORM_WEBDAV_TAPE_WELLKNOWN_SOURCE:/etc/storm/webdav/wlcg-tape-rest-api.json}

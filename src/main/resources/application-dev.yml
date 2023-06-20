@@ -21,5 +21,4 @@ storm:
       dir: src/test/resources/vomsdir
   tape:
     well-known:
-      enabled: true
-      source: etc/storm-webdav/well-known/wlcg-tape-rest-api
+      source: src/test/resources/well-known/wlcg-tape-rest-api.json
