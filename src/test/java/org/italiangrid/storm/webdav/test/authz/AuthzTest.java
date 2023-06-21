@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 @WithAnonymousUser
-public class AuthzTest {
+class AuthzTest {
 
   @Autowired
   MockMvc mvc;
@@ -49,7 +49,7 @@ public class AuthzTest {
   }
 
   @Test
-  public void writeAccessAsAnonymousLeadsTo401() throws Exception {
+  void writeAccessAsAnonymousLeadsTo401() throws Exception {
     mvc.perform(put("/test/file")).andExpect(status().isUnauthorized());
   }
 
