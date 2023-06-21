@@ -242,7 +242,12 @@ public class StormResourceWrapper extends Resource {
   public void writeTo(OutputStream out, long start, long count) throws IOException {
 
     try (InputStream in = getInputStream()) {
-      in.skip(start);
+      if (start > 0) {
+        long n = in.skip(start);
+        if (n < start) {
+          throw new IOException("Skipped " + start + " bytes but read " + n);
+        }
+      }
       if (count < 0) {
         internalCopy(in, out);
       } else {
