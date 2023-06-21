@@ -43,53 +43,53 @@ class AvoidTraceMethodFilterTest {
   MockMvc mvc;
 
   @Test
-  public void traceAsAnonymousLeadsTo405() throws Exception {
+  void traceAsAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/test/file"))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
-  public void traceAsNonAnonymousLeadsTo405() throws Exception {
+  void traceAsNonAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/wlcg/file"))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  public void traceAsAnonymousOnRootLeadsTo405() throws Exception {
+  void traceAsAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/"))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
-  public void traceAsNonAnonymousOnRootLeadsTo405() throws Exception {
+  void traceAsNonAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/"))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  public void trackAsAnonymousLeadsTo405() throws Exception {
+  void trackAsAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/test/file")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
-  public void trackAsNonAnonymousLeadsTo405() throws Exception {
+  void trackAsNonAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/wlcg/file")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  public void trackAsAnonymousOnRootLeadsTo405() throws Exception {
+  void trackAsAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
-  public void trackAsNonAnonymousOnRootLeadsTo405() throws Exception {
+  void trackAsNonAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/")))
       .andExpect(status().isMethodNotAllowed());
   }

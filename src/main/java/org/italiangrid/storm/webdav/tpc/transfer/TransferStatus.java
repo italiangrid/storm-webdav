@@ -74,9 +74,9 @@ public class TransferStatus {
       builder.append(String.format("failure: %s", getErrorMessage().orElse("")));
     } else {
       builder.append("Perf Marker\n");
-      builder.append(format("Timestamp: %d\n", instant.getEpochSecond()));
+      builder.append(format("Timestamp: %d%n", instant.getEpochSecond()));
       builder.append("Stripe Index: 0\n");
-      builder.append(format("Stripe Bytes Transferred: %d\n", getTransferByteCount()));
+      builder.append(format("Stripe Bytes Transferred: %d%n", getTransferByteCount()));
       builder.append("Total Stripe Count: 1\n");
       builder.append("End\n");
     }
