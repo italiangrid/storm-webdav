@@ -1,0 +1,6 @@
+{
+  "site": "StoRM@CNAF",
+  "desc": "This is the tape REST API endpoint for CNAF-T1",
+  "endp": [
+  ]
+}

@@ -19,3 +19,6 @@ storm:
   voms:
     trust-store:
       dir: src/test/resources/vomsdir
+  tape:
+    well-known:
+      source: src/test/resources/well-known/wlcg-tape-rest-api.json
