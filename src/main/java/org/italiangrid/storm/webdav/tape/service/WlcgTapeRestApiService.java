@@ -32,6 +32,10 @@ public class WlcgTapeRestApiService {
 
   public static final Logger LOG = LoggerFactory.getLogger(WlcgTapeRestApiService.class);
 
+  private static final String LOG_INFO_LOADING = "Loading WLCG Tape REST API well-known endpoint from file '{}' ...";
+  private static final String LOG_ERROR_PREFIX = "Error loading WLCG Tape REST API well-known endpoint from file: {}";
+  private static final String LOG_INFO_NOFILEFOUND = "No WLCG Tape REST API well-known file found at '{}'";
+
   private WlcgTapeRestApi metadata;
 
   public WlcgTapeRestApiService(ServiceConfigurationProperties props) {
@@ -39,14 +43,14 @@ public class WlcgTapeRestApiService {
     metadata = null;
     File source = new File(props.getTape().getWellKnown().getSource());
     if (source.exists()) {
-      LOG.info("Loading WLCG Tape REST API well-known endpoint from file '{}'", source);
+      LOG.info(LOG_INFO_LOADING, source);
       try {
         metadata = (new ObjectMapper()).readValue(source, WlcgTapeRestApi.class);
       } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
+        LOG.error(LOG_ERROR_PREFIX, e.getMessage());
       }
     } else {
-      LOG.info("No WLCG Tape REST API well-known file found at '{}'", source);
+      LOG.info(LOG_INFO_NOFILEFOUND, source);
     }
   }
 

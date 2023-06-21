@@ -32,15 +32,15 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ActiveProfiles({"dev"})
-@SpringBootTest(properties = { "storm.tape.well-known.source=not-a-file" })
+@SpringBootTest(properties = { "storm.tape.well-known.source=src/test/resources/well-known/malformed-wlcg-tape-rest-api.json" })
 @WithAnonymousUser
-class DisabledEndpointTest {
+class MalformedEndpointTest {
 
   @Autowired
   MockMvc mvc;
 
   @Test
-  void testDisabledWellKnown() throws Exception {
+  void testMalformedWellKnown() throws Exception {
     mvc.perform(get("/.well-known/wlcg-tape-rest-api"))
       .andExpect(status().isNotFound());
   }
