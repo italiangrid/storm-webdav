@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@ package org.italiangrid.storm.webdav.test.authz.pdp;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -33,25 +34,23 @@ import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Lists;
 
-@RunWith(JUnit4.class)
+@ExtendWith(MockitoExtension.class)
 public class PolicyPropertiesValidationTests {
-
 
   private Validator validator;
 
-  @Before
+  @BeforeEach
   public void setup() {
-
+    Locale.setDefault(Locale.ENGLISH);
     ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
     this.validator = vf.getValidator();
-
 
   }
 
@@ -78,10 +77,9 @@ public class PolicyPropertiesValidationTests {
         validator.validate(props);
 
     assertThat(violations, empty());
-    
 
   }
-  
+
   @Test
   public void testDescriptionRequired() throws Exception {
 
@@ -94,9 +92,9 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("description"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-    
+
   }
-  
+
   @Test
   public void testSaRequired() throws Exception {
 
@@ -109,9 +107,9 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("sa"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-    
+
   }
-  
+
   @Test
   public void testPrincipalsNotEmpty() throws Exception {
 
@@ -124,10 +122,7 @@ public class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("principals"));
     assertThat(violations.iterator().next().getMessage(), is("must not be empty"));
-    
+
   }
-  
-  
-  
 
 }

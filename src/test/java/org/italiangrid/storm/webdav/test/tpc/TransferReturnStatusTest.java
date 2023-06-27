@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import static java.util.Collections.emptyEnumeration;
 import static javax.servlet.http.HttpServletResponse.SC_ACCEPTED;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,17 +34,17 @@ import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransferReturnStatusTest extends TransferFilterTestSupport {
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     super.setup();
     when(request.getMethod()).thenReturn(COPY.name());
@@ -67,43 +67,44 @@ public class TransferReturnStatusTest extends TransferFilterTestSupport {
     Mockito.doThrow(new ClientProtocolException("Connection error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
-    
+
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
     assertThat(error.getValue(), is("Third party transfer error: Connection error"));
   }
-  
+
   @Test
   public void filterAnswers412ForHttpExceptionError() throws IOException, ServletException {
     Mockito.doThrow(new HttpResponseException(HttpServletResponse.SC_FORBIDDEN, "Access denied"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
-    
+
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(), is("Third party transfer error: 403 status code: 403, reason phrase: Access denied"));
+    assertThat(error.getValue(),
+        is("Third party transfer error: 403 status code: 403, reason phrase: Access denied"));
   }
-  
+
   @Test
   public void filterAnswers412ForChecksumVerificationError() throws IOException, ServletException {
     Mockito.doThrow(new ChecksumVerificationError("Checksum verification error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
-    
+
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
     assertThat(error.getValue(), is("Checksum verification error"));
   }
-  
+
   @Test
   public void filterAnswers412ForGenericTransferError() throws IOException, ServletException {
     Mockito.doThrow(new TransferError("Error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
-    
+
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));

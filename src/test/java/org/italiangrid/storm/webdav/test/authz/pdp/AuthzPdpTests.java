@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@ package org.italiangrid.storm.webdav.test.authz.pdp;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.DENY;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.NOT_APPLICABLE;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.PERMIT;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -37,12 +38,12 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.principal.Anyone;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AuthorityHolder;
 import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,7 +52,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthzPdpTests {
 
   public static final String TEST_ISSUER = "https://test.example";
@@ -74,10 +75,10 @@ public class AuthzPdpTests {
     return (ImmutableSet<T>) ImmutableSet.copyOf(authorities);
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
-    when(request.getServletPath()).thenReturn("/");
-    when(repo.getPolicies()).thenReturn(emptyList());
+    lenient().when(request.getServletPath()).thenReturn("/");
+    lenient().when(repo.getPolicies()).thenReturn(emptyList());
   }
 
 

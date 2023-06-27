@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,7 +190,8 @@ public class ServletConfiguration {
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum()));
+        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum(),
+            props.getEnableExpectContinueThreshold()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

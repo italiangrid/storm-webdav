@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,17 +35,15 @@ import com.codahale.metrics.Timer;
 public class StormMetricsReporter extends ScheduledReporter {
 
   public static final String METRICS_LOGGER_NAME = "storm-metrics-LOG";
-  
-  private static final Logger logger = LoggerFactory
-    .getLogger(METRICS_LOGGER_NAME);
-  
-  private Long lastCountValue = null;
-  
-  private StormMetricsReporter(MetricRegistry registry, MetricFilter filter,
-    TimeUnit rateUnit, TimeUnit durationUnit) {
 
-    super(registry, "storm", filter, rateUnit,
-      durationUnit);
+  private static final Logger logger = LoggerFactory.getLogger(METRICS_LOGGER_NAME);
+
+  private Long lastCountValue = null;
+
+  private StormMetricsReporter(MetricRegistry registry, MetricFilter filter, TimeUnit rateUnit,
+      TimeUnit durationUnit) {
+
+    super(registry, "storm", filter, rateUnit, durationUnit);
   }
 
   public static Builder forRegistry(MetricRegistry registry) {
@@ -93,54 +91,47 @@ public class StormMetricsReporter extends ScheduledReporter {
     }
   }
 
-  public StormMetricsReporter(MetricRegistry registry, String name,
-    MetricFilter filter, TimeUnit rateUnit, TimeUnit durationUnit) {
+  public StormMetricsReporter(MetricRegistry registry, String name, MetricFilter filter,
+      TimeUnit rateUnit, TimeUnit durationUnit) {
 
     super(registry, name, filter, rateUnit, durationUnit);
 
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public void report(SortedMap<String, Gauge> gauges,
-    SortedMap<String, Counter> counters,
-    SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
-    SortedMap<String, Timer> timers) {
+  public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters,
+      SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
+      SortedMap<String, Timer> timers) {
 
     Gauge<Double> heapUsage = gauges.get("jvm.memory.heap.usage");
     Gauge<Long> heapUsed = gauges.get("jvm.memory.heap.used");
 
     Timer handlerDispatches = timers.get("storm.http.handler.dispatches");
     final Snapshot snapshot = handlerDispatches.getSnapshot();
-    
+
     Long lastMinuteCount = null;
-    
-    if (lastCountValue != null ){
+
+    if (lastCountValue != null) {
       lastMinuteCount = handlerDispatches.getCount() - lastCountValue;
     }
-    
+
     lastCountValue = handlerDispatches.getCount();
-    
-    logger
-      .info(
+    final String heapUsedBytesString = FileUtils.byteCountToDisplaySize(heapUsed.getValue());
+
+    logger.info(
         "Heap[usage={}, used={}] Requests[m1_count={}, count={}, max={}, min={}, mean={}, mean_rate={}, m1_rate={}, m5_rate={}, m15_rate={}] Duration_units={}, Rate_units={}",
-        heapUsage.getValue(),
-        FileUtils.byteCountToDisplaySize(heapUsed.getValue()),
-        lastMinuteCount,
-        handlerDispatches.getCount(), 
-        convertDuration(snapshot.getMax()),
-        convertDuration(snapshot.getMin()),
-        convertDuration(snapshot.getMean()),
-        convertRate(handlerDispatches.getMeanRate()),
+        heapUsage.getValue(), heapUsedBytesString, lastMinuteCount, handlerDispatches.getCount(),
+        convertDuration(snapshot.getMax()), convertDuration(snapshot.getMin()),
+        convertDuration(snapshot.getMean()), convertRate(handlerDispatches.getMeanRate()),
         convertRate(handlerDispatches.getOneMinuteRate()),
         convertRate(handlerDispatches.getFiveMinuteRate()),
-        convertRate(handlerDispatches.getFifteenMinuteRate()), 
-        getDurationUnit(),
-        getRateUnit());
+        convertRate(handlerDispatches.getFifteenMinuteRate()), getDurationUnit(), getRateUnit());
 
   }
-  
-  public String getRateUnit(){
+
+  @Override
+  public String getRateUnit() {
     return "events/" + super.getRateUnit();
   }
 

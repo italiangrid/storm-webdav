@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,18 +131,18 @@ public class AppConfig implements TransferConstants {
   public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
   @Bean
-  public Clock systemClock() {
+  Clock systemClock() {
     return Clock.systemDefaultZone();
   }
 
   @Bean
-  public SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
+  SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
       AuthorizationPolicyService policyService, PrincipalHelper helper, Clock clock) {
     return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService, helper);
   }
 
   @Bean
-  public TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
+  TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
       SignedJwtTokenIssuer tokenIssuer, Clock clock, MetricRegistry registry) {
 
     TokenIssuerService service =
@@ -152,7 +152,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public PEMCredential serviceCredential(ServiceConfiguration conf)
+  PEMCredential serviceCredential(ServiceConfiguration conf)
       throws KeyStoreException, CertificateException, IOException {
 
     return new PEMCredential(conf.getPrivateKeyPath(), conf.getCertificatePath(), null);
@@ -160,20 +160,20 @@ public class AppConfig implements TransferConstants {
 
 
   @Bean
-  public StorageAreaConfiguration storageAreaConfiguration(ServiceConfiguration conf) {
+  StorageAreaConfiguration storageAreaConfiguration(ServiceConfiguration conf) {
     return new SAConfigurationParser(conf);
   }
 
 
   @Bean
-  public ExtendedAttributesHelper extendedAttributesHelper() {
+  ExtendedAttributesHelper extendedAttributesHelper() {
 
     return new DefaultExtendedFileAttributesHelper();
   }
 
   @Bean
   @Primary
-  public FilesystemAccess filesystemAccess() {
+  FilesystemAccess filesystemAccess() {
 
     return new MetricsFSStrategyWrapper(new DefaultFSStrategy(extendedAttributesHelper()),
         metricRegistry());
@@ -181,7 +181,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public MetricRegistry metricRegistry() {
+  MetricRegistry metricRegistry() {
 
     MetricRegistry registry = new MetricRegistry();
 
@@ -192,7 +192,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public HealthCheckRegistry healthCheckRegistry() {
+  HealthCheckRegistry healthCheckRegistry() {
 
     return new HealthCheckRegistry();
   }
@@ -200,7 +200,7 @@ public class AppConfig implements TransferConstants {
 
 
   @Bean
-  public X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
+  X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
 
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
     CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
@@ -221,13 +221,13 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public PathResolver pathResolver(ServiceConfiguration conf) {
+  PathResolver pathResolver(ServiceConfiguration conf) {
     return new DefaultPathResolver(storageAreaConfiguration(conf));
   }
 
 
   @Bean
-  public ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
+  ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
 
     final int tpSize = props.getProgressReportThreadPoolSize();
     ThreadFactory namedThreadFactory =
@@ -237,7 +237,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean("tpcConnectionManager")
-  public HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
+  HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
       ServiceConfiguration conf) throws KeyStoreException, CertificateException, IOException,
       NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
     PEMCredential serviceCredential = serviceCredential(conf);
@@ -280,7 +280,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
+  CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
       @Qualifier("tpcConnectionManager") HttpClientConnectionManager cm) {
 
     ConnectionConfig connectionConfig =
@@ -288,6 +288,7 @@ public class AppConfig implements TransferConstants {
 
     int timeoutMsec = (int) TimeUnit.SECONDS.toMillis(props.getTimeoutInSecs());
     RequestConfig config = RequestConfig.custom()
+      .setExpectContinueEnabled(false)
       .setConnectTimeout(timeoutMsec)
       .setConnectionRequestTimeout(timeoutMsec)
       .setSocketTimeout(timeoutMsec)
@@ -303,7 +304,7 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "true")
-  public ClientRegistrationRepository clientRegistrationRepository(
+  ClientRegistrationRepository clientRegistrationRepository(
       OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
 
 
@@ -342,7 +343,7 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
+  JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
       RestTemplateBuilder builder, OidcConfigurationFetcher fetcher, ExecutorService executor) {
 
 
@@ -378,13 +379,13 @@ public class AppConfig implements TransferConstants {
   }
 
   @Bean
-  public LocalURLService localUrlService(ServiceConfigurationProperties props) {
+  LocalURLService localUrlService(ServiceConfigurationProperties props) {
     props.getHostnames().removeIf(String::isEmpty);
     return new StaticHostListLocalURLService(props.getHostnames());
   }
 
   @Bean
-  public AuthzServerMetadata metadata(ServiceConfigurationProperties props) {
+  AuthzServerMetadata metadata(ServiceConfigurationProperties props) {
     AuthzServerMetadata md = new AuthzServerMetadata();
     md.setIssuer(props.getAuthzServer().getIssuer());
     String tokenEndpoint = String.format("%s/oauth/token", props.getAuthzServer().getIssuer());
@@ -394,7 +395,7 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "EARLY")
-  public ReplaceContentStrategy earlyChecksumStrategy(MetricRegistry registry,
+  ReplaceContentStrategy earlyChecksumStrategy(MetricRegistry registry,
       ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: early");
     return new MetricsReplaceContentStrategy(registry, new EarlyChecksumStrategy(ah));
@@ -402,7 +403,7 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "LATE")
-  public ReplaceContentStrategy lateChecksumStrategy(MetricRegistry registry,
+  ReplaceContentStrategy lateChecksumStrategy(MetricRegistry registry,
       ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: late");
     return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
@@ -410,36 +411,36 @@ public class AppConfig implements TransferConstants {
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
-  public ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
+  ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
     LOG.warn("Checksum strategy: no checksum");
     return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
   }
 
   @Bean
-  public PathAuthorizationPolicyRepository pathAuthzPolicyRepository(PathAuthzPolicyParser parser) {
+  PathAuthorizationPolicyRepository pathAuthzPolicyRepository(PathAuthzPolicyParser parser) {
     return new InMemoryPolicyRepository(parser.parsePolicies());
   }
 
   @Bean
-  public PathAuthorizationPdp fineGrainedAuthzPdpd(PathAuthorizationPolicyRepository repo) {
+  PathAuthorizationPdp fineGrainedAuthzPdpd(PathAuthorizationPolicyRepository repo) {
     return new DefaultPathAuthorizationPdp(repo);
   }
 
   @Bean
   @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "false")
-  public ClientRegistrationRepository emptyClientRegistrationRepository() {
+  ClientRegistrationRepository emptyClientRegistrationRepository() {
     return (id) -> null;
   }
 
 
   @Bean
   @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
-  public BearerTokenResolver bearerTokenResolver(ServiceConfigurationProperties config) {
+  BearerTokenResolver bearerTokenResolver(ServiceConfigurationProperties config) {
     return new PermissiveBearerTokenResolver();
   }
 
   @Bean
-  public PrincipalHelper principalHelper(ServiceConfigurationProperties config)
+  PrincipalHelper principalHelper(ServiceConfigurationProperties config)
       throws MalformedURLException {
     return new PrincipalHelper(config);
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,9 @@ public class LocallyIssuedJwtDecoder implements JwtDecoder {
 
         Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
         Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
-
+        if (claims == null) {
+          throw new Exception("Error on claims set conversion");
+        }
         Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
         Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
         jwt = new Jwt(token, issuedAt, expiresAt, headers, claims);

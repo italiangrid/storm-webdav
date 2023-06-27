@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,9 +74,9 @@ public class TransferStatus {
       builder.append(String.format("failure: %s", getErrorMessage().orElse("")));
     } else {
       builder.append("Perf Marker\n");
-      builder.append(format("Timestamp: %d\n", instant.getEpochSecond()));
+      builder.append(format("Timestamp: %d%n", instant.getEpochSecond()));
       builder.append("Stripe Index: 0\n");
-      builder.append(format("Stripe Bytes Transferred: %d\n", getTransferByteCount()));
+      builder.append(format("Stripe Bytes Transferred: %d%n", getTransferByteCount()));
       builder.append("Total Stripe Count: 1\n");
       builder.append("End\n");
     }

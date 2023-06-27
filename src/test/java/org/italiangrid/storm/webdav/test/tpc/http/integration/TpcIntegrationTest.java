@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.test.tpc.http.integration;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
@@ -34,10 +34,10 @@ import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.Times;
@@ -67,18 +67,18 @@ public class TpcIntegrationTest {
   HttpTransferClient client;
 
 
-  @BeforeClass
+  @BeforeAll
   public static void startMockServer() {
     port = findAvailableTcpPort(15000);
     mockServer = startClientAndServer(port);
   }
 
-  @AfterClass
+  @AfterAll
   public static void stopMockServer() {
     mockServer.stop();
   }
 
-  @Before
+  @BeforeEach
   public void before() {
     mockServer.reset();
   }
@@ -91,9 +91,8 @@ public class TpcIntegrationTest {
   public void testPutRedirectHandled() {
     Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
 
-    PutTransferRequest putRequest =
-        new PutTransferRequestImpl(UUID.randomUUID().toString(),
-            "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -121,9 +120,8 @@ public class TpcIntegrationTest {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
-    PutTransferRequest putRequest =
-        new PutTransferRequestImpl(UUID.randomUUID().toString(),
-            "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
+    PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -154,9 +152,8 @@ public class TpcIntegrationTest {
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
 
-    GetTransferRequest getRequest =
-        new GetTransferRequestImpl(UUID.randomUUID().toString(),
-            "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
+    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
 
 
     mockServer.when(request().withMethod("GET").withPath("/test/example"), Times.exactly(1))

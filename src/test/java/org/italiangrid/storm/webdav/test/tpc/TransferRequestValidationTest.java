@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static java.util.Collections.emptyEnumeration;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,23 +32,29 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransferRequestValidationTest extends TransferFilterTestSupport {
-  
-  @Before
+
+  @BeforeEach
   public void setup() throws IOException {
     super.setup();
-    when(request.getServletPath()).thenReturn(SERVLET_PATH);
-    when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    when(request.getMethod()).thenReturn(COPY.name());
-    when(request.getHeaderNames()).thenReturn(emptyEnumeration());
-    when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
-    when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
+    lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
+    lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
+    lenient().when(request.getMethod()).thenReturn(COPY.name());
+    lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
+    lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
+    lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
+    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(OVERWRITE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(DESTINATION_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(CLIENT_INFO_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(CREDENTIAL_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
   }
 
   @Test
@@ -124,8 +131,8 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     String[] invalidPathInfos = {null, "", "does/not/start/with/slash"};
     String[] expectedErrorMsgs = {"Null or empty", "Null or empty", "Invalid local path"};
-    
-    for (int i=0; i < invalidPathInfos.length; i++) {
+
+    for (int i = 0; i < invalidPathInfos.length; i++) {
       when(request.getPathInfo()).thenReturn(invalidPathInfos[i]);
 
       filter.doFilter(request, response, chain);
@@ -136,7 +143,7 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     }
   }
-  
+
   @Test
   public void invalidCredentialHeader() throws IOException, ServletException {
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
@@ -144,16 +151,16 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_BAD_REQUEST));
-    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite")); 
+    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite"));
   }
-  
+
   @Test
   public void noneCredentialHeaderAccepted() throws IOException, ServletException {
     when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
     when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("none");
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
-   
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED)); 
+
+    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED));
   }
 }

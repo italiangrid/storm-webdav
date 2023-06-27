@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   final TransferClient client;
 
   public TransferFilter(Clock clock, TransferClient c, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum) {
-    super(clock, resolver, lus, verifyChecksum);
+      boolean verifyChecksum, long enableExpectContinueThreshold) {
+    super(clock, resolver, lus, verifyChecksum, enableExpectContinueThreshold);
     client = c;
   }
 
@@ -98,7 +98,6 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
 
   }
-
 
   protected void handleTpc(HttpServletRequest request, HttpServletResponse response)
       throws IOException {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package org.italiangrid.storm.webdav.test.authz.pdp;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -34,15 +34,15 @@ import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Prin
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Lists;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PolicyParserTests {
 
   ServiceConfigurationProperties properties = new ServiceConfigurationProperties();
@@ -52,18 +52,18 @@ public class PolicyParserTests {
 
   @Mock
   StorageAreaInfo saInfo;
-  
+
   FineGrainedAuthzPolicyParser parser;
 
-  @Before
+  @BeforeEach
   public void setup() {
-    when(saConfig.getStorageAreaInfo()).thenReturn(newArrayList(saInfo));
-    when(saInfo.name()).thenReturn("test");
-    when(saInfo.accessPoints()).thenReturn(newArrayList("/test"));
-    
+    lenient().when(saConfig.getStorageAreaInfo()).thenReturn(newArrayList(saInfo));
+    lenient().when(saInfo.name()).thenReturn("test");
+    lenient().when(saInfo.accessPoints()).thenReturn(newArrayList("/test"));
+
     parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
   }
-  
+
   @Test
   public void testNoPolicyParsing() throws Exception {
     assertThat(parser.parsePolicies(), empty());

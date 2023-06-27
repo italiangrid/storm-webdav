@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -30,14 +31,14 @@ import javax.servlet.ServletException;
 
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransferFilterActivationTest extends TransferFilterTestSupport {
 
   @Mock
@@ -46,15 +47,16 @@ public class TransferFilterActivationTest extends TransferFilterTestSupport {
   @Mock
   StorageAreaInfo otherSa;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     super.setup();
-    when(request.getServletPath()).thenReturn(SERVLET_PATH);
-    when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    when(response.getWriter()).thenReturn(responseWriter);
-    when(resolver.resolveStorageArea(FULL_LOCAL_PATH)).thenReturn(testSa);
-    when(resolver.resolveStorageArea("/test/otherfile")).thenReturn(testSa);
-    when(resolver.resolveStorageArea("/other/file")).thenReturn(otherSa);
+    lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
+    lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
+    lenient().when(response.getWriter()).thenReturn(responseWriter);
+    lenient().when(resolver.resolveStorageArea(FULL_LOCAL_PATH)).thenReturn(testSa);
+    lenient().when(resolver.resolveStorageArea("/test/otherfile")).thenReturn(testSa);
+    lenient().when(resolver.resolveStorageArea("/other/file")).thenReturn(otherSa);
+    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(null);
   }
 
   @Test

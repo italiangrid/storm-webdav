@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,27 @@
 package org.italiangrid.storm.webdav.test.utils;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.utils.RangeCopyHelper.rangeCopy;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class IOUtilsTest {
 
-  @Rule
-  public TemporaryFolder testFolder = new TemporaryFolder();
+  @TempDir
+  public File testFolder;
 
   public File tempFileOfChar(String name, int b, int size) throws IOException {
-    File f = testFolder.newFile(name);
+    File f = new File(testFolder, name);
 
     try (FileOutputStream fos = new FileOutputStream(f)) {
       for (int i = 0; i < size; i++) {
@@ -137,7 +136,7 @@ public class IOUtilsTest {
       for (int i = 100; i < 200; i++) {
         assertThat("Expected 0", fis.read(), is(0));
       }
-      
+
       for (int i = 200; i < dest.length(); i++) {
         assertThat("Expected 1", fis.read(), is(1));
       }

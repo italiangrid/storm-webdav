@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ package org.italiangrid.storm.webdav.authz.expression;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StormWebSecurityExpressionHandler extends OAuth2WebSecurityExpressionHandler {
+public class StormWebSecurityExpressionHandler extends DefaultWebSecurityExpressionHandler {
 
   @Override
   protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication,

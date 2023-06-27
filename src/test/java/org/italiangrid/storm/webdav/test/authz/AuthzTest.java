@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 @WithAnonymousUser
-public class AuthzTest {
+class AuthzTest {
 
   @Autowired
   MockMvc mvc;
@@ -43,13 +43,13 @@ public class AuthzTest {
   @Autowired
   VOMSAuthenticationFilter filter;
 
-  @Before
+  @BeforeEach
   public void setup() {
     filter.setCheckForPrincipalChanges(false);
   }
 
   @Test
-  public void writeAccessAsAnonymousLeadsTo401() throws Exception {
+  void writeAccessAsAnonymousLeadsTo401() throws Exception {
     mvc.perform(put("/test/file")).andExpect(status().isUnauthorized());
   }
 

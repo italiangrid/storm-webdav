@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasKey;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
@@ -48,13 +49,13 @@ import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest.Permission;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.voms.VOMSAttribute;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
@@ -65,7 +66,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JwtIssuerTest {
 
   public static final String ISSUER = "https://storm.example";
@@ -123,20 +124,20 @@ public class JwtIssuerTest {
 
   DefaultJwtTokenIssuer issuer;
 
-  @Before
+  @BeforeEach
   public void setup() {
 
 
-    when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));
-    when(details.getVomsAttributes()).thenReturn(Lists.newArrayList(vomsAttribute));
-    when(props.getIssuer()).thenReturn(ISSUER);
-    when(props.getSecret()).thenReturn(SECRET);
-    when(props.getMaxTokenLifetimeSec()).thenReturn(MAX_TOKEN_LIFETIME_SEC);
-    when(authn.getName()).thenReturn(AUTHN_SUBJECT);
-    when(authn.getDetails()).thenReturn(details);
-    when(helper.getPrincipalAsString(Mockito.any())).thenReturn(AUTHN_SUBJECT);
+    lenient().when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));
+    lenient().when(details.getVomsAttributes()).thenReturn(Lists.newArrayList(vomsAttribute));
+    lenient().when(props.getIssuer()).thenReturn(ISSUER);
+    lenient().when(props.getSecret()).thenReturn(SECRET);
+    lenient().when(props.getMaxTokenLifetimeSec()).thenReturn(MAX_TOKEN_LIFETIME_SEC);
+    lenient().when(authn.getName()).thenReturn(AUTHN_SUBJECT);
+    lenient().when(authn.getDetails()).thenReturn(details);
+    lenient().when(helper.getPrincipalAsString(Mockito.any())).thenReturn(AUTHN_SUBJECT);
 
-    when(ps.getSAPermissions(authn)).thenReturn(emptySet());
+    lenient().when(ps.getSAPermissions(authn)).thenReturn(emptySet());
 
     issuer = new DefaultJwtTokenIssuer(fixedClock, props, ps, helper);
   }
@@ -152,7 +153,7 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
     assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
         hasItems(VO_TEST_AUTHORITY.toString(), FQAN_TEST_AUTHORITY.toString()));
-    
+
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
 
     JWSVerifier verifier = new MACVerifier(SECRET);

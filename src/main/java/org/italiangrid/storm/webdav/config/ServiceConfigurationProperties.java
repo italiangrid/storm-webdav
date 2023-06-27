@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,35 @@ import com.google.common.collect.Lists;
 @ConfigurationProperties("storm")
 @Validated
 public class ServiceConfigurationProperties implements ServiceConfiguration {
+
+  @Validated
+  public static class TapeProperties {
+
+    @Validated
+    public static class TapeWellKnownProperties {
+
+      @NotEmpty
+      String source;
+
+      public String getSource() {
+        return source;
+      }
+
+      public void setSource(String source) {
+        this.source = source;
+      }
+    }
+
+    TapeWellKnownProperties wellKnown;
+
+    public TapeWellKnownProperties getWellKnown() {
+      return wellKnown;
+    }
+
+    public void setWellKnown(TapeWellKnownProperties wellKnown) {
+      this.wellKnown = wellKnown;
+    }
+  }
 
   public enum ChecksumStrategy {
     NO_CHECKSUM, EARLY, LATE
@@ -331,6 +360,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     boolean enableHttp2 = false;
 
+    @NotBlank
+    String protocol = "TLS";
+
     public String getCertificatePath() {
       return certificatePath;
     }
@@ -385,6 +417,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public boolean isEnableHttp2() {
       return enableHttp2;
+    }
+
+    public String getProtocol() {
+      return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+      this.protocol = protocol;
     }
   }
 
@@ -578,6 +618,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   private BufferProperties buffer;
 
   private RedirectorProperties redirector;
+
+  private TapeProperties tape;
 
   @NotEmpty
   private List<String> hostnames;
@@ -828,5 +870,21 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setRedirector(RedirectorProperties redirector) {
     this.redirector = redirector;
+  }
+
+
+  @Override
+  public String getTlsProtocol() {
+    return getTls().getProtocol();
+  }
+
+
+  public TapeProperties getTape() {
+    return tape;
+  }
+
+
+  public void setTape(TapeProperties tape) {
+    this.tape = tape;
   }
 }

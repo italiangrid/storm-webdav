@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -93,7 +93,7 @@ public class ClientTestSupport {
     return Jimfs.newFileSystem(fsConfig);
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     ThirdPartyCopyProperties props = new ThirdPartyCopyProperties();
     ServiceConfigurationProperties config = new ServiceConfigurationProperties();

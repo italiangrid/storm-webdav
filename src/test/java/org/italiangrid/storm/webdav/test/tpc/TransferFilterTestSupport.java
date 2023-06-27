@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -73,6 +73,9 @@ public class TransferFilterTestSupport implements TransferConstants {
   public static String[] INVALID_URLs =
       {"http:whatever", "httpg://storm.example/test", "gsiftp://whatever/test"};
 
+  public static final String EXPECTED_HEADER = org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE;
+  public static final String EXPECTED_VALUE = org.apache.http.protocol.HTTP.EXPECT_CONTINUE;
+
   @Mock
   FilterChain chain;
 
@@ -111,8 +114,8 @@ public class TransferFilterTestSupport implements TransferConstants {
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
   protected void setup() throws IOException {
-    filter = new TransferFilter(clock, client, resolver, lus, true);
-    when(request.getHeaderNames()).thenReturn(requestHeaderNames);
+    filter = new TransferFilter(clock, client, resolver, lus, true, 1024L*1024L);
+    lenient().when(request.getHeaderNames()).thenReturn(requestHeaderNames);
 
   }
 

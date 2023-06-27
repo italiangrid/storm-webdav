@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth.authzserver.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +23,6 @@ public class AuthzServerMetadataController {
 
   private final AuthzServerMetadata metadata;
 
-  @Autowired
   public AuthzServerMetadataController(AuthzServerMetadata md) {
     this.metadata = md;
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package org.italiangrid.storm.webdav.redirector;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +34,8 @@ public class RandomReplicaSelector implements ReplicaSelector {
 
   final List<ReplicaEndpointProperties> endpoints;
 
-  private final Random rng = new Random();
+  private final SecureRandom rng = new SecureRandom();
 
-  @Autowired
   public RandomReplicaSelector(ServiceConfigurationProperties config) {
     this.endpoints = config.getRedirector().getPool().getEndpoints();
   }

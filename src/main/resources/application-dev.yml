@@ -5,13 +5,20 @@ server:
 oauth:
   enable-oidc: false
 storm:
+  connector:
+    port: 8086
+    securePort: 9443
   sa:
     config-dir: src/test/resources/conf/sa.d
   tls:
     trust-anchors-dir: src/test/resources/trust-anchors
     certificate-path: src/test/resources/hostcert/hostcert.pem
     private-key-path: src/test/resources/hostcert/hostkey.pem
-    
+  authz-server:
+    enabled: true
   voms:
     trust-store:
       dir: src/test/resources/vomsdir
+  tape:
+    well-known:
+      source: src/test/resources/well-known/wlcg-tape-rest-api.json

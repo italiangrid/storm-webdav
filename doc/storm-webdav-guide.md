@@ -61,14 +61,15 @@ The size of the thread pool used to serve incoming requests and
 third-party-copy requests can be set with the following variables:
 
 ```yaml
+tpc:
+  max-connections: 200
+  max-connections-per-route: 150
+  progress-report-thread-pool-size: (# of cores of your machine)
+
 storm:
   connector:
     max-connections: 300
     max-queue-size: 900
-  tpc:
-    max-connections: 200
-    max-connections-per-route: 150
-    progress-report-thread-pool-size: (# of cores of your machine)
 ```
 
 ### Conscrypt
@@ -76,9 +77,10 @@ storm:
 Conscrypt improves TLS performance and can be enabled as follows:
 
 ```yaml
+tpc:
+  use-conscrypt: true
+
 storm:
-  tpc:
-    use-conscrypt: true
   tls:
     use-conscrypt: true
     enable-http2: true

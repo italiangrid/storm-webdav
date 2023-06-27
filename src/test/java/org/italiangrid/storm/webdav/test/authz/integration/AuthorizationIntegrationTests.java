@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthoritiesConverter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class AuthorizationIntegrationTests {
   @Autowired
   private StormJwtAuthoritiesConverter authConverter;
 
-  @Before
+  @BeforeEach
   public void setup() {
     filter.setCheckForPrincipalChanges(false);
 
@@ -79,41 +79,41 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void anonymousGetAccessToAnonymousSaWorks() throws Exception {
+  void anonymousGetAccessToAnonymousSaWorks() throws Exception {
     mvc.perform(get(SLASH_ANONYMOUS_SLASH_FILE)).andExpect(status().isNotFound());
   }
 
   @Test
-  public void anonymousWriteAccessToAnonymousSaIsBlocked() throws Exception {
+  void anonymousWriteAccessToAnonymousSaIsBlocked() throws Exception {
     mvc.perform(put(SLASH_ANONYMOUS_SLASH_FILE)).andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void writeAccessAsAnonymousLeadsTo401() throws Exception {
+  void writeAccessAsAnonymousLeadsTo401() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isUnauthorized());
   }
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   @Test
-  public void getAccessAsVomsUserLeads404() throws Exception {
+  void getAccessAsVomsUserLeads404() throws Exception {
     mvc.perform(get(SLASH_WLCG_SLASH_FILE)).andExpect(status().isNotFound());
   }
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   @Test
-  public void putAccessAsVomsUserIsForbidden() throws Exception {
+  void putAccessAsVomsUserIsForbidden() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isForbidden());
   }
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"}, saWritePermissions = {"wlcg"})
   @Test
-  public void putAccessAsVomsUserIsOk() throws Exception {
+  void putAccessAsVomsUserIsOk() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isOk());
   }
 
 
   @Test
-  public void issuerChecksAreEnforcedForWlcgScopeBasedAuthz() throws Exception {
+  void issuerChecksAreEnforcedForWlcgScopeBasedAuthz() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(UNKNOWN_ISSUER)
@@ -126,7 +126,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void getAccessAsJwtUserWithoutScopeLeadsToAccessDenied() throws Exception {
+  void getAccessAsJwtUserWithoutScopeLeadsToAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -139,7 +139,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void getAccessAsJwtUserWithTheRightScopeGrantsAccess() throws Exception {
+  void getAccessAsJwtUserWithTheRightScopeGrantsAccess() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -153,7 +153,7 @@ public class AuthorizationIntegrationTests {
 
 
   @Test
-  public void getAccessAsJwtWithReadCapabilityForWrongPathResultsInAccessDenied() throws Exception {
+  void getAccessAsJwtWithReadCapabilityForWrongPathResultsInAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -167,7 +167,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void getAccessAsJwtWithWriteCapabilityResultsInAccessDenied() throws Exception {
+  void getAccessAsJwtWithWriteCapabilityResultsInAccessDenied() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -182,7 +182,7 @@ public class AuthorizationIntegrationTests {
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   @Test
-  public void localVomsCopyRequiresWithReadPermissionsGetsAccessDenied() throws Exception {
+  void localVomsCopyRequiresWithReadPermissionsGetsAccessDenied() throws Exception {
     mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source")).header("Destination",
         "http://localhost/wlcg/destination"))
       .andExpect(status().isForbidden());
@@ -190,14 +190,14 @@ public class AuthorizationIntegrationTests {
 
   @WithMockVOMSUser(vos = "wlcg", saWritePermissions = {"wlcg"}, saReadPermissions = {"wlcg"})
   @Test
-  public void localVomsCopyRequiresReadAndWritePermissions() throws Exception {
+  void localVomsCopyRequiresReadAndWritePermissions() throws Exception {
     mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source")).header("Destination",
         "http://localhost/wlcg/destination"))
       .andExpect(status().isOk());
   }
 
   @Test
-  public void tpcJwtPullCopyBlockedWithStorageReadScope() throws Exception {
+  void tpcJwtPullCopyBlockedWithStorageReadScope() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -211,7 +211,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void tpcJwtPullCopyRequiresStorageModifyScope() throws Exception {
+  void tpcJwtPullCopyRequiresStorageModifyScope() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -225,7 +225,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void tpcJwtPullCopyRequiresStorageModifyScopeWithRightPath() throws Exception {
+  void tpcJwtPullCopyRequiresStorageModifyScopeWithRightPath() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -240,7 +240,7 @@ public class AuthorizationIntegrationTests {
 
 
   @Test
-  public void tpcJwtLocalCopyRequiresAppropriatePermissions() throws Exception {
+  void tpcJwtLocalCopyRequiresAppropriatePermissions() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -309,7 +309,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void tpcJwtLocalMoveRequiresAppropriatePermissions() throws Exception {
+  void tpcJwtLocalMoveRequiresAppropriatePermissions() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(WLCG_ISSUER)
@@ -358,7 +358,7 @@ public class AuthorizationIntegrationTests {
   }
 
   @Test
-  public void tpcJwtFineGrainedAuthzCopyTests() throws Exception {
+  void tpcJwtFineGrainedAuthzCopyTests() throws Exception {
 
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
@@ -410,7 +410,7 @@ public class AuthorizationIntegrationTests {
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"}, saWritePermissions = {"wlcg"})
   @Test
-  public void deleteOnStorageAreaRootIsForbidden() throws Exception {
+  void deleteOnStorageAreaRootIsForbidden() throws Exception {
     mvc.perform(delete("/wlcg")).andExpect(status().isForbidden());
   }
 

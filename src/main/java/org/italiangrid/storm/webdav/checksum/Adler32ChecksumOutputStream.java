@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,23 @@
  */
 package org.italiangrid.storm.webdav.checksum;
 
+import static org.italiangrid.storm.webdav.utils.ChecksumHelper.ADLER32_CHECKSUM_LENGTH;
+
 import java.io.OutputStream;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
+
+import org.italiangrid.storm.webdav.utils.ChecksumHelper;
 
 public class Adler32ChecksumOutputStream extends CheckedOutputStream {
 
   public Adler32ChecksumOutputStream(OutputStream out) {
     super(out, new Adler32());
   }
-  
+
   public String getChecksumValue() {
-    return Long.toHexString(getChecksum().getValue());
+    return ChecksumHelper.addLeadingZero(Long.toHexString(getChecksum().getValue()),
+        ADLER32_CHECKSUM_LENGTH);
   }
 
 }

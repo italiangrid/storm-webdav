@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2021.
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare, 2014-2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.italiangrid.storm.webdav.test.authz.vomap;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,17 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PathResolverTests {
 
@@ -43,7 +43,7 @@ public class PathResolverTests {
    */
   private static Map<String, String> input;
 
-  @BeforeClass
+  @BeforeAll
   public static void init() {
 
     input = new HashMap<String, String>();
@@ -63,7 +63,7 @@ public class PathResolverTests {
   StorageAreaConfiguration saConfig;
   List<StorageAreaInfo> saInfoList;
 
-  @Before
+  @BeforeEach
   public void setup() {
 
     saInfoList = new ArrayList<StorageAreaInfo>();
