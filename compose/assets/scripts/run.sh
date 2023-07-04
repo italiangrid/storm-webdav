@@ -1,5 +1,6 @@
 #!/bin/bash
 set -ex
 
-/scripts/unpack-tarball.sh
-/scripts/run-service.sh
+sudo cp /code/target/storm-webdav-server.jar /usr/share/java/storm-webdav/storm-webdav-server.jar
+
+sudo /scripts/run-service.sh

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
 
-/scripts/init-certs.sh
-/scripts/init-sa-config.sh
-/scripts/init-storage.sh
+sudo /scripts/init-certs.sh
+sudo /scripts/init-sa-config.sh
+sudo /scripts/init-storage.sh
