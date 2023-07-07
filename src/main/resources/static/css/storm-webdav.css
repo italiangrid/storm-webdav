@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -32,7 +33,7 @@ main {
 }
 
 .jetty-dir-table {
-    font-size: smaller;
+  font-size: smaller;
 }
 
 .form-login {
@@ -51,4 +52,22 @@ main {
   width: 100%;
   max-width: 330px;
   margin: 0 auto;
+}
+
+.add-to-queue-button {
+  background-color: transparent;
+  color: #097bff;
+  border: 2px solid #097bff;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.add-to-queue-button:hover {
+  background-color: #097bff2e;
+}
+
+.add-to-queue-button:active {
+    background-color: #097bff5e;
+    color:white;
 }
