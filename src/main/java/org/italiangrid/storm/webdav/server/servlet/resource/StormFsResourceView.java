@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
+import java.util.Base64;
 import java.util.Date;
 
 public class StormFsResourceView {
@@ -31,6 +32,8 @@ public class StormFsResourceView {
 
   final Date creationTime;
 
+  final String encodedName;
+
   private StormFsResourceView(Builder b) {
     if (b.isDirectory && !b.name.endsWith("/")) {
       this.name = b.name +"/";
@@ -43,14 +46,17 @@ public class StormFsResourceView {
     this.sizeInBytes = b.sizeInBytes;
     this.lastModificationTime = b.lastModificationTime;
     this.creationTime = b.creationTime;
-    
-    
+    this.encodedName = Base64.getEncoder().encodeToString(b.name.getBytes());
+
   }
 
   public String getName() {
     return name;
   }
 
+  public String getEncodedName() {
+    return encodedName;
+  }
 
   public boolean isDirectory() {
     return isDirectory;
