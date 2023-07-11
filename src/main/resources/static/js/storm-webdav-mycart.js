@@ -159,12 +159,12 @@
       setAllProducts(products);
     };
     var getTotalQuantity = function () {
-      var total = 0;
+      // var total = 0;
       var products = getAllProducts();
-      $.each(products, function (index, value) {
-        total += value.quantity * 1;
-      });
-      return total;
+      // $.each(products, function (index, value) {
+      //   total += value.quantity * 1;
+      // });
+      return products.length;
     };
     // var getTotalPrice = function () {
     //   var products = getAllProducts();
@@ -254,27 +254,25 @@
             // '" data-price="' +
             // this.price +
             // '">' +
-            // '<td class="text-center" style="width: 30px;"><img width="30px" height="30px" src="' +
-            // this.image +
-            // '"/></td>' +
+            '<td class="text-center" style="width: 30px;"></td>' +
             "<td>" +
             this.name +
             "</td>" +
-            '<td title="Unit Price" class="text-right">' +
-            options.currencySymbol +
-            MathHelper.getRoundedNumber(this.price) +
-            "</td>" +
+            // '<td title="Unit Price" class="text-right">' +
+            // options.currencySymbol +
+            // MathHelper.getRoundedNumber(0) +
+            // "</td>" +
             '<td title="Quantity"><input type="number" min="1" style="width: 70px;" class="' +
             classProductQuantity +
             '" value="' +
             this.quantity +
             '"/></td>' +
-            '<td title="Total" class="text-right ' +
-            classProductTotal +
-            '">' +
-            options.currencySymbol +
-            MathHelper.getRoundedNumber(total) +
-            "</td>" +
+            // '<td title="Total" class="text-right ' +
+            // classProductTotal +
+            // '">' +
+            // options.currencySymbol +
+            // MathHelper.getRoundedNumber(total) +
+            // "</td>" +
             '<td title="Remove from Cart" class="text-center" style="width: 30px;"><a href="javascript:void(0);" class="btn btn-xs btn-danger ' +
             classProductRemove +
             '">X</a></td>' +
@@ -320,7 +318,7 @@
       }
 
       showGrandTotal();
-      showDiscountPrice();
+      // showDiscountPrice();
     };
     var showModal = function () {
       drawTable();
@@ -338,18 +336,18 @@
         // MathHelper.getRoundedNumber(ProductManager.getTotalPrice())
       );
     };
-    var showDiscountPrice = function () {
-      $("#" + idDiscountPrice).text(
-        options.currencySymbol +
-          MathHelper.getRoundedNumber(
-            options.getDiscountPrice(
-              ProductManager.getAllProducts(),
-              // ProductManager.getTotalPrice(),
-              ProductManager.getTotalQuantity()
-            )
-          )
-      );
-    };
+    // var showDiscountPrice = function () {
+    //   $("#" + idDiscountPrice).text(
+    //     options.currencySymbol +
+    //       MathHelper.getRoundedNumber(
+    //         options.getDiscountPrice(
+    //           ProductManager.getAllProducts(),
+    //           // ProductManager.getTotalPrice(),
+    //           ProductManager.getTotalQuantity()
+    //         )
+    //       )
+    //   );
+    // };
 
     /*
     EVENT
@@ -376,32 +374,32 @@
           );
     });
 
-    $(document).on("input", "." + classProductQuantity, function () {
-      var price = $(this).closest("tr").data("price");
-      var id = $(this).closest("tr").data("id");
-      var quantity = $(this).val();
+    // $("." + classProductQuantity).input(function () {
+    //   var price = $(this).closest("tr").data("price");
+    //   var id = $(this).closest("tr").data("id");
+    //   var quantity = $(this).val();
 
-      $(this)
-        .parent("td")
-        .next("." + classProductTotal)
-        .text(
-          options.currencySymbol + MathHelper.getRoundedNumber(price * quantity)
-        );
-      ProductManager.updatePoduct(id, quantity);
+    //   $(this)
+    //     .parent("td")
+    //     .next("." + classProductTotal)
+    //     .text(
+    //       options.currencySymbol + MathHelper.getRoundedNumber(price * quantity)
+    //     );
+    //   ProductManager.updatePoduct(id, quantity);
 
-      $cartBadge.text(ProductManager.getTotalQuantity());
-      showGrandTotal();
-      showDiscountPrice();
-    });
+    //   $cartBadge.text(ProductManager.getTotalQuantity());
+    //   showGrandTotal();
+    //   // showDiscountPrice();
+    // });
 
-    $(document).on("keypress", "." + classProductQuantity, function (evt) {
-      if (evt.keyCode >= 48 && evt.keyCode <= 57) {
-        return;
-      }
-      evt.preventDefault();
-    });
+    // $("." + classProductQuantity).keypress(function (evt) {
+    //   if (evt.keyCode >= 48 && evt.keyCode <= 57) {
+    //     return;
+    //   }
+    //   evt.preventDefault();
+    // });
 
-    $(document).on("click", "." + classProductRemove, function () {
+    $(".my-product-remove").click(function () {
       var $tr = $(this).closest("tr");
       var id = $tr.data("id");
       $tr.hide(500, function () {
@@ -411,7 +409,7 @@
       });
     });
 
-    $(document).on("click", "." + classCheckoutCart, function () {
+    $(".my-cart-icon").click(function () {
       var products = ProductManager.getAllProducts();
       if (!products.length) {
         $("#" + idEmptyCartMessage)
@@ -432,18 +430,19 @@
       }
     });
 
-    $(document).on("click", targetSelector, function () {
+    // $("." + targetSelector).on("click", "button", function () {
+    $(".my-cart-btn").click(function (e) {
       var $target = $(this);
 
-      var classList = $.attr("class");
+      var classList = $target.attr("class");
       if (classList && classList.includes("my-cart-icon")) return;
       if (classList) {
         options.clickOnAddToCart($target);
 
-        // var id = $target.data("id");
-        // var name = $target.data("name");
-        var id = $target[0].activeElement.dataset.id;
-        var name = $target[0].activeElement.dataset.name;
+        var id = $target.data("id");
+        var name = $target.data("name");
+        // var id = $target[0].activeElement.dataset.id;
+        // var name = $target[0].activeElement.dataset.name;
         // var summary = $target.data("summary");
         // var price = $target.data("price");
         // var quantity = $target.data("quantity");
