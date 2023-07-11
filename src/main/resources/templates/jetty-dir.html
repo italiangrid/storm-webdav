@@ -1,78 +1,138 @@
-<!doctype html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}">
+<!DOCTYPE html>
+<html
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="${title}">Directory</title>
+  </head>
 
-<head>
-  <title th:text="${title}">Directory</title>
-</head>
+  <body>
+    <script src="/assets/js/jquery-3.7.0.slim.min.js"></script>
+    <script
+      type="text/javascript"
+      src="/assets/js/storm-webdav-mycart.js"
+    ></script>
+    <section layout:fragment="page-content">
+      <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
+      <div>
+        <a href="parent" th:href="${parentDir}">Go to parent directory</a>
+      </div>
 
-<body>
-  <section layout:fragment="page-content">
-    <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
-    <div>
-      <a href="parent" th:href="${parentDir}">Go to parent directory</a>
-    </div>
+      <div class="page-header"></div>
 
-    <div id="toolbar">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-        Launch demo modal
-      </button>
-    </div>
+      <div id="toolbar">
+        <button
+          class="btn my-cart-icon"
+          type="button"
+          data-toggle="modal"
+          data-target="#exampleModal"
+          id="modal"
+        >
+          <i class="fa fa-trash"></i>
+          <span class="badge badge-notify my-cart-badge"></span>
+        </button>
+      </div>
 
-    <table id="jetty-dir-table" class="table jetty-dir-table" data-toolbar="#toolbar" data-search="true"
-      data-toggle="table" data-pagination="true" data-pagination-loop="false" data-page-size="10"
-      th:if="${!resources.empty}">
-      <thead>
-        <tr th:if="${!resources.empty}">
-          <th data-sortable="true" data-field="name">Name</th>
-          <th data-sortable="true" data-field="last-modified">Last modified</th>
-          <th data-sortable="true" data-field="size">Size (in bytes)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="r: ${resources}">
-          <td>
-            <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
-          </td>
-          <td th:text="${#dates.formatISO(r.lastModificationTime)}">Last modification time</td>
-          <td th:text="${r.sizeInBytes}">Size in bytes</td>
+      <table
+        id="jetty-dir-table"
+        class="table jetty-dir-table"
+        data-toolbar="#toolbar"
+        data-search="true"
+        data-toggle="table"
+        data-pagination="true"
+        data-pagination-loop="false"
+        data-page-size="10"
+        th:if="${!resources.empty}"
+      >
+        <thead>
+          <tr th:if="${!resources.empty}">
+            <th data-sortable="true" data-field="name" scope="col">Name</th>
+            <th data-sortable="true" data-field="last-modified" scope="col">
+              Last modified
+            </th>
+            <th data-sortable="true" data-field="size" scope="col">
+              Size (in bytes)
+            </th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="r: ${resources}" scope="row">
+            <div value="${r.encodedName}"></div>
+            <td>
+              <a href="filename" th:href="${r.path}" th:text="${r.name}"
+                >fake</a
+              >
+            </td>
+            <td th:text="${#dates.formatISO(r.lastModificationTime)}">
+              Last modification time
+            </td>
+            <td th:text="${r.sizeInBytes}">Size in bytes</td>
+            <script th:inline="javascript">
+              // console.log("test:" + /*[[(${r.encodedName})]]*/);
+            </script>
 
-          <td><button th:id="'button-' + ${r.name}" class="add-to-queue-button"> + Add to queue <span
-                th:text="${r.name}"> </span></button></td>
+            <td>
+              <button
+                th:id="${r.encodedName}"
+                class="btn add-to-queue-button my-cart-btn"
+                th:value="${r.encodedName}"
+                th:attr="data-id=${r.encodedName}, data-name=${r.name}"
+              >
+                + Add to queue <span th:text="${r.name}"> </span>
+              </button>
+            </td>
+            <script th:inline="javascript">
+              $("[value='" + /*[[${r.encodedName}]]*/ "" + '"]').on(
+                "click",
+                function () {
+                  $('[value="' + /*[[${r.encodedName}]]*/ '"]').hide();
+                }
+              );
+            </script>
+          </tr>
+        </tbody>
+      </table>
 
-
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+      <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">...</div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="button" class="btn btn-primary">
+                Save changes
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-  </section>
-  <script src="/assets/js/jquery-3.5.0.slim.min.js"></script>
-  <script th:inline="javascript">
-    $(document).on('click', /*[['#button-' + ${r.name}]]*/, function () {
-      $(/*[['#button-' + ${r.name}]]*/).hide();
-    });               
-  </script>
-</body>
+    </section>
+  </body>
 </html>
