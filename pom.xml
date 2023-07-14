@@ -57,6 +57,8 @@
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
 
+    <start-class>org.italiangrid.storm.webdav.WebdavService</start-class>
+
   </properties>
 
   <build>
