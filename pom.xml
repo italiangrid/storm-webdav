@@ -59,6 +59,8 @@
     <mock-server.version>5.5.1</mock-server.version>
     <bouncycastle.version>1.72</bouncycastle.version>
 
+    <start-class>org.italiangrid.storm.webdav.WebdavService</start-class>
+
   </properties>
 
   <build>
