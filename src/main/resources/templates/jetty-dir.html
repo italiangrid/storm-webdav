@@ -15,6 +15,9 @@
       <thead>
         <tr th:if="${!resources.empty}">
           <th data-sortable="true" data-field="name">Name</th>
+          <th data-sortable="true" data-field="fpath">Full Path</th>
+          <th data-sortable="true" data-field="latency">Latency</th>
+          <th data-sortable="true" data-field="recalling">Is Recalling</th>
           <th data-sortable="true" data-field="last-modified">Last modified</th>
           <th data-sortable="true" data-field="size">Size (in bytes)</th>
         </tr>
@@ -24,6 +27,9 @@
           <td>
             <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
           </td>
+          <td th:text="${r.fullPath}">Full Path</td>
+          <td th:text="${r.latency}">Latency</td>
+          <td th:text="${r.isRecallInProgress}">Is Recalling</td>
           <td th:text="${#dates.formatISO(r.lastModificationTime)}">Last modification time</td>
           <td th:text="${r.sizeInBytes}">Size in bytes</td>
         </tr>

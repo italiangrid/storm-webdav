@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.URIUtil;
@@ -142,12 +143,18 @@ public class StormResourceWrapper extends Resource {
     Arrays.sort(rawListing);
 
     List<StormFsResourceView> resources = new ArrayList<>();
+    String encodedFullBasePath = hrefEncodeURI(delegate.getFile().getCanonicalPath());
 
     for (String l : rawListing) {
       Resource r = addPath(l);
+      FileLatency randomLatency = FileLatency.values()[(new Random()).nextInt(FileLatency.values().length)];
+      boolean isRecallInProgress = (new Random()).nextBoolean();
       resources.add(StormFsResourceView.builder()
         .withName(l)
         .withPath(URIUtil.addEncodedPaths(encodedBase, URIUtil.encodePath(l)))
+        .withFullPath(URIUtil.addEncodedPaths(encodedFullBasePath, URIUtil.encodePath(l)))
+        .withFileLatency(r.isDirectory() ? null : randomLatency)
+        .withIsRecallInProgress(r.isDirectory() ? false : FileLatency.nearline.equals(randomLatency) ? isRecallInProgress : false)
         .withIsDirectory(r.isDirectory())
         .withLastModificationTime(new Date(r.lastModified()))
         .withSizeInBytes(r.length())
