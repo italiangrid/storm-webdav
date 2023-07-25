@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
-import java.util.Base64;
 import java.util.Date;
 
 public class StormFsResourceView {
@@ -26,66 +25,75 @@ public class StormFsResourceView {
 
   final String path;
 
+  final String fullPath;
+
+  final FileLatency latency;
+
+  final boolean isRecallInProgress;
+
   final long sizeInBytes;
 
   final Date lastModificationTime;
 
   final Date creationTime;
 
-  final String encodedName;
-
   private StormFsResourceView(Builder b) {
     if (b.isDirectory && !b.name.endsWith("/")) {
-      this.name = b.name +"/";
+      this.name = b.name + "/";
     } else {
       this.name = b.name;
     }
-    
+
     this.isDirectory = b.isDirectory;
     this.path = b.path;
     this.sizeInBytes = b.sizeInBytes;
     this.lastModificationTime = b.lastModificationTime;
     this.creationTime = b.creationTime;
-    this.encodedName = Base64.getEncoder().encodeToString(b.name.getBytes());
-
+    this.fullPath = b.fullPath;
+    this.latency = b.latency;
+    this.isRecallInProgress = b.isRecallInProgress;
   }
 
   public String getName() {
     return name;
   }
 
-  public String getEncodedName() {
-    return encodedName;
-  }
-
   public boolean isDirectory() {
     return isDirectory;
   }
-
 
   public String getPath() {
     return path;
   }
 
-
   public long getSizeInBytes() {
     return sizeInBytes;
   }
-
 
   public Date getLastModificationTime() {
     return lastModificationTime;
   }
 
-
   public Date getCreationTime() {
     return creationTime;
   }
 
+  public String getFullPath() {
+    return fullPath;
+  }
+
+  public FileLatency getLatency() {
+    return latency;
+  }
+
+  public boolean isRecallInProgress() {
+    return isRecallInProgress;
+  }
 
   public static Builder builder() {
     return new Builder();
   }
+
   public static class Builder {
     String name;
     boolean isDirectory;
@@ -93,14 +101,17 @@ public class StormFsResourceView {
     long sizeInBytes;
     Date lastModificationTime;
     Date creationTime;
+    String fullPath;
+    FileLatency latency;
+    boolean isRecallInProgress;
 
-    public Builder() {}
+    public Builder() {
+    }
 
     public Builder withName(String name) {
       this.name = name;
       return this;
     }
-
 
     public Builder withIsDirectory(boolean isDirectory) {
       this.isDirectory = isDirectory;
@@ -127,10 +138,24 @@ public class StormFsResourceView {
       return this;
     }
 
+    public Builder withFullPath(String fullPath) {
+      this.fullPath = fullPath;
+      return this;
+    }
+
+    public Builder withFileLatency(FileLatency latency) {
+      this.latency = latency;
+      return this;
+    }
+
+    public Builder withIsRecallInProgress(boolean isRecallInProgress) {
+      this.isRecallInProgress = isRecallInProgress;
+      return this;
+    }
+
     public StormFsResourceView build() {
       return new StormFsResourceView(this);
     }
-
 
   }
 
