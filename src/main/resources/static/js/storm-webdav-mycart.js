@@ -1,468 +1,108 @@
-/*
- * jQuery myCart - v1.9 - 2020-12-03
- * http://asraf-uddin-ahmed.github.io/
- * Copyright (c) 2017 Asraf Uddin Ahmed; Licensed None
- */
+const keyLocalStorage = "__files";
 
-(function ($) {
-  "use strict";
+const encodedString = (stringToEncode) => {
+  return CryptoJS.SHA256(stringToEncode).toString(CryptoJS.enc.Hex);
+}
 
-  var OptionManager = (function () {
-    var objToReturn = {};
+const disableButton = (buttonId) => {
+  try {
+    $('#' + buttonId).prop('disabled', true);
+  } catch {
+    console.log("Error in the disabilitation of the button " + buttonId);
+  }
+}
 
-    var _options = null;
-    var DEFAULT_OPTIONS = {
-      currencySymbol: "$",
-      classCartIcon: "my-cart-icon",
-      classCartBadge: "my-cart-badge",
-      classProductQuantity: "my-product-quantity",
-      classProductRemove: "my-product-remove",
-      classCheckoutCart: "my-cart-checkout",
-      affixCartIcon: true,
-      showCheckoutModal: true,
-      numberOfDecimals: 2,
-      cartItems: null,
-      clickOnAddToCart: function ($addTocart) {},
-      afterAddOnCart: function (products, totalQuantity) {},
-      clickOnCartIcon: function ($cartIcon, products, totalQuantity) {},
-      checkoutCart: function (products, totalQuantity) {
-        return false;
-      },
-      getDiscountPrice: function (products, totalQuantity) {
-        return null;
-      },
-    };
+const reactivateButton = (buttonId) => {
+  try {
+    $('#' + buttonId).prop('disabled', false);
+  } catch {
+    console.log("Error in the reactivation of the button " + buttonId);
+  }
+}
 
-    var loadOptions = function (customOptions) {
-      _options = $.extend({}, DEFAULT_OPTIONS);
-      if (typeof customOptions === "object") {
-        $.extend(_options, customOptions);
-      }
-    };
-    var getOptions = function () {
-      return _options;
-    };
+const reactivateAllAddToQueueButtons = () => {
+  $('.add-to-queue-button').prop('disabled', false);
+}
 
-    objToReturn.loadOptions = loadOptions;
-    objToReturn.getOptions = getOptions;
-    return objToReturn;
-  })();
+const addFileToCart = (newFile) => {
+  newFile.encodedId = CryptoJS.SHA256(newFile.path).toString(CryptoJS.enc.Hex);
+  if (localStorage.getItem(keyLocalStorage) === null) {
+    localStorage.setItem(keyLocalStorage, '[' + JSON.stringify(newFile) + ']');
+  } else if (!JSON.parse(localStorage.getItem(keyLocalStorage)).find(element => element.path === newFile.path)) {
+    const tempList = JSON.parse(localStorage.getItem(keyLocalStorage));
+    tempList.push(newFile);
+    localStorage.setItem(keyLocalStorage, JSON.stringify(tempList));
+  }
+  showCartTable();
+  disableButton(newFile.encodedId);
+}
 
-  var MathHelper = (function () {
-    var objToReturn = {};
-    var getRoundedNumber = function (number) {
-      if (isNaN(number)) {
-        throw new Error("Parameter is not a Number");
-      }
-      number = number * 1;
-      var options = OptionManager.getOptions();
-      return number.toFixed(options.numberOfDecimals);
-    };
-    objToReturn.getRoundedNumber = getRoundedNumber;
-    return objToReturn;
-  })();
+const removeFileToCart = (toRemoveFile, buttonId) => {
+  if (JSON.parse(localStorage.getItem(keyLocalStorage)).find(element => element.path === toRemoveFile.path)) {
+    let tempList = JSON.parse(localStorage.getItem(keyLocalStorage));
+    tempList = tempList.filter(element => element.path !== toRemoveFile.path);
+    localStorage.setItem(keyLocalStorage, JSON.stringify(tempList));
+  } else {
+    console.log("unable to remove " + toRemoveFile.path + ". This file isn't present in localStorage");
+  }
+  showCartTable();
+  reactivateButton(buttonId);
+}
 
-  var ProductManager = (function () {
-    var objToReturn = {};
+const clearCart = () => {
+  localStorage.removeItem(keyLocalStorage);
+  showCartTable();
+  reactivateAllAddToQueueButtons();
+}
 
-    /*
-    PRIVATE
-    */
-    const STORAGE_NAME = "__mycart";
-    localStorage[STORAGE_NAME] = localStorage[STORAGE_NAME]
-      ? localStorage[STORAGE_NAME]
-      : "";
-    var getIndexOfProduct = function (id) {
-      var productIndex = -1;
-      var products = getAllProducts();
-      $.each(products, function (index, value) {
-        if (value.id == id) {
-          productIndex = index;
-          return;
-        }
-      });
-      return productIndex;
-    };
-    var setAllProducts = function (products) {
-      localStorage[STORAGE_NAME] = JSON.stringify(products);
-    };
-    var addProduct = function (id, name, summary, quantity, image) {
-      var products = getAllProducts();
-      products.push({
-        id: id,
-        name: name,
-        summary: summary,
-        quantity: quantity,
-        image: image,
-      });
-      setAllProducts(products);
-    };
-
-    /*
-    PUBLIC
-    */
-    var getAllProducts = function () {
-      try {
-        var products = JSON.parse(localStorage[STORAGE_NAME]);
-        return products;
-      } catch (e) {
-        return [];
-      }
-    };
-    var updatePoduct = function (id, quantity, increaseQuantity) {
-      var productIndex = getIndexOfProduct(id);
-      if (productIndex < 0) {
-        return false;
-      }
-      var products = getAllProducts();
-      if (increaseQuantity) {
-        products[productIndex].quantity =
-          products[productIndex].quantity * 1 +
-          (typeof quantity === "undefined" ? 1 : quantity * 1);
-      } else {
-        products[productIndex].quantity =
-          typeof quantity === "undefined"
-            ? products[productIndex].quantity * 1 + 1
-            : quantity * 1;
-      }
-      setAllProducts(products);
-      return true;
-    };
-    var setProduct = function (id, name) {
-      if (typeof id === "undefined") {
-        console.error("id required");
-        return false;
-      }
-      if (typeof name === "undefined") {
-        console.error("name required");
-        return false;
-      }
-
-      // if (!$.isNumeric(quantity)) {
-      //   console.error("quantity is not a number");
-      //   return false;
-      // }
-      // summary = typeof summary === "undefined" ? "" : summary;
-
-      if (!updatePoduct(id, 1, true)) {
-        addProduct(id, name);
-      }
-    };
-    var clearProduct = function () {
-      setAllProducts([]);
-    };
-    var removeProduct = function (id) {
-      var products = getAllProducts();
-      products = $.grep(products, function (value, index) {
-        return value.id != id;
-      });
-      setAllProducts(products);
-    };
-    var getTotalQuantity = function () {
-      // var total = 0;
-      var products = getAllProducts();
-      // $.each(products, function (index, value) {
-      //   total += value.quantity * 1;
-      // });
-      return products.length;
-    };
-    // var getTotalPrice = function () {
-    //   var products = getAllProducts();
-    //   var total = 0;
-    //   $.each(products, function (index, value) {
-    //     total += value.quantity * value.price;
-    //     total = MathHelper.getRoundedNumber(total) * 1;
-    //   });
-    //   return total;
-    // };
-
-    objToReturn.getAllProducts = getAllProducts;
-    objToReturn.updatePoduct = updatePoduct;
-    objToReturn.setProduct = setProduct;
-    objToReturn.clearProduct = clearProduct;
-    objToReturn.removeProduct = removeProduct;
-    objToReturn.getTotalQuantity = getTotalQuantity;
-    // objToReturn.getTotalPrice = getTotalPrice;
-    return objToReturn;
-  })();
-
-  var loadMyCartEvent = function (targetSelector) {
-    var options = OptionManager.getOptions();
-    var $cartIcon = $("." + options.classCartIcon);
-    var $cartBadge = $("." + options.classCartBadge);
-    var classProductQuantity = options.classProductQuantity;
-    var classProductRemove = options.classProductRemove;
-    var classCheckoutCart = options.classCheckoutCart;
-
-    var idCartModal = "my-cart-modal";
-    var idCartTable = "my-cart-table";
-    var idGrandTotal = "my-cart-grand-total";
-    var idEmptyCartMessage = "my-cart-empty-message";
-    var idDiscountPrice = "my-cart-discount-price";
-    var classProductTotal = "my-product-total";
-    var classAffixMyCartIcon = "my-cart-icon-affix";
-
-    if (options.cartItems && options.cartItems.constructor === Array) {
-      ProductManager.clearProduct();
-      $.each(options.cartItems, function () {
-        ProductManager.setProduct(this.id, this.name);
-      });
-    }
-
-    $cartBadge.text(ProductManager.getTotalQuantity());
-
-    if (!$("#" + idCartModal).length) {
-      $("body").append(
-        '<div class="modal fade" id="' +
-          idCartModal +
-          '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">' +
-          '<div class="modal-dialog" role="document">' +
-          '<div class="modal-content">' +
-          '<div class="modal-header">' +
-          '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
-          '<h4 class="modal-title" id="myModalLabel"><span class="glyphicon glyphicon-shopping-cart"></span> My Cart</h4>' +
-          "</div>" +
-          '<div class="modal-body">' +
-          '<table class="table table-hover table-responsive" id="' +
-          idCartTable +
-          '"></table>' +
-          "</div>" +
-          '<div class="modal-footer">' +
-          '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
-          '<button type="button" class="btn btn-primary ' +
-          classCheckoutCart +
-          '">Checkout</button>' +
-          "</div>" +
-          "</div>" +
-          "</div>" +
-          "</div>"
-      );
-    }
-
-    var drawTable = function () {
-      var $cartTable = $("#" + idCartTable);
-      $cartTable.empty();
-
-      var products = ProductManager.getAllProducts();
-      $.each(products, function () {
-        var total = this.quantity * this.price;
-        $cartTable.append(
-          '<tr title="' +
-            this.summary +
-            '" data-id="' +
-            this.id +
-            // '" data-price="' +
-            // this.price +
-            // '">' +
-            '<td class="text-center" style="width: 30px;"></td>' +
-            "<td>" +
-            this.name +
-            "</td>" +
-            // '<td title="Unit Price" class="text-right">' +
-            // options.currencySymbol +
-            // MathHelper.getRoundedNumber(0) +
-            // "</td>" +
-            '<td title="Quantity"><input type="number" min="1" style="width: 70px;" class="' +
-            classProductQuantity +
-            '" value="' +
-            this.quantity +
-            '"/></td>' +
-            // '<td title="Total" class="text-right ' +
-            // classProductTotal +
-            // '">' +
-            // options.currencySymbol +
-            // MathHelper.getRoundedNumber(total) +
-            // "</td>" +
-            '<td title="Remove from Cart" class="text-center" style="width: 30px;"><a href="javascript:void(0);" class="btn btn-xs btn-danger ' +
-            classProductRemove +
-            '">X</a></td>' +
-            "</tr>"
-        );
-      });
-
-      $cartTable.append(
-        products.length
-          ? "<tr>" +
-              "<td></td>" +
-              "<td><strong>Total</strong></td>" +
-              "<td></td>" +
-              "<td></td>" +
-              '<td class="text-right"><strong id="' +
-              idGrandTotal +
-              '"></strong></td>' +
-              "<td></td>" +
-              "</tr>"
-          : '<div class="alert alert-danger" role="alert" id="' +
-              idEmptyCartMessage +
-              '">Your cart is empty</div>'
-      );
-
-      var discountPrice = options.getDiscountPrice(
-        products,
-        // ProductManager.getTotalPrice(),
-        ProductManager.getTotalQuantity()
-      );
-      if (products.length && discountPrice !== null) {
-        $cartTable.append(
-          '<tr style="color: red">' +
-            "<td></td>" +
-            "<td><strong>Total (including discount)</strong></td>" +
-            "<td></td>" +
-            "<td></td>" +
-            '<td class="text-right"><strong id="' +
-            idDiscountPrice +
-            '"></strong></td>' +
-            "<td></td>" +
-            "</tr>"
-        );
-      }
-
-      showGrandTotal();
-      // showDiscountPrice();
-    };
-    var showModal = function () {
-      drawTable();
-      $("#" + idCartModal).modal("show");
-    };
-    var updateCart = function () {
-      $.each($("." + classProductQuantity), function () {
-        var id = $(this).closest("tr").data("id");
-        ProductManager.updatePoduct(id, $(this).val());
-      });
-    };
-    var showGrandTotal = function () {
-      $("#" + idGrandTotal).text(
-        options.currencySymbol //+
-        // MathHelper.getRoundedNumber(ProductManager.getTotalPrice())
-      );
-    };
-    // var showDiscountPrice = function () {
-    //   $("#" + idDiscountPrice).text(
-    //     options.currencySymbol +
-    //       MathHelper.getRoundedNumber(
-    //         options.getDiscountPrice(
-    //           ProductManager.getAllProducts(),
-    //           // ProductManager.getTotalPrice(),
-    //           ProductManager.getTotalQuantity()
-    //         )
-    //       )
-    //   );
-    // };
-
-    /*
-    EVENT
-    */
-    if (options.affixCartIcon) {
-      var cartIconBottom =
-        $cartIcon.offset().top * 1 + $cartIcon.css("height").match(/\d+/) * 1;
-      var cartIconPosition = $cartIcon.css("position");
-      $(window).scroll(function () {
-        $(window).scrollTop() >= cartIconBottom
-          ? $cartIcon.addClass(classAffixMyCartIcon)
-          : $cartIcon.removeClass(classAffixMyCartIcon);
-      });
-    }
-
-    $cartIcon.click(function () {
-      options.showCheckoutModal
-        ? showModal()
-        : options.clickOnCartIcon(
-            $cartIcon,
-            ProductManager.getAllProducts(),
-            // ProductManager.getTotalPrice(),
-            ProductManager.getTotalQuantity()
-          );
+const showCartTable = () => {
+  let cartRowHTML = "";
+  let badgeCounter;
+  if (localStorage.getItem(keyLocalStorage)) {
+    const fileCart = JSON.parse(localStorage.getItem(keyLocalStorage));
+    badgeCounter = fileCart.length;
+    fileCart.forEach((item) => {
+      cartRowHTML +=
+        "<tr>" +
+        '<td>' + '<a href=' + item.path + '>' + item.name + '</a>' + '</td>' +
+        '<td>' + item.sizeInBytes + '</td>' +
+        '<td>' +
+        '<button type="button" class="btn btn-outline-danger btn-sm"' +
+        'onclick="removeFileToCart({path: \'' + item.path + '\' }, \'' + item.encodedId + '\')">' +
+        '<span aria-hidden="true">&times; Remove</span>' +
+        '</button>'
+        + "</td>" +
+        "</tr>";
     });
+  } else {
+    badgeCounter = 0;
+  }
 
-    // $("." + classProductQuantity).input(function () {
-    //   var price = $(this).closest("tr").data("price");
-    //   var id = $(this).closest("tr").data("id");
-    //   var quantity = $(this).val();
+  $('.modal-table-body').html(cartRowHTML);
+  $('.cart-badge').text(badgeCounter);
+}
 
-    //   $(this)
-    //     .parent("td")
-    //     .next("." + classProductTotal)
-    //     .text(
-    //       options.currencySymbol + MathHelper.getRoundedNumber(price * quantity)
-    //     );
-    //   ProductManager.updatePoduct(id, quantity);
-
-    //   $cartBadge.text(ProductManager.getTotalQuantity());
-    //   showGrandTotal();
-    //   // showDiscountPrice();
-    // });
-
-    // $("." + classProductQuantity).keypress(function (evt) {
-    //   if (evt.keyCode >= 48 && evt.keyCode <= 57) {
-    //     return;
-    //   }
-    //   evt.preventDefault();
-    // });
-
-    $(".my-product-remove").click(function () {
-      var $tr = $(this).closest("tr");
-      var id = $tr.data("id");
-      $tr.hide(500, function () {
-        ProductManager.removeProduct(id);
-        drawTable();
-        $cartBadge.text(ProductManager.getTotalQuantity());
-      });
-    });
-
-    $(".my-cart-icon").click(function () {
-      var products = ProductManager.getAllProducts();
-      if (!products.length) {
-        $("#" + idEmptyCartMessage)
-          .fadeTo("fast", 0.5)
-          .fadeTo("fast", 1.0);
-        return;
+const makePost = () => {
+  const cartFilePaths = { files: JSON.parse(localStorage.getItem(keyLocalStorage)).map((item) => { return { path: item.path }; }) };
+  console.log(JSON.stringify(cartFilePaths));
+  $.ajax({
+    type: "POST",
+    url: "http://localhost:8086/ciao",
+    data: JSON.stringify(cartFilePaths)
+  })
+    .done(
+      (data, status) => {
+        alert("Data: " + data + "\nStatus: " + status);
+        clearCart();
       }
-      updateCart();
-      var isCheckedOut = options.checkoutCart(
-        ProductManager.getAllProducts(),
-        // ProductManager.getTotalPrice(),
-        ProductManager.getTotalQuantity()
-      );
-      if (isCheckedOut !== false) {
-        ProductManager.clearProduct();
-        $cartBadge.text(ProductManager.getTotalQuantity());
-        $("#" + idCartModal).modal("hide");
+    )
+    .fail(
+      (data) => {
+        alert("Ajax failed: " + data['respondeText']);
       }
-    });
+    )
+}
 
-    // $("." + targetSelector).on("click", "button", function () {
-    $(".my-cart-btn").click(function (e) {
-      var $target = $(this);
-
-      var classList = $target.attr("class");
-      if (classList && classList.includes("my-cart-icon")) return;
-      if (classList) {
-        options.clickOnAddToCart($target);
-
-        var id = $target.data("id");
-        var name = $target.data("name");
-        // var id = $target[0].activeElement.dataset.id;
-        // var name = $target[0].activeElement.dataset.name;
-        // var summary = $target.data("summary");
-        // var price = $target.data("price");
-        // var quantity = $target.data("quantity");
-        // var image = $target.data("image");
-
-        ProductManager.setProduct(id, name);
-        $cartBadge.text(ProductManager.getTotalQuantity());
-
-        options.afterAddOnCart(
-          ProductManager.getAllProducts(),
-          // ProductManager.getTotalPrice(),
-          ProductManager.getTotalQuantity()
-        );
-      }
-    });
-  };
-
-  $.fn.myCart = function (userOptions) {
-    OptionManager.loadOptions(userOptions);
-    loadMyCartEvent(this.selector);
-    return this;
-  };
-})(jQuery);
+$(document).ready(() => {
+  showCartTable();
+});
