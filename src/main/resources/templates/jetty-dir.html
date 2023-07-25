@@ -1,138 +1,155 @@
 <!DOCTYPE html>
-<html
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}"
->
-  <head>
-    <title th:text="${title}">Directory</title>
-  </head>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layout.html}">
 
-  <body>
-    <script src="/assets/js/jquery-3.7.0.slim.min.js"></script>
-    <script
-      type="text/javascript"
-      src="/assets/js/storm-webdav-mycart.js"
-    ></script>
-    <section layout:fragment="page-content">
-      <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
-      <div>
-        <a href="parent" th:href="${parentDir}">Go to parent directory</a>
-      </div>
+<head>
+  <title th:text="${title}">Directory</title>
+</head>
 
-      <div class="page-header"></div>
+<body>
+  <section layout:fragment="page-content">
+    <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
+    <div>
+      <a href="parent" th:href="${parentDir}">Go to parent directory</a>
+    </div>
 
-      <div id="toolbar">
-        <button
-          class="btn my-cart-icon"
-          type="button"
-          data-toggle="modal"
-          data-target="#exampleModal"
-          id="modal"
-        >
-          <i class="fa fa-trash"></i>
-          <span class="badge badge-notify my-cart-badge"></span>
-        </button>
-      </div>
+    <div class="page-header"></div>
 
-      <table
-        id="jetty-dir-table"
-        class="table jetty-dir-table"
-        data-toolbar="#toolbar"
-        data-search="true"
-        data-toggle="table"
-        data-pagination="true"
-        data-pagination-loop="false"
-        data-page-size="10"
-        th:if="${!resources.empty}"
-      >
-        <thead>
-          <tr th:if="${!resources.empty}">
-            <th data-sortable="true" data-field="name" scope="col">Name</th>
-            <th data-sortable="true" data-field="last-modified" scope="col">
-              Last modified
-            </th>
-            <th data-sortable="true" data-field="size" scope="col">
-              Size (in bytes)
-            </th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="r: ${resources}" scope="row">
-            <div value="${r.encodedName}"></div>
-            <td>
-              <a href="filename" th:href="${r.path}" th:text="${r.name}"
-                >fake</a
-              >
-            </td>
-            <td th:text="${#dates.formatISO(r.lastModificationTime)}">
-              Last modification time
-            </td>
-            <td th:text="${r.sizeInBytes}">Size in bytes</td>
-            <script th:inline="javascript">
-              // console.log("test:" + /*[[(${r.encodedName})]]*/);
-            </script>
-
-            <td>
-              <button
-                th:id="${r.encodedName}"
-                class="btn add-to-queue-button my-cart-btn"
-                th:value="${r.encodedName}"
-                th:attr="data-id=${r.encodedName}, data-name=${r.name}"
-              >
-                + Add to queue <span th:text="${r.name}"> </span>
-              </button>
-            </td>
-            <script th:inline="javascript">
-              $("[value='" + /*[[${r.encodedName}]]*/ "" + '"]').on(
-                "click",
-                function () {
-                  $('[value="' + /*[[${r.encodedName}]]*/ '"]').hide();
+    <nav class="navbar">
+      <a class="navbar-brand"></a>
+      <form class="form-inline">
+        <input class="mr-sm-2 search form-control" id="searchInput" type="search" placeholder="Search"
+          aria-label="Search">
+        <script>
+          $(document).ready(() => {
+            $('#searchInput').on('input', function () {
+              var searchText = $(this).val().toLowerCase();
+              $('.jd-row').each(function () {
+                var rowData = $(this).text().toLowerCase();
+                if (rowData.indexOf(searchText) === -1) {
+                  $(this).hide();
+                } else {
+                  $(this).show();
                 }
-              );
-            </script>
-          </tr>
-        </tbody>
-      </table>
+              });
+            });
+          });
+        </script>
+        <button type="button" class="btn btn-link"
+          style="text-decoration: none;right: 100px;border-right-width: 0px;padding-right: 0px;padding-left: 20px;"
+          data-toggle="modal" data-target="#exampleModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+            class="bi bi-cart align-middle" viewBox="0 0 16 16" style="text-align: center;">
+            <path
+              d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+          </svg>
+          <span class="position-relative start-100 badge cart-badge"
+            style="color: currentColor; top: -2px; right: 53%; font-size: 8px;">
+          </span>
+        </button>
+      </form>
+    </nav>
 
-      <div
-        class="modal fade"
-        id="exampleModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+    <table id="jetty-dir-table" class="table jetty-dir-table file-table" data-toggle="table" data-pagination="true"
+      data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
+      <thead>
+        <tr th:if="${!resources.empty}">
+          <th data-sortable="true" data-field="name" scope="col">Name</th>
+          <th data-sortable="true" data-field="last-modified" scope="col">
+            Last modified
+          </th>
+          <th data-sortable="true" data-field="size" scope="col">
+            Size (in bytes)
+          </th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="jd-row" th:each="r: ${resources}" scope="row">
+          <div value="${r.encodedName}"></div>
+          <td>
+            <svg th:if="${r.isDirectory}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-folder2" viewBox="0 0 18 18">
+              <path
+                d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
+            </svg>
+            <svg th:unless="${r.isDirectory}" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+              fill="currentColor" class="bi bi-file-text" viewBox="0 0 18 18">
+              <path
+                d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5z" />
+              <path
+                d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z" />
+            </svg>
+            &nbsp;
+            <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
+            <div th:if="${r.isRecallInProgress}" class="spinner-border float-right spinner-border-sm" role="status">
+              <span class="sr-only">Loading...</span>
             </div>
-            <div class="modal-body">...</div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="button" class="btn btn-primary">
-                Save changes
-              </button>
-            </div>
+
+          </td>
+          <td th:text="${#dates.formatISO(r.lastModificationTime)}">
+            Last modification time
+          </td>
+          <td th:text="${r.sizeInBytes}">Size in bytes</td>
+          <td>
+            <button th:if="!${r.isDirectory}" class="btn btn-outline-primary btn-sm add-to-queue-button" th:onclick="$(this).attr('id', CryptoJS.SHA256([[${r.path}]]).toString(CryptoJS.enc.Hex)); 
+                          addFileToCart({ 
+                                          name: [[${r.name}]], 
+                                          path: [[${r.path}]], 
+                                          fullPath: [[${r.fullPath}]],
+                                          latency: [[${r.latency}]],
+                                          isRecallInProgress: [[${r.isRecallInProgress}]],
+                                          sizeInBytes: [[${r.sizeInBytes}]]
+                                        }); ">
+              &plus; Add to queue
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                class="bi bi-cart align-middle" viewBox="0 0 20 20" style="text-align: center;">
+                <path
+                  d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+              </svg> &nbsp; Selected files
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-bordered" data-toggle="true">
+              <thead>
+                <tr th:if="${!resources.empty}">
+                  <th data-sortable="true" data-field="name" scope="col">Name</th>
+                  <th data-sortable="true" data-field="size" scope="col">
+                    Size (in bytes)
+                  </th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="modal-table-body">
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link" style="text-decoration: none;" onclick="clearCart()">&times;
+              Remove all files</button>
+            <button type="button" class="btn btn-outline-success" onclick="makePost()">&#9655 Submit</button>
           </div>
         </div>
       </div>
-    </section>
-  </body>
+    </div>
+    <div class="post-result"></div>
+
+  </section>
+</body>
+
 </html>
