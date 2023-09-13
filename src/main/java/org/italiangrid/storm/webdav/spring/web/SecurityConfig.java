@@ -163,20 +163,23 @@ public class SecurityConfig {
     http.authorizeRequests().antMatchers("/errors/**").permitAll();
 
     http.authorizeRequests()
-      .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
-          "/.well-known/openid-configuration", "/.well-known/wlcg-tape-rest-api")
-      .permitAll();
+        .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
+            "/.well-known/openid-configuration", "/.well-known/wlcg-tape-rest-api", "/mock/**")
+        .permitAll();
+    http.authorizeRequests()
+        .antMatchers(HttpMethod.POST, "/mock/**")
+        .permitAll();
 
     AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
     handler.setErrorPage("/errors/403");
     http.exceptionHandling()
-      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
+        .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
 
     http.logout()
-      .logoutUrl("/logout")
-      .clearAuthentication(true)
-      .invalidateHttpSession(true)
-      .logoutSuccessUrl("/");
+        .logoutUrl("/logout")
+        .clearAuthentication(true)
+        .invalidateHttpSession(true)
+        .logoutSuccessUrl("/");
 
     if (!oauthProperties.isEnableOidc()) {
       http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
@@ -189,8 +192,6 @@ public class SecurityConfig {
 
     return http.build();
   }
-
-
 
   @Bean
   static ErrorPageRegistrar securityErrorPageRegistrar() {
@@ -239,7 +240,7 @@ public class SecurityConfig {
 
     Map<String, String> accessPoints = new TreeMap<>(Comparator.reverseOrder());
     saConfiguration.getStorageAreaInfo()
-      .forEach(sa -> sa.accessPoints().forEach(ap -> accessPoints.put(ap, sa.name())));
+        .forEach(sa -> sa.accessPoints().forEach(ap -> accessPoints.put(ap, sa.name())));
     for (Entry<String, String> e : accessPoints.entrySet()) {
       String ap = e.getKey();
       String sa = e.getValue();
@@ -247,12 +248,11 @@ public class SecurityConfig {
       String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
           SAPermission.canRead(sa).getAuthority(), SAPermission.canWrite(sa).getAuthority());
       LOG.debug("Write access rule: {}", writeAccessRule);
-      String readAccessRule =
-          String.format("hasAuthority('%s')", SAPermission.canRead(sa).getAuthority());
+      String readAccessRule = String.format("hasAuthority('%s')", SAPermission.canRead(sa).getAuthority());
       LOG.debug("Read access rule: {}", readAccessRule);
       http.authorizeRequests()
-        .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-        .access(readAccessRule);
+          .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+          .access(readAccessRule);
 
       http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
     }
