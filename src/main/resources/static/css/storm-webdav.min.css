@@ -54,35 +54,50 @@ main {
   margin: 0 auto;
 }
 
-.add-to-queue-button {
-  background-color: transparent;
-  color: #097bff;
-  border: 2px solid #097bff;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
+.cart-badge {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: bolder;
+  font-size: 50%;
+  top: -127%;
+  right: -52%;
+  padding-right: 2.5px;
+  padding-left: 2.5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 
-.add-to-queue-button:hover {
-  background-color: #097bff2e;
+.icon-size {
+  font-size: 150%;
 }
 
-.add-to-queue-button:active {
-    background-color: #097bff5e;
-    color:white;
+.sw-cart-modal-button {
+  height: 50px;
+  width: 60px;
 }
 
-.badge-notify{
-  background:red;
-  position:relative;
-  top: -20px;
-  right: 10px;
+.sw-modal-button {
+  height: 50px;
+  width: 60px;
+  top: 3px;
 }
-.my-cart-icon {
-  position: fixed;
-  z-index: 999;
+
+.accordion-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
 }
-.my-cart-icon-affix {
-  position: fixed;
-  z-index: 999;
+
+.accordion-button-content-id {
+  width: 40%;
+  text-align: left;
+}
+
+.accordion-button-content-date {
+  width: 30%;
+  text-align: left;
+}
+
+.accordion-button-error {
+  background-color: hsla(0, 52%, 24%, 0.221);
 }
