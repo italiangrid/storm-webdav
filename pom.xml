@@ -12,7 +12,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- Keep this aligned with the spring.boot-version property below! -->
-    <version>2.7.10</version>
+    <version>2.7.17</version>
     <relativePath />
   </parent>
 
@@ -32,7 +32,7 @@
     <java.version>11</java.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.7.10</spring-boot.version>
+    <spring-boot.version>2.7.17</spring-boot.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
@@ -57,7 +57,7 @@
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
-    <bouncycastle.version>1.72</bouncycastle.version>
+    <bouncycastle.version>1.76</bouncycastle.version>
 
     <start-class>org.italiangrid.storm.webdav.WebdavService</start-class>
 
@@ -101,7 +101,6 @@
           <descriptors>
             <descriptor>src/assembly/tarball.xml</descriptor>
           </descriptors>
-          <finalName>storm-webdav</finalName>
         </configuration>
         <executions>
           <execution>
