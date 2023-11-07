@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.URIUtil;
@@ -60,7 +61,8 @@ public class StormResourceWrapper extends Resource {
    * Encode any characters that could break the URI string in an HREF. Such as <a
    * href="/path/to;<script>Window.alert("XSS"+'%20'+"here");</script>">Link</a>
    *
-   * The above example would parse incorrectly on various browsers as the "<" or '"' characters
+   * The above example would parse incorrectly on various browsers as the "<" or
+   * '"' characters
    * would end the href attribute value string prematurely.
    *
    * @param raw the raw text to encode.
@@ -108,7 +110,6 @@ public class StormResourceWrapper extends Resource {
     return buf.toString();
   }
 
-
   @Override
   public String getListHTML(String base, boolean parent, String query) throws IOException {
 
@@ -131,7 +132,7 @@ public class StormResourceWrapper extends Resource {
     context.setVariable("storm", serviceConfig.getHostnames().get(0));
     context.setVariable("authn", SecurityContextHolder.getContext().getAuthentication());
     context.setVariable("authnSubject", AuthenticationUtils
-      .getPalatableSubject(SecurityContextHolder.getContext().getAuthentication()));
+        .getPalatableSubject(SecurityContextHolder.getContext().getAuthentication()));
 
     context.setVariable("oidcEnabled", oauthProperties.isEnableOidc());
 
@@ -143,17 +144,24 @@ public class StormResourceWrapper extends Resource {
 
     List<StormFsResourceView> resources = new ArrayList<>();
 
+    String encodedFullBasePath = hrefEncodeURI(delegate.getFile().getCanonicalPath());
+
     for (String l : rawListing) {
       Resource r = addPath(l);
+      FileLatency randomLatency = FileLatency.values()[(new Random()).nextInt(FileLatency.values().length)];
+      boolean isRecallInProgress = (new Random()).nextBoolean();
       resources.add(StormFsResourceView.builder()
-        .withName(l)
-        .withPath(URIUtil.addEncodedPaths(encodedBase, URIUtil.encodePath(l)))
-        .withIsDirectory(r.isDirectory())
-        .withLastModificationTime(new Date(r.lastModified()))
-        .withSizeInBytes(r.length())
-        .build());
+          .withName(l)
+          .withPath(URIUtil.addEncodedPaths(encodedBase, URIUtil.encodePath(l)))
+          .withFullPath(URIUtil.addEncodedPaths(encodedFullBasePath, URIUtil.encodePath(l)))
+          .withFileLatency(r.isDirectory() ? null : randomLatency)
+          .withIsRecallInProgress(
+              r.isDirectory() ? false : FileLatency.nearline.equals(randomLatency) ? isRecallInProgress : false)
+          .withIsDirectory(r.isDirectory())
+          .withLastModificationTime(new Date(r.lastModified()))
+          .withSizeInBytes(r.length())
+          .build());
     }
-
 
     context.setVariable("parentDir", parentDir);
     context.setVariable("resources", resources);
@@ -288,6 +296,5 @@ public class StormResourceWrapper extends Resource {
   private void internalCopy(InputStream in, OutputStream out) throws IOException {
     internalCopy(in, out, -1);
   }
-
 
 }

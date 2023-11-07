@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ex
 
+export JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
+export PATH=$JAVA_HOME/bin:$PATH
+java -version
+
 JARDIR=/usr/share/java/storm-webdav
 JVM_OPTS=${STORM_WEBDAV_JVM_OPTS:-}
 

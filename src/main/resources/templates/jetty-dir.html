@@ -1,34 +1,171 @@
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
   layout:decorate="~{layout.html}">
+
 <head>
-<title th:text="${title}">Directory</title>
+  <title th:text="${title}">Directory</title>
 </head>
+
 <body>
   <section layout:fragment="page-content">
     <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
     <div>
       <a href="parent" th:href="${parentDir}">Go to parent directory</a>
     </div>
-    <table id="jetty-dir-table" class="table jetty-dir-table" data-toggle="table" data-search="true"
-      data-pagination="true" data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
+
+    <div class="page-header"></div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+      <div class="container-fluid">
+        <a class="navbar-brand"></a>
+
+        <ul class="navbar-nav d-flex flex-row">
+          <button class="btn btn-link position-relative sw-cart-modal-button float-right" data-bs-toggle="modal"
+            data-bs-target="#cartModal" style="text-decoration: none;" onclick="showCartTable()">
+            <i class="bi bi-cart icon-size"></i>
+            <span
+              class="position-relative translate-middle cart-badge border border-1 border-primary rounded-pill"></span>
+          </button>
+
+          <button class="btn btn-link position-relative sw-modal-button float-right" data-bs-toggle="modal"
+            data-bs-target="#cloudModal" style="text-decoration: none;" onclick="manageMonitoring()">
+            <i class="bi bi-cloud icon-size"></i>
+          </button>
+
+          <form class="d-flex">
+            <input class="form-control me-2" id="searchInput" type="search" placeholder="Search" aria-label="Search">
+          </form>
+        </ul>
+      </div>
+    </nav>
+
+    <table id="jetty-dir-table" class="table jetty-dir-table file-table" data-toggle="table" data-pagination="true"
+      data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
       <thead>
         <tr th:if="${!resources.empty}">
-          <th data-sortable="true" data-field="name">Name</th>
-          <th data-sortable="true" data-field="last-modified">Last modified</th>
-          <th data-sortable="true" data-field="size">Size (in bytes)</th>
+          <th data-sortable="true" data-field="name" scope="col">Name</th>
+          <th data-sortable="true" data-field="last-modified" scope="col">
+            Last modified
+          </th>
+          <th data-sortable="true" data-field="size" scope="col">
+            Size (in bytes)
+          </th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr th:each="r: ${resources}">
+        <tr class="jd-row" th:each="r: ${resources}" scope="row">
+          <div value="${r.encodedName}"></div>
           <td>
-            <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
+            <i th:if="${r.isDirectory}" class="bi bi-folder"></i>
+            <i th:unless="${r.isDirectory}" class="bi bi-file-text"></i>
+            &nbsp;
+            <a href="filename"
+              th:if="${r.latency == T(org.italiangrid.storm.webdav.server.servlet.resource.FileLatency).online || r.isDirectory}"
+              th:href="${r.path}" th:text="${r.name}">fake</a>
+            <a th:unless="${r.latency == T(org.italiangrid.storm.webdav.server.servlet.resource.FileLatency).online || r.isDirectory}"
+              th:text="${r.name}">fake</a>
+            <div class="float-right">
+              <i th:if="${r.isRecallInProgress}" class="bi bi-arrow-clockwise"></i>
+              &nbsp;
+              <i th:if="${r.latency == T(org.italiangrid.storm.webdav.server.servlet.resource.FileLatency).nearline}"
+                class="bi bi-voicemail"></i>
+            </div>
           </td>
-          <td th:text="${#dates.formatISO(r.lastModificationTime)}">Last modification time</td>
+
+          <td th:text="${#dates.formatISO(r.lastModificationTime)}">
+            Last modification time
+          </td>
           <td th:text="${r.sizeInBytes}">Size in bytes</td>
+          <td>
+            <button
+              th:if="${r.latency == T(org.italiangrid.storm.webdav.server.servlet.resource.FileLatency).nearline && !r.isDirectory}"
+              class="btn btn-outline-primary btn-sm add-to-queue-button" th:onclick="$(this).attr('id', CryptoJS.SHA256([[${r.path}]]).toString(CryptoJS.enc.Hex)); 
+                          addFileToCart({ 
+                                          name: [[${r.name}]], 
+                                          path: [[${r.path}]], 
+                                          fullPath: [[${r.fullPath}]],
+                                          latency: [[${r.latency}]],
+                                          isRecallInProgress: [[${r.isRecallInProgress}]],
+                                          sizeInBytes: [[${r.sizeInBytes}]]
+                                        }); ">
+              &plus; Add to queue
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
+
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="cartModalLabel"><i class="bi bi-cart"></i>
+              &nbsp; Selected files</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-bordered" data-toggle="true">
+              <thead>
+                <tr th:if="${!resources.empty}">
+                  <th data-sortable="true" data-field="name" scope="col">Path</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="modal-cart-table-body">
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link" style="text-decoration: none;" onclick="clearCart()">&times;
+              Remove all files</button>
+            <button type="button" class="btn btn-outline-success"
+              onclick="makePost(); $('#cartModal').modal('hide');"><i class="bi bi-play"></i>
+              Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal modal-xl" id="cloudModal" tabindex="-1" aria-labelledby="cloudModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 flex-row position-relative" id="cloudModalLabel"><i class="bi bi-cloud"></i>
+              StoRM Tape REST API -
+              Monitoring
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                style="margin-left: 729px;"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row align-items-center">
+              <div class="col-4 h5" style="padding-left: 56px;"> Request ID</div>
+              <div class="col-3 h5" style="padding-left: 73px;"> Created</div>
+              <div class="col-3 h5" style="padding-left: 105px;"> Submitted</div>
+            </div>
+            <div class="accordion" id="accordionMonitoring">
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-primary" onclick="manageMonitoring()">
+              <i class="bi bi-arrow-clockwise"></i>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="d-flex justify-content-center p-3">
+        <a class="link-primary">online.files</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i
+          class="bi bi-voicemail"></i>&nbsp; <p class="figure-caption">file is on
+          tape</p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="bi bi-arrow-clockwise"></i>&nbsp; <p
+          class="figure-caption">recall in progress</p>
+      </div>
+    </div>
   </section>
+
 </body>
+
 </html>

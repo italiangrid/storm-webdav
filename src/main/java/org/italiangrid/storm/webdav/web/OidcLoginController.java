@@ -50,7 +50,10 @@ public class OidcLoginController {
     }).collect(Collectors.toList());
   }
 
-
+  @GetMapping("/tests")
+  String postFile() {
+    return "ciao";
+  }
   @GetMapping("/oidc-login")
   String oidcLoginController(Model model) {
     model.addAttribute("clients", clients);

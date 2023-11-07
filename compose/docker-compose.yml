@@ -3,10 +3,10 @@ version: "3"
 volumes:
   trustanchors:
   cabundle:
+  saconfig:
   storage:
   storage2:
   hostcert:
-  saconfig:
   mapfilesconfig:
 
 services:
@@ -19,28 +19,31 @@ services:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
   webdav-setup:
-    image: italiangrid/storm-webdav:latest
+    image: cnafsd/storm-webdav
+    privileged: true
     environment:
       TZ: UTC
 
     volumes:
-      - ./assets/certs/:/certs:ro 
-      - ./assets/scripts:/scripts:ro
+      - ./assets/certs/:/certs:ro
       - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
-      - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
-      - hostcert:/etc/grid-security/storm-webdav
+      - hostcert:/etc/grid-security
       - saconfig:/etc/storm/webdav/sa.d
       - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - ./assets/scripts:/scripts:ro
+      - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
       - storage:/storage
 
     entrypoint:
       - /scripts/setup.sh
 
   webdav:
-    image: italiangrid/storm-webdav:latest
+    image: cnafsd/storm-webdav
+    privileged: true
     dns_search: example
     ports:
-      - "9443:8443"
+      - "8443:8443"
+      - "8085:8085"
       - "9444:1044"
 
     depends_on:
@@ -53,16 +56,17 @@ services:
       STORM_WEBDAV_HOSTNAME_0: storm.example
       STORM_WEBDAV_USE_CONSCRYPT: "true"
       STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test
+      DONT_UNPACK_TARBALL: "true"
       #DEBUG: y
       #DEBUG_SUSPEND: y
 
     volumes:
       - storage:/storage
-      - cabundle:/etc/pki
-      - trustanchors:/etc/grid-security/certificates
-      - hostcert:/etc/grid-security/storm-webdav
+      - hostcert:/etc/grid-security
       - saconfig:/etc/storm/webdav/sa.d
       - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
+      - cabundle:/etc/pki
+      - trustanchors:/etc/grid-security/certificates
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ${HOME}/git/storm-webdav:/code:ro
@@ -122,7 +126,8 @@ services:
     volumes:
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./assets/certs:/certs
+      - ./assets/certs/hostcert.pem:/etc/grid-security/hostcert.pem
+      - ./assets/certs/hostkey.pem:/etc/grid-security/hostkey.pem
       - ./assets/vomsdir:/vomsdir
       - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
