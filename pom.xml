@@ -57,7 +57,7 @@
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
-    <bouncycastle.version>1.72</bouncycastle.version>
+    <bouncycastle.version>1.74</bouncycastle.version>
 
   </properties>
 
