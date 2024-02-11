@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.server.servlet;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,6 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ChecksumFilter implements Filter {
 
@@ -43,7 +43,6 @@ public class ChecksumFilter implements Filter {
   
   public static final Logger logger = LoggerFactory.getLogger(ChecksumFilter.class);
   
-  @Autowired
   public ChecksumFilter(ExtendedAttributesHelper attributeHelper,
     PathResolver resolver) {
 
@@ -113,7 +112,8 @@ public class ChecksumFilter implements Filter {
 
     try {
 
-      checksumValue = attributeHelper.getChecksumAttribute(f);
+      checksumValue =
+          attributeHelper.getExtendedFileAttributeValue(f, STORM_ADLER32_CHECKSUM_ATTR_NAME);
 
     } catch (IOException e) {
 

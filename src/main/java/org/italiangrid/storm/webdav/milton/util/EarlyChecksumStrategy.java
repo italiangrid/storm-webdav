@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.milton.util;
 
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +43,8 @@ public class EarlyChecksumStrategy implements ReplaceContentStrategy {
       throw new StoRMWebDAVError("Incomplete copy error!");
     }
 
-    attributesHelper.setChecksumAttribute(targetFile, cis.getChecksumValue());
+    attributesHelper.setExtendedFileAttribute(targetFile, STORM_ADLER32_CHECKSUM_ATTR_NAME,
+        cis.getChecksumValue());
   }
 
 }

@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.milton;
 
 import static io.milton.property.PropertySource.PropertyAccessibility.READ_ONLY;
 import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -175,7 +176,8 @@ public class StoRMFileResource extends StoRMResource
         // do nothing, just read
       }
 
-      getExtendedAttributesHelper().setChecksumAttribute(getFile(), cis.getChecksumValue());
+      getExtendedAttributesHelper().setExtendedFileAttribute(getFile(),
+          STORM_ADLER32_CHECKSUM_ATTR_NAME, cis.getChecksumValue());
 
     } catch (IOException e) {
       throw new StoRMWebDAVError(e);
@@ -188,7 +190,8 @@ public class StoRMFileResource extends StoRMResource
     if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)) {
       if (name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
         try {
-          return getExtendedAttributesHelper().getChecksumAttribute(getFile());
+          return getExtendedAttributesHelper().getExtendedFileAttributeValue(getFile(),
+              STORM_ADLER32_CHECKSUM_ATTR_NAME);
         } catch (IOException e) {
           logger.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
           return null;

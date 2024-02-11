@@ -25,6 +25,7 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.macaroon.MacaroonIssuerService;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
@@ -61,7 +62,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
+import jnr.posix.POSIXFactory;
 
 @Configuration
 public class ServletConfiguration {
@@ -225,7 +226,8 @@ public class ServletConfiguration {
 
     ServletRegistrationBean<StoRMServlet> stormServlet =
         new ServletRegistrationBean<>(new StoRMServlet(oauthProperties, serviceConfig, pathResolver,
-            templateEngine, new StormResourceService()));
+            templateEngine, new StormResourceService(), POSIXFactory.getPOSIX(),
+            new DefaultExtendedFileAttributesHelper()));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");

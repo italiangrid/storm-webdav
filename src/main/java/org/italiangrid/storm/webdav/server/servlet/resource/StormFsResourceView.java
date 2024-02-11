@@ -25,26 +25,33 @@ public class StormFsResourceView {
 
   final String path;
 
+  final String fullPath;
+
   final long sizeInBytes;
 
   final Date lastModificationTime;
 
   final Date creationTime;
 
+  final boolean isOnline;
+
+  final boolean isRecallInProgress;
+
   private StormFsResourceView(Builder b) {
     if (b.isDirectory && !b.name.endsWith("/")) {
-      this.name = b.name +"/";
+      this.name = b.name + "/";
     } else {
       this.name = b.name;
     }
-    
+
     this.isDirectory = b.isDirectory;
     this.path = b.path;
+    this.fullPath = b.fullPath;
     this.sizeInBytes = b.sizeInBytes;
     this.lastModificationTime = b.lastModificationTime;
     this.creationTime = b.creationTime;
-    
-    
+    this.isOnline = b.isOnline;
+    this.isRecallInProgress = b.isRecallInProgress;
   }
 
   public String getName() {
@@ -77,16 +84,32 @@ public class StormFsResourceView {
   }
 
 
+  public String getFullPath() {
+    return fullPath;
+  }
+
+  public boolean getIsOnline() {
+    return isOnline;
+  }
+
+  public boolean getIsRecallInProgress() {
+    return isRecallInProgress;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
+
   public static class Builder {
     String name;
     boolean isDirectory;
     String path;
+    String fullPath;
     long sizeInBytes;
     Date lastModificationTime;
     Date creationTime;
+    boolean isOnline;
+    boolean isRecallInProgress;
 
     public Builder() {}
 
@@ -106,6 +129,11 @@ public class StormFsResourceView {
       return this;
     }
 
+    public Builder withFullPath(String fullPath) {
+      this.fullPath = fullPath;
+      return this;
+    }
+
     public Builder withSizeInBytes(long syzeInBytes) {
       this.sizeInBytes = syzeInBytes;
       return this;
@@ -118,6 +146,16 @@ public class StormFsResourceView {
 
     public Builder withCreationTime(Date creationTime) {
       this.creationTime = creationTime;
+      return this;
+    }
+
+    public Builder withIsOnline(boolean isOnline) {
+      this.isOnline = isOnline;
+      return this;
+    }
+
+    public Builder withIsRecallInProgress(boolean isRecallInProgress) {
+      this.isRecallInProgress = isRecallInProgress;
       return this;
     }
 

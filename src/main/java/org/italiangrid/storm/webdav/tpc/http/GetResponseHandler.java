@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,8 +111,8 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
         writeEntityToStream(entity, os);
         if (computeChecksum) {
-          attributesHelper.setChecksumAttribute(fileStream.getPath(),
-              checkedStream.getChecksumValue());
+          attributesHelper.setExtendedFileAttribute(fileStream.getPath(),
+              STORM_ADLER32_CHECKSUM_ATTR_NAME, checkedStream.getChecksumValue());
         }
       }
 

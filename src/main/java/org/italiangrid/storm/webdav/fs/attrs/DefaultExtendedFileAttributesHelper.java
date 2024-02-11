@@ -15,9 +15,10 @@
  */
 package org.italiangrid.storm.webdav.fs.attrs;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_MIGRATED_ATTR_NAME;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_RECALL_IN_PROGRESS_ATTR_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,21 +29,43 @@ import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.List;
 
-public class DefaultExtendedFileAttributesHelper implements
-  ExtendedAttributesHelper {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-  public static final String STORM_ADLER32_CHECKSUM_ATTR_NAME = "storm.checksum.adler32";
+import jnr.posix.FileStat;
+import jnr.posix.POSIX;
+import jnr.posix.POSIXFactory;
+
+public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHelper {
+
+  public static final Logger LOG =
+      LoggerFactory.getLogger(DefaultExtendedFileAttributesHelper.class);
+
+  private static POSIX posix;
 
   public DefaultExtendedFileAttributesHelper() {
-
+    posix = POSIXFactory.getPOSIX();
   }
 
-  protected String getAttributeValue(UserDefinedFileAttributeView view,
-    String attributeName) throws IOException {
+  protected UserDefinedFileAttributeView getFileAttributeView(File f) throws IOException {
 
-    if (view.list().contains(attributeName)) {
-      ByteBuffer buffer = ByteBuffer.allocateDirect(view.size(attributeName));
-      view.read(attributeName, buffer);
+    UserDefinedFileAttributeView faView =
+        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
+
+    if (faView == null) {
+      throw new IOException(
+          "UserDefinedFileAttributeView not supported on file " + f.getAbsolutePath());
+    }
+
+    return faView;
+  }
+
+  protected String getAttributeValue(UserDefinedFileAttributeView view, String name)
+      throws IOException {
+
+    if (view.list().contains(name)) {
+      ByteBuffer buffer = ByteBuffer.allocateDirect(view.size(name));
+      view.read(name, buffer);
       buffer.flip();
       return StandardCharsets.UTF_8.decode(buffer).toString();
     } else {
@@ -51,41 +74,35 @@ public class DefaultExtendedFileAttributesHelper implements
   }
 
   @Override
-  public void setExtendedFileAttribute(File f, String attributeName,
-    String attributeValue) throws IOException {
-
-    checkNotNull(f);
-    checkArgument(!isNullOrEmpty(attributeName));
-
-    UserDefinedFileAttributeView faView = Files.getFileAttributeView(
-      f.toPath(), UserDefinedFileAttributeView.class);
-
-    if (faView == null) {
-      throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
-    }
-
-    faView.write(attributeName, StandardCharsets.UTF_8.encode(attributeValue));
+  public void setExtendedFileAttribute(Path p, ExtendedAttributes name, String value)
+      throws IOException {
+    setExtendedFileAttribute(p.toFile(), name, value);
   }
 
   @Override
-  public String getExtendedFileAttributeValue(File f, String attributeName)
-    throws IOException {
+  public void setExtendedFileAttribute(File f, ExtendedAttributes name, String value)
+      throws IOException {
 
     checkNotNull(f);
-    checkArgument(!isNullOrEmpty(attributeName));
-    
-    UserDefinedFileAttributeView faView = Files.getFileAttributeView(
-      f.toPath(), UserDefinedFileAttributeView.class);
 
-    if (faView == null) {
-      throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
+    UserDefinedFileAttributeView faView = getFileAttributeView(f);
+
+    int bytes = faView.write(name.toString(), StandardCharsets.UTF_8.encode(value));
+    if (bytes > 0) {
+      LOG.debug("Setting '{}' extended attribute on file '{}': {} bytes written", name.toString(),
+          f.getAbsolutePath(), bytes);
     }
+  }
 
-    return getAttributeValue(faView, attributeName);
+  @Override
+  public String getExtendedFileAttributeValue(File f, ExtendedAttributes attributeName)
+      throws IOException {
+
+    checkNotNull(f);
+
+    UserDefinedFileAttributeView faView = getFileAttributeView(f);
+
+    return getAttributeValue(faView, attributeName.toString());
 
   }
 
@@ -93,56 +110,92 @@ public class DefaultExtendedFileAttributesHelper implements
   public List<String> getExtendedFileAttributeNames(File f) throws IOException {
 
     checkNotNull(f);
-    
-    UserDefinedFileAttributeView faView = Files.getFileAttributeView(
-      f.toPath(), UserDefinedFileAttributeView.class);
+
+    UserDefinedFileAttributeView faView =
+        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
 
     if (faView == null) {
       throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
+          "UserDefinedFileAttributeView not supported on file " + f.getAbsolutePath());
     }
 
     return faView.list();
   }
 
   @Override
-  public void setChecksumAttribute(File f, String checksumValue)
-    throws IOException {
-
-    if (fileSupportsExtendedAttributes(f)) {
-      setExtendedFileAttribute(f, STORM_ADLER32_CHECKSUM_ATTR_NAME,
-        checksumValue);
-    }
-
-  }
-
-  @Override
-  public String getChecksumAttribute(File f) throws IOException {
-
-    return getExtendedFileAttributeValue(f, STORM_ADLER32_CHECKSUM_ATTR_NAME);
-  }
-
-  @Override
   public boolean fileSupportsExtendedAttributes(File f) throws IOException {
 
     checkNotNull(f);
-    
-    UserDefinedFileAttributeView faView = Files.getFileAttributeView(
-      f.toPath(), UserDefinedFileAttributeView.class);
+
+    UserDefinedFileAttributeView faView =
+        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
 
     return (faView != null);
   }
 
   @Override
-  public void setChecksumAttribute(Path p, String checksumValue) throws IOException {
-    setChecksumAttribute(p.toFile(), checksumValue);
-    
+  public FileStat stat(Path p) throws IOException {
+    checkNotNull(p);
+    return stat(p.toFile());
   }
 
   @Override
-  public String getChecksumAttribute(Path p) throws IOException {
-    return getChecksumAttribute(p.toFile());
+  public FileStat stat(File f) throws IOException {
+    checkNotNull(f);
+    return posix.stat(f.getAbsolutePath());
   }
 
+  @Override
+  public FileStatus getFileStatus(Path p) throws IOException {
+    checkNotNull(p);
+    return getFileStatus(p.toFile());
+  }
+
+  @Override
+  public FileStatus getFileStatus(File f) throws IOException {
+    checkNotNull(f);
+
+    FileStat stat = stat(f);
+    if (isNull(stat)) {
+      throw new IOException("Unable to stat file " + f.toString());
+    }
+    if (stat.isDirectory()) {
+      return FileStatus.DISK;
+    }
+    List<String> attrs = getExtendedFileAttributeNames(f);
+
+    // check if file has been migrated to taoe
+    boolean hasMigrated = attrs.contains(STORM_MIGRATED_ATTR_NAME.toString());
+    // check if file is available with 0 latency
+    boolean isOnline = !isStub(stat);
+    if (isOnline) {
+      // file is available, check if it has a copy on tape
+      return hasMigrated ? FileStatus.DISK_AND_TAPE : FileStatus.DISK;
+    }
+    // file is a stub, no migrated attribute means an undefined situation
+    if (!hasMigrated) {
+      return FileStatus.UNDEFINED;
+    }
+    // file is on tape, check if a recall is in progress
+    boolean isRecallInProgress = attrs.contains(STORM_RECALL_IN_PROGRESS_ATTR_NAME.toString());
+    return isRecallInProgress ? FileStatus.TAPE_RECALL_IN_PROGRESS : FileStatus.TAPE;
+  }
+
+  @Override
+  public boolean isStub(Path p) throws IOException {
+    checkNotNull(p);
+    return isStub(p.toFile());
+  }
+
+  @Override
+  public boolean isStub(File f) throws IOException {
+    checkNotNull(f);
+    return isStub(stat(f));
+  }
+
+  @Override
+  public boolean isStub(FileStat fs) throws IOException {
+    checkNotNull(fs);
+    return fs.blockSize() * fs.blocks() < fs.st_size();
+  }
 }

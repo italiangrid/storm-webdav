@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.tape;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import org.italiangrid.storm.webdav.tape.model.WlcgTapeRestApi;
+import org.italiangrid.storm.webdav.tape.model.WlcgTapeRestApiMetadata;
 import org.italiangrid.storm.webdav.tape.service.WlcgTapeRestApiService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,9 +34,9 @@ public class WlcgTapeRestApiController {
   }
 
   @GetMapping({".well-known/wlcg-tape-rest-api"})
-  public WlcgTapeRestApi getMetadata() {
+  public WlcgTapeRestApiMetadata getMetadata() {
 
-    WlcgTapeRestApi metadata = service.getMetadata();
+    WlcgTapeRestApiMetadata metadata = service.getMetadata();
     if (metadata == null) {
       throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
     }
