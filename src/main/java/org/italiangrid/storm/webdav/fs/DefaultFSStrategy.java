@@ -15,6 +15,8 @@
  */
 package org.italiangrid.storm.webdav.fs;
 
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -137,7 +139,8 @@ public class DefaultFSStrategy implements FilesystemAccess {
       Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
 
       IOUtils.copy(cis, fos);
-      attrsHelper.setChecksumAttribute(file, cis.getChecksumValue());
+      attrsHelper.setExtendedFileAttribute(file, STORM_ADLER32_CHECKSUM_ATTR_NAME,
+          cis.getChecksumValue());
 
       return file;
 

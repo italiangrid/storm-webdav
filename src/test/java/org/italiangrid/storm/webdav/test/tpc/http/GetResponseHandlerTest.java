@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.tpc.http;
 
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_ADLER32_CHECKSUM_ATTR_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,26 +42,26 @@ public class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock
   StatusLine status;
-  
+
   @Mock
   HttpEntity entity;
-  
+
   @Mock
   HttpResponse response;
-  
+
   @Mock
   StormCountingOutputStream os;
-  
+
   GetResponseHandler handler;
 
   @BeforeEach
   public void setup() {
-    
+
     handler = new GetResponseHandler(null, os, eah);
     lenient().when(response.getStatusLine()).thenReturn(status);
     lenient().when(response.getEntity()).thenReturn(entity);
   }
-  
+
   @Test
   public void handlerWritesToStream() throws IOException {
     when(status.getStatusCode()).thenReturn(200);
@@ -67,6 +69,6 @@ public class GetResponseHandlerTest extends ClientTestSupport {
     handler.handleResponse(response);
     
     verify(entity).getContent();
-    verify(eah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
+    verify(eah).setExtendedFileAttribute(ArgumentMatchers.<Path>any(), ArgumentMatchers.<ExtendedAttributes>eq(STORM_ADLER32_CHECKSUM_ATTR_NAME), any());
   }
 }

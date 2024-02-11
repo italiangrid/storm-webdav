@@ -17,15 +17,22 @@
           <th data-sortable="true" data-field="name">Name</th>
           <th data-sortable="true" data-field="last-modified">Last modified</th>
           <th data-sortable="true" data-field="size">Size (in bytes)</th>
+          <th data-sortable="true" data-field="fpath">Full Path</th>
+          <th data-sortable="true" data-field="latency">Is Online</th>
+          <th data-sortable="true" data-field="recalling">Is Recalling</th>
         </tr>
       </thead>
       <tbody>
         <tr th:each="r: ${resources}">
-          <td>
-            <a href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
+          <td th:switch="${r.isOnline}">
+            <a th:case="true" href="filename" th:href="${r.path}" th:text="${r.name}">fake</a>
+            <span th:case="false" th:text="${r.name}" title="File has to be recalled from tape before">fake</span>
           </td>
           <td th:text="${#dates.formatISO(r.lastModificationTime)}">Last modification time</td>
           <td th:text="${r.sizeInBytes}">Size in bytes</td>
+          <td th:text="${r.fullPath}">Full Path</td>
+          <td th:text="${r.isOnline}">Is Online</td>
+          <td th:text="${r.isRecallInProgress}">Is Recalling</td>
         </tr>
       </tbody>
     </table>
