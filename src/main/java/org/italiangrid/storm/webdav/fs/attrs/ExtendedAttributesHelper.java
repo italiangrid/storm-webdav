@@ -20,25 +20,31 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import jnr.posix.FileStat;
+
 public interface ExtendedAttributesHelper {
 
-  public void setExtendedFileAttribute(File f, String attributeName,
-    String attributeValue) throws IOException;
-
-  public String getExtendedFileAttributeValue(File f, String attributeName)
-    throws IOException;
+  public boolean fileSupportsExtendedAttributes(File f) throws IOException;
 
   public List<String> getExtendedFileAttributeNames(File f) throws IOException;
 
-  public void setChecksumAttribute(Path p, String checksumValue)
-    throws IOException;
-  
-  public void setChecksumAttribute(File f, String checksumValue)
-    throws IOException;
+  public void setExtendedFileAttribute(Path p, ExtendedAttributes name, String value) throws IOException;
 
-  public String getChecksumAttribute(File f) throws IOException;
-  
-  public String getChecksumAttribute(Path p) throws IOException;
+  public void setExtendedFileAttribute(File f, ExtendedAttributes name, String value) throws IOException;
 
-  public boolean fileSupportsExtendedAttributes(File f) throws IOException;
+  public String getExtendedFileAttributeValue(File f, ExtendedAttributes name) throws IOException;
+
+  public FileStat stat(Path p) throws IOException;
+
+  public FileStat stat(File f) throws IOException;
+
+  public FileStatus getFileStatus(Path p) throws IOException;
+
+  public FileStatus getFileStatus(File f) throws IOException;
+
+  public boolean isStub(Path p) throws IOException;
+
+  public boolean isStub(File f) throws IOException;
+
+  public boolean isStub(FileStat fs) throws IOException;
 }

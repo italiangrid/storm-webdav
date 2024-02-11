@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-public class WlcgTapeRestApi {
+public class WlcgTapeRestApiMetadata {
 
   private String sitename;
   private String description;
