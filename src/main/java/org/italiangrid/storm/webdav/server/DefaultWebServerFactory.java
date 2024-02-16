@@ -16,7 +16,7 @@
 package org.italiangrid.storm.webdav.server;
 
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
-import org.italiangrid.utils.jetty.ThreadPoolBuilder;
+import org.italiangrid.storm.webdav.server.util.ThreadPoolBuilder;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;

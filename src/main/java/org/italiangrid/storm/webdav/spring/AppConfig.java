@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.spring;
 
 import static java.util.Objects.isNull;
-import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -129,6 +128,7 @@ import eu.emi.security.authn.x509.impl.PEMCredential;
 public class AppConfig implements TransferConstants {
 
   public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
+  public static final String CONSCRYPT_PROVIDER = "Conscrypt";
 
   @Bean
   Clock systemClock() {

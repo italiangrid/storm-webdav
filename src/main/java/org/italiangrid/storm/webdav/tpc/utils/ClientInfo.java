@@ -20,7 +20,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.util.Map;
 
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Splitter.MapSplitter;
