@@ -307,10 +307,8 @@ public class AppConfig implements TransferConstants {
   ClientRegistrationRepository clientRegistrationRepository(
       OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
 
-
     ClientRegistrationCacheLoader loader =
         new ClientRegistrationCacheLoader(clientProperties, props, executor);
-
 
     LoadingCache<String, ClientRegistration> clients = CacheBuilder.newBuilder()
       .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
@@ -345,7 +343,6 @@ public class AppConfig implements TransferConstants {
   @Bean
   JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
       RestTemplateBuilder builder, OidcConfigurationFetcher fetcher, ExecutorService executor) {
-
 
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);

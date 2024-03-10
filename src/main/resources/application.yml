@@ -50,7 +50,8 @@ tpc:
   enable-expect-continue-threshold: ${STORM_WEBDAV_TPC_ENABLE_EXPECT_CONTINUE_THRESHOLD:1048576}
 
 oauth:
-  refresh-period-minutes: 60
+  refresh-period-minutes: ${STORM_WEBDAV_OAUTH_REFRESH_PERIOD_MINUTES:60}
+  refresh-timeout-seconds: ${STORM_WEBDAV_OAUTH_REFRESH_TIMEOUT_SECONDS:30}
   issuers:
 
 storm:

@@ -54,7 +54,6 @@
     <owner-config.version>1.0.5.1</owner-config.version>
 
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
-    <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
     <bouncycastle.version>1.76</bouncycastle.version>
     <voms-api-java.version>3.3.2</voms-api-java.version>
