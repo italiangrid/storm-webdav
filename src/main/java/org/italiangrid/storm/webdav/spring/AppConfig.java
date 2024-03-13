@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.spring;
 
 import static java.util.Objects.isNull;
-import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -129,6 +128,7 @@ import eu.emi.security.authn.x509.impl.PEMCredential;
 public class AppConfig implements TransferConstants {
 
   public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
+  public static final String CONSCRYPT_PROVIDER = "Conscrypt";
 
   @Bean
   Clock systemClock() {
@@ -307,10 +307,8 @@ public class AppConfig implements TransferConstants {
   ClientRegistrationRepository clientRegistrationRepository(
       OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
 
-
     ClientRegistrationCacheLoader loader =
         new ClientRegistrationCacheLoader(clientProperties, props, executor);
-
 
     LoadingCache<String, ClientRegistration> clients = CacheBuilder.newBuilder()
       .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
@@ -345,7 +343,6 @@ public class AppConfig implements TransferConstants {
   @Bean
   JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
       RestTemplateBuilder builder, OidcConfigurationFetcher fetcher, ExecutorService executor) {
-
 
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);

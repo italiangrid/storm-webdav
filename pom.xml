@@ -12,7 +12,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- Keep this aligned with the spring.boot-version property below! -->
-    <version>2.7.17</version>
+    <version>2.7.18</version>
     <relativePath />
   </parent>
 
@@ -32,14 +32,13 @@
     <java.version>17</java.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.7.17</spring-boot.version>
+    <spring-boot.version>2.7.18</spring-boot.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <jetty-utils.version>0.4.6.v20220506</jetty-utils.version>
     <milton.version>2.7.1.7</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
@@ -55,9 +54,9 @@
     <owner-config.version>1.0.5.1</owner-config.version>
 
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
-    <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
     <bouncycastle.version>1.76</bouncycastle.version>
+    <voms-api-java.version>3.3.2</voms-api-java.version>
 
     <start-class>org.italiangrid.storm.webdav.WebdavService</start-class>
 
@@ -349,34 +348,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.italiangrid</groupId>
-      <artifactId>jetty-utils</artifactId>
-      <version>${jetty-utils.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.mail</groupId>
-          <artifactId>mail</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.jetty.aggregate</groupId>
-          <artifactId>jetty-all</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk18on</artifactId>
       <version>${bouncycastle.version}</version>
@@ -387,7 +358,6 @@
       <artifactId>bcprov-jdk18on</artifactId>
       <version>${bouncycastle.version}</version>
     </dependency>
-
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -405,6 +375,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <exclusions>
@@ -418,6 +393,34 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-rewrite</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-http</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-alpn-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>http2-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>http2-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-alpn-conscrypt-server</artifactId>
     </dependency>
 
     <dependency>
@@ -461,6 +464,12 @@
       <groupId>io.milton</groupId>
       <artifactId>milton-api</artifactId>
       <version>${milton.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.italiangrid</groupId>
+      <artifactId>voms-api-java</artifactId>
+      <version>${voms-api-java.version}</version>
     </dependency>
 
     <dependency>

@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.oauth.utils;
+package org.italiangrid.storm.webdav.server.util;
 
-import java.net.URI;
-import java.util.Map;
+public class TLSConnectorBuilderError extends RuntimeException {
 
-import com.nimbusds.jose.RemoteKeySourceException;
+  private static final long serialVersionUID = 1L;
 
-public interface OidcConfigurationFetcher {
+  public TLSConnectorBuilderError(Throwable cause) {
+    super(cause);
+  }
 
-  Map<String, Object> loadConfigurationForIssuer(String issuer);
+  public TLSConnectorBuilderError(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-  String loadJWKSourceForURL(URI uri) throws RemoteKeySourceException;
+  public TLSConnectorBuilderError(String message) {
+    super(message);
+  }
 
 }
