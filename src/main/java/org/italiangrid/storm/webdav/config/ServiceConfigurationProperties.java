@@ -260,10 +260,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     int securePort = 8443;
 
     @Positive
+    int minConnections = 10;
+
+    @Positive
     int maxConnections = 200;
 
     @Positive
-    int maxQueueSize = 512;
+    int maxQueueSize = 50;
 
     @Positive
     int maxIdleTimeMsec = 30000;
@@ -290,6 +293,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setSecurePort(int securePort) {
       this.securePort = securePort;
+    }
+
+    public int getMinConnections() {
+      return minConnections;
+    }
+
+    public void setMinConnections(int minConnections) {
+      this.minConnections = minConnections;
     }
 
     public int getMaxConnections() {
@@ -732,6 +743,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return getTls().getTrustAnchorsRefreshIntervalSecs();
   }
 
+  @Override
+  public int getMinConnections() {
+    return getConnector().getMinConnections();
+  }
 
   @Override
   public int getMaxConnections() {
@@ -887,4 +902,5 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   public void setTape(TapeProperties tape) {
     this.tape = tape;
   }
+
 }

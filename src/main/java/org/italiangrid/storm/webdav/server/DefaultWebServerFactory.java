@@ -47,8 +47,8 @@ public class DefaultWebServerFactory
 
     factory.setThreadPool(ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(serverProperties.getJetty().getThreads().getMax())
-      .withMinThreads(serverProperties.getJetty().getThreads().getMin())
+      .withMaxThreads(configuration.getMaxConnections())
+      .withMinThreads(configuration.getMinConnections())
       .registry(metricRegistry)
       .withPrefix("storm.http")
       .withName("thread-pool")

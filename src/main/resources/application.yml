@@ -87,6 +87,8 @@ storm:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
     # HTTPS connector port
     secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    # Min concurrent connections
+    min-connections: ${STORM_WEBDAV_MIN_CONNECTIONS:50}
     # Max concurrent connections
     max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
     # Connection queue size
