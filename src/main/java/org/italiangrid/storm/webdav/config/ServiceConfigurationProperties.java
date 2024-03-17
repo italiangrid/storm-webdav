@@ -626,6 +626,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private ChecksumStrategy checksumStrategy = ChecksumStrategy.EARLY;
 
+  private boolean nginxReverseProxy = false;
+
   private BufferProperties buffer;
 
   private RedirectorProperties redirector;
@@ -848,6 +850,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setChecksumStrategy(ChecksumStrategy checksumStrategy) {
     this.checksumStrategy = checksumStrategy;
+  }
+
+  public boolean getNginxReverseProxy() {
+    return nginxReverseProxy;
+  }
+
+  public void setNginxReverseProxy(boolean nginxReverseProxy) {
+    this.nginxReverseProxy = nginxReverseProxy;
   }
 
 

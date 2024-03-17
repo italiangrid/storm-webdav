@@ -75,6 +75,12 @@ public class StoRMServlet extends DefaultServlet {
   }
 
   @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    resourceService.doGet(request, response, pathResolver, serviceConfig);
+  }
+
+  @Override
   protected void doHead(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     resourceService.doHead(request, response);

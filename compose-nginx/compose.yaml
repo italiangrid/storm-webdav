@@ -1,0 +1,31 @@
+services:
+  trust:
+    image: indigoiam/egi-trustanchors:igi-test-ca
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+    environment:
+      - FORCE_TRUST_ANCHORS_UPDATE=1
+  nginx-httpg-voms:
+    image: cnafsd/nginx-httpg-voms
+    volumes:
+      - /etc/grid-security/hostcert.pem:/etc/grid-security/hostcert.pem:ro
+      - /etc/grid-security/hostkey.pem:/etc/grid-security/hostkey.pem:ro
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+      - ../src:/src:z
+      - ./assets/nginx/nginx.conf:/etc/nginx/nginx.conf:z
+      - ./assets/nginx/storm.conf:/etc/nginx/conf.d/storm.conf:z
+      - ./assets/wlcg:/etc/grid-security/vomsdir/wlcg:z
+    ports:
+      - "8443:8443"
+    # to wait the trust service to finish
+    restart: on-failure
+  storm-webdav:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+
+volumes:
+  trustanchors:
+  cabundle:
