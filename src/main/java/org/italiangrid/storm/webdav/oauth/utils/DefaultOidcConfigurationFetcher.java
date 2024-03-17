@@ -84,22 +84,22 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
         new ParameterizedTypeReference<Map<String, Object>>() {};
 
     URI uri = UriComponentsBuilder.fromUriString(issuer + WELL_KNOWN_FRAGMENT).build().toUri();
-
+    ResponseEntity<Map<String, Object>> response = null;
     try {
 
       RequestEntity<Void> request = RequestEntity.get(uri).build();
-      Map<String, Object> conf = restTemplate.exchange(request, typeReference).getBody();
-      metadataChecks(issuer, conf);
-      return conf;
-    } catch (RuntimeException e) {
-      final String errorMsg =
-          format("Unable to resolve OpenID configuration for issuer '%s' from '%s': %s", issuer,
-              uri, e.getMessage());
-
-      if (LOG.isDebugEnabled()) {
-        LOG.error(errorMsg, e);
+      response = restTemplate.exchange(request, typeReference);
+      if (response.getStatusCodeValue() != 200) {
+        throw new RuntimeException(
+            format("Received status code: %s", response.getStatusCodeValue()));
       }
-
+      metadataChecks(issuer, response.getBody());
+      return response.getBody();
+    } catch (RuntimeException e) {
+      final String errorMsg = format("Unable to resolve OpenID configuration from '%s'", uri);
+      if (LOG.isDebugEnabled()) {
+        LOG.error("{}: {}", errorMsg, e.getMessage());
+      }
       throw new OidcConfigurationResolutionError(errorMsg, e);
     }
   }

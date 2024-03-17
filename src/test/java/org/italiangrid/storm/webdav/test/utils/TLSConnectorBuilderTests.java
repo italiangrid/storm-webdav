@@ -19,8 +19,10 @@ import static org.junit.Assert.assertThrows;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
@@ -94,10 +96,15 @@ public class TLSConnectorBuilderTests {
     builder.withPort(1234)
       .withCertificateFile("fake-certificate")
       .withCertificateKeyFile("fake-key")
+      .withCertificateKeyPassword("secret".toCharArray())
       .withHttpConfiguration(httpConfiguration)
       .withKeyManager(keyManager)
       .withExcludeCipherSuites("one", "two")
-      .withIncludeProtocols("protocol", "another-protocol");
+      .withIncludeCipherSuites("three", "four")
+      .withIncludeProtocols("protocol", "another-protocol")
+      .withExcludeProtocols("another-more-protocol")
+      .withHostnameVerifier(new NoopHostnameVerifier())
+      .withConscrypt(false);
 
     builder.build();
   }
