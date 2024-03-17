@@ -55,6 +55,7 @@ oauth:
   issuers:
 
 storm:
+  nginx-reverse-proxy: true
   checksum-strategy: early
 
   redirector:
