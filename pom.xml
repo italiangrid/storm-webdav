@@ -12,7 +12,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- Keep this aligned with the spring.boot-version property below! -->
-    <version>2.7.18</version>
+    <version>2.7.10</version>
     <relativePath />
   </parent>
 
@@ -32,7 +32,7 @@
     <java.version>11</java.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.7.18</spring-boot.version>
+    <spring-boot.version>2.7.10</spring-boot.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
