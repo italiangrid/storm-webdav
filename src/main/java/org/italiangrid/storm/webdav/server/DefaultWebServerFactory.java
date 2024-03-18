@@ -17,6 +17,8 @@ package org.italiangrid.storm.webdav.server;
 
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.server.util.ThreadPoolBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
@@ -26,6 +28,8 @@ import com.codahale.metrics.MetricRegistry;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
+
+  public static final Logger LOG = LoggerFactory.getLogger(DefaultWebServerFactory.class);
 
   final ServiceConfiguration configuration;
   final ServerProperties serverProperties;
@@ -45,14 +49,17 @@ public class DefaultWebServerFactory
   @Override
   public void customize(JettyServletWebServerFactory factory) {
 
-    factory.setThreadPool(ThreadPoolBuilder.instance()
+    ThreadPoolBuilder threadPoolBuilder = ThreadPoolBuilder.instance()
       .withMaxRequestQueueSize(configuration.getMaxQueueSize())
       .withMaxThreads(configuration.getMaxConnections())
       .withMinThreads(configuration.getMinConnections())
       .registry(metricRegistry)
       .withPrefix("storm.http")
-      .withName("thread-pool")
-      .build());
+      .withName("thread-pool");
+
+    LOG.debug("{}", threadPoolBuilder);
+
+    factory.setThreadPool(threadPoolBuilder.build());
 
     factory.addServerCustomizers(serverCustomizer);
   }

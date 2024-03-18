@@ -203,4 +203,11 @@ public class ThreadPoolBuilder {
     return tp;
 
   }
+
+  @Override
+  public String toString() {
+    return "ThreadPoolBuilder [maxThreads=" + maxThreads + ", minThreads=" + minThreads
+        + ", idleTimeout=" + idleTimeout + ", maxRequestQueueSize=" + maxRequestQueueSize
+        + ", name=" + name + ", prefix=" + prefix + ", registry=" + registry + "]";
+  }
 }
