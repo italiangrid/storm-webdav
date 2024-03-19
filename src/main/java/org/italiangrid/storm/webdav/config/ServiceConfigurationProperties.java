@@ -260,10 +260,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     int securePort = 8443;
 
     @Positive
-    int maxConnections = 200;
+    int minConnections = 50;
 
     @Positive
-    int maxQueueSize = 512;
+    int maxConnections = 300;
+
+    @Positive
+    int maxQueueSize = 900;
 
     @Positive
     int maxIdleTimeMsec = 30000;
@@ -290,6 +293,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setSecurePort(int securePort) {
       this.securePort = securePort;
+    }
+
+    public int getMinConnections() {
+      return minConnections;
+    }
+
+    public void setMinConnections(int minConnections) {
+      this.minConnections = minConnections;
     }
 
     public int getMaxConnections() {
@@ -732,54 +743,50 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return getTls().getTrustAnchorsRefreshIntervalSecs();
   }
 
+  @Override
+  public int getMinConnections() {
+    return getConnector().getMinConnections();
+  }
 
   @Override
   public int getMaxConnections() {
     return getConnector().getMaxConnections();
   }
 
-
   @Override
   public int getMaxQueueSize() {
     return getConnector().getMaxQueueSize();
   }
-
 
   @Override
   public int getConnectorMaxIdleTimeInMsec() {
     return getConnector().getMaxIdleTimeMsec();
   }
 
-
   @Override
   public String getSAConfigDir() {
     return getSa().getConfigDir();
   }
-
 
   @Override
   public boolean enableVOMapFiles() {
     return getVoMapFiles().isEnabled();
   }
 
-
   @Override
   public String getVOMapFilesConfigDir() {
     return getVoMapFiles().getConfigDir();
   }
-
 
   @Override
   public long getVOMapFilesRefreshIntervalInSeconds() {
     return getVoMapFiles().getRefreshIntervalSec();
   }
 
-
   @Override
   public boolean isAuthorizationDisabled() {
     return getAuthz().isDisabled();
   }
-
 
   @Override
   public boolean requireClientCertificateAuthentication() {
