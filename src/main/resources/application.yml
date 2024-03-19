@@ -86,13 +86,19 @@ storm:
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
     # HTTPS connector port
     secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    # Min concurrent connections
+    min-connections: ${STORM_WEBDAV_MIN_CONNECTIONS:50}
     # Max concurrent connections
     max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
     # Connection queue size
     max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
     # Connector Maximum idle time (in milliseconds)
-    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000}
     output-buffer-size-bytes: ${storm.buffer.file-buffer-size-bytes}
+    # Number of acceptor threads to use. When the value is -1, the default, the number of acceptors is derived from the operating environment.
+    jetty-acceptors: ${STORM_WEBDAV_CONNECTOR_ACCEPTORS:-1}
+    # Number of selector threads to use. When the value is -1, the default, the number of selectors is derived from the operating environment.
+    jetty-selectors: ${STORM_WEBDAV_CONNECTOR_SELECTORS:-1}
 
   tls:
     # Path to the service certificate.

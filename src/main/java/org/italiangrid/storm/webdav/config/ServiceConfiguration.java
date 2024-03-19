@@ -33,6 +33,8 @@ public interface ServiceConfiguration {
 
   public long getTrustAnchorsRefreshIntervalInSeconds();
 
+  public int getMinConnections();
+
   public int getMaxConnections();
 
   public int getMaxQueueSize();
