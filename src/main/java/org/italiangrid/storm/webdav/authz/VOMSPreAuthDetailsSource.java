@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.voms.VOMSAttribute;
 import org.italiangrid.voms.ac.VOMSACValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -37,6 +39,8 @@ import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class VOMSPreAuthDetailsSource
     implements AuthenticationDetailsSource<HttpServletRequest, VOMSAuthenticationDetails> {
+
+  public static final Logger LOG = LoggerFactory.getLogger(VOMSPreAuthDetailsSource.class);
 
   private final AuthorizationPolicyService policyService;
   private final VOMSACValidator validator;
@@ -55,16 +59,24 @@ public class VOMSPreAuthDetailsSource
     Set<GrantedAuthority> authorities = Sets.newHashSet();
 
     List<VOMSAttribute> attributes = getAttributes(request);
+    LOG.debug("Num. of VOMS attributes extracted from request: {}", attributes.size());
+    attributes.forEach(a -> LOG.debug("{}", a));
 
     getSubjectAuthority(request).ifPresent(authorities::add);
 
     authorities.addAll(getAuthoritiesFromAttributes(attributes));
+    LOG.debug("Num. of Granted Authorities extracted from attributes: {}", authorities.size());
+    authorities.forEach(a -> LOG.debug("{}", a));
 
     if (attributes.isEmpty()) {
       authorities.addAll(getAuthoritiesFromVoMapFiles(request));
+      LOG.debug("Num. of total Granted Authorities updated after parsing request: {}", authorities.size());
+      authorities.forEach(a -> LOG.debug("{}", a));
     }
 
     authorities.addAll(policyService.getSAPermissions(authorities));
+    LOG.debug("Num. of total Granted Authorities updated after getting sa permissions: {}", authorities.size());
+    authorities.forEach(a -> LOG.debug("{}", a));
 
     return new VOMSAuthenticationDetails(request, authorities, attributes);
 

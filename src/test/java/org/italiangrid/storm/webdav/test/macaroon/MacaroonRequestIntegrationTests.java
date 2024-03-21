@@ -124,6 +124,14 @@ public class MacaroonRequestIntegrationTests {
       .andExpect(jsonPath("$.macaroon").exists());
   }
 
+  @Test
+  @WithMockVOMSUser(saReadPermissions = { "test.vo" }, saWritePermissions = { "test.vo" }, vos = {})
+  public void macaroonNotIssuedWithoutVOAuthority() throws Exception {
+    mvc
+      .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
+        .content(EMPTY_JSON_OBJECT))
+      .andExpect(status().isForbidden());
+  }
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 43200)
