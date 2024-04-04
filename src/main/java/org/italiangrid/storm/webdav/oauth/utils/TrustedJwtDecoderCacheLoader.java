@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.oauth.utils;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -28,8 +29,8 @@ import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
 import org.italiangrid.storm.webdav.oauth.validator.WlcgProfileValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cache.Cache;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -53,7 +54,6 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
   private final ExecutorService executor;
   private final OAuthProperties oauthProperties;
 
-  @Autowired
   public TrustedJwtDecoderCacheLoader(ServiceConfigurationProperties properties,
       OAuthProperties oauthProperties, RestTemplateBuilder builder,
       OidcConfigurationFetcher fetcher, ExecutorService executor) {
@@ -76,9 +76,14 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
       .orElseThrow(unknownTokenIssuer(issuer));
 
     Map<String, Object> oidcConfiguration = fetcher.loadConfigurationForIssuer(issuer);
+    URI jwksUri = URI.create(oidcConfiguration.get("jwks_uri").toString());
+    Cache noExpirationCache =
+        new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri).toString());
 
     NimbusJwtDecoder decoder =
-        NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString())).build();
+        NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString()))
+          .cache(noExpirationCache)
+          .build();
 
     OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
     OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();

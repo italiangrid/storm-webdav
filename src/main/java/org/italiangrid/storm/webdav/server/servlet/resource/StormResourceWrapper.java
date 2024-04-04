@@ -15,6 +15,9 @@
  */
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_MIGRATED_ATTR_NAME;
+import static org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributes.STORM_RECALL_IN_PROGRESS_ATTR_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +25,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,11 +37,16 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-public class StormResourceWrapper extends Resource {
+import jnr.posix.FileStat;
+import jnr.posix.POSIX;
+import jnr.posix.POSIXFactory;
+
+public class StormResourceWrapper extends Resource implements StormResource {
 
   public static final String JETTY_DIR_TEMPLATE = "jetty-dir";
 
@@ -45,15 +54,23 @@ public class StormResourceWrapper extends Resource {
   final TemplateEngine engine;
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
+  final String absoluteFilePath;
+  final FileStat fileStat;
+  final ExtendedAttributesHelper attrsHelper;
+  final POSIX posix;
 
   public StormResourceWrapper(OAuthProperties oauth, ServiceConfigurationProperties serviceConfig,
-      TemplateEngine engine, Resource delegate) {
+      TemplateEngine engine, String absoluteFilePath, Resource delegate, FileStat fileStat,
+      POSIX posix, ExtendedAttributesHelper attributesHelper) {
 
     this.oauthProperties = oauth;
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
-
+    this.absoluteFilePath = absoluteFilePath;
+    this.fileStat = fileStat;
+    this.attrsHelper = attributesHelper;
+    this.posix = posix;
   }
 
   /**
@@ -136,6 +153,7 @@ public class StormResourceWrapper extends Resource {
     context.setVariable("oidcEnabled", oauthProperties.isEnableOidc());
 
     String encodedBase = hrefEncodeURI(decodedBase);
+    String encodedFullBasePath = hrefEncodeURI(delegate.getFile().getCanonicalPath());
 
     String parentDir = URIUtil.addPaths(encodedBase, "../");
 
@@ -144,13 +162,27 @@ public class StormResourceWrapper extends Resource {
     List<StormFsResourceView> resources = new ArrayList<>();
 
     for (String l : rawListing) {
-      Resource r = addPath(l);
+
+      String absolutePath = String.format("%s/%s", absoluteFilePath, l);
+      File f = new File(absolutePath);
+      FileStat fStat = POSIXFactory.getPOSIX().stat(absolutePath);
+
+      boolean isOnline = true;
+      boolean hasRecallInProgress = false;
+      boolean isDirectory = fStat.isDirectory();
+      if (!isDirectory) {
+        isOnline = !isStub(fStat);
+        hasRecallInProgress = attrsHelper.getExtendedFileAttributeNames(f).contains(STORM_RECALL_IN_PROGRESS_ATTR_NAME.toString());
+      }
       resources.add(StormFsResourceView.builder()
         .withName(l)
         .withPath(URIUtil.addEncodedPaths(encodedBase, URIUtil.encodePath(l)))
-        .withIsDirectory(r.isDirectory())
-        .withLastModificationTime(new Date(r.lastModified()))
-        .withSizeInBytes(r.length())
+        .withFullPath(URIUtil.addEncodedPaths(encodedFullBasePath, URIUtil.encodePath(l)))
+        .withIsOnline(isOnline)
+        .withIsRecallInProgress(hasRecallInProgress)
+        .withIsDirectory(isDirectory)
+        .withLastModificationTime(Date.from(Instant.ofEpochMilli(fStat.ctime() + fStat.mtime())))
+        .withSizeInBytes(fStat.st_size())
         .build());
     }
 
@@ -189,7 +221,8 @@ public class StormResourceWrapper extends Resource {
 
   @Override
   public long length() {
-    return delegate.length();
+    return fileStat.st_size();
+    // return delegate.length();
   }
 
   @SuppressWarnings("deprecation")
@@ -289,5 +322,29 @@ public class StormResourceWrapper extends Resource {
     internalCopy(in, out, -1);
   }
 
+  @Override
+  public boolean isOnline() {
+    return !isStub(fileStat);
+  }
 
+  @Override
+  public boolean isStub() {
+    return isStub(fileStat);
+  }
+
+  @Override
+  public boolean hasMigrated() throws IOException {
+    return attrsHelper.getExtendedFileAttributeNames(getFile())
+      .contains(STORM_MIGRATED_ATTR_NAME.toString());
+  }
+
+  @Override
+  public boolean hasInProgressRecall() throws IOException {
+    return attrsHelper.getExtendedFileAttributeNames(getFile())
+      .contains(STORM_RECALL_IN_PROGRESS_ATTR_NAME.toString());
+  }
+
+  public static boolean isStub(FileStat fileStat) {
+    return fileStat.blockSize() * fileStat.blocks() < fileStat.st_size();
+  }
 }

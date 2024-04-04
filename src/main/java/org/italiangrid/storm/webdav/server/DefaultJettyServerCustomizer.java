@@ -32,7 +32,6 @@ import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.utils.jetty.TLSServerConnectorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;

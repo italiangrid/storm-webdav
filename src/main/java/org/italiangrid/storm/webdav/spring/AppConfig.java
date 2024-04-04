@@ -16,7 +16,7 @@
 package org.italiangrid.storm.webdav.spring;
 
 import static java.util.Objects.isNull;
-import static org.italiangrid.utils.jetty.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
+import static org.italiangrid.storm.webdav.server.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

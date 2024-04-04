@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,10 +27,13 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceWrapper;
 import org.thymeleaf.TemplateEngine;
+
+import jnr.posix.POSIX;
 
 public class StoRMServlet extends DefaultServlet {
 
@@ -43,15 +47,20 @@ public class StoRMServlet extends DefaultServlet {
   final ServiceConfigurationProperties serviceConfig;
   final OAuthProperties oauthProperties;
   final StormResourceService resourceService;
+  final POSIX posix;
+  final ExtendedAttributesHelper attributesHelper;
 
   public StoRMServlet(OAuthProperties oauthP, ServiceConfigurationProperties serviceConfig,
-      PathResolver resolver, TemplateEngine engine, StormResourceService rs) {
+      PathResolver resolver, TemplateEngine engine, StormResourceService rs, POSIX posix,
+      ExtendedAttributesHelper attributesHelper) {
     super(rs);
     oauthProperties = oauthP;
     resourceService = rs;
     pathResolver = resolver;
     templateEngine = engine;
     this.serviceConfig = serviceConfig;
+    this.posix = posix;
+    this.attributesHelper = attributesHelper;
   }
 
   @Override
@@ -69,9 +78,9 @@ public class StoRMServlet extends DefaultServlet {
       return null;
     }
 
-    return new StormResourceWrapper(oauthProperties, serviceConfig, templateEngine,
-        Resource.newResource(f));
-
+    return new StormResourceWrapper(oauthProperties, serviceConfig, templateEngine, resolvedPath,
+        Resource.newResource(Path.of(resolvedPath)), posix.stat(resolvedPath), posix,
+        attributesHelper);
   }
 
   @Override
