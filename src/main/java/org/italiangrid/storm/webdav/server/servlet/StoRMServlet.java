@@ -77,7 +77,11 @@ public class StoRMServlet extends DefaultServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    resourceService.doGet(request, response);
+    if (serviceConfig.getNginxReverseProxy()) {
+      resourceService.doGetNginx(request, response, pathResolver);
+    } else {
+      resourceService.doGet(request, response);
+    }
   }
 
   @Override

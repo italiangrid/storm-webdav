@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
+import org.italiangrid.storm.webdav.authz.VOMSNginxFilter;
 import org.italiangrid.storm.webdav.authz.VOMSPreAuthDetailsSource;
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailServiceBuilder;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -31,6 +32,7 @@ import org.italiangrid.voms.store.VOMSTrustStore;
 import org.italiangrid.voms.store.VOMSTrustStores;
 import org.italiangrid.voms.util.CachingCertificateValidator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,13 +73,20 @@ public class VOMSBeans {
 
   @Bean
   VOMSPreAuthDetailsSource vomsDetailsSource(VOMSACValidator validator,
-      AuthorizationPolicyService ps, VOMapDetailServiceBuilder builder) {
-    return new VOMSPreAuthDetailsSource(validator, ps, builder.build());
+      AuthorizationPolicyService ps, VOMapDetailServiceBuilder builder,
+      @Value("${storm.nginx-reverse-proxy}") boolean nginxReverseProxy) {
+    return new VOMSPreAuthDetailsSource(validator, ps, builder.build(), nginxReverseProxy);
   }
 
   @Bean
-  VOMSAuthenticationFilter vomsAuthenticationFilter(VOMSPreAuthDetailsSource ds) {
-    VOMSAuthenticationFilter filter = new VOMSAuthenticationFilter(vomsAuthenticationProvider());
+  VOMSAuthenticationFilter vomsAuthenticationFilter(VOMSPreAuthDetailsSource ds,
+      @Value("${storm.nginx-reverse-proxy}") boolean nginxReverseProxy) {
+    VOMSAuthenticationFilter filter;
+    if (nginxReverseProxy) {
+      filter = new VOMSNginxFilter(vomsAuthenticationProvider());
+    } else {
+      filter = new VOMSAuthenticationFilter(vomsAuthenticationProvider());
+    }
     filter.setAuthenticationDetailsSource(ds);
     return filter;
   }
