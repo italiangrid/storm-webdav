@@ -8,6 +8,7 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.eclipse.jetty.ee10.servlet.ResourceServlet;
@@ -21,6 +22,7 @@ import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.resource.StoRMResourceHttpContentFactory;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -118,6 +120,18 @@ public class StoRMServlet extends ResourceServlet {
               request.getRemoteAddr(),
               request.getRemotePort());
       scitagTransfer.writeStart();
+    }
+    if (serviceConfig.getNginx().getEnabled()) {
+      String resolvedPath = pathResolver.resolvePath(pathInContext);
+      File f = new File(resolvedPath);
+      if (f.isFile()) {
+        if (scitag != null) {
+          response.setHeader("X-SciTag-actId", Integer.toString(scitag.activityId()));
+          response.setHeader("X-SciTag-expId", Integer.toString(scitag.experimentId()));
+        }
+        response.setHeader("X-Accel-Redirect", PathConstants.INTERNAL_GET_PATH + resolvedPath);
+        return;
+      }
     }
     super.doGet(request, response);
     if (scitagTransfer != null) {

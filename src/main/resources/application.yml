@@ -66,6 +66,9 @@ oauth:
   issuers:
 
 storm:
+  nginx:
+    enabled: ${STORM_WEBDAV_NGINX_ENABLED:false}
+
   checksum-strategy: early
 
   redirector:

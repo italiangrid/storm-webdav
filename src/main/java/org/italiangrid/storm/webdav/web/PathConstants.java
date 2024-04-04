@@ -17,6 +17,10 @@ public class PathConstants {
   public static final String ASSETS_PATH = PATH_PREFIX + "/assets";
   public static final String AUTHN_INFO_PATH = PATH_PREFIX + "/authn-info";
   public static final String ERRORS_PATH = PATH_PREFIX + "/errors";
+  public static final String INTERNAL_PATH = PATH_PREFIX + "/internal";
+  // This is used in nginx X-Accel-Redirect header and should match the location in the
+  // configuration
+  public static final String INTERNAL_GET_PATH = INTERNAL_PATH + "/get";
   public static final String LOGOUT_PATH = PATH_PREFIX + "/logout";
   public static final String OAUTH_TOKEN_PATH = PATH_PREFIX + "/oauth/token";
   public static final String OIDC_LOGIN_PATH = PATH_PREFIX + "/oidc-login";

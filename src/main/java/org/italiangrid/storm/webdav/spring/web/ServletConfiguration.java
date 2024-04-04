@@ -26,6 +26,7 @@ import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
 import org.italiangrid.storm.webdav.server.servlet.DeleteSanityChecksFilter;
+import org.italiangrid.storm.webdav.server.servlet.ForwardedByHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
@@ -47,6 +48,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.thymeleaf.TemplateEngine;
 
 @Configuration
@@ -67,6 +69,34 @@ public class ServletConfiguration {
   static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
   static final int SERVER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 100;
   static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
+  // ForwardedByHeaderFilter must be ordered ahead of the ForwardedHeaderFilter because the latter
+  // removes the Forwarded header partially parsed by the former
+  static final int FORWARDED_HEADER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 300;
+  static final int FORWARDED_BY_HEADER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 400;
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.nginx.enabled", havingValue = "true")
+  FilterRegistrationBean<ForwardedByHeaderFilter> forwardedByHeaderFilter() {
+    FilterRegistrationBean<ForwardedByHeaderFilter> forwardedByHeaderFilter =
+        new FilterRegistrationBean<>(new ForwardedByHeaderFilter());
+
+    forwardedByHeaderFilter.addUrlPatterns("/*");
+    forwardedByHeaderFilter.setOrder(FORWARDED_BY_HEADER_FILTER_ORDER);
+
+    return forwardedByHeaderFilter;
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.nginx.enabled", havingValue = "true")
+  FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
+    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter =
+        new FilterRegistrationBean<>(new ForwardedHeaderFilter());
+
+    forwardedHeaderFilter.addUrlPatterns("/*");
+    forwardedHeaderFilter.setOrder(FORWARDED_HEADER_FILTER_ORDER);
+
+    return forwardedHeaderFilter;
+  }
 
   @Bean
   FilterRegistrationBean<RequestIdFilter> requestIdFilter() {

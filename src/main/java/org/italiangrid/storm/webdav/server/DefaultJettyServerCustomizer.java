@@ -68,7 +68,9 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     server.setConnectors(null);
     configurePlainConnector(server);
-    configureTLSConnector(server);
+    if (!serviceConfig.getNginx().getEnabled()) {
+      configureTLSConnector(server);
+    }
     configureRewriteHandler(server);
     configureAccessLog(server);
 

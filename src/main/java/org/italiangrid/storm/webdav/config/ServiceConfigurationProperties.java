@@ -620,6 +620,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   @NotEmpty private List<String> hostnames;
 
+  private NginxProperties nginx;
+
   public AuthorizationProperties getAuthz() {
     return authz;
   }
@@ -861,5 +863,25 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setTape(TapeProperties tape) {
     this.tape = tape;
+  }
+
+  public NginxProperties getNginx() {
+    return nginx;
+  }
+
+  public void setNginx(NginxProperties nginx) {
+    this.nginx = nginx;
+  }
+
+  public static class NginxProperties {
+    boolean enabled = true;
+
+    public boolean getEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
   }
 }

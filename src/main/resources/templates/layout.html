@@ -28,8 +28,8 @@
         <div th:if="${authn != null} and ${authn.class.name} != 'org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken'">
           <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" th:href="${PathConstants.LOGOUT_PATH}">Logout</a>
         </div>
-        <div th:if="${authn != null} and ${authn.class.name} == 'org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken' and ${oidcEnabled}">
-          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" th:href="${PathConstants.OIDC_LOGIN_PATH}">Login with OIDC</a>
+        <div th:if="${oidcEnabled} and (${authn == null} or ${authn.class.name} != 'org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken')">
+          <a th:href="${PathConstants.OIDC_LOGIN_PATH}">Login with OIDC</a>
         </div>
       </div>
     </div>
