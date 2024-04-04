@@ -15,9 +15,11 @@
  */
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpContent;
 import org.eclipse.jetty.server.ResourceService;
 import org.eclipse.jetty.util.URIUtil;
+
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.server.PathResolver;
 
 public class StormResourceService extends ResourceService {
 
@@ -71,6 +76,22 @@ public class StormResourceService extends ResourceService {
 
     putHeaders(response, content, content.getContentLengthValue());
     return true;
+  }
+
+  public boolean doGet(HttpServletRequest request, HttpServletResponse response,
+      PathResolver resolver, ServiceConfigurationProperties serviceConfig)
+      throws ServletException, IOException {
+
+    if (serviceConfig.getNginxReverseProxy()) {
+      final String pathInContext = pathInContext(request);
+      String resolvedPath = resolver.resolvePath(pathInContext);
+      File f = new File(resolvedPath);
+      if (f.isFile()) {
+        response.setHeader("X-Accel-Redirect", "/internal-get" + resolvedPath);
+        return response.isCommitted();
+      }
+    }
+    return super.doGet(request, response);
   }
 
 }

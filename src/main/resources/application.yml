@@ -58,6 +58,7 @@ oauth:
   issuers:
 
 storm:
+  nginx-reverse-proxy: ${STORM_WEBDAV_NGINX_REVERSE_PROXY:false}
   checksum-strategy: early
 
   redirector:
@@ -173,4 +174,3 @@ storm:
   tape:
     well-known:
       source: ${STORM_WEBDAV_TAPE_WELLKNOWN_SOURCE:/etc/storm/webdav/wlcg-tape-rest-api.json}
-
