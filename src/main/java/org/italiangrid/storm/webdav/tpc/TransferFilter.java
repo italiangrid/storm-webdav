@@ -36,6 +36,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
+import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.tracing.RequestIdHolder;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -108,10 +109,11 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
       if (validRequest(request, response)) {
         Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
+        SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
         if (source.isPresent()) {
-          handlePullCopy(request, response);
+          handlePullCopy(request, response, scitag);
         } else {
-          handlePushCopy(request, response);
+          handlePushCopy(request, response, scitag);
         }
       }
 
@@ -210,8 +212,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
-  protected void handlePullCopy(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+  protected void handlePullCopy(HttpServletRequest request, HttpServletResponse response,
+      SciTag scitag) throws IOException {
 
     URI uri = URI.create(request.getHeader(SOURCE_HEADER));
     String path = getScopedPathInfo(request);
@@ -221,6 +223,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       .uri(uri)
       .path(path)
       .headers(getTransferHeaders(request, response))
+      .scitag(scitag)
       .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
       .overwrite(overwriteRequested(request))
       .build();
@@ -249,8 +252,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
-  protected void handlePushCopy(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+  protected void handlePushCopy(HttpServletRequest request, HttpServletResponse response,
+      SciTag scitag) throws IOException {
     URI uri = URI.create(request.getHeader(DESTINATION_HEADER));
     String path = getScopedPathInfo(request);
 
@@ -259,6 +262,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       .uri(uri)
       .path(path)
       .headers(getTransferHeaders(request, response))
+      .scitag(scitag)
       .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
       .overwrite(overwriteRequested(request))
       .build();

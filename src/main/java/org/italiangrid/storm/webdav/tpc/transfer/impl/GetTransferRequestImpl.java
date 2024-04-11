@@ -19,6 +19,7 @@ import static java.lang.String.format;
 
 import java.net.URI;
 
+import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 
 import com.google.common.collect.Multimap;
@@ -26,9 +27,9 @@ import com.google.common.collect.Multimap;
 public class GetTransferRequestImpl extends TransferRequestImpl implements GetTransferRequest {
 
   public GetTransferRequestImpl(String uuid, String path, URI uri,
-      Multimap<String, String> xferHeaders,
-      boolean verifyChecksum, boolean overwrite) {
-    super(uuid, path, uri, xferHeaders, verifyChecksum, overwrite);
+      Multimap<String, String> xferHeaders, SciTag scitag, boolean verifyChecksum,
+      boolean overwrite) {
+    super(uuid, path, uri, xferHeaders, scitag, verifyChecksum, overwrite);
   }
 
   @Override

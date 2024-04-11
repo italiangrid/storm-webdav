@@ -22,6 +22,8 @@ import java.util.Optional;
 
 import com.google.common.collect.Multimap;
 
+import org.italiangrid.storm.webdav.scitag.SciTag;
+
 public interface TransferRequest {
 
   String uuid();
@@ -31,6 +33,8 @@ public interface TransferRequest {
   URI remoteURI();
 
   Multimap<String, String> transferHeaders();
+
+  SciTag scitag();
 
   boolean verifyChecksum();
 

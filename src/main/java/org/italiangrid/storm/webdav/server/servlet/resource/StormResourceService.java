@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpContent;
 import org.eclipse.jetty.server.ResourceService;
 import org.eclipse.jetty.util.URIUtil;
+import org.italiangrid.storm.webdav.scitag.SciTag;
+import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 
 public class StormResourceService extends ResourceService {
 
@@ -48,6 +51,23 @@ public class StormResourceService extends ResourceService {
     }
 
     return URIUtil.addPaths(servletPath, pathInfo);
+  }
+
+  @Override
+  public boolean doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
+    SciTagTransfer scitagTransfer = null;
+    if (scitag != null) {
+      scitagTransfer = new SciTagTransfer(scitag, request.getLocalAddr(), request.getLocalPort(),
+          request.getRemoteAddr(), request.getRemotePort());
+      scitagTransfer.writeStart();
+    }
+    boolean result = super.doGet(request, response);
+    if (scitagTransfer != null) {
+      scitagTransfer.writeEnd();
+    }
+    return result;
   }
 
   public boolean doHead(HttpServletRequest request, HttpServletResponse response)

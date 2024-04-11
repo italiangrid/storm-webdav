@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
+import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
@@ -85,6 +86,14 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
         String xferHeaderName = headerName.substring(TRANFER_HEADER_LENGTH);
         if (xferHeaderName.trim().length() == 0) {
           LOG.warn("Ignoring invalid transfer header {}", headerName);
+          continue;
+        }
+        if (xferHeaderName.trim().equalsIgnoreCase(SciTag.SCITAG_HEADER)
+            && request.getHeader(SciTag.SCITAG_HEADER) != null) {
+          // If the active party receives an HTTP-TPC COPY request with both a SciTag request header
+          // and a TransferHeaderSciTag request header then it SHOULD ignore the
+          // TransferHeaderSciTag and continue to process the request.
+          LOG.warn("Ignoring TransferHeaderSciTag header because SciTag header is present");
           continue;
         }
         xferHeaders.put(xferHeaderName.trim(), request.getHeader(headerName));
