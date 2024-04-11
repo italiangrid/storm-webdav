@@ -20,6 +20,8 @@ import java.net.URI;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.italiangrid.storm.webdav.scitag.SciTag;
+
 public abstract class RequestBuilder<T> {
 
   String uuid;
@@ -27,6 +29,8 @@ public abstract class RequestBuilder<T> {
   String path;
 
   URI uri;
+
+  SciTag scitag;
 
   boolean verifyChecksum = true;
 
@@ -60,6 +64,11 @@ public abstract class RequestBuilder<T> {
 
   public RequestBuilder<T> addHeader(String header, String value) {
     headers.put(header, value);
+    return this;
+  }
+
+  public RequestBuilder<T> scitag(SciTag scitag) {
+    this.scitag = scitag;
     return this;
   }
 

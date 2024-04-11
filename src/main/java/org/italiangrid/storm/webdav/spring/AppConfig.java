@@ -45,8 +45,6 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -92,6 +90,8 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
+import org.italiangrid.storm.webdav.tpc.TpcPlainConnectionSocketFactory;
+import org.italiangrid.storm.webdav.tpc.TpcSSLConnectionSocketFactory;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
@@ -263,8 +263,8 @@ public class AppConfig implements TransferConstants {
       ctx.init(null, new TrustManager[] {tm}, null);
     }
 
-    ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
-    LayeredConnectionSocketFactory tlsSf = new SSLConnectionSocketFactory(ctx);
+    ConnectionSocketFactory sf = TpcPlainConnectionSocketFactory.getSocketFactory();
+    LayeredConnectionSocketFactory tlsSf = new TpcSSLConnectionSocketFactory(ctx);
 
     Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
       .register(HTTP, sf)

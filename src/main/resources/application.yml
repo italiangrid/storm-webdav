@@ -85,6 +85,9 @@ storm:
   macaroon-filter:
     enabled: ${STORM_WEBDAV_MACAROON_FILTER_ENABLED:true}
 
+  scitag:
+    enabled: ${STORM_WEBDAV_SCITAG_ENABLED:false}
+
   server:
     # Jetty Thread-Pool maximum idle time (in milliseconds)
     max-idle-time-msec: ${STORM_WEBDAV_SERVER_MAX_IDLE_TIME:3600000}
