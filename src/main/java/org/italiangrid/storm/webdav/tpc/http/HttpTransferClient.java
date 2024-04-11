@@ -39,11 +39,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.scitag.SciTag;
+import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
@@ -165,6 +168,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
     HttpGet get = prepareRequest(request);
+    HttpClientContext context = HttpClientContext.create();
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(() -> {
       reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
@@ -172,8 +176,9 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     try {
 
+      context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
       httpClient.execute(get, new GetResponseHandler(request, os, attributesHelper,
-          MDC.getCopyOfContextMap(), socketBufferSize, true));
+          MDC.getCopyOfContextMap(), socketBufferSize, true), context);
 
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
@@ -195,6 +200,11 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     } finally {
       if (!reportTask.isCancelled()) {
         reportTask.cancel(true);
+      }
+      SciTagTransfer scitagTransfer =
+          (SciTagTransfer) context.getAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE);
+      if (scitagTransfer != null) {
+        scitagTransfer.writeEnd();
       }
     }
   }
@@ -221,6 +231,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
 
     HttpPut put = null;
+    HttpClientContext context = HttpClientContext.create();
 
     try {
       put = prepareRequest(request, cfe);
@@ -236,7 +247,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     try {
       checkOverwrite(request);
-      httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()));
+      context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
+      httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()), context);
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(cfe.getCount()));
     } catch (HttpResponseException e) {
@@ -254,6 +266,11 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     } finally {
       if (!reportTask.isCancelled()) {
         reportTask.cancel(true);
+      }
+      SciTagTransfer scitagTransfer =
+          (SciTagTransfer) context.getAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE);
+      if (scitagTransfer != null) {
+        scitagTransfer.writeEnd();
       }
     }
   }

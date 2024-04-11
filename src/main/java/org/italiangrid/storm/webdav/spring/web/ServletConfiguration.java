@@ -39,6 +39,7 @@ import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
+import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.tracing.LogbackAccessAuthnInfoFilter;
@@ -69,11 +70,12 @@ public class ServletConfiguration {
   public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
 
   static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
-  static final int LOGBACK_ACCESS_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
-  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
-  static final int REDIRECT_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
-  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
-  static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
+  static final int LOGBACK_ACCESS_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1001;
+  static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
+  static final int REDIRECT_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
+  static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
+  static final int MACAROON_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1005;
+  static final int SCITAG_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1006;
   static final int TPC_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1007;
   static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1008;
   static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1009;
@@ -148,6 +150,15 @@ public class ServletConfiguration {
     FilterRegistrationBean<MacaroonRequestFilter> filter =
         new FilterRegistrationBean<>(new MacaroonRequestFilter(mapper, service));
     filter.setOrder(MACAROON_REQ_FILTER_ORDER);
+    return filter;
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "storm.scitag.enabled", havingValue = "true")
+  FilterRegistrationBean<SciTagFilter> scitagFilter() {
+    LOG.info("SciTag filter enabled");
+    FilterRegistrationBean<SciTagFilter> filter = new FilterRegistrationBean<>(new SciTagFilter());
+    filter.setOrder(SCITAG_FILTER_ORDER);
     return filter;
   }
 

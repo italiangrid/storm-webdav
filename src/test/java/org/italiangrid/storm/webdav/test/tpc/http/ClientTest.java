@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +75,8 @@ public class ClientTest extends ClientTestSupport {
     });
 
     verify(httpClient).execute(getRequest.capture(),
-        ArgumentMatchers.<ResponseHandler<Boolean>>any());
+        ArgumentMatchers.<ResponseHandler<Boolean>>any(),
+        ArgumentMatchers.<HttpClientContext>any());
 
     HttpGet httpGetReq = getRequest.getValue();
 
@@ -92,7 +94,8 @@ public class ClientTest extends ClientTestSupport {
     });
 
     verify(httpClient).execute(getRequest.capture(),
-        ArgumentMatchers.<ResponseHandler<Boolean>>any());
+        ArgumentMatchers.<ResponseHandler<Boolean>>any(),
+        ArgumentMatchers.<HttpClientContext>any());
 
     HttpGet httpGetReq = getRequest.getValue();
 

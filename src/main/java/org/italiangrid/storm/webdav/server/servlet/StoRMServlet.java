@@ -34,7 +34,7 @@ import org.thymeleaf.TemplateEngine;
 public class StoRMServlet extends DefaultServlet {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 4204673943980786498L;
 
@@ -72,6 +72,12 @@ public class StoRMServlet extends DefaultServlet {
     return new StormResourceWrapper(oauthProperties, serviceConfig, templateEngine,
         Resource.newResource(f));
 
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    resourceService.doGet(request, response);
   }
 
   @Override

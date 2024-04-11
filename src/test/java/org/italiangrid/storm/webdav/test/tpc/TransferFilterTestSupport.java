@@ -67,6 +67,10 @@ public class TransferFilterTestSupport implements TransferConstants {
   public static final String TRANSFER_HEADER_WHATEVER_KEY = "TransferHeaderWhatever";
   public static final String TRANSFER_HEADER_WHATEVER_VALUE = "papisilviobelluscona";
 
+  public static final String SCITAG_HEADER = "SciTag";
+  public static final String SCITAG_HEADER_VALUE = "65";
+  public static final String TRANSFER_HEADER_SCITAG = "TransferHeaderSciTag";
+
   public static final URI HTTP_URL_URI = URI.create(HTTP_URL);
   public static final URI HTTPS_URL_URI = URI.create(HTTPS_URL);
 
