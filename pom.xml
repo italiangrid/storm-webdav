@@ -38,7 +38,7 @@
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <voms-api-java.version>3.3.2</voms-api-java.version>
+    <voms-api-java.version>3.3.3</voms-api-java.version>
     <milton.version>2.7.1.7</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
