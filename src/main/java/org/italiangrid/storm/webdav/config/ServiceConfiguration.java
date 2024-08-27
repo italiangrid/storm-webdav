@@ -39,6 +39,8 @@ public interface ServiceConfiguration {
 
   public int getMaxQueueSize();
 
+  public int getThreadPoolMaxIdleTimeInMsec();
+
   public int getConnectorMaxIdleTimeInMsec();
 
   public String getSAConfigDir();

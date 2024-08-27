@@ -249,6 +249,20 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
+  public static class ServerProperties {
+
+    @Positive
+    int maxIdleTimeMsec = 3600000;
+
+    public int getMaxIdleTimeMsec() {
+      return maxIdleTimeMsec;
+    }
+
+    public void setMaxIdleTimeMsec(int maxIdleTimeMsec) {
+      this.maxIdleTimeMsec = maxIdleTimeMsec;
+    }
+  }
+
   public static class ConnectorProperties {
 
     @Positive
@@ -608,6 +622,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private MacaroonFilterProperties macaroonFilter;
 
+  private ServerProperties server;
+
   private ConnectorProperties connector;
 
   private TLSProperties tls;
@@ -654,11 +670,17 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.tls = tls;
   }
 
+  public ServerProperties getServer() {
+    return server;
+  }
+
+  public void setServer(ServerProperties server) {
+    this.server = server;
+  }
 
   public ConnectorProperties getConnector() {
     return connector;
   }
-
 
   public void setConnector(ConnectorProperties connector) {
     this.connector = connector;
@@ -756,6 +778,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public int getMaxQueueSize() {
     return getConnector().getMaxQueueSize();
+  }
+
+  @Override
+  public int getThreadPoolMaxIdleTimeInMsec() {
+    return getServer().getMaxIdleTimeMsec();
   }
 
   @Override
@@ -894,4 +921,5 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   public void setTape(TapeProperties tape) {
     this.tape = tape;
   }
+
 }
