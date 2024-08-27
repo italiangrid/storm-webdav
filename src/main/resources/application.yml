@@ -11,16 +11,19 @@ spring:
             issuer-uri: https://iam-escape.cloud.cnaf.infn.it/
           indigo:
             issuer-uri: https://iam-test.indigo-datacloud.eu/
+
   session:
     store-type: none
 
 server:
-  # StoRM webdav will bind on this address
+  # StoRM WebDAV will bind on this address
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
+  # StoRM WebDAV server should support graceful shutdown, allowing active requests time to complete, or shut down immediately
+  # Values: graceful, immediate
+  shutdown: ${STORM_WEBDAV_SERVER_SHUTDOWN:graceful}
   error:
     whitelabel:
       enabled: false
-
   jetty:
     threads:
       max: ${storm.connector.max-connections}
@@ -28,7 +31,7 @@ server:
 management:
   health:
     redis:
-      enabled: false  
+      enabled: false
 
 tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
@@ -81,6 +84,10 @@ storm:
 
   macaroon-filter:
     enabled: ${STORM_WEBDAV_MACAROON_FILTER_ENABLED:true}
+
+  server:
+    # Jetty Thread-Pool maximum idle time (in milliseconds)
+    max-idle-time-msec: ${STORM_WEBDAV_SERVER_MAX_IDLE_TIME:3600000}
 
   connector:
     # HTTP connector port
@@ -166,3 +173,4 @@ storm:
   tape:
     well-known:
       source: ${STORM_WEBDAV_TAPE_WELLKNOWN_SOURCE:/etc/storm/webdav/wlcg-tape-rest-api.json}
+
