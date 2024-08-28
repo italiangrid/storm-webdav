@@ -2,8 +2,19 @@ server:
   jetty:
     accesslog:
       enabled: false
+
+management:
+  # endpoint:
+    # env:
+      # additional-keys-to-sanitize: client-secret
+  endpoints:
+    web:
+      exposure:
+        include: env
+
 oauth:
   enable-oidc: false
+
 storm:
   connector:
     port: 8086
