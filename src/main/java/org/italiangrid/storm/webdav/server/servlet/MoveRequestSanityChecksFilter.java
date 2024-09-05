@@ -18,25 +18,23 @@ package org.italiangrid.storm.webdav.server.servlet;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
 
   private final PathResolver resolver;
 
-  @Autowired
   public MoveRequestSanityChecksFilter(PathResolver resolver) {
     this.resolver = resolver;
   }

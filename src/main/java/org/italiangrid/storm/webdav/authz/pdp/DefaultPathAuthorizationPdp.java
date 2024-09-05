@@ -15,12 +15,11 @@
  */
 package org.italiangrid.storm.webdav.authz.pdp;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "true")
@@ -31,7 +30,6 @@ public class DefaultPathAuthorizationPdp implements PathAuthorizationPdp {
 
   private final PathAuthorizationPolicyRepository repo;
 
-  @Autowired
   public DefaultPathAuthorizationPdp(PathAuthorizationPolicyRepository repo) {
     this.repo = repo;
   }

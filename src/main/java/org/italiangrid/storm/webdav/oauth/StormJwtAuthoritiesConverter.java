@@ -29,7 +29,6 @@ import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtScopeAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -42,7 +41,6 @@ import com.google.common.collect.Sets;
 public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSupport
     implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-  @Autowired
   public StormJwtAuthoritiesConverter(StorageAreaConfiguration conf,
       ServiceConfigurationProperties props) {
     super(conf, props);

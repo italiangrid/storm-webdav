@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.authz.util;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.RequestMatcher;
 

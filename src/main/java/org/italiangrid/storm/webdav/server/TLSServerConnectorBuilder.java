@@ -47,11 +47,11 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
+import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
 
 /**
  * A builder that configures a Jetty server TLS connector integrated with CANL

@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.voms.VOMSAttribute;
@@ -105,6 +105,7 @@ public class VOMSPreAuthDetailsSource
     return authorities;
   }
 
+  @SuppressWarnings("deprecation")
   protected Optional<X509SubjectAuthority> getSubjectAuthority(HttpServletRequest request) {
     Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
     if (chain.isPresent()) {

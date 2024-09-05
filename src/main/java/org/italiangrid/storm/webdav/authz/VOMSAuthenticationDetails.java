@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.authz;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.voms.VOMSAttribute;
 import org.springframework.security.core.GrantedAuthority;

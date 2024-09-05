@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.tpc;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ import java.time.Clock;
 import java.util.Enumeration;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;

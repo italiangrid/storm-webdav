@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

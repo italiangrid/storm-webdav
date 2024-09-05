@@ -15,9 +15,6 @@
  */
 package org.italiangrid.storm.webdav.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -25,9 +22,12 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-public class ViewUtilsInterceptor extends HandlerInterceptorAdapter {
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+public class ViewUtilsInterceptor implements HandlerInterceptor {
 
   final ServiceConfigurationProperties serviceConfig;
   final StorageAreaConfiguration saConfig;

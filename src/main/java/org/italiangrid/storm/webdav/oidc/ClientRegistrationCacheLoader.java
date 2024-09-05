@@ -55,6 +55,7 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
     this.executorService = executorService;
   }
 
+  @SuppressWarnings("deprecation")
   private ClientRegistration getClientRegistration(String registrationId,
       OAuth2ClientProperties.Registration properties, Map<String, Provider> providers) {
     String provider = StringUtils.trimWhitespace(properties.getProvider());

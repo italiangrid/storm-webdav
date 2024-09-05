@@ -20,8 +20,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.File;
 import java.nio.file.Paths;
 
-import javax.annotation.PostConstruct;
-
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -38,11 +36,10 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
-import com.codahale.metrics.jetty9.InstrumentedHandler;
 
-import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
+import jakarta.annotation.PostConstruct;
 
 public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 

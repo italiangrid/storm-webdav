@@ -18,9 +18,6 @@ package org.italiangrid.storm.webdav.redirector;
 import java.net.URI;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
@@ -29,13 +26,15 @@ import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.nimbusds.jwt.SignedJWT;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
@@ -50,7 +49,6 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
   private final SignedJwtTokenIssuer tokenIssuer;
   private final ReplicaSelector selector;
 
-  @Autowired
   public DefaultRedirectionService(ServiceConfigurationProperties config,
       SignedJwtTokenIssuer tokenIssuer, ReplicaSelector selector) {
     this.config = config;

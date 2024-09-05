@@ -58,8 +58,9 @@ import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.TemplateEngine;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.dropwizard.metrics.servlets.MetricsServlet;
 
 
 

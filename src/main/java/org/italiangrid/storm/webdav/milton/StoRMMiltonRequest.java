@@ -18,8 +18,8 @@ package org.italiangrid.storm.webdav.milton;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.eclipse.jetty.util.URIUtil;
 

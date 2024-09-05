@@ -18,13 +18,13 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.http.HttpContent;
+import org.eclipse.jetty.http.content.HttpContent;
 import org.eclipse.jetty.server.ResourceService;
 import org.eclipse.jetty.util.URIUtil;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class StormResourceService extends ResourceService {
 

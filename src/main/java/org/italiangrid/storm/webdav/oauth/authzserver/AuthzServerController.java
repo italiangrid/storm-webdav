@@ -22,8 +22,8 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.IN
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.INVALID_SCOPE;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidScopeError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidTokenRequestError;

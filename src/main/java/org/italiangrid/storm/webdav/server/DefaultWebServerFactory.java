@@ -24,7 +24,8 @@ import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
+
+import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {

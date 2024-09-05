@@ -19,7 +19,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import eu.emi.security.authn.x509.proxy.ProxyUtils;
 

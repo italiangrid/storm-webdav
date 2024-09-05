@@ -19,9 +19,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.validation.Principal;
