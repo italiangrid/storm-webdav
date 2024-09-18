@@ -15,6 +15,9 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +27,7 @@ import javax.net.ssl.KeyManager;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.junit.jupiter.api.Test;
@@ -40,15 +44,19 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 public class TLSConnectorBuilderTest {
 
   @Test
-  public void tlsConnectorBuilderErrorTests() {
+  void tlsConnectorBuilderErrorTests() {
 
-    new TLSConnectorBuilderError("This is an error!");
-    new TLSConnectorBuilderError("This is an error!", new RuntimeException());
-    new TLSConnectorBuilderError(new RuntimeException());
+    TLSConnectorBuilderError e = new TLSConnectorBuilderError("This is an error!");
+    assertThat(e.getMessage(), is("This is an error!"));
+    e = new TLSConnectorBuilderError("This is an error!", new RuntimeException());
+    assertThat(e.getMessage(), is("This is an error!"));
+    e = new TLSConnectorBuilderError(new RuntimeException("This is an error!"));
+    assertThat(e.getCause() instanceof RuntimeException, is(true));
+    assertThat(e.getMessage(), containsString("This is an error!"));
   }
 
   @Test
-  public void illegalArgumentExceptionThrown() {
+  void illegalArgumentExceptionThrown() {
 
     Server server = Mockito.mock(Server.class);
     X509CertChainValidatorExt validator = Mockito.mock(X509CertChainValidatorExt.class);
@@ -83,7 +91,7 @@ public class TLSConnectorBuilderTest {
   }
 
   @Test
-  public void tlsConnectorBuilderTests() {
+  void tlsConnectorBuilderTests() {
 
     Server server = new Server();
     X509CertChainValidatorExt validator = getValidator();
@@ -103,6 +111,7 @@ public class TLSConnectorBuilderTest {
       .withHostnameVerifier(new NoopHostnameVerifier())
       .withConscrypt(false);
 
-    builder.build();
+    ServerConnector c = builder.build();
+    assertThat(c.getPort(), is(1234));
   }
 }

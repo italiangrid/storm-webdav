@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.RemoteKeySourceException;
 
 @Service
@@ -55,8 +56,8 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
 
   public DefaultOidcConfigurationFetcher(RestTemplateBuilder restBuilder,
       OAuthProperties oAuthProperties) {
-    final Duration TIMEOUT = Duration.ofSeconds(oAuthProperties.getRefreshTimeoutSeconds());
-    this.restTemplate = restBuilder.setConnectTimeout(TIMEOUT).setReadTimeout(TIMEOUT).build();
+    final Duration timeout = Duration.ofSeconds(oAuthProperties.getRefreshTimeoutSeconds());
+    this.restTemplate = restBuilder.setConnectTimeout(timeout).setReadTimeout(timeout).build();
   }
 
   private void metadataChecks(String issuer, Map<String, Object> oidcConfiguration) {
@@ -86,15 +87,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
     URI uri = UriComponentsBuilder.fromUriString(issuer + WELL_KNOWN_FRAGMENT).build().toUri();
     ResponseEntity<Map<String, Object>> response = null;
     try {
-
-      RequestEntity<Void> request = RequestEntity.get(uri).build();
-      response = restTemplate.exchange(request, typeReference);
-      if (response.getStatusCodeValue() != 200) {
-        throw new RuntimeException(
-            format("Received status code: %s", response.getStatusCodeValue()));
-      }
-      metadataChecks(issuer, response.getBody());
-      return response.getBody();
+      response = restTemplate.exchange(RequestEntity.get(uri).build(), typeReference);
     } catch (RuntimeException e) {
       final String errorMsg = format("Unable to resolve OpenID configuration from '%s'", uri);
       if (LOG.isDebugEnabled()) {
@@ -102,10 +95,16 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       }
       throw new OidcConfigurationResolutionError(errorMsg, e);
     }
+    if (response.getStatusCodeValue() != 200) {
+      throw new OidcConfigurationResolutionError(
+          format("Received status code: %s", response.getStatusCodeValue()));
+    }
+    metadataChecks(issuer, response.getBody());
+    return response.getBody();
   }
 
   @Override
-  public String loadJWKSourceForURL(URI uri) throws RemoteKeySourceException {
+  public String loadJWKSourceForURL(URI uri) throws KeySourceException {
 
     LOG.debug("Fetching JWK from {}", uri);
 
@@ -115,10 +114,6 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
     try {
       RequestEntity<Void> request = RequestEntity.get(uri).headers(headers).build();
       response = restTemplate.exchange(request, String.class);
-      if (response.getStatusCodeValue() != 200) {
-        throw new RuntimeException(
-            format("Received status code: %s", response.getStatusCodeValue()));
-      }
     } catch (RuntimeException e) {
       final String errorMsg = format("Unable to get JWK from '%s'", uri);
       if (LOG.isDebugEnabled()) {
@@ -126,7 +121,10 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       }
       throw new RemoteKeySourceException(errorMsg, e);
     }
-
+    if (response.getStatusCodeValue() != 200) {
+      throw new KeySourceException(format("Unable to get JWK from '%s': received status code %s",
+          uri, response.getStatusCodeValue()));
+    }
     return response.getBody();
   }
 }

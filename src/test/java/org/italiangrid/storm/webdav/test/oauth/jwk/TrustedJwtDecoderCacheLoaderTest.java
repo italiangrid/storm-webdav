@@ -28,9 +28,9 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FileUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
+import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
-import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.oauth.utils.OidcConfigurationFetcher;
 import org.italiangrid.storm.webdav.oauth.utils.TrustedJwtDecoderCacheLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +45,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.KeySourceException;
 
 @ExtendWith(MockitoExtension.class)
-public class TrustedJwtDecoderCacheLoaderTest {
+class TrustedJwtDecoderCacheLoaderTest {
 
-  private final String ISSUER = "https://wlcg.cloud.cnaf.infn.it/";
-  private final String JWK_URI = "https://wlcg.cloud.cnaf.infn.it/jwks";
+  private static final String ISSUER = "https://wlcg.cloud.cnaf.infn.it/";
+  private static final String JWK_URI = "https://wlcg.cloud.cnaf.infn.it/jwks";
 
   @Mock
   ServiceConfigurationProperties properties;
@@ -66,7 +66,7 @@ public class TrustedJwtDecoderCacheLoaderTest {
   private TrustedJwtDecoderCacheLoader jwtLoader;
 
   @BeforeEach
-  public void setup() throws IOException, RemoteKeySourceException {
+  public void setup() throws IOException, KeySourceException {
 
     AuthorizationServer as = new AuthorizationServer();
     as.setIssuer(ISSUER);
@@ -98,7 +98,7 @@ public class TrustedJwtDecoderCacheLoaderTest {
   }
 
   @Test
-  public void testLoadRemoteIssuerConfiguration() throws Exception {
+  void testLoadRemoteIssuerConfiguration() throws Exception {
 
     JwtDecoder decoder = jwtLoader.load(ISSUER);
     assertTrue(decoder instanceof NimbusJwtDecoder);

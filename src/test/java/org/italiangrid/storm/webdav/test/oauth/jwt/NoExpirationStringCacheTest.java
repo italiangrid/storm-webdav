@@ -23,13 +23,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class NoExpirationStringCacheTest {
+class NoExpirationStringCacheTest {
 
-  final String CACHED_VALUE = "this-is-my-cached-value";
-  final String FAKE_ISSUER = "http://localhost";
+  private static final String CACHED_VALUE = "this-is-my-cached-value";
+  private static final String FAKE_ISSUER = "http://localhost";
 
   @Test
-  public void noExpirationCacheWorks() {
+  void noExpirationCacheWorks() {
 
     NoExpirationStringCache cache = new NoExpirationStringCache(CACHED_VALUE);
 

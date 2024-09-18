@@ -48,17 +48,14 @@ public class NoExpirationStringCache extends AbstractValueAdaptingCache {
 
   @Override
   public void put(Object key, Object value) {
-    return;
   }
 
   @Override
   public void evict(Object key) {
-    return;
   }
 
   @Override
   public void clear() {
-    return;
   }
 
   @SuppressWarnings("unchecked")

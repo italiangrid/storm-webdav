@@ -45,9 +45,10 @@ public class DefaultWebServerFactory
   }
 
   private InstrumentedQueuedThreadPool getInstrumentedThreadPool() {
-    InstrumentedQueuedThreadPool tPool = new InstrumentedQueuedThreadPool(metricRegistry, configuration.getMaxConnections(),
-        configuration.getMinConnections(), configuration.getThreadPoolMaxIdleTimeInMsec(),
-        new ArrayBlockingQueue<Runnable>(configuration.getMaxQueueSize()), "storm.http");
+    InstrumentedQueuedThreadPool tPool =
+        new InstrumentedQueuedThreadPool(metricRegistry, configuration.getMaxConnections(),
+            configuration.getMinConnections(), configuration.getThreadPoolMaxIdleTimeInMsec(),
+            new ArrayBlockingQueue<>(configuration.getMaxQueueSize()), "storm.http");
     tPool.setName("thread-pool");
     return tPool;
   }

@@ -15,8 +15,11 @@
  */
 package org.italiangrid.storm.webdav.test.oauth.jwk;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.italiangrid.storm.webdav.oauth.utils.DefaultOidcConfigurationFetcher.ISSUER_MISMATCH_ERROR_TEMPLATE;
+import static org.italiangrid.storm.webdav.oauth.utils.DefaultOidcConfigurationFetcher.NO_JWKS_URI_ERROR_TEMPLATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -51,21 +54,21 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.common.collect.Maps;
-import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyType;
 
 @ExtendWith(MockitoExtension.class)
-public class OidcConfigurationFetcherTest {
+class OidcConfigurationFetcherTest {
 
-  final static String ISSUER = "https://iam-dev.cloud.cnaf.infn.it/";
+  static final String ISSUER = "https://iam-dev.cloud.cnaf.infn.it/";
   final static String JWK_URI = ISSUER + "jwk";
 
-  final static String ANOTHER_ISSUER = "https://iam.cloud.infn.it/";
-  final static String ANOTHER_JWK_URI = ANOTHER_ISSUER + "jwk";
+  static final String ANOTHER_ISSUER = "https://iam.cloud.infn.it/";
+  static final String ANOTHER_JWK_URI = ANOTHER_ISSUER + "jwk";
 
-  final static String KID = "rsa1";
-  
+  static final String KID = "rsa1";
+
 
   final ParameterizedTypeReference<Map<String, Object>> typeReference =
       new ParameterizedTypeReference<Map<String, Object>>() {};
@@ -85,9 +88,11 @@ public class OidcConfigurationFetcherTest {
   }
 
   @SuppressWarnings("unchecked")
-  private ResponseEntity<Map<String, Object>> getWellKnownResponse(HttpStatus status, Map<String, Object> map) {
+  private ResponseEntity<Map<String, Object>> getWellKnownResponse(HttpStatus status,
+      Map<String, Object> map) {
 
-    ResponseEntity<Map<String, Object>> mockedEntity = (ResponseEntity<Map<String, Object>>) Mockito.mock(ResponseEntity.class);
+    ResponseEntity<Map<String, Object>> mockedEntity =
+        (ResponseEntity<Map<String, Object>>) Mockito.mock(ResponseEntity.class);
     lenient().when(mockedEntity.getStatusCode()).thenReturn(status);
     lenient().when(mockedEntity.getStatusCodeValue()).thenReturn(status.value());
     lenient().when(mockedEntity.getBody()).thenReturn(map);
@@ -102,16 +107,18 @@ public class OidcConfigurationFetcherTest {
   }
 
   @SuppressWarnings("unchecked")
-  private ResponseEntity<String> getJWKURIResponse(HttpStatus status, String data) throws IOException {
+  private ResponseEntity<String> getJWKURIResponse(HttpStatus status, String data) {
 
-    ResponseEntity<String> mockedEntity = (ResponseEntity<String>) Mockito.mock(ResponseEntity.class);
+    ResponseEntity<String> mockedEntity =
+        (ResponseEntity<String>) Mockito.mock(ResponseEntity.class);
     lenient().when(mockedEntity.getBody()).thenReturn(data);
     lenient().when(mockedEntity.getStatusCode()).thenReturn(status);
     lenient().when(mockedEntity.getStatusCodeValue()).thenReturn(status.value());
     return mockedEntity;
   }
 
-  private OidcConfigurationFetcher getFetcher(ResponseEntity<Map<String, Object>> wellKnownResponse, ResponseEntity<String> jwkResponse) {
+  private OidcConfigurationFetcher getFetcher(ResponseEntity<Map<String, Object>> wellKnownResponse,
+      ResponseEntity<String> jwkResponse) {
 
     lenient().when(restTemplate.exchange(any(), eq(typeReference))).thenReturn(wellKnownResponse);
     lenient().when(restTemplate.exchange(any(), eq(String.class))).thenReturn(jwkResponse);
@@ -125,19 +132,23 @@ public class OidcConfigurationFetcherTest {
 
   private OidcConfigurationFetcher getSuccessfulFetcher() throws RestClientException, IOException {
 
-    ResponseEntity<Map<String, Object>> mockedResponseMapEntity = getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
+    ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
+        getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
     ResponseEntity<String> mockedResponseStringEntity = getJWKURIResponse(OK, loadJwkFromFile());
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
 
-  private OidcConfigurationFetcher getSuccessfulFetcherWithWrongIssuer() throws RestClientException, IOException {
+  private OidcConfigurationFetcher getSuccessfulFetcherWithWrongIssuer()
+      throws RestClientException, IOException {
 
-    ResponseEntity<Map<String, Object>> mockedResponseMapEntity = getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ANOTHER_ISSUER, ANOTHER_JWK_URI));
+    ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
+        getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ANOTHER_ISSUER, ANOTHER_JWK_URI));
     ResponseEntity<String> mockedResponseStringEntity = getJWKURIResponse(OK, loadJwkFromFile());
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
 
-  private OidcConfigurationFetcher getSuccessfulFetcherWithNoIssuer() throws RestClientException, IOException {
+  private OidcConfigurationFetcher getSuccessfulFetcherWithNoIssuer()
+      throws RestClientException, IOException {
 
     Map<String, Object> map = getMapWithIssuerAndJwkUri(ANOTHER_ISSUER, ANOTHER_JWK_URI);
     map.remove("issuer");
@@ -146,7 +157,8 @@ public class OidcConfigurationFetcherTest {
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
 
-  private OidcConfigurationFetcher getSuccessfulFetcherWithNoJwk() throws RestClientException, IOException {
+  private OidcConfigurationFetcher getSuccessfulFetcherWithNoJwk()
+      throws RestClientException, IOException {
 
     Map<String, Object> map = getMapWithIssuerAndJwkUri(ISSUER, JWK_URI);
     map.remove("jwks_uri");
@@ -155,15 +167,18 @@ public class OidcConfigurationFetcherTest {
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
 
-  private OidcConfigurationFetcher getFetcherWithErrorOnFetch() throws RestClientException, IOException {
+  private OidcConfigurationFetcher getFetcherWithErrorOnFetch() throws RestClientException {
 
-    ResponseEntity<Map<String, Object>> mockedResponseMapEntity = getWellKnownResponse(NOT_FOUND, null);
+    ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
+        getWellKnownResponse(NOT_FOUND, null);
     return getFetcher(mockedResponseMapEntity, null);
   }
 
-  private OidcConfigurationFetcher getFetcherWithErrorOnGetJwk() throws RestClientException, IOException {
+  private OidcConfigurationFetcher getFetcherWithErrorOnGetJwk()
+      throws RestClientException, IOException {
 
-    ResponseEntity<Map<String, Object>> mockedResponseMapEntity = getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
+    ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
+        getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
     ResponseEntity<String> mockedResponseStringEntity = getJWKURIResponse(NOT_FOUND, null);
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
@@ -174,7 +189,7 @@ public class OidcConfigurationFetcherTest {
   }
 
   @Test
-  public void fetchWellKnownEndpointWithSuccessTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointWithSuccessTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getSuccessfulFetcher();
     Map<String, Object> conf = fetcher.loadConfigurationForIssuer(ISSUER);
@@ -184,60 +199,56 @@ public class OidcConfigurationFetcherTest {
   }
 
   @Test
-  public void fetchWellKnownEndpointWithErrorTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointWithErrorTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getFetcherWithErrorOnFetch();
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
       fetcher.loadConfigurationForIssuer(ISSUER);
     });
-    String expectedMessage = "Unable to resolve OpenID configuration from '" + ISSUER + ".well-known/openid-configuration'";
+    String expectedMessage = "Received status code: 404";
     String actualMessage = exception.getMessage();
 
     assertEquals(expectedMessage, actualMessage);
   }
 
   @Test
-  public void fetchWellKnownEndpointWrongIssuerTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointWrongIssuerTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getSuccessfulFetcherWithWrongIssuer();
-    OidcConfigurationResolutionError exception = assertThrows(OidcConfigurationResolutionError.class, () -> {
-      fetcher.loadConfigurationForIssuer(ISSUER);
-    });
-    String expectedMessage = "Unable to resolve OpenID configuration from '" + ISSUER + ".well-known/openid-configuration'";
-    String actualMessage = exception.getMessage();
-
-    assertEquals(expectedMessage, actualMessage);
-    
+    OidcConfigurationResolutionError exception =
+        assertThrows(OidcConfigurationResolutionError.class, () -> {
+          fetcher.loadConfigurationForIssuer(ISSUER);
+        });
+    assertEquals(format(ISSUER_MISMATCH_ERROR_TEMPLATE, ANOTHER_ISSUER, ISSUER),
+        exception.getMessage());
   }
 
   @Test
-  public void fetchWellKnownEndpointNoIssuerTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointNoIssuerTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getSuccessfulFetcherWithNoIssuer();
-    OidcConfigurationResolutionError exception = assertThrows(OidcConfigurationResolutionError.class, () -> {
-      fetcher.loadConfigurationForIssuer(ISSUER);
-    });
-    String expectedMessage = "Unable to resolve OpenID configuration from '" + ISSUER + ".well-known/openid-configuration'";
-    String actualMessage = exception.getMessage();
-
-    assertEquals(expectedMessage, actualMessage);
+    OidcConfigurationResolutionError exception =
+        assertThrows(OidcConfigurationResolutionError.class, () -> {
+          fetcher.loadConfigurationForIssuer(ISSUER);
+        });
+    assertEquals(format(ISSUER_MISMATCH_ERROR_TEMPLATE, "(unavailable)", ISSUER),
+        exception.getMessage());
   }
 
   @Test
-  public void fetchWellKnownEndpointNoJwkTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointNoJwkTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getSuccessfulFetcherWithNoJwk();
-    OidcConfigurationResolutionError exception = assertThrows(OidcConfigurationResolutionError.class, () -> {
-      fetcher.loadConfigurationForIssuer(ISSUER);
-    });
-    String expectedMessage = "Unable to resolve OpenID configuration from '" + ISSUER + ".well-known/openid-configuration'";
-    String actualMessage = exception.getMessage();
-
-    assertEquals(expectedMessage, actualMessage);
+    OidcConfigurationResolutionError exception =
+        assertThrows(OidcConfigurationResolutionError.class, () -> {
+          fetcher.loadConfigurationForIssuer(ISSUER);
+        });
+    assertEquals(format(NO_JWKS_URI_ERROR_TEMPLATE, ISSUER), exception.getMessage());
   }
 
   @Test
-  public void fetchJWKEndpointTests() throws RestClientException, IOException, RemoteKeySourceException, ParseException {
+  void fetchJWKEndpointTests()
+      throws RestClientException, IOException, ParseException, KeySourceException {
 
     OidcConfigurationFetcher fetcher = getSuccessfulFetcher();
     JWKSet key = JWKSet.parse(fetcher.loadJWKSourceForURL(URI.create(JWK_URI)));
@@ -247,14 +258,15 @@ public class OidcConfigurationFetcherTest {
   }
 
   @Test
-  public void fetcJWKEndpointWithErrorTests() throws RestClientException, IOException {
+  void fetchJWKEndpointWithErrorTests() throws RestClientException, IOException {
 
     OidcConfigurationFetcher fetcher = getFetcherWithErrorOnGetJwk();
     final URI jwkUri = URI.create(JWK_URI);
-    RemoteKeySourceException exception = assertThrows(RemoteKeySourceException.class, () -> {
+    KeySourceException exception = assertThrows(KeySourceException.class, () -> {
       fetcher.loadJWKSourceForURL(jwkUri);
     });
-    String expectedMessage = "Unable to get JWK from '" + jwkUri + "'";
+    String expectedMessage =
+        "Unable to get JWK from '" + jwkUri + "': received status code " + NOT_FOUND.value();
     String actualMessage = exception.getMessage();
 
     assertEquals(expectedMessage, actualMessage);

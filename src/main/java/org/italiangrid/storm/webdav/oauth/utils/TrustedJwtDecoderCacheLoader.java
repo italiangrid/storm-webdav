@@ -78,7 +78,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
     Map<String, Object> oidcConfiguration = fetcher.loadConfigurationForIssuer(issuer);
     URI jwksUri = URI.create(oidcConfiguration.get("jwks_uri").toString());
     Cache noExpirationCache =
-        new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri).toString());
+        new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri));
 
     NimbusJwtDecoder decoder =
         NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString()))
