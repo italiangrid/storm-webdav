@@ -41,7 +41,7 @@ import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 
 @ExtendWith(MockitoExtension.class)
-public class TLSConnectorBuilderTest {
+class TLSConnectorBuilderTest {
 
   @Test
   void tlsConnectorBuilderErrorTests() {

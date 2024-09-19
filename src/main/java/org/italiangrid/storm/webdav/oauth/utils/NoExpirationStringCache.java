@@ -43,19 +43,22 @@ public class NoExpirationStringCache extends AbstractValueAdaptingCache {
   @Override
   @Nullable
   protected Object lookup(Object key) {
-      return value;
+    return value;
   }
 
   @Override
   public void put(Object key, Object value) {
+    // Nothing to do
   }
 
   @Override
   public void evict(Object key) {
+    // Nothing to do
   }
 
   @Override
   public void clear() {
+    // Nothing to do
   }
 
   @SuppressWarnings("unchecked")

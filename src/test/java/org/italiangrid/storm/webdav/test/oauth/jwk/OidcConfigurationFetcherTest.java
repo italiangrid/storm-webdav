@@ -55,6 +55,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.common.collect.Maps;
 import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyType;
 
@@ -62,7 +63,7 @@ import com.nimbusds.jose.jwk.KeyType;
 class OidcConfigurationFetcherTest {
 
   static final String ISSUER = "https://iam-dev.cloud.cnaf.infn.it/";
-  final static String JWK_URI = ISSUER + "jwk";
+  static final String JWK_URI = ISSUER + "jwk";
 
   static final String ANOTHER_ISSUER = "https://iam.cloud.infn.it/";
   static final String ANOTHER_JWK_URI = ANOTHER_ISSUER + "jwk";
@@ -122,6 +123,18 @@ class OidcConfigurationFetcherTest {
 
     lenient().when(restTemplate.exchange(any(), eq(typeReference))).thenReturn(wellKnownResponse);
     lenient().when(restTemplate.exchange(any(), eq(String.class))).thenReturn(jwkResponse);
+    return getFetcher(restTemplate);
+  }
+
+  private OidcConfigurationFetcher getFetcherWithException(ResponseEntity<Map<String, Object>> wellKnownResponse) {
+
+    lenient().when(restTemplate.exchange(any(), eq(typeReference))).thenReturn(wellKnownResponse);
+    lenient().when(restTemplate.exchange(any(), eq(String.class))).thenThrow(new RuntimeException("ERROR"));
+    return getFetcher(restTemplate);
+  }
+
+  private OidcConfigurationFetcher getFetcher(RestTemplate restTemplate) {
+
     lenient().when(restBuilder.build()).thenReturn(restTemplate);
     lenient().when(restBuilder.setConnectTimeout(any())).thenReturn(restBuilder);
     lenient().when(restBuilder.setReadTimeout(any())).thenReturn(restBuilder);
@@ -174,13 +187,19 @@ class OidcConfigurationFetcherTest {
     return getFetcher(mockedResponseMapEntity, null);
   }
 
-  private OidcConfigurationFetcher getFetcherWithErrorOnGetJwk()
-      throws RestClientException, IOException {
+  private OidcConfigurationFetcher getFetcherWithErrorOnGetJwk() throws RestClientException {
 
     ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
         getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
     ResponseEntity<String> mockedResponseStringEntity = getJWKURIResponse(NOT_FOUND, null);
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
+  }
+
+  private OidcConfigurationFetcher getFetcherWithRuntimeExceptionOnGetJwk() throws RestClientException {
+
+    ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
+        getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));
+    return getFetcherWithException(mockedResponseMapEntity);
   }
 
   @BeforeEach
@@ -199,7 +218,7 @@ class OidcConfigurationFetcherTest {
   }
 
   @Test
-  void fetchWellKnownEndpointWithErrorTests() throws RestClientException, IOException {
+  void fetchWellKnownEndpointWithErrorTests() throws RestClientException {
 
     OidcConfigurationFetcher fetcher = getFetcherWithErrorOnFetch();
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -267,6 +286,20 @@ class OidcConfigurationFetcherTest {
     });
     String expectedMessage =
         "Unable to get JWK from '" + jwkUri + "': received status code " + NOT_FOUND.value();
+    String actualMessage = exception.getMessage();
+
+    assertEquals(expectedMessage, actualMessage);
+  }
+
+  @Test
+  void fetchJWKEndpointWithRuntimeException() throws RestClientException, IOException {
+
+    OidcConfigurationFetcher fetcher = getFetcherWithRuntimeExceptionOnGetJwk();
+    final URI jwkUri = URI.create(JWK_URI);
+    RemoteKeySourceException exception = assertThrows(RemoteKeySourceException.class, () -> {
+      fetcher.loadJWKSourceForURL(jwkUri);
+    });
+    String expectedMessage = "Unable to get JWK from 'https://iam-dev.cloud.cnaf.infn.it/jwk'";
     String actualMessage = exception.getMessage();
 
     assertEquals(expectedMessage, actualMessage);
