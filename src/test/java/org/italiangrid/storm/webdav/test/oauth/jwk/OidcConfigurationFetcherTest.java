@@ -277,7 +277,7 @@ class OidcConfigurationFetcherTest {
   }
 
   @Test
-  void fetchJWKEndpointWithErrorTests() throws RestClientException, IOException {
+  void fetchJWKEndpointWithErrorTests() throws RestClientException {
 
     OidcConfigurationFetcher fetcher = getFetcherWithErrorOnGetJwk();
     final URI jwkUri = URI.create(JWK_URI);
@@ -292,7 +292,7 @@ class OidcConfigurationFetcherTest {
   }
 
   @Test
-  void fetchJWKEndpointWithRuntimeException() throws RestClientException, IOException {
+  void fetchJWKEndpointWithRuntimeException() throws RestClientException {
 
     OidcConfigurationFetcher fetcher = getFetcherWithRuntimeExceptionOnGetJwk();
     final URI jwkUri = URI.create(JWK_URI);
