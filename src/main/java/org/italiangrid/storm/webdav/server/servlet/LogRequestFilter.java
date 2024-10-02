@@ -16,6 +16,8 @@
 package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.Filter;
@@ -33,9 +35,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.common.collect.Lists;
+
 public class LogRequestFilter implements Filter {
 
   public static final Logger log = LoggerFactory.getLogger(LogRequestFilter.class);
+
+  private static final List<String> IP_HEADERS = Lists.newArrayList("X-Forwarded-For",
+      "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
 
   @Override
   public void destroy() {}
@@ -56,12 +63,27 @@ public class LogRequestFilter implements Filter {
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;
 
-    String resMsg = String.format("%s %s %s %d [user:<%s>, authorities:<%s>]", req.getRemoteAddr(),
+    String resMsg = String.format("%s %s %s %d [user:<%s>, authorities:<%s>]", getClientIpAddr(req),
         req.getMethod(), req.getRequestURI(), res.getStatus(),
         authn.isPresent() ? authn.get().getName() : null,
         authn.isPresent() ? authn.get().getAuthorities() : null);
 
     log.debug(resMsg);
+  }
+
+
+  public static String getClientIpAddr(HttpServletRequest request) {
+
+    String remoteIp = request.getRemoteAddr();
+    if (remoteIp != null) {
+      return remoteIp;
+    }
+    return IP_HEADERS.stream()
+      .map(request::getHeader)
+      .filter(Objects::nonNull)
+      .filter(ip -> !ip.isEmpty() && !ip.equalsIgnoreCase("unknown"))
+      .findFirst()
+      .orElse("???.???.???.???");
   }
 
   @Override

@@ -96,6 +96,9 @@ public class OAuthProperties {
   @Min(value = 1, message = "The refresh period must be a positive integer")
   int refreshPeriodMinutes = 60;
 
+  @Min(value = 1, message = "The refresh timeout must be a positive integer")
+  int refreshTimeoutSeconds = 30;
+
   public List<AuthorizationServer> getIssuers() {
     return issuers;
   }
@@ -110,6 +113,14 @@ public class OAuthProperties {
 
   public void setRefreshPeriodMinutes(int refreshPeriodMinutes) {
     this.refreshPeriodMinutes = refreshPeriodMinutes;
+  }
+
+  public int getRefreshTimeoutSeconds() {
+    return refreshTimeoutSeconds;
+  }
+
+  public void setRefreshTimeoutSeconds(int refreshTimeoutSeconds) {
+    this.refreshTimeoutSeconds = refreshTimeoutSeconds;
   }
 
   public void setEnableOidc(boolean enableOidc) {
