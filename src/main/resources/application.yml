@@ -11,16 +11,19 @@ spring:
             issuer-uri: https://iam-escape.cloud.cnaf.infn.it/
           indigo:
             issuer-uri: https://iam-test.indigo-datacloud.eu/
+
   session:
     store-type: none
 
 server:
-  # StoRM webdav will bind on this address
+  # StoRM WebDAV will bind on this address
   address: ${STORM_WEBDAV_SERVER_ADDRESS:0.0.0.0}
+  # StoRM WebDAV server should support graceful shutdown, allowing active requests time to complete, or shut down immediately
+  # Values: graceful, immediate
+  shutdown: ${STORM_WEBDAV_SERVER_SHUTDOWN:graceful}
   error:
     whitelabel:
       enabled: false
-
   jetty:
     threads:
       max: ${storm.connector.max-connections}
@@ -28,7 +31,7 @@ server:
 management:
   health:
     redis:
-      enabled: false  
+      enabled: false
 
 tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}
@@ -50,7 +53,8 @@ tpc:
   enable-expect-continue-threshold: ${STORM_WEBDAV_TPC_ENABLE_EXPECT_CONTINUE_THRESHOLD:1048576}
 
 oauth:
-  refresh-period-minutes: 60
+  refresh-period-minutes: ${STORM_WEBDAV_OAUTH_REFRESH_PERIOD_MINUTES:60}
+  refresh-timeout-seconds: ${STORM_WEBDAV_OAUTH_REFRESH_TIMEOUT_SECONDS:30}
   issuers:
 
 storm:
@@ -81,18 +85,28 @@ storm:
   macaroon-filter:
     enabled: ${STORM_WEBDAV_MACAROON_FILTER_ENABLED:true}
 
+  server:
+    # Jetty Thread-Pool maximum idle time (in milliseconds)
+    max-idle-time-msec: ${STORM_WEBDAV_SERVER_MAX_IDLE_TIME:3600000}
+
   connector:
     # HTTP connector port
     port:  ${STORM_WEBDAV_HTTP_PORT:8085}
     # HTTPS connector port
     secure-port: ${STORM_WEBDAV_HTTPS_PORT:8443}
+    # Min concurrent connections
+    min-connections: ${STORM_WEBDAV_MIN_CONNECTIONS:50}
     # Max concurrent connections
     max-connections: ${STORM_WEBDAV_MAX_CONNECTIONS:300}
     # Connection queue size
     max-queue-size: ${STORM_WEBDAV_MAX_QUEUE_SIZE:900}
     # Connector Maximum idle time (in milliseconds)
-    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000} 
+    max-idle-time-msec: ${STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME:30000}
     output-buffer-size-bytes: ${storm.buffer.file-buffer-size-bytes}
+    # Number of acceptor threads to use. When the value is -1, the default, the number of acceptors is derived from the operating environment.
+    jetty-acceptors: ${STORM_WEBDAV_CONNECTOR_ACCEPTORS:-1}
+    # Number of selector threads to use. When the value is -1, the default, the number of selectors is derived from the operating environment.
+    jetty-selectors: ${STORM_WEBDAV_CONNECTOR_SELECTORS:-1}
 
   tls:
     # Path to the service certificate.
@@ -159,3 +173,4 @@ storm:
   tape:
     well-known:
       source: ${STORM_WEBDAV_TAPE_WELLKNOWN_SOURCE:/etc/storm/webdav/wlcg-tape-rest-api.json}
+
