@@ -55,7 +55,8 @@ import com.google.common.collect.Sets;
 @ExtendWith(MockitoExtension.class)
 public class ScopePathAuthzPdpTests {
 
-  public static final String[] READ_METHODS = {"GET", "PROPFIND", "OPTIONS", "HEAD"};
+  public static final String[] CATCHALL_METHODS = {"HEAD", "OPTIONS"};
+  public static final String[] READ_METHODS = {"GET", "PROPFIND"};
   public static final String[] REPLACE_METHODS = {"PUT", "MKCOL"};
   public static final String[] MODIFY_METHODS = {"DELETE", "PATCH"};
   public static final String COPY_METHOD = "COPY";
@@ -141,9 +142,62 @@ public class ScopePathAuthzPdpTests {
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
   }
 
+  @Test
+  public void noStorageScopesYeldsDenyForCatchallMethods() throws Exception {
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid profile");
+
+    for (String m : CATCHALL_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+
+      assertThat(result.getDecision(), is(Decision.INDETERMINATE));
+      assertThat(result.getMessage().isPresent(), is(true));
+      assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
+    }
+  }
 
   @Test
-  public void readMethodsRequestsRequireStorageRead() throws Exception {
+  public void catchallMethodsRequestsAtLeastOneStorageScope() throws Exception {
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
+
+    for (String m : CATCHALL_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+      assertThat(result.getDecision(), is(Decision.PERMIT));
+    }
+
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
+
+    for (String m : CATCHALL_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+      assertThat(result.getDecision(), is(Decision.PERMIT));
+    }
+
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.create:/");
+
+    for (String m : CATCHALL_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+      assertThat(result.getDecision(), is(Decision.PERMIT));
+    }
+
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.stage:/");
+
+    for (String m : CATCHALL_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+      assertThat(result.getDecision(), is(Decision.PERMIT));
+    }
+  }
+
+  @Test
+  public void readMethodsRequestsRequireStorageReadOrStage() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
 
     for (String m : READ_METHODS) {
@@ -156,6 +210,15 @@ public class ScopePathAuthzPdpTests {
     }
 
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
+
+    for (String m : READ_METHODS) {
+      when(request.getMethod()).thenReturn(m);
+      PathAuthorizationResult result =
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+      assertThat(result.getDecision(), is(Decision.PERMIT));
+    }
+
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.stage:/");
 
     for (String m : READ_METHODS) {
       when(request.getMethod()).thenReturn(m);
