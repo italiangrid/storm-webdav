@@ -12,7 +12,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- Keep this aligned with the spring.boot-version property below! -->
-    <version>2.7.10</version>
+    <version>2.7.18</version>
     <relativePath />
   </parent>
 
@@ -20,8 +20,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <plugin.compiler.version>3.6.0</plugin.compiler.version>
-    <maven.compiler.release>11</maven.compiler.release>
+    <plugin.compiler.version>3.8.0</plugin.compiler.version>
 
     <plugin.jar.version>2.4</plugin.jar.version>
     <plugin.assembly.version>2.4</plugin.assembly.version>
@@ -32,14 +31,14 @@
     <java.version>11</java.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.7.10</spring-boot.version>
+    <spring-boot.version>2.7.18</spring-boot.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <jetty-utils.version>0.4.6.v20220506</jetty-utils.version>
+    <voms-api-java.version>3.3.3</voms-api-java.version>
     <milton.version>2.7.1.7</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
@@ -50,14 +49,13 @@
     <http-core.version>4.2.2</http-core.version>
     <http-client.version>4.2.1</http-client.version>
 
-    <guava.version>31.1-jre</guava.version>
+    <guava.version>32.0.0-jre</guava.version>
 
     <owner-config.version>1.0.5.1</owner-config.version>
 
     <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
     <nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
     <mock-server.version>5.5.1</mock-server.version>
-    <bouncycastle.version>1.72</bouncycastle.version>
 
   </properties>
 
@@ -65,16 +63,6 @@
     <finalName>${project.name}</finalName>
 
     <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>11</source>
-          <target>11</target>
-      </configuration>
-      </plugin>
- 
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -99,7 +87,6 @@
           <descriptors>
             <descriptor>src/assembly/tarball.xml</descriptor>
           </descriptors>
-          <finalName>storm-webdav</finalName>
         </configuration>
         <executions>
           <execution>
@@ -107,6 +94,9 @@
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -190,13 +180,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <exclusions>
-        <!-- Exclude this to make failure reporting work -->
-        <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -256,6 +239,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.vaadin.external.google</groupId>
+          <artifactId>android-json</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -328,11 +317,6 @@
 
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-jvm</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-jetty9</artifactId>
       <exclusions>
         <exclusion>
@@ -348,45 +332,30 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>http2-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-alpn-conscrypt-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.italiangrid</groupId>
-      <artifactId>jetty-utils</artifactId>
-      <version>${jetty-utils.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.mail</groupId>
-          <artifactId>mail</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.jetty.aggregate</groupId>
-          <artifactId>jetty-all</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>voms-api-java</artifactId>
+      <version>${voms-api-java.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk18on</artifactId>
-      <version>${bouncycastle.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk18on</artifactId>
-      <version>${bouncycastle.version}</version>
-    </dependency>
-
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
