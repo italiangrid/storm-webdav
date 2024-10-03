@@ -47,16 +47,20 @@ public class WlcgStructuredPathAuthorizationPdp
     implements PathAuthorizationPdp, MatcherUtils, TpcUtils {
 
   public static final String WLCG_STORAGE_SCOPE_PATTERN_STRING =
-      "^storage.(read|modify|create):(\\/.*)$";
+      "^storage.(read|modify|create|stage):(\\/.*)$";
 
   public static final Pattern WLCG_STORAGE_SCOPE_PATTERN =
       Pattern.compile(WLCG_STORAGE_SCOPE_PATTERN_STRING);
 
   public static final String SCOPE_CLAIM = "scope";
 
+  public static final String STORAGE_STAGE = "storage.stage";
   public static final String STORAGE_READ = "storage.read";
   public static final String STORAGE_MODIFY = "storage.modify";
   public static final String STORAGE_CREATE = "storage.create";
+
+  protected static final Set<String> ALL_STORAGE_SCOPES =
+      Sets.newHashSet(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
 
   public static final String ERROR_INVALID_AUTHENTICATION =
       "Invalid authentication: expected a JwtAuthenticationToken object";
@@ -68,12 +72,10 @@ public class WlcgStructuredPathAuthorizationPdp
 
   public static final String ERROR_UNKNOWN_TOKEN_ISSUER = "Unknown token issuer: %s";
 
-  public static final Set<String> READONLY_METHODS =
-      Sets.newHashSet("GET", "OPTIONS", "HEAD", "PROPFIND");
-
-  public static final Set<String> REPLACE_METHODS = Sets.newHashSet("PUT", "MKCOL");
-
-  public static final Set<String> MODIFY_METHODS = Sets.newHashSet("PATCH", "DELETE");
+  protected static final Set<String> READONLY_METHODS = Sets.newHashSet("GET", "PROPFIND");
+  protected static final Set<String> REPLACE_METHODS = Sets.newHashSet("PUT", "MKCOL");
+  protected static final Set<String> MODIFY_METHODS = Sets.newHashSet("PATCH", "DELETE");
+  protected static final Set<String> CATCHALL_METHODS = Sets.newHashSet("HEAD", "OPTIONS");
 
   public static final String COPY_METHOD = "COPY";
   public static final String MOVE_METHOD = "MOVE";
@@ -125,39 +127,39 @@ public class WlcgStructuredPathAuthorizationPdp
   boolean filterMatcherByRequest(HttpServletRequest request, String method,
       StructuredPathScopeMatcher m, boolean requestedResourceExists) {
 
-    String requiredScope = null;
+    if (CATCHALL_METHODS.contains(method)) {
+      return ALL_STORAGE_SCOPES.stream().anyMatch(prefix -> m.getPrefix().equals(prefix));
+    }
 
     if (READONLY_METHODS.contains(method)) {
-      requiredScope = STORAGE_READ;
-    } else if (REPLACE_METHODS.contains(method)) {
+      return m.getPrefix().equals(STORAGE_READ) || m.getPrefix().equals(STORAGE_STAGE);
+    }
+    if (REPLACE_METHODS.contains(method)) {
       if (requestedResourceExists) {
-        requiredScope = STORAGE_MODIFY;
-      } else {
-        requiredScope = STORAGE_CREATE;
+        return m.getPrefix().equals(STORAGE_MODIFY);
       }
-    } else if (MODIFY_METHODS.contains(method)) {
-      requiredScope = STORAGE_MODIFY;
-    } else if (COPY_METHOD.equals(method)) {
-
-      requiredScope = STORAGE_READ;
+      return m.getPrefix().equals(STORAGE_CREATE);
+    }
+    if (MODIFY_METHODS.contains(method)) {
+      return m.getPrefix().equals(STORAGE_MODIFY);
+    }
+    if (COPY_METHOD.equals(method)) {
 
       if (isPullTpc(request, localUrlService)) {
         if (requestedResourceExists) {
-          requiredScope = STORAGE_MODIFY;
-        } else {
-          requiredScope = STORAGE_CREATE;
+          return m.getPrefix().equals(STORAGE_MODIFY);
         }
+        return m.getPrefix().equals(STORAGE_CREATE);
       }
+      return m.getPrefix().equals(STORAGE_READ);
 
-    } else if (MOVE_METHOD.equals(method)) {
-      requiredScope = STORAGE_MODIFY;
     }
 
-    if (isNull(requiredScope)) {
-      throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
+    if (MOVE_METHOD.equals(method)) {
+      return m.getPrefix().equals(STORAGE_MODIFY);
     }
 
-    return m.getPrefix().equals(requiredScope);
+    throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
   }
 
 
@@ -186,7 +188,7 @@ public class WlcgStructuredPathAuthorizationPdp
     if (isNull(sa)) {
       return indeterminate(ERROR_SA_NOT_FOUND);
     }
-    
+
     final String tokenIssuer = jwtAuth.getToken().getIssuer().toString();
 
     if (!sa.orgs().contains(tokenIssuer)) {
