@@ -58,9 +58,9 @@ public class WlcgStructuredPathAuthorizationPdp
   public static final String STORAGE_READ = "storage.read";
   public static final String STORAGE_MODIFY = "storage.modify";
   public static final String STORAGE_CREATE = "storage.create";
-  public static final Set<String> ALL_STORAGE_SCOPES =
-      Sets.newHashSet(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
 
+  protected static final Set<String> ALL_STORAGE_SCOPES =
+      Sets.newHashSet(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
 
   public static final String ERROR_INVALID_AUTHENTICATION =
       "Invalid authentication: expected a JwtAuthenticationToken object";
@@ -72,13 +72,10 @@ public class WlcgStructuredPathAuthorizationPdp
 
   public static final String ERROR_UNKNOWN_TOKEN_ISSUER = "Unknown token issuer: %s";
 
-  public static final Set<String> READONLY_METHODS = Sets.newHashSet("GET", "PROPFIND");
-
-  public static final Set<String> REPLACE_METHODS = Sets.newHashSet("PUT", "MKCOL");
-
-  public static final Set<String> MODIFY_METHODS = Sets.newHashSet("PATCH", "DELETE");
-
-  public static final Set<String> CATCHALL_METHODS = Sets.newHashSet("HEAD", "OPTIONS");
+  protected static final Set<String> READONLY_METHODS = Sets.newHashSet("GET", "PROPFIND");
+  protected static final Set<String> REPLACE_METHODS = Sets.newHashSet("PUT", "MKCOL");
+  protected static final Set<String> MODIFY_METHODS = Sets.newHashSet("PATCH", "DELETE");
+  protected static final Set<String> CATCHALL_METHODS = Sets.newHashSet("HEAD", "OPTIONS");
 
   public static final String COPY_METHOD = "COPY";
   public static final String MOVE_METHOD = "MOVE";

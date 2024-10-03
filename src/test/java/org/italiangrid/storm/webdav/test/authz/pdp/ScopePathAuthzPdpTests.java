@@ -101,7 +101,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void invalidAuthentication() {
+  void invalidAuthentication() {
 
     Authentication auth = mock(Authentication.class);
     assertThrows(IllegalArgumentException.class, () -> {
@@ -110,7 +110,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void noScopeClaimYeldsIndeterminate() throws Exception {
+  void noScopeClaimYeldsIndeterminate() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn(null);
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
@@ -120,7 +120,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void noSaYeldsIndeterminate() throws Exception {
+  void noSaYeldsIndeterminate() throws Exception {
 
     when(pathResolver.resolveStorageArea("/test/example")).thenReturn(null);
     PathAuthorizationResult result =
@@ -131,7 +131,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void noStorageScopesYeldsDeny() throws Exception {
+  void noStorageScopesYeldsDeny() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid profile storage.read");
 
     PathAuthorizationResult result =
@@ -143,7 +143,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void noStorageScopesYeldsDenyForCatchallMethods() throws Exception {
+  void noStorageScopesYeldsDenyForCatchallMethods() {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid profile");
 
     for (String m : CATCHALL_METHODS) {
@@ -158,7 +158,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void catchallMethodsRequestsAtLeastOneStorageScope() throws Exception {
+  void catchallMethodsRequestsAtLeastOneStorageScope() {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
 
     for (String m : CATCHALL_METHODS) {
@@ -197,7 +197,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void readMethodsRequestsRequireStorageReadOrStage() throws Exception {
+  void readMethodsRequestsRequireStorageReadOrStage() {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
 
     for (String m : READ_METHODS) {
@@ -229,7 +229,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void replaceMethodsRequestsRequireStorageModifyOrCreate() throws Exception {
+  void replaceMethodsRequestsRequireStorageModifyOrCreate() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
 
     for (String m : REPLACE_METHODS) {
@@ -273,7 +273,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void modifyMethodsRequestsRequireStorageModifyOrCreate() throws Exception {
+  void modifyMethodsRequestsRequireStorageModifyOrCreate() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/ storage.create:/");
 
     for (String m : MODIFY_METHODS) {
@@ -296,7 +296,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testLocalCopyRequiresStorageCreateOrModify() throws Exception {
+  void testLocalCopyRequiresStorageCreateOrModify() throws Exception {
 
     when(request.getMethod()).thenReturn(COPY_METHOD);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/");
@@ -313,7 +313,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testPullTpcRequiresCreateOrModify() throws Exception {
+  void testPullTpcRequiresCreateOrModify() throws Exception {
     when(request.getMethod()).thenReturn(COPY_METHOD);
     when(request.getHeader("Source")).thenReturn("https://remote.example/test/example");
     when(pathResolver.pathExists("/test/example")).thenReturn(true);
@@ -341,7 +341,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testPushTpcRequiresRead() throws Exception {
+  void testPushTpcRequiresRead() throws Exception {
     when(request.getMethod()).thenReturn(COPY_METHOD);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.create:/ storage.modify:/");
     PathAuthorizationResult result =
@@ -357,7 +357,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testMoveRequiresModify() throws Exception {
+  void testMoveRequiresModify() throws Exception {
     when(request.getMethod()).thenReturn(MOVE_METHOD);
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/ storage.create:/");
     PathAuthorizationResult result =
@@ -373,7 +373,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testModifyImpliesCreate() throws Exception {
+  void testModifyImpliesCreate() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/ storage.modify:/");
     when(pathResolver.pathExists("/test/example")).thenReturn(false);
 
@@ -386,7 +386,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testUnsupportedMethod() throws Exception {
+  void testUnsupportedMethod() throws Exception {
     when(request.getMethod()).thenReturn("TRACE");
     assertThrows(IllegalArgumentException.class, () -> {
       pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
@@ -394,7 +394,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void testPathAuthzIsEnforced() throws Exception {
+  void testPathAuthzIsEnforced() throws Exception {
     when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/subfolder");
     when(request.getMethod()).thenReturn("GET");
     PathAuthorizationResult result =
@@ -410,7 +410,7 @@ public class ScopePathAuthzPdpTests {
   }
 
   @Test
-  public void issuerChecksAreEnforced() throws Exception {
+  void issuerChecksAreEnforced() throws Exception {
     when(jwt.getIssuer()).thenReturn(new URL("https://unknown.example"));
     when(request.getMethod()).thenReturn("GET");
     PathAuthorizationResult result =
