@@ -138,7 +138,7 @@ public class WlcgStructuredPathAuthorizationPdp
       if (requestedResourceExists) {
         return m.getPrefix().equals(STORAGE_MODIFY);
       }
-      return m.getPrefix().equals(STORAGE_CREATE);
+      return m.getPrefix().equals(STORAGE_CREATE) || m.getPrefix().equals(STORAGE_MODIFY);
     }
     if (MODIFY_METHODS.contains(method)) {
       return m.getPrefix().equals(STORAGE_MODIFY);
@@ -149,9 +149,9 @@ public class WlcgStructuredPathAuthorizationPdp
         if (requestedResourceExists) {
           return m.getPrefix().equals(STORAGE_MODIFY);
         }
-        return m.getPrefix().equals(STORAGE_CREATE);
+        return m.getPrefix().equals(STORAGE_CREATE) || m.getPrefix().equals(STORAGE_MODIFY);
       }
-      return m.getPrefix().equals(STORAGE_READ);
+      return m.getPrefix().equals(STORAGE_READ) || m.getPrefix().equals(STORAGE_STAGE);
 
     }
 
@@ -212,10 +212,17 @@ public class WlcgStructuredPathAuthorizationPdp
     final boolean requestedResourceExists = pathResolver.pathExists(requestPath);
     final String saPath = getStorageAreaPath(requestPath, sa);
 
-    scopeMatchers = scopeMatchers.stream()
-      .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
-      .filter(m -> m.matchesPath(saPath))
-      .collect(toList());
+    if ("MKCOL".equals(method)) {
+      scopeMatchers = scopeMatchers.stream()
+          .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+          .filter(m -> m.matchesPathIncludingParents(saPath))
+          .collect(toList());
+    } else {
+      scopeMatchers = scopeMatchers.stream()
+        .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+        .filter(m -> m.matchesPath(saPath))
+        .collect(toList());
+    }
 
     if (scopeMatchers.isEmpty()) {
       return deny(ERROR_INSUFFICIENT_TOKEN_SCOPE);
