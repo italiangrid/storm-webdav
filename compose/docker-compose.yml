@@ -11,7 +11,7 @@ volumes:
 
 services:
   trust:
-    image: indigoiam/trustanchors:latest
+    image: ${TRUST_IMAGE}:${TRUST_IMAGE_TAG}
     volumes:
       - trustanchors:/etc/grid-security/certificates
       - cabundle:/etc/pki
@@ -19,7 +19,7 @@ services:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
   webdav-setup:
-    image: italiangrid/storm-webdav-centos7:latest
+    image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
     environment:
       TZ: UTC
 
@@ -40,7 +40,7 @@ services:
       - /scripts/setup.sh
 
   webdav:
-    image: italiangrid/storm-webdav-centos7:latest
+    image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
     hostname: storm.test.example
     ports:
       - "9443:8443"
@@ -82,7 +82,7 @@ services:
           - storm.test.example
 
   ts:
-    image: indigoiam/robot-framework
+    image: ${TS_IMAGE}:${TS_IMAGE_TAG}
     environment:
       - IAM_ACCESS_TOKEN=AT
       - TZ=UTC 
@@ -105,14 +105,11 @@ services:
 
     entrypoint:  sleep infinity
 
-    #entrypoint: 
-    # - /scripts/wait-and-run-testsuite.sh
-
     networks:
       default:
 
   nginx:
-    image: storm2/ngx-voms:latest
+    image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
     hostname: storm-alias.example
     ports:
       - "9553:443"
