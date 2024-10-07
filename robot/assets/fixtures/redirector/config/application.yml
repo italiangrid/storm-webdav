@@ -25,7 +25,7 @@ storm:
     max-token-lifetime-secs: 600
     pool:
       endpoints:
-      - endpoint: http://storm.example:8085
+      - endpoint: http://storm.test.example:8085
 
   authz:
     policies:
