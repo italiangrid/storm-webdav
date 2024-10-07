@@ -2,7 +2,7 @@
 set -ex
 
 export X509_USER_PROXY=${X509_USER_PROXY:-/tmp/x509up_u$(id -u)}
-DAV_HOST=${DAV_HOST:-storm.example}
+DAV_HOST=${DAV_HOST:-storm.test.example}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-200}
 
 IAM_CLIENT_ID=${IAM_CLIENT_ID:-34d7ff8a-469e-4051-b95a-64b1fa6f7024}

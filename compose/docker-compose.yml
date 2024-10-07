@@ -41,7 +41,7 @@ services:
 
   webdav:
     image: italiangrid/storm-webdav-centos7:latest
-    hostname: storm.example
+    hostname: storm.test.example
     ports:
       - "9443:8443"
       - "9444:1044"
@@ -53,7 +53,7 @@ services:
     environment:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
-      STORM_WEBDAV_HOSTNAME_0: storm.example
+      STORM_WEBDAV_HOSTNAME_0: storm.test.example
       STORM_WEBDAV_USE_CONSCRYPT: "true"
       STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test
       DONT_UNPACK_TARBALL: y
@@ -79,15 +79,14 @@ services:
     networks:
       default:
         aliases:
-          - storm.example
+          - storm.test.example
 
   ts:
-  #  image: italiangrid/storm-webdav:1.1.0-latest
     image: indigoiam/robot-framework
     environment:
       - IAM_ACCESS_TOKEN=AT
       - TZ=UTC 
-      - DAV_HOST=storm.example
+      - DAV_HOST=storm.test.example
       - REMOTE_DAV_HOST=storm-alias.example
       - REMOTE_DAVS_PORT=443
 
