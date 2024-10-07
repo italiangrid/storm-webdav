@@ -47,8 +47,8 @@ services:
       - "9444:1044"
 
     depends_on:
-      - trust
-      - webdav-setup
+      webdav-setup:
+        condition: service_completed_successfully
 
     environment:
       TZ: UTC
@@ -91,7 +91,10 @@ services:
       - REMOTE_DAVS_PORT=443
 
     depends_on:
-      - webdav 
+      webdav:
+        condition: service_started
+      trust:
+        condition: service_completed_successfully
 
     volumes:
       - storage:/storage
@@ -115,8 +118,10 @@ services:
       - "9553:443"
 
     depends_on:
-      - trust
-      - webdav-setup
+      webdav:
+        condition: service_started
+      trust:
+        condition: service_completed_successfully
 
     environment:
       TZ: UTC
