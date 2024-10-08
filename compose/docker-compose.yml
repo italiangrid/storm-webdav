@@ -2,6 +2,8 @@ volumes:
   trustanchors:
   cabundle:
   storage:
+  storage2:
+
 
 services:
   trust:
@@ -17,10 +19,6 @@ services:
     ports:
       - "9443:8443"
       - "9444:1044"
-
-    depends_on:
-      webdav-setup:
-        condition: service_started
 
     environment:
       TZ: UTC
@@ -39,8 +37,7 @@ services:
       - ./assets/certs/:/etc/grid-security/storm-webdav/:ro 
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
-      - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d:ro
-      - ./assets/etc/storm/webdav/config/:/etc/storm/webdav/config:ro
+      - ./assets/etc/storm/webdav/:/etc/storm/webdav/:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
     user: root
@@ -55,7 +52,7 @@ services:
   ts:
     image: ${TS_IMAGE}:${TS_IMAGE_TAG}
     environment:
-      - IAM_ACCESS_TOKEN=AT
+      - IAM_ACCESS_TOKEN
       - TZ=UTC 
       - DAV_HOST=storm.test.example
       - REMOTE_DAV_HOST=storm-alias.test.example
@@ -103,7 +100,7 @@ services:
       - ./assets/vomsdir:/vomsdir
       - ./assets/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
-      - storage:/tmp/storage
+      - storage2:/storage/oauth-authz
 
     networks:
       default:
