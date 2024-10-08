@@ -85,7 +85,7 @@ services:
       - IAM_ACCESS_TOKEN=AT
       - TZ=UTC 
       - DAV_HOST=storm.test.example
-      - REMOTE_DAV_HOST=storm-alias.example
+      - REMOTE_DAV_HOST=storm.test.example
       - REMOTE_DAVS_PORT=443
 
     depends_on:
@@ -111,7 +111,7 @@ services:
 
   nginx:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
-    hostname: storm-alias.example
+    hostname: storm.test.example
     ports:
       - "9553:443"
 
@@ -137,4 +137,4 @@ services:
     networks:
       default:
         aliases:
-          - storm-alias.example
+          - storm.test.example
