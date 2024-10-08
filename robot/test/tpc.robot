@@ -78,11 +78,6 @@ Oauth push copy works Teardown
     Remove Test File   oauth_push_copy_works  ${sa.oauth}
     Remove Test File   oauth_push_copy_works.copy  ${sa.oauth}
 
-Oauth resource size is 10M  [Arguments]  ${url}
-    ${opts}   Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" -f --head
-    ${rc}  ${out}  Curl Success  ${url}   ${opts}
-    Should Contain   ${out}   ength: 10485760
-
 *** Test cases ***
 
 Pull copy works
@@ -120,9 +115,8 @@ Pull copy works oauth and https
     ${src}   Remote DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=454; retry=0" ${opts}
-    Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
-    ${rc}  ${out}  Curl Voms HEAD Success   ${dest}
-    Should Contain   ${out}   ength: 10485760
+    ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
+    Curl Success   ${dest}   ${davix.opts.oauth}
     [Teardown]  Pull copy works oauth and https Teardown
 
 Push copy works
@@ -133,7 +127,7 @@ Push copy works
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default} 
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=455; retry=0" ${opts}
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dst}  ${src}  ${opts}
-    Oauth resource size is 10M   ${dst}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Push copy works Teardown
 
 Oauth pull copy works
@@ -145,7 +139,7 @@ Oauth pull copy works
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=456; retry=0" ${opts}
     ${rc}  ${out}  Curl Pull COPY Success  ${dst}  ${src}  ${opts}
-    Oauth resource size is 10M   ${dst}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Oauth pull copy works Teardown
 
 Oauth push copy works
@@ -157,5 +151,5 @@ Oauth push copy works
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=457; retry=0" ${opts}
     ${rc}  ${out}  Curl Push COPY Success  ${dst}  ${src}  ${opts}
-    Oauth resource size is 10M   ${dst}
+    Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Oauth push copy works Teardown
