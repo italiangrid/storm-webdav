@@ -39,7 +39,6 @@ services:
 
   webdav:
     image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
-    hostname: storm.test.example
     ports:
       - "9443:8443"
       - "9444:1044"
@@ -85,7 +84,7 @@ services:
       - IAM_ACCESS_TOKEN=AT
       - TZ=UTC 
       - DAV_HOST=storm.test.example
-      - REMOTE_DAV_HOST=storm.test.example
+      - REMOTE_DAV_HOST=storm-alias.test.example
       - REMOTE_DAVS_PORT=443
 
     depends_on:
@@ -111,7 +110,6 @@ services:
 
   nginx:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
-    hostname: storm.test.example
     ports:
       - "9553:443"
 
@@ -123,18 +121,17 @@ services:
 
     environment:
       TZ: UTC
-      X509_VOMS_DIR: /vomsdir
 
     volumes:
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
       - ./assets/certs:/certs
       - ./assets/vomsdir:/vomsdir
-      - ./assets/nginx/nginx.conf:/home/storm/local/openresty/nginx/conf/nginx.conf:ro
+      - ./assets/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
       - storage:/tmp/storage
 
     networks:
       default:
         aliases:
-          - storm.test.example
+          - storm-alias.test.example
