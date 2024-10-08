@@ -16,27 +16,6 @@ services:
     environment:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
-  webdav-setup:
-    image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
-    environment:
-      TZ: UTC
-
-    volumes:
-      - ./assets/certs/:/certs:ro 
-      - ./assets/scripts:/scripts:ro
-      - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
-      - ./assets/etc/storm/webdav/vo-mapfiles.d/:/vo-mapfiles.d:ro
-      - ./assets/etc/storm/webdav/config/:/config:ro
-      - hostcert:/etc/grid-security/storm-webdav
-      - saconfig:/etc/storm/webdav/sa.d
-      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
-      - config:/etc/storm/webdav/config
-      - storage:/storage
-
-    user: root
-    entrypoint:
-      - /scripts/setup.sh
-
   webdav:
     image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
     ports:
@@ -45,7 +24,7 @@ services:
 
     depends_on:
       webdav-setup:
-        condition: service_completed_successfully
+        condition: service_started
 
     environment:
       TZ: UTC
@@ -63,10 +42,12 @@ services:
       - trustanchors:/etc/grid-security/certificates
       - hostcert:/etc/grid-security/storm-webdav
       - saconfig:/etc/storm/webdav/sa.d
-      - mapfilesconfig:/etc/storm/webdav/vo-mapfiles.d
       - config:/etc/storm/webdav/config
+      - ./assets/certs/:/certs:ro 
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
+      - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
+      - ./assets/etc/storm/webdav/config/:/config:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
     user: root
