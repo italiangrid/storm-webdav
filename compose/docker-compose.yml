@@ -2,10 +2,6 @@ volumes:
   trustanchors:
   cabundle:
   storage:
-  hostcert:
-  saconfig:
-  mapfilesconfig:
-  config:
 
 services:
   trust:
@@ -40,14 +36,11 @@ services:
       - storage:/storage
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - hostcert:/etc/grid-security/storm-webdav
-      - saconfig:/etc/storm/webdav/sa.d
-      - config:/etc/storm/webdav/config
-      - ./assets/certs/:/certs:ro 
+      - ./assets/certs/:/etc/grid-security/storm-webdav/:ro 
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
-      - ./assets/etc/storm/webdav/sa.d/:/sa.d:ro
-      - ./assets/etc/storm/webdav/config/:/config:ro
+      - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d:ro
+      - ./assets/etc/storm/webdav/config/:/etc/storm/webdav/config:ro
       - ${HOME}/git/storm-webdav:/code:ro
 
     user: root
