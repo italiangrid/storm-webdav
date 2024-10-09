@@ -23,13 +23,13 @@ jobs:
 
       - name: Start services
         working-directory: compose
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Run testsuite
         working-directory: compose
         run: |
           set +e
-          docker-compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
+          docker compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
           echo "Test suite completed"
 
       - name: Create artifacts directory
