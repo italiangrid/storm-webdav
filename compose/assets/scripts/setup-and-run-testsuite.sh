@@ -10,7 +10,7 @@ export IAM_ACCESS_TOKEN=$(curl -d grant_type=client_credentials \
     -d client_id=${IAM_CLIENT_ID} ${IAM_TOKEN_ENDPOINT} \
     | jq .access_token | tr -d '"')
 
-chmod 600 /tmp/usercerts/*
+sudo chmod 600 /tmp/usercerts/*
 echo "pass123" | voms-proxy-init --cert /tmp/usercerts/test0.p12 -voms test.vo --pwstdin
 
 cp -r /code/robot .
