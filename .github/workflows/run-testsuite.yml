@@ -31,7 +31,7 @@ jobs:
 
       - name: Run testsuite
         working-directory: compose
-        run: docker compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
+        run: docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory

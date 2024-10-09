@@ -28,7 +28,7 @@ docker-compose up -d ts nginx
 Now you can run the test suite with
 
 ```
-docker-compose exec ts bash -c '/scripts/setup-and-run-testsuite.sh'
+docker-compose exec ts bash -c '/scripts/ci-run-testsuite.sh'
 ```
 
 The default path for the test suite report is `/home/test/robot/reports`;
