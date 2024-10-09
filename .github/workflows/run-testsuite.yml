@@ -6,6 +6,7 @@ on:
       - robot/**
       - compose/**
       - docker/**
+      - .github/workflows/**
 
 jobs:
   run-testsuite:
