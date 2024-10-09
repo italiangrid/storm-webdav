@@ -34,7 +34,7 @@ jobs:
           IAM_CLIENT_ID: ${{ secrets.IAM_CLIENT_ID }}
           ROBOT_ARGS: -L DEBUG
         working-directory: compose
-        run: docker compose exec -T ts bash -c -e ROBOT_ARGS="${ROBOT_ARGS}" -e IAM_CLIENT_ID="${IAM_CLIENT_ID}" '/scripts/ci-run-testsuite.sh'
+        run: docker compose exec -T ts bash -e ROBOT_ARGS="${ROBOT_ARGS}" -e IAM_CLIENT_ID="${IAM_CLIENT_ID}" -c '/scripts/ci-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory
