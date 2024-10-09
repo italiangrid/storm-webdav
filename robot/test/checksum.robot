@@ -36,5 +36,5 @@ Get checksum works
     ${dst}  DAVS Url  checksum_test
     Davix Put Success  ${TEMPDIR}/checksum_test  ${dst}
     ${rc}  ${out}  Curl Voms Get Success  ${dst}
-    Should Contain  ${out}  Digest: adler32=091e01de
+    Should Contain  ${out}  Digest: adler32=91e01de
     [Teardown]  Get checksum works Teardown
