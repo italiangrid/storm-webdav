@@ -3,7 +3,7 @@ set -ex
 
 DAV_HOST=${DAV_HOST:-storm.test.example}
 
-IAM_CLIENT_ID=${IAM_CLIENT_ID:-34d7ff8a-469e-4051-b95a-64b1fa6f7024}
+IAM_CLIENT_ID=${IAM_CLIENT_ID:-}
 IAM_TOKEN_ENDPOINT=${IAM_TOKEN_ENDPOINT:-https://wlcg.cloud.cnaf.infn.it/token}
 
 export IAM_ACCESS_TOKEN=$(curl -d grant_type=client_credentials \

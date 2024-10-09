@@ -58,6 +58,7 @@ services:
       - REMOTE_DAV_HOST=storm-alias.test.example
       - REMOTE_DAVS_PORT=443
       - ROBOT_ARGS
+      - IAM_CLIENT_ID
 
     depends_on:
       webdav:
