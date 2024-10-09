@@ -71,7 +71,7 @@ services:
       - ./assets/vomses:/etc/vomses:ro
       - ./assets/vomsdir:/etc/grid-security/vomsdir
       - ./assets/scripts:/scripts:ro
-      - ./assets/usercerts/:/usercerts:ro
+      - ./assets/usercerts/:/tmp/usercerts:ro
       - ../:/code:ro
 
     entrypoint:  sleep infinity
