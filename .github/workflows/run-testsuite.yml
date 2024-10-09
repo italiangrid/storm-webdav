@@ -16,7 +16,6 @@ jobs:
 
     env:
       ARTIFACTS: ${HOME}/artifacts
-      ROBOT_ARGS: -L DEBUG
     
     steps:
       - name: Checkout
@@ -31,8 +30,11 @@ jobs:
         run: docker compose up -d webdav nginx ts
 
       - name: Run testsuite
+        env:
+          IAM_CLIENT_ID: ${{ secrets.IAM_CLIENT_ID }}
+          ROBOT_ARGS: -L DEBUG
         working-directory: compose
-        run: docker compose exec -T -e ROBOT_ARGS="${ROBOT_ARGS}" ts bash -c '/scripts/ci-run-testsuite.sh'
+        run: docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory
