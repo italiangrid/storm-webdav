@@ -39,11 +39,11 @@ jobs:
         run: mkdir -p ${ARTIFACTS}
 
       - name: Collect test reports
-        run: docker cp storm-webdav_ts_1:/home/test/robot/reports ${ARTIFACTS}
+        run: docker cp storm-webdav-ts-1:/home/test/robot/reports ${ARTIFACTS}
 
       - name: Collect service log
         if: ${{ always() }}
-        run: docker logs storm-webdav_webdav_1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
+        run: docker logs storm-webdav-webdav-1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
 
       - name: Archive reports
         if: ${{ always() }}
