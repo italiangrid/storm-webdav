@@ -1,41 +1,20 @@
-# How to run the test suite locally
+# Docker compose for StoRM WebDAV
 
-## Build service
-
-The [docker image](../docker/webdav-centos7/Dockerfile) used as WebDAV service
-for Centos7 OS downloads the `storm-webdav` server from the
-[nightly repo][nightly-repo].
-
-In case a newer version of the `storm-webdav` server is uploaded to the [nightly repo][nightly-repo]
-but not to [dockerHub](https://hub.docker.com/r/italiangrid/storm-webdav-centos7),
-please build the image manually, with
+Run the services with
 
 ```
-cd docker/webdav-centos7
-docker build -t italiangrid/storm-webdav-centos7 .
+$ docker-compose up -d
 ```
 
-## Run test suite
+The docker-compose contains several services:
 
-Setup and run the services with
+* `trust`: docker image for the GRID CA certificates, mounted in the `/etc/grid-security/certificates` path of the other services. The _igi-test-ca_ used in this deployment is also present in that path
+* `webdav`: is the main service, also known as StoRM WebDAV. The StoRM WebDAV base URL is https://storm.test.example:8443
+* `ts`: used for running the StoRM WebDAV testsuite. It shares the storage with the `webdav` service, to run local tests
+* `nginx`: is the NGINX service supporting VOMS authentication, used as remote StoRM server for WebDAV calls. It does not forward requests to StoRM WebDAV, but just serves local resources in a separate storage. URL of this service is https://storm-alias.test.example.
 
-```
-cd compose
-docker-compose up trust # and wait for fetch crl to be done
-docker-compose up -d ts nginx
-```
-
-Now you can run the test suite with
+To resolve the hostname of the service, add a line in your `/etc/hosts` file with
 
 ```
-docker-compose exec ts bash -c '/scripts/ci-run-testsuite.sh'
+127.0.0.1	storm.test.example    storm-alias.test.example
 ```
-
-The default path for the test suite report is `/home/test/robot/reports`;
-in case you want to copy it locally run
-
-```
-docker cp storm-webdav_ts_1:/home/test/robot/reports .
-```
-
-[nightly-repo]: https://repo.cloud.cnaf.infn.it/repository/storm/storm-nightly-centos7.repo
