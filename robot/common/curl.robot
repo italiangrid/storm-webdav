@@ -10,12 +10,14 @@ ${x509.trustdir}  /etc/grid-security/certificates
 
 *** Keywords ***
 Curl   [Arguments]  ${url}  ${opts}=${curl.opts.default}
-    ${rc}   ${out}    Run and Return RC And Output   curl ${url} ${opts}
+    ${cmd}   Set Variable  curl ${url} ${opts}
+    Log   ${cmd}   level=debug
+    ${rc}   ${out}    Run and Return RC And Output   ${cmd}
+    Log   ${out}   level=debug
     [Return]  ${rc}  ${out}
 
 Curl Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${rc}  ${out}   Execute and Check Success  curl ${url} ${opts}
-    Log   ${out}   DEBUG
     [Return]  ${rc}  ${out}
 
 Curl Error   [Arguments]  ${url}  ${opts}=${curl.opts.default}
