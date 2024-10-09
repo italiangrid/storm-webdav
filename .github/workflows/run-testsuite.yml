@@ -16,6 +16,7 @@ jobs:
 
     env:
       ARTIFACTS: ${HOME}/artifacts
+      ROBOT_ARGS: -L DEBUG
     
     steps:
       - name: Checkout
@@ -31,7 +32,7 @@ jobs:
 
       - name: Run testsuite
         working-directory: compose
-        run: docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
+        run: docker compose exec -T -e ROBOT_ARGS="${ROBOT_ARGS}" ts bash -c '/scripts/ci-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory
