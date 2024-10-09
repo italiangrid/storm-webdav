@@ -14,25 +14,27 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ARTIFACTS: artifacts
+      ARTIFACTS: ${HOME}/artifacts
     
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Fetch crls
-        working-directory: compose
-        run: docker-compose up trust
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Start WebDAV services
+      - name: Start services
         working-directory: compose
-        run: docker-compose up -d webdav nginx
+        run: docker-compose up -d
 
       - name: Run testsuite
         working-directory: compose
         run: |
           set +e
-          docker-compose up -d ts 
-          docker-compose exec -T ts bash -c '/scripts/wait-and-run-testsuite.sh'
+          docker-compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
           echo "Test suite completed"
 
       - name: Create artifacts directory
@@ -48,7 +50,7 @@ jobs:
 
       - name: Archive reports
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: logs-and-reports
           path: ${{ env.ARTIFACTS }}
