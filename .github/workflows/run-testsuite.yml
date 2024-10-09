@@ -25,15 +25,13 @@ jobs:
         working-directory: compose
         run: docker compose up trust
 
-      - name: Start WebDAV services
+      - name: Start services
         working-directory: compose
-        run: docker compose up -d webdav nginx
+        run: docker compose up -d webdav nginx ts
 
-      - name: Start and run testsuite
+      - name: Run testsuite
         working-directory: compose
-        run: |
-          docker compose up -d ts
-          docker compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
+        run: docker compose exec -T ts bash -c '/scripts/setup-and-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory
