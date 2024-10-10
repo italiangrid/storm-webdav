@@ -2,7 +2,7 @@
 
 ## Run test suite
 
-The `compose` folder already includes all services necessary to run the testsuite.
+The [compose](../compose/README.md) folder already includes all services necessary to run the testsuite.
 
 Start all services with
 
@@ -10,6 +10,8 @@ Start all services with
 cd compose
 docker-compose up -d
 ```
+
+In case of _Error response from daemon: failed to create symlink_ error, please run the `trust` container first.
 
 Enter into the testsuite container with
 
