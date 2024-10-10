@@ -38,7 +38,7 @@ services:
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ./assets/etc/storm/webdav/:/etc/storm/webdav/:ro
-      - ${HOME}/git/storm-webdav:/code:ro
+      - ../storm-webdav:/code:ro
 
     user: root
     entrypoint:
