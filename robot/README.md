@@ -11,23 +11,37 @@ cd compose
 docker-compose up -d
 ```
 
+Enter into the testsuite container with
+
+```
+docker-compose exec ts bash 
+```
+
 To perform token based authorization, the testsuite requires a valid access token
 released by the [WLCG IAM](https://wlcg.cloud.cnaf.infn.it) trough a public client
 with the client credentials authorization grant enabled.
+
 Please set the following environment variable to allow the token credential setup
 
 ```
 export IAM_CLIENT_ID=<client-id>
 ```
 
+Set the minimum arguments required by the testsuite to run against the two StoRM WebDAV
+servers deployed into the compose:
+
+```
+export ROBOT_ARGS="--variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443"
+```
+
 Now you can run the test suite with
 
 ```
-docker-compose exec ts bash -c '/scripts/ci-run-testsuite.sh'
+/scripts/ci-run-testsuite.sh
 ```
 
 The default path for the test suite report is `/home/test/robot/reports`;
-in case you want to copy it locally run
+in case you want to copy it locally, run
 
 ```
 docker cp storm-webdav-ts-1:/home/test/robot/reports .
