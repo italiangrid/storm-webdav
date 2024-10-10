@@ -52,13 +52,11 @@ services:
   ts:
     image: ${TS_IMAGE}:${TS_IMAGE_TAG}
     environment:
-      - IAM_ACCESS_TOKEN
-      - TZ=UTC 
-      - DAV_HOST=storm.test.example
-      - REMOTE_DAV_HOST=storm-alias.test.example
-      - REMOTE_DAVS_PORT=443
+      - TZ=UTC
       - ROBOT_ARGS
       - IAM_CLIENT_ID
+      - IAM_TOKEN_ENDPOINT=https://wlcg.cloud.cnaf.infn.it/token
+      - IAM_ACCESS_TOKEN
 
     depends_on:
       webdav:

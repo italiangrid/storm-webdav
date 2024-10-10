@@ -16,7 +16,7 @@ jobs:
 
     env:
       ARTIFACTS: ${HOME}/artifacts
-      ROBOT_ARGS: -L DEBUG
+      ROBOT_ARGS: -L DEBUG --variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443
       IAM_CLIENT_ID: ${{ secrets.IAM_CLIENT_ID }}
     
     steps:
