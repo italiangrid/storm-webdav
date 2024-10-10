@@ -39,11 +39,11 @@ docker cp storm-webdav-ts-1:/home/test/robot/reports .
 | -------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `dav.host`     | Hostname of the WebDAV server considered as running locally  | localhost                                                                                             |
 | `dav.port`     | Schema of the WebDAV server considered as running locally | 8085                                                                                             |
-| `davs.port`     | Schema of the WebDAV server considered as running locally with HTTPS | 8085                                                                                             |
+| `davs.port`     | Schema of the WebDAV server considered as running locally with HTTPS | 8443                                                                                             |
 | `remote.dav.host`     | Hostname of the WebDAV server considered as running remotely  | localhost                                                                                             |
 | `remote.dav.port`     | Schema of the WebDAV server considered as running remotely | 8085                                                                                             |
-| `remote.davs.port`     | Schema of the WebDAV server considered as running remotely with HTTPS | 8085                                                                                             |
-| `token.endpoint`     | WebDAV endpoint for the locally issued tokens | https://localhost:8085/oauth/token                                                                                             |
+| `remote.davs.port`     | Schema of the WebDAV server considered as running remotely with HTTPS | 8443                                                                                             |
+| `token.endpoint`     | WebDAV endpoint for the locally issued tokens | https://localhost:8443/oauth/token                                                                                             |
 | `cred.oauth.env_var_name`     | Environment variable for an OAuth access token | IAM_ACCESS_TOKEN                                                                                             |
 | `cred.voms.use_os`     | Use `/tmp/x509up_u<user-id>` as proxy path | True                                                                                             |
 | `cred.voms.default`     | Custom path to proxy (when `cred.voms.use_os=false`) | assets/certs/voms.1                                                                                               |
