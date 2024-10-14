@@ -2,8 +2,6 @@ oauth:
   issuers:
     - name: wlcg
       issuer: https://wlcg.cloud.cnaf.infn.it/
-    - name: storm-webdav
-      issuer: https://storm.test.example:8443
 
 storm:
   authz:
@@ -27,15 +25,4 @@ storm:
       - type: vo
         params:
           vo: test.vo
-    # ToDo: Set proper policy for
-    # "Put/Get works with locally issued token fga" tests
-    - sa: fga
-      actions:
-      - all
-      effect: permit
-      description: Grant all access to test0 oidc-subject
-      principals:
-      - type: jwt-subject
-        params:
-            iss: https://storm.test.example:8443
-            sub: CN=test0,O=IGI,C=IT
+
