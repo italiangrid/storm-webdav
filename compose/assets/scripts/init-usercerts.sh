@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -ex
 
 USER_CERTS_DIR=${USER_CERTS_DIR:-/usercerts}

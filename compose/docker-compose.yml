@@ -14,21 +14,39 @@ services:
     environment:
       FORCE_TRUST_ANCHORS_UPDATE: 1
 
-  webdav:
+  storage-setup:
     image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
+    environment:
+      TZ: UTC
+
+    volumes:
+      - ./assets/scripts:/scripts:ro
+      - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d/:ro
+      - storage:/storage
+    user: root
+    entrypoint:
+      - /scripts/init-storage.sh
+
+  webdav:
+    build:
+      context: ../
+      dockerfile: Dockerfile
     ports:
-      - "9443:8443"
-      - "9444:1044"
+      - "8443:8443"
+      - "8085:8085"
+
+    depends_on:
+    #  trust:
+    #    condition: service_completed_successfully
+      storage-setup:
+        condition: service_completed_successfully
 
     environment:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.test.example
-      STORM_WEBDAV_USE_CONSCRYPT: "true"
-      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test
+      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test,policies
       DONT_UNPACK_TARBALL: y
-      #DEBUG: y
-      #DEBUG_SUSPEND: y
 
     volumes:
       - storage:/storage
@@ -37,12 +55,9 @@ services:
       - ./assets/certs/:/etc/grid-security/storm-webdav/:ro 
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
-      - ./assets/etc/storm/webdav/:/etc/storm/webdav/:ro
+      - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d/:ro
+      - ./assets/etc/storm/webdav/config/application-policies.yml:/app/application-policies.yml:ro
       - ../:/code:ro
-
-    user: root
-    entrypoint:
-      - /scripts/run.sh
 
     networks:
       default:
@@ -82,7 +97,7 @@ services:
   nginx:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
     ports:
-      - "9553:443"
+      - "443:443"
 
     depends_on:
       webdav:
