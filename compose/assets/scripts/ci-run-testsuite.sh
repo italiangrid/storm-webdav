@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 set -ex
 
 IAM_CLIENT_ID=${IAM_CLIENT_ID:-}

@@ -2,6 +2,8 @@ oauth:
   issuers:
     - name: wlcg
       issuer: https://wlcg.cloud.cnaf.infn.it/
+    - name: storm-webdav
+      issuer: https://storm.test.example:8443
 
 storm:
   authz:
@@ -33,7 +35,7 @@ storm:
       effect: permit
       description: Grant all access to test0 oidc-subject
       principals:
-      - type: oidc-subject
+      - type: jwt-subject
         params:
             iss: https://storm.test.example:8443
             sub: CN=test0,O=IGI,C=IT
