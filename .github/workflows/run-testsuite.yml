@@ -29,11 +29,13 @@ jobs:
 
       - name: Start services
         working-directory: compose
-        run: docker compose up --build -d storage-setup webdav nginx ts
+        run: docker compose up --build -d storage-setup webdav nginx
 
       - name: Run testsuite
         working-directory: compose
-        run: docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
+        run: |
+          docker compose up -d ts
+          docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
         continue-on-error: true
 
       - name: Create artifacts directory
