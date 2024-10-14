@@ -36,8 +36,8 @@ services:
       - "8085:8085"
 
     depends_on:
-    #  trust:
-    #    condition: service_completed_successfully
+      trust:
+        condition: service_completed_successfully
       storage-setup:
         condition: service_completed_successfully
 
@@ -45,8 +45,9 @@ services:
       TZ: UTC
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.test.example
-      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=test,policies
-      DONT_UNPACK_TARBALL: y
+      STORM_WEBDAV_AUTHZ_SERVER_ENABLE: true
+      STORM_WEBDAV_AUTHZ_SERVER_ISSUER: https://storm.test.example:8443
+      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=ts
 
     volumes:
       - storage:/storage
@@ -56,7 +57,7 @@ services:
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d/:ro
-      - ./assets/etc/storm/webdav/config/application-policies.yml:/app/application-policies.yml:ro
+      - ./assets/etc/storm/webdav/config/application-ts.yml:/app/application-ts.yml:ro
       - ../:/code:ro
 
     networks:
