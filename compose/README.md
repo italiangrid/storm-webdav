@@ -9,6 +9,7 @@ $ docker-compose up -d
 The docker-compose contains several services:
 
 * `trust`: docker image for the GRID CA certificates, mounted in the `/etc/grid-security/certificates` path of the other services. The _igi-test-ca_ used in this deployment is also present in that path
+* `storage-setup`: sidecar container, used to allocate proper volumes (i.e. storage areas) owned by _storm_
 * `webdav`: is the main service, also known as StoRM WebDAV. The StoRM WebDAV base URL is https://storm.test.example:8443. It serves the following storage areas:
   * `test.vo` for users presenting a proxy issued by a _test.vo_ VO
   * `noauth`: which allows read/write mode also to anonymous users
