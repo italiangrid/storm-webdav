@@ -27,11 +27,16 @@ Create 1MB Test File  [Arguments]  ${file}  ${sa}=${sa.default}
     ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
     File Should Not Exist   ${path}
     ${rc}  ${out}  Execute and Check Success  dd if=/dev/zero of=${path} bs=1 count=0 seek=1048576
+
+Create Test Directory  [Arguments]  ${directory}  ${sa}=${sa.default}
+    ${path}=   Normalize Path   ${storage.root}/${sa}/${directory}
+    Directory Should Not Exist   ${path}
+    Create Directory   ${path}
     
 Remove Test File  [Arguments]  ${file}  ${sa}=${sa.default}
     ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
     Remove file  ${path}
 
-Remove Test Directory  [Arguments]  ${file}  ${sa}=${sa.default}
-    ${path}=   Normalize Path   ${storage.root}/${sa}/${file}
-    Remove Directory  ${path}
+Remove Test Directory  [Arguments]  ${directory}  ${sa}=${sa.default}
+    ${path}=   Normalize Path   ${storage.root}/${sa}/${directory}
+    Remove Directory  ${path}  recursive=true
