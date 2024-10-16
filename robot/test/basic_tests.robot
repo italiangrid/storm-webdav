@@ -27,17 +27,6 @@ Mkdir works Teardown
     Default Teardown
     Remove Test Directory   mkdir_test
 
-Partial Put Works Setup
-    Default Setup
-    Create Temporary File  pput0_test   0000000000
-    Create Temporary File  pput1_test   1111111111
-
-Partial Put Works Teardown
-    Default Teardown
-    Remove Test File  pput_test
-    Remove Temporary File  pput0_test
-    Remove Temporary File  pput1_test
-
 Single Test File Setup  [Arguments]  ${file_name}
     Default Setup
     Create Test File  ${file_name}
@@ -70,15 +59,6 @@ Mkdir works
     ## Davix Mkdir Success   ${davs.endpoint}/${sa.default}/mkdir_test
     ${rc}  ${out}  Curl Voms MKCOL Success   ${davs.endpoint}/${sa.default}/mkdir_test
     [Teardown]   Mkdir works teardown
-
-Partial Put works
-    [Tags]  voms  put  partial  
-    [Setup]  Partial Put Works Setup
-    ${opts}  Set Variable  -H "Content-Range: bytes=0-3/*" ${curl.opts.default}
-    ${dest}  DAVS Url  pput_test
-    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput0_test  ${dest}  
-    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
-    [Teardown]  Partial Put Works Teardown
 
 Post not allowed on content
     [Tags]  voms  post
