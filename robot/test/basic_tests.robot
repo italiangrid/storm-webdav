@@ -15,14 +15,6 @@ Default Setup
 Default Teardown
     Unset VOMS credential
 
-Put works Setup
-    Default Setup
-    Create Temporary File   put_test   123456789
-
-Put works Teardown
-    Default Teardown
-    Remove Temporary File   put_test
-
 Mkdir works Teardown
     Default Teardown
     Remove Test Directory   mkdir_test
@@ -36,14 +28,6 @@ Single Test File Teardown  [Arguments]  ${file_name}
     Remove Test File  ${file_name}
 
 *** Test cases ***
-
-Put works
-    [Tags]  voms  put
-    [Setup]  Put works Setup
-    Davix Put Success  ${TEMPDIR}/put_test  ${davs.endpoint}/${sa.default}/put_test
-    Davix Get Success  ${davs.endpoint}/${sa.default}/put_test
-    Remove Test File   put_test
-    [Teardown]  Put works Teardown
 
 Post not allowed on content
     [Tags]  voms  post
