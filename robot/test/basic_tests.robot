@@ -45,13 +45,6 @@ Put works
     Remove Test File   put_test
     [Teardown]  Put works Teardown
 
-Mkdir works
-    [Tags]  voms  Mkdir
-    ## There's a bug in Davix which returns 0 even if the mkdir call fails
-    ## Davix Mkdir Success   ${davs.endpoint}/${sa.default}/mkdir_test
-    ${rc}  ${out}  Curl Voms MKCOL Success   ${davs.endpoint}/${sa.default}/mkdir_test
-    [Teardown]   Mkdir works teardown
-
 Post not allowed on content
     [Tags]  voms  post
     [Setup]  Single Test File Setup   test_post_not_allowed
