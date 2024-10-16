@@ -143,6 +143,12 @@ Curl Voms MOVE  [Arguments]  ${dest}  ${source}  ${opts}=-s -L -i
     ${rc}  ${out}  Curl  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms OPTIONS  [Arguments]  ${url}  ${opts}=-s -L -i
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X OPTIONS ${voms_opts}
+    ${rc}  ${out}  Curl  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl pull COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
     ${all_opts}   Set variable   -X COPY -H "Source: ${source}" ${opts}
     ${rc}  ${out}  Curl Success  ${dest}  ${all_opts}
