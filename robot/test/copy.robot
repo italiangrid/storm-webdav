@@ -13,7 +13,7 @@ Default Tags   copy
 
 *** Test cases ***
 
-Local copy works
+Copy works
     [Tags]  voms
     [Setup]  Setup file  copy_works
     ${dest}  DAVS URL  copy_works.dest
@@ -22,7 +22,7 @@ Local copy works
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown file  copy_works
 
-Local copy directory works
+Copy directory works
     [Tags]  voms
     [Setup]  Setup directory  copy_works
     ${dest}  DAVS URL  copy_works.dest
@@ -31,7 +31,7 @@ Local copy directory works
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown directory  copy_works
 
-Local copy not empty directory works
+Copy not empty directory works
     [Tags]  voms
     [Setup]  Run Keywords   Setup directory  copy_works
     ...      AND            Create Test File   copy_works/file_copy_works
@@ -41,7 +41,7 @@ Local copy not empty directory works
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown directory  copy_works
 
-Local copy override works
+Copy override works
     [Tags]  voms
     [Setup]  Setup file  copy_works
     ${dest}  DAVS URL  copy_works.dest
@@ -52,7 +52,7 @@ Local copy override works
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown file  copy_works
 
-Local copy override fails
+Copy override fails
     [Tags]  voms
     [Setup]  Setup file  copy_works
     ${dest}  DAVS URL  copy_works.dest
@@ -63,7 +63,7 @@ Local copy override fails
     Should Contain  ${out}  412 Precondition Failed
     [Teardown]   Teardown file  copy_works
 
-Local copy not existent resource
+Copy not existent resource
     [Tags]  voms
     [Setup]  Default Setup
     ${dest}  DAVS URL  copy_works.dest
@@ -72,7 +72,7 @@ Local copy not existent resource
     Should Contain  ${out}  404 Not Found
     [Teardown]   Default Teardown
 
-Local copy with destination equal to source
+Copy with destination equal to source
     [Tags]  voms
     [Setup]  Setup file  copy_works
     ${dest}  DAVS URL  copy_works
@@ -82,7 +82,7 @@ Local copy with destination equal to source
     Should Contain  ${out}  403
     [Teardown]   Teardown file  copy_works
 
-Local copy across storage areas fails
+Copy across storage areas fails
     [Tags]  voms
     [Setup]  Setup file  copy_x_sa_works
     ${dest}  DAVS URL  copy_x_sa_works.dest  sa=${sa.oauth}
