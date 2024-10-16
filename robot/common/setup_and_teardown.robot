@@ -6,9 +6,9 @@ Default Setup
 Default Teardown
     Unset VOMS credential
 
-Setup file  [Arguments]  ${file_name}
+Setup file  [Arguments]  ${file_name}  ${content}=Hello World!
     Default Setup
-    Create Test File   ${file_name}  content=Hello World!
+    Create Test File   ${file_name}  ${content}
 
 Setup directory  [Arguments]  ${dir_name}
     Default Setup
