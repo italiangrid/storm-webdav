@@ -101,6 +101,12 @@ Curl Voms MOVE Success   [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.de
     ${rc}  ${out}  Curl Success  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms MOVE Failure   [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X MOVE -H "Destination: ${dest}" ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Error  ${source}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms MOVE  [Arguments]  ${dest}  ${source}  ${opts}=-s -L -i
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X MOVE -H "Destination: ${dest}" ${opts} ${voms_opts}
