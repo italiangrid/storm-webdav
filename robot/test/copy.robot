@@ -35,8 +35,8 @@ Local copy not empty directory works
     [Tags]  voms
     [Setup]  Run Keywords   Setup directory  copy_works
     ...      AND            Create Test File   copy_works/file_copy_works
-    ${dest}  DAVS URL  copy_works/file_copy_works.dest
-    ${source}  DAVS URL  copy_works/file_copy_works
+    ${dest}  DAVS URL  copy_works.dest
+    ${source}  DAVS URL  copy_works
     ${rc}  ${out}  Curl Voms Push COPY Success  ${dest}  ${source}
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown directory  copy_works
@@ -63,7 +63,7 @@ Local copy override fails
     Should Contain  ${out}  412 Precondition Failed
     [Teardown]   Teardown file  copy_works
 
-Local copy not existent file
+Local copy not existent resource
     [Tags]  voms
     [Setup]  Default Setup
     ${dest}  DAVS URL  copy_works.dest
