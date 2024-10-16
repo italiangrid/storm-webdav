@@ -11,6 +11,18 @@ Test Teardown   Default Teardown
 
 Default Tags   partial
 
+*** Keywords ***
+
+Partial Put Works Setup
+    Default Setup
+    Create Temporary File  pput0_test   0000000000
+    Create Temporary File  pput1_test   1111111111
+
+Partial Put Works Teardown
+    Default Teardown
+    Remove Test File  pput_test
+    Remove Temporary File  pput0_test
+    Remove Temporary File  pput1_test
 
 *** Test cases ***
 
@@ -64,8 +76,18 @@ Partial Get out of range
 Partial Get out in one of multiple range
     [Tags]  voms  get
     [Setup]  Setup file  partial_works  test123456789
+    ${url}  DAVS URL  partial_works
     ${rc}  ${out}  Curl Voms Get Success   ${url}  ${curl.opts.default} -H "Range: 1-3,20-24"
     Should Contain  ${out}  Content-Range: bytes 1-3/13
     Should Contain  ${out}  est
     Should Contain  ${out}  Content-Length: 3
     [Teardown]  Teardown file  partial_works
+
+Partial Put works
+    [Tags]  voms  put
+    [Setup]  Partial Put Works Setup
+    ${opts}  Set Variable  -H "Content-Range: bytes=0-3/*" ${curl.opts.default}
+    ${dest}  DAVS Url  pput_test
+    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput0_test  ${dest}  
+    ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
+    [Teardown]  Partial Put Works Teardown
