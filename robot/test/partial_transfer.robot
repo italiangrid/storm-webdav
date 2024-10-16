@@ -13,12 +13,12 @@ Default Tags   partial
 
 *** Keywords ***
 
-Partial Put Works Setup
+Partial Put Setup
     Default Setup
     Create Temporary File  pput0_test   0000000000
     Create Temporary File  pput1_test   1111111111
 
-Partial Put Works Teardown
+Partial Put Teardown
     Default Teardown
     Remove Test File  pput_test
     Remove Temporary File  pput0_test
@@ -85,9 +85,9 @@ Partial Get out in one of multiple range
 
 Partial Put works
     [Tags]  voms  put
-    [Setup]  Partial Put Works Setup
+    [Setup]  Partial Put Setup
     ${opts}  Set Variable  -H "Content-Range: bytes=0-3/*" ${curl.opts.default}
     ${dest}  DAVS Url  pput_test
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput0_test  ${dest}  
     ${rc}  ${out}  Curl Voms Put Success  ${TEMPDIR}/pput1_test  ${dest}  ${opts}
-    [Teardown]  Partial Put Works Teardown
+    [Teardown]  Partial Put Teardown

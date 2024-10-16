@@ -101,6 +101,12 @@ Curl Voms PUT Success  [Arguments]  ${file}  ${url}  ${opts}=${curl.opts.default
     ${rc}  ${out}  Curl Success  ${url}  ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms PUT Failure  [Arguments]  ${file}  ${url}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X PUT -T ${file} ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Error  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms POST Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X POST ${opts} ${voms_opts}
