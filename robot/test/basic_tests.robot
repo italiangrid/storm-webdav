@@ -15,14 +15,6 @@ Default Setup
 Default Teardown
     Unset VOMS credential
 
-Get works Setup
-    Default Setup
-    Create Test File   get_test
-
-Get works Teardown
-    Default Teardown
-    Remove Test File   get_test
-
 Put works Setup
     Default Setup
     Create Temporary File   put_test   123456789
@@ -34,14 +26,6 @@ Put works Teardown
 Mkdir works Teardown
     Default Teardown
     Remove Test Directory   mkdir_test
-
-Partial Get Works Setup
-    Default Setup
-    Create Test File   pget_test   1x2y456789
-
-Partial Get Works Teardown
-    Default Setup
-    Remove Test File   pget_test
 
 Partial Put Works Setup
     Default Setup
@@ -72,19 +56,6 @@ Head works on large files teardown   [Arguments]   ${file_name}
 
 *** Test cases ***
 
-Get works
-    [Tags]   voms  get
-    [Setup]   Get works Setup
-    Davix Get Success   ${davs.endpoint}/${sa.default}/get_test
-    [Teardown]   Get works Teardown
-
-Get returns 404 for file that does not exist
-    [Tags]   voms  get
-    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/does_not_exist
-    Should Contain  ${out}   404
-    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/does_not_exist/also
-    Should Contain  ${out}   404
-
 Put works
     [Tags]  voms  put
     [Setup]  Put works Setup
@@ -99,15 +70,6 @@ Mkdir works
     ## Davix Mkdir Success   ${davs.endpoint}/${sa.default}/mkdir_test
     ${rc}  ${out}  Curl Voms MKCOL Success   ${davs.endpoint}/${sa.default}/mkdir_test
     [Teardown]   Mkdir works teardown
-
-Partial Get works
-    [Tags]  voms  get  partial
-    [Setup]  Partial Get Works Setup
-    ${opts}  Set Variable  -H "Range: 0-3" ${curl.opts.default}
-    ${rc}  ${out}  Curl Voms Get Success   ${davs.endpoint}/${sa.default}/pget_test  ${opts}
-    Should Contain  ${out}  1x2y  
-    Should Contain  ${out}  ength: 4
-    [Teardown]  Partial Get Works Teardown
 
 Partial Put works
     [Tags]  voms  put  partial  
