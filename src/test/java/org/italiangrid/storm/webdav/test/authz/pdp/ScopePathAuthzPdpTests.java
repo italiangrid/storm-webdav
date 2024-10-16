@@ -454,4 +454,30 @@ public class ScopePathAuthzPdpTests {
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
   }
+
+  @Test
+  void parentDirCreationIsNotAllowedWithWrongScopes() {
+
+    lenient().when(pathResolver.resolveStorageArea(anyString())).thenReturn(sa);
+    lenient().when(request.getPathInfo()).thenReturn("test/dir/subdir");
+    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
+      .thenReturn("openid storage.read:/dir/subdir");
+    lenient().when(request.getMethod()).thenReturn("MKCOL");
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThat(result.getDecision(), is(Decision.DENY));
+
+    lenient().when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThat(result.getDecision(), is(Decision.DENY));
+
+    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
+      .thenReturn("openid storage.stage:/dir/subdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThat(result.getDecision(), is(Decision.DENY));
+
+    lenient().when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertThat(result.getDecision(), is(Decision.DENY));
+  }
 }
