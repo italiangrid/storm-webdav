@@ -35,6 +35,12 @@ Curl Voms HEAD Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${rc}  ${out}  Curl Success  ${url} ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms HEAD Failure  [Arguments]  ${url}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   --HEAD ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Error  ${url} ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms Get Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X GET ${opts} ${voms_opts}

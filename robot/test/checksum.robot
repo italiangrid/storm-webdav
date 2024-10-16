@@ -11,16 +11,34 @@ Test Teardown   Default Teardown
 
 Default Tags   checksum
 
+*** Keywords ***
+
+Setup file for checksum  [Arguments]  ${file_name}  ${content}=Hello World!
+    Default Setup
+    Create Temporary File   ${file_name}  ${content}
+
+Teardown file for checksum  [Arguments]  ${file_name}
+    Default Teardown
+    Teardown file   ${file_name}
+    Remove Temporary File   ${file_name}
+
 
 *** Test cases ***
 
 Get checksum works
-    [Setup]  Run Keywords   Default Setup
-    ...      AND            Create Temporary File  checksum_works  123456789
-    [Tags]  voms  put
-    ${dst}  DAVS URL  checksum_works
-    Davix Put Success  ${TEMPDIR}/checksum_works  ${dst}
-    ${rc}  ${out}  Curl Voms GET Success  ${dst}
+    [Setup]  Setup file for checksum  checksum_works  123456789
+    [Tags]  voms  get
+    ${url}  DAVS URL  checksum_works
+    Davix Put Success  ${TEMPDIR}/checksum_works  ${url}
+    ${rc}  ${out}  Curl Voms GET Success  ${url}
     Should Contain  ${out}  Digest: adler32=091e01de
-    [Teardown]  Run Keywords   Teardown file  checksum_works
-    ...         AND            Remove Temporary File   checksum_works
+    [Teardown]  Teardown file for checksum   checksum_works
+
+Head checksum works
+    [Setup]  Setup file for checksum  checksum_works  test123456789
+    [Tags]  voms  put
+    ${url}  DAVS URL  checksum_works
+    Davix Put Success  ${TEMPDIR}/checksum_works  ${url}
+    ${rc}  ${out}  Curl Voms HEAD Success  ${url}
+    Should Contain  ${out}  Digest: adler32=1d3b039e
+    [Teardown]  Teardown file for checksum   checksum_works
