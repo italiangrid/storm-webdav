@@ -36,8 +36,8 @@ Move not empty directory works
     [Tags]  voms
     [Setup]  Run Keywords   Setup directory  move_works
     ...      AND            Create Test File   move_works/file_move_works
-    ${dest}  DAVS URL  move_works/file_move_works.dest
-    ${source}  DAVS URL  move_works/file_move_works
+    ${dest}  DAVS URL  move_works.dest
+    ${source}  DAVS URL  move_works
     ${rc}  ${out}  Curl Voms MOVE Success  ${dest}  ${source}
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Teardown directory  move_works
@@ -64,7 +64,7 @@ Move override fails
     Should Contain  ${out}  412 Precondition Failed
     [Teardown]   Teardown file  move_works
 
-Move not existent file
+Move not existent resource
     [Tags]  voms
     [Setup]  Default Setup
     ${dest}  DAVS URL  move_works.dest

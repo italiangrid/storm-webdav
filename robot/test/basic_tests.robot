@@ -31,14 +31,6 @@ Put works Teardown
     Default Teardown
     Remove Temporary File   put_test
 
-Rm works Setup
-    Default Setup
-    Create Test File   rm_test
-
-Rm works Teardown
-    Default Setup
-    Remove Test File   rm_test
-
 Mkdir works Teardown
     Default Teardown
     Remove Test Directory   mkdir_test
@@ -100,15 +92,6 @@ Put works
     Davix Get Success  ${davs.endpoint}/${sa.default}/put_test
     Remove Test File   put_test
     [Teardown]  Put works Teardown
-
-Rm works
-    [Tags]  voms  rm
-    [Setup]  Rm works Setup
-    Davix Get Success   ${davs.endpoint}/${sa.default}/rm_test
-    Davix Rm Success   ${davs.endpoint}/${sa.default}/rm_test
-    ${rc}  ${out}   Davix Get Failure   ${davs.endpoint}/${sa.default}/rm_test
-    Should Contain  ${out}   404
-    [Teardown]   Rm works teardown
 
 Mkdir works
     [Tags]  voms  Mkdir

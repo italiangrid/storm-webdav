@@ -95,6 +95,18 @@ Curl Voms POST Failure  [Arguments]  ${url}  ${opts}=${curl.opts.default}
     ${rc}  ${out}  Curl Error  ${url}  ${all_opts}
     [Return]  ${rc}  ${out}
 
+Curl Voms DELETE Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X DELETE ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Success  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
+Curl Voms DELETE Failure  [Arguments]  ${url}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X DELETE ${opts} ${voms_opts}
+    ${rc}  ${out}  Curl Error  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
+
 Curl Voms MOVE Success   [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.default}
     ${voms_opts}  Get Curl Voms Proxy Options
     ${all_opts}   Set variable   -X MOVE -H "Destination: ${dest}" ${opts} ${voms_opts}
