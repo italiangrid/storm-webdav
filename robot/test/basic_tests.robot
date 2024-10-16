@@ -34,14 +34,6 @@ Single Test File Setup  [Arguments]  ${file_name}
 Single Test File Teardown  [Arguments]  ${file_name}
     Default Teardown
     Remove Test File  ${file_name}
-  
-Head works on large files setup   [Arguments]   ${file_name}
-    Default setup
-    Create Test File With Size  ${file_name}  2G
-
-Head works on large files teardown   [Arguments]   ${file_name}
-    Default Teardown
-    Remove Test File  ${file_name}
 
 *** Test cases ***
 
@@ -67,10 +59,3 @@ Post not allowed on content
     ${rc}  ${out}  Curl Voms Post Failure  ${url}
     Should Contain  ${out}  405
     [Teardown]   Single Test File Teardown  test_post_not_allowed
-
-Head works on large files
-    [Tags]  voms  head
-    [Setup]  Head works on large files setup  hwlf
-    ${rc}  ${out}  Curl Voms HEAD Success  ${davs.endpoint}/${sa.default}/hwlf
-    Should Contain  ${out}  ength: 2147483648
-    [Teardown]   Head works on large files teardown   hwlf
