@@ -49,7 +49,7 @@ Head root directory works
     Should Contain  ${out}  Content-Length: 4096
     [Teardown]   Default Teardown
 
-Get not existent resource
+Head not existent resource
     [Tags]   voms
     ${rc}  ${out}   Curl Voms HEAD Failure   ${davs.endpoint}/${sa.default}/does_not_exist
     Should Contain  ${out}   404
