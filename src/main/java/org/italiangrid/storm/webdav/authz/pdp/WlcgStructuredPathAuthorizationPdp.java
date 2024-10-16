@@ -59,6 +59,8 @@ public class WlcgStructuredPathAuthorizationPdp
   public static final String STORAGE_MODIFY = "storage.modify";
   public static final String STORAGE_CREATE = "storage.create";
 
+  protected static final Set<String> READ_SCOPES = Sets.newHashSet(STORAGE_READ, STORAGE_STAGE);
+  protected static final Set<String> WRITE_SCOPES = Sets.newHashSet(STORAGE_CREATE, STORAGE_MODIFY);
   protected static final Set<String> ALL_STORAGE_SCOPES =
       Sets.newHashSet(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
 
@@ -128,35 +130,35 @@ public class WlcgStructuredPathAuthorizationPdp
       StructuredPathScopeMatcher m, boolean requestedResourceExists) {
 
     if (CATCHALL_METHODS.contains(method)) {
-      return ALL_STORAGE_SCOPES.stream().anyMatch(prefix -> m.getPrefix().equals(prefix));
+      return ALL_STORAGE_SCOPES.stream().anyMatch(prefix -> prefix.equals(m.getPrefix()));
     }
 
     if (READONLY_METHODS.contains(method)) {
-      return m.getPrefix().equals(STORAGE_READ) || m.getPrefix().equals(STORAGE_STAGE);
+      return READ_SCOPES.contains(m.getPrefix());
     }
     if (REPLACE_METHODS.contains(method)) {
       if (requestedResourceExists) {
-        return m.getPrefix().equals(STORAGE_MODIFY);
+        return STORAGE_MODIFY.equals(m.getPrefix());
       }
-      return m.getPrefix().equals(STORAGE_CREATE);
+      return WRITE_SCOPES.contains(m.getPrefix());
     }
     if (MODIFY_METHODS.contains(method)) {
-      return m.getPrefix().equals(STORAGE_MODIFY);
+      return STORAGE_MODIFY.equals(m.getPrefix());
     }
     if (COPY_METHOD.equals(method)) {
 
       if (isPullTpc(request, localUrlService)) {
         if (requestedResourceExists) {
-          return m.getPrefix().equals(STORAGE_MODIFY);
+          return STORAGE_MODIFY.equals(m.getPrefix());
         }
-        return m.getPrefix().equals(STORAGE_CREATE);
+        return WRITE_SCOPES.contains(m.getPrefix());
       }
-      return m.getPrefix().equals(STORAGE_READ);
+      return READ_SCOPES.contains(m.getPrefix());
 
     }
 
     if (MOVE_METHOD.equals(method)) {
-      return m.getPrefix().equals(STORAGE_MODIFY);
+      return STORAGE_MODIFY.equals(m.getPrefix());
     }
 
     throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
@@ -212,10 +214,17 @@ public class WlcgStructuredPathAuthorizationPdp
     final boolean requestedResourceExists = pathResolver.pathExists(requestPath);
     final String saPath = getStorageAreaPath(requestPath, sa);
 
-    scopeMatchers = scopeMatchers.stream()
-      .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
-      .filter(m -> m.matchesPath(saPath))
-      .collect(toList());
+    if ("MKCOL".equals(method)) {
+      scopeMatchers = scopeMatchers.stream()
+        .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+        .filter(m -> m.matchesPathIncludingParents(saPath))
+        .collect(toList());
+    } else {
+      scopeMatchers = scopeMatchers.stream()
+        .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+        .filter(m -> m.matchesPath(saPath))
+        .collect(toList());
+    }
 
     if (scopeMatchers.isEmpty()) {
       return deny(ERROR_INSUFFICIENT_TOKEN_SCOPE);

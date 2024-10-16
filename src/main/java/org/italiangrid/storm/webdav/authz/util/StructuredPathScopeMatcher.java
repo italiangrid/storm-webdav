@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.nonNull;
 
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   private static final String SEP_STR = SEP.toString();
 
   private final String prefix;
-  private final String path;
+  private final Path path;
 
   private final Pattern prefixMatchPattern;
   private final Pattern pathMatchPattern;
@@ -45,7 +46,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   private StructuredPathScopeMatcher(String prefix, String path) {
 
     this.prefix = prefix;
-    this.path = path;
+    this.path = Path.of(path);
 
     final String prefixMatchRegexp = String.format("^%s%c", prefix, SEP);
     prefixMatchPattern = Pattern.compile(prefixMatchRegexp);
@@ -74,6 +75,11 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   
   public boolean matchesPath(String path) {
     return pathMatchPattern.matcher(path).matches();
+  }
+
+  public boolean matchesPathIncludingParents(String path) {
+    Path targetPath = Path.of(path);
+    return this.path.startsWith(targetPath) || matchesPath(path);
   }
   
   public static StructuredPathScopeMatcher fromString(String scope) {
@@ -135,7 +141,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   }
 
   public String getPath() {
-    return path;
+    return path.toString();
   }
   
 }
