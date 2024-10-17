@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -32,7 +33,7 @@ main {
 }
 
 .jetty-dir-table {
-    font-size: smaller;
+  font-size: smaller;
 }
 
 .form-login {
@@ -51,4 +52,52 @@ main {
   width: 100%;
   max-width: 330px;
   margin: 0 auto;
+}
+
+.cart-badge {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: bolder;
+  font-size: 50%;
+  top: -127%;
+  right: -52%;
+  padding-right: 2.5px;
+  padding-left: 2.5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.icon-size {
+  font-size: 150%;
+}
+
+.sw-cart-modal-button {
+  height: 50px;
+  width: 60px;
+}
+
+.sw-modal-button {
+  height: 50px;
+  width: 60px;
+  top: 3px;
+}
+
+.accordion-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.accordion-button-content-id {
+  width: 40%;
+  text-align: left;
+}
+
+.accordion-button-content-date {
+  width: 30%;
+  text-align: left;
+}
+
+.accordion-button-error {
+  background-color: hsla(0, 52%, 24%, 0.221);
 }
