@@ -149,9 +149,8 @@ public class TpcClientRedirectionTest {
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
 
-    GetTransferRequest getRequest =
-        new GetTransferRequestImpl(UUID.randomUUID().toString(),
-            "/test/example", URI.create(mockHttpsUrl("/test/example")), headers, false, false);
+    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
+        "/test/example", URI.create(mockHttpsUrl("/test/example")), headers, null, false, false);
 
     mockServer
       .when(request().withMethod("GET").withPath("/test/example").withSecure(true),

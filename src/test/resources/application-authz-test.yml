@@ -20,6 +20,9 @@ storm:
   
   redirector:
     enabled: false
+
+  scitag:
+    enabled: true
     
   authz:
     policies:

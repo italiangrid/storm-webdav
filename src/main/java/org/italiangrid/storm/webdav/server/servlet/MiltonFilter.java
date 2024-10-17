@@ -38,6 +38,8 @@ import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.scitag.SciTag;
+import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,11 +135,23 @@ public class MiltonFilter implements Filter {
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
+      SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
+      if (scitag != null) {
+        SciTagTransfer scitagTransfer = new SciTagTransfer(scitag, request.getLocalAddr(),
+            request.getLocalPort(), request.getRemoteAddr(), request.getRemotePort());
+        scitagTransfer.writeStart();
+        request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
+      }
       miltonHTTPManager.process(miltonReq, miltonRes);
 
     } finally {
 
       MiltonServlet.clearThreadlocals();
+      SciTagTransfer scitagTransfer =
+          (SciTagTransfer) request.getAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE);
+      if (scitagTransfer != null) {
+        scitagTransfer.writeEnd();
+      }
 
       try {
 

@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status;
@@ -40,6 +41,8 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   final Multimap<String, String> xferHeaders;
 
+  final SciTag scitag;
+
   final boolean verifyChecksum;
 
   final boolean overwrite;
@@ -51,12 +54,13 @@ public abstract class TransferRequestImpl implements TransferRequest {
   private Optional<TransferStatus> lastTransferStatus = Optional.empty();
 
   TransferRequestImpl(String uuid, String path, URI uri, Multimap<String, String> xferHeaders,
-      boolean verifyChecksum, boolean overwrite) {
+      SciTag scitag, boolean verifyChecksum, boolean overwrite) {
 
     this.uuid = uuid;
     this.path = path;
     this.uri = uri;
     this.xferHeaders = xferHeaders;
+    this.scitag = scitag;
     this.verifyChecksum = verifyChecksum;
     this.overwrite = overwrite;
   }
@@ -74,6 +78,11 @@ public abstract class TransferRequestImpl implements TransferRequest {
   @Override
   public Multimap<String, String> transferHeaders() {
     return xferHeaders;
+  }
+
+  @Override
+  public SciTag scitag() {
+    return scitag;
   }
 
   @Override

@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.tpc.transfer;
+package org.italiangrid.storm.webdav.server;
 
-import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
+public class TLSConnectorBuilderError extends RuntimeException {
 
-public class PutTransferRequestBuilder extends RequestBuilder<PutTransferRequest> {
+  private static final long serialVersionUID = 1L;
 
-  private PutTransferRequestBuilder() {
-    // empty constructor
+  public TLSConnectorBuilderError(Throwable cause) {
+    super(cause);
   }
 
-
-  @Override
-  public PutTransferRequest build() {
-    return new PutTransferRequestImpl(uuid, path, uri, headers, scitag, verifyChecksum, overwrite);
+  public TLSConnectorBuilderError(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  public static PutTransferRequestBuilder create() {
-    return new PutTransferRequestBuilder();
+  public TLSConnectorBuilderError(String message) {
+    super(message);
   }
 
 }

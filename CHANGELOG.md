@@ -1,36 +1,65 @@
 # Changelog
 
+## 1.4.2 (2023-06-27)
+
+## Description
+
+This release:
+
+* upgrades significant dependencies (spring-boot, canl, bouncycastle, jQuery)
+* removes the support for TRACE method
+* tunes some default values (default TPC timeout, default heap size, etc.)
+* and fixes other minor bugs/issues.
+
+### fixes
+
+* [[STOR-1396](https://issues.infn.it/jira/browse/STOR-1396)] - Ensure adler32 checksums are always 8 chars long
+* [[STOR-1450](https://issues.infn.it/jira/browse/STOR-1450)] - Increase default timeout for TPC to 30 seconds
+* [[STOR-1500](https://issues.infn.it/jira/browse/STOR-1500)] - When redis is disabled the health indicator for redis should be disabled
+* [[STOR-1574](https://issues.infn.it/jira/browse/STOR-1574)] - Old java/canl creates problems with encoding of subject/issuer names in self-signed certificates
+* [[STOR-1440](https://issues.infn.it/jira/browse/STOR-1440)] - StoRM WebDAV should configure a bigger heap by default
+* [[STOR-1497](https://issues.infn.it/jira/browse/STOR-1497)] - Upgrade canl-java to v2.6.0
+* [[STOR-1515](https://issues.infn.it/jira/browse/STOR-1515)] - StoRM WebDAV metrics on TPC.pull/push.throughput
+* [[STOR-1555](https://issues.infn.it/jira/browse/STOR-1555)] - Upgrade jQuery version
+* [[STOR-1556](https://issues.infn.it/jira/browse/STOR-1556)] - Remove TRACE from allowed methods
+* [[STOR-1557](https://issues.infn.it/jira/browse/STOR-1557)] - Upgrade Spring Boot version to the latest
+* [[STOR-1558](https://issues.infn.it/jira/browse/STOR-1558)] - Update bouncycastle version to 1.67
+* [[STOR-1576](https://issues.infn.it/jira/browse/STOR-1576)] - Add .well-known endpoint for StoRM WebDAV to point to the Tape REST endpoint
+
+
+## 1.4.1 (2021-05-12)
+
+This release fixes the failed state shown on stop/restart of the service due to a misunderstood exit code meaning.
+
+### Fixed
+
+- [[STOR-1400](https://issues.infn.it/jira/browse/STOR-1400)] - StoRM WebDAV service enters failed state when stopped
+
 ## 1.4.0 (2021-04-01)
 
 ### Added
 
-- [Add support for externalized session management](https://issues.infn.it/jira/browse/STOR-1336)
+- [[STOR-1336](https://issues.infn.it/jira/browse/STOR-1336)] - Add support for externalized session management
 
 ### Fixed
 
-- [Login with OIDC button not shown for error
-  pages](https://issues.infn.it/jira/browse/STOR-1335) 
-- [StoRM WebDAV: Login with OIDC button displayed only on storage area index
-  page]( https://issues.infn.it/jira/browse/STOR-1332)
-- [StoRM WebDAV rpm doesn't set the proper ownership on
-  /var/log/storm](https://issues.infn.it/jira/browse/STOR-1298)
-- [StoRM WebDAV package should install Java
-  11](https://issues.infn.it/jira/browse/STOR-1358)
+- [[STOR-1335](https://issues.infn.it/jira/browse/STOR-1335)] - Login with OIDC button not shown for error
+  pages
+- [[STOR-1332](https://issues.infn.it/jira/browse/STOR-1332)] - Login with OIDC button displayed only on storage area index page
+- [[STOR-1298](https://issues.infn.it/jira/browse/STOR-1298)] - StoRM WebDAV RPM doesn't set the proper ownership on `/var/log/storm`
+- [[STOR-1358](https://issues.infn.it/jira/browse/STOR-1358)] - StoRM WebDAV package should install Java 11
 
 ## 1.2.0 (2019-08-??)
 
 ### Added
 
-- [Spring boot updated to 2.1.4.RELEASE][STOR-1098]
-- [Introduced support for Conscrypt JSSE provider to improve TLS
-  performace][STOR-1097]
+- [[STOR-1098](https://issues.infn.it/jira/browse/STOR-1098)] - Spring boot updated to 2.1.4.RELEASE
+- [[STOR-1097](https://issues.infn.it/jira/browse/STOR-1097)] - Introduced support for Conscrypt JSSE provider to improve TLS performance
 
 ### Fixed
 
-- [StoRM WebDAV default configuration does not depend anymore on
-  iam-test.indigo-datacloud.eu][STOR-1095]
-- [Unreachable OpenID Connect provider causes StoRM WebDAV startup
-  failure][STOR-1096]
+- [[STOR-1095](https://issues.infn.it/jira/browse/STOR-1095)] - StoRM WebDAV default configuration does not depend anymore on `iam-test.indigo-datacloud.eu`
+- [[STOR-1096](https://issues.infn.it/jira/browse/STOR-1096)] - Unreachable OpenID Connect provider causes StoRM WebDAV startup failure
 
 ## 1.1.0 (2019-02-28)
 
@@ -46,8 +75,3 @@
 
 - POST handled as GET fixed 
 
-
-[STOR-1095]: https://issues.infn.it/jira/browse/STOR-1095
-[STOR-1096]: https://issues.infn.it/jira/browse/STOR-1096
-[STOR-1097]: https://issues.infn.it/jira/browse/STOR-1097
-[STOR-1098]: https://issues.infn.it/jira/browse/STOR-1098

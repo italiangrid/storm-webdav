@@ -56,3 +56,17 @@ STORM_WEBDAV_AUTHZ_SERVER_MAX_TOKEN_LIFETIME_SEC="43200"
 STORM_WEBDAV_REQUIRE_CLIENT_CERT="false"
 ```
 For other configuration options, see the /etc/sysconfig/storm-webdav file.
+
+## SciTags
+
+StoRM WebDAV supports the `SciTag` header.
+To correctly mark the network packets and/or network flows, you need to install [flowd](https://github.com/scitags/flowd) and configure it to use the `np_api` plugin.
+
+Example flowd configuration (`/etc/flowd/flowd.cfg`):
+
+```
+PLUGIN='np_api'
+BACKEND='udp_firefly'
+FLOW_MAP_API='https://www.scitags.org/api.json'
+IP_DISCOVERY_ENABLED=True
+```
