@@ -3,36 +3,39 @@ Resource    common/storage_areas.robot
 Resource    common/credentials.robot
 Resource    common/davix.robot
 Resource    common/curl.robot
+Resource    common/setup_and_teardown.robot
 Resource    test/variables.robot
 
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
-*** Keywords ***
-Default Setup
-    Default VOMS credential
-
-Default Teardown
-    Unset VOMS credential
-
-Mkdir works Teardown
-    Default Teardown
-    Remove Test Directory   mkdir_test
-
-Single Test File Setup  [Arguments]  ${file_name}
-    Default Setup
-    Create Test File  ${file_name}
-
-Single Test File Teardown  [Arguments]  ${file_name}
-    Default Teardown
-    Remove Test File  ${file_name}
-
 *** Test cases ***
 
 Post not allowed on content
     [Tags]  voms  post
-    [Setup]  Single Test File Setup   test_post_not_allowed
+    [Setup]  Setup file   test_post_not_allowed
     ${url}  DAVS Url   test_post_not_allowed
     ${rc}  ${out}  Curl Voms Post Failure  ${url}
-    Should Contain  ${out}  405
-    [Teardown]   Single Test File Teardown  test_post_not_allowed
+    Should Contain  ${out}  405 Method Not Allowed
+    [Teardown]   Teardown file  test_post_not_allowed
+
+Rename file with missing parent
+    [Tags]   voms
+    [Setup]   Setup file  rename-me
+    ${source}  DAVS URL  rename-me
+    ${dest}  DAVS URL  /parent-dir/child-dir/rename-me
+    ${rc}  ${out}  Curl Voms GET Success  ${source}
+    Should Contain  ${out}  Hello World!
+    ${rc}  ${out}  Curl Voms HEAD Failure  ${dest}
+    Should Contain  ${out}  404
+    ${rc}  ${out}  Curl Voms HEAD Failure  ${davs.endpoint}/${sa.default}/parent-dir/child-dir
+    Should Contain  ${out}  404
+    ${rc}  ${out}  Curl Voms HEAD Failure  ${davs.endpoint}/${sa.default}/parent-dir
+    Should Contain  ${out}  404
+    Curl Voms MKCOL Success  ${davs.endpoint}/${sa.default}/parent-dir
+    Curl Voms MKCOL Success  ${davs.endpoint}/${sa.default}/parent-dir/child-dir
+    ${rc}  ${out}  Curl Voms MOVE Success  ${dest}  ${source}
+    Davix Get Success   ${dest}  ${davix.opts.voms}
+    [Teardown]   Run Keywords  Default Teardown
+    ...          AND           Remove Test File   rename-me
+    ...          AND           Remove Test File   /parent-dir/child-dir/rename-me
