@@ -283,7 +283,10 @@ public class SecurityConfig {
       voters.add(new LocalAuthzVoter(serviceConfigurationProperties, pathResolver,
           new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
     }
-    voters.add(new MacaroonAuthzVoter());
+    if (serviceConfigurationProperties.getAuthzServer().isEnabled()
+        && serviceConfigurationProperties.getMacaroonFilter().isEnabled()) {
+      voters.add(new MacaroonAuthzVoter());
+    }
     voters.add(new WebExpressionVoter());
     voters.add(fineGrainedVoters);
     voters.add(wlcgVoters);
