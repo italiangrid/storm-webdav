@@ -38,4 +38,4 @@ Rename file with missing parent
     Davix Get Success   ${dest}  ${davix.opts.voms}
     [Teardown]   Run Keywords  Default Teardown
     ...          AND           Remove Test File   rename-me
-    ...          AND           Remove Test File   /parent-dir/child-dir/rename-me
+    ...          AND           Remove Test Directory   parent-dir
