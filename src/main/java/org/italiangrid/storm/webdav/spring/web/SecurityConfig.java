@@ -44,6 +44,7 @@ import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.FineGrainedCopyMoveAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.LocalAuthzVoter;
+import org.italiangrid.storm.webdav.authz.voters.MacaroonAuthzVoter;
 import org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzCopyMoveVoter;
 import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzVoter;
@@ -282,6 +283,7 @@ public class SecurityConfig {
       voters.add(new LocalAuthzVoter(serviceConfigurationProperties, pathResolver,
           new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
     }
+    voters.add(new MacaroonAuthzVoter());
     voters.add(new WebExpressionVoter());
     voters.add(fineGrainedVoters);
     voters.add(wlcgVoters);
