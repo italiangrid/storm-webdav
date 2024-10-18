@@ -62,7 +62,7 @@ public class MacaroonRequestLhcbIntegrationTests {
   static class Configuration {
     @Bean
     @Primary
-    public Clock mockClock() {
+    Clock mockClock() {
       return Clock.fixed(NOW, ZoneId.systemDefault());
     }
   }
@@ -84,13 +84,9 @@ public class MacaroonRequestLhcbIntegrationTests {
     filter.setCheckForPrincipalChanges(false);
   }
 
-  public MacaroonRequestLhcbIntegrationTests() {
-    // TODO Auto-generated constructor stub
-  }
-
   @Test
   @WithMockVOMSUser(saReadPermissions = {"lhcb_disk"}, vos = {"lhcb"})
-  public void macaroonIssuedWithNoWritePermissions() throws Exception {
+  void macaroonIssuedWithNoWritePermissions() throws Exception {
     mvc
       .perform(post("/disk/lhcb/source").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
         .content(EMPTY_JSON_OBJECT))
