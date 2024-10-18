@@ -164,3 +164,9 @@ Curl push COPY Success  [Arguments]  ${dest}  ${source}  ${opts}=${curl.opts.def
     ${all_opts}   Set variable   -X COPY -H "Destination: ${dest}" ${opts}
     ${rc}  ${out}  Curl Success  ${source}  ${all_opts}
     [Return]  ${rc}  ${out}
+
+Curl Voms PROPFIND  [Arguments]  ${url}  ${body}  ${opts}=${curl.opts.default}
+    ${voms_opts}  Get Curl Voms Proxy Options
+    ${all_opts}   Set variable   -X PROPFIND ${opts} ${voms_opts} --data ${body}
+    ${rc}  ${out}  Curl  ${url}  ${all_opts}
+    [Return]  ${rc}  ${out}
