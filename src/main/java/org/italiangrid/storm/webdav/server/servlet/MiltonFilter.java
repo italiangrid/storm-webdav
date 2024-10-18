@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.server.servlet;
 import static java.util.Objects.isNull;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -38,9 +37,12 @@ import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.scitag.SciTag;
+import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Sets;
 
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
@@ -51,7 +53,7 @@ public class MiltonFilter implements Filter {
 
   public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);
 
-  static final Set<String> WEBDAV_METHOD_SET = new HashSet<String>();
+  static final Set<String> WEBDAV_METHOD_SET = Sets.newHashSet();
   static final String SA_ROOT_PATH = "sa-root";
 
   static {
@@ -72,7 +74,6 @@ public class MiltonFilter implements Filter {
 
   private final ReplaceContentStrategy rcs;
 
-  @Autowired
   public MiltonFilter(FilesystemAccess fsAccess, ExtendedAttributesHelper attrsHelper,
       PathResolver resolver, ReplaceContentStrategy rcs) {
 
@@ -119,7 +120,6 @@ public class MiltonFilter implements Filter {
       doMilton((HttpServletRequest) request, (HttpServletResponse) response);
     } else
       chain.doFilter(request, response);
-
   }
 
   public void doMilton(HttpServletRequest request, HttpServletResponse response) {
@@ -133,11 +133,23 @@ public class MiltonFilter implements Filter {
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
+      SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
+      if (scitag != null) {
+        SciTagTransfer scitagTransfer = new SciTagTransfer(scitag, request.getLocalAddr(),
+            request.getLocalPort(), request.getRemoteAddr(), request.getRemotePort());
+        scitagTransfer.writeStart();
+        request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
+      }
       miltonHTTPManager.process(miltonReq, miltonRes);
 
     } finally {
 
       MiltonServlet.clearThreadlocals();
+      SciTagTransfer scitagTransfer =
+          (SciTagTransfer) request.getAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE);
+      if (scitagTransfer != null) {
+        scitagTransfer.writeEnd();
+      }
 
       try {
 

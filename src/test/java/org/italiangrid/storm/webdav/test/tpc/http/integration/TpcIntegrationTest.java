@@ -28,6 +28,7 @@ import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 import java.net.URI;
 import java.util.UUID;
 
+import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
@@ -92,7 +93,8 @@ public class TpcIntegrationTest {
     Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
 
     PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, false, true);
+        "/test/example", URI.create(mockUrl("/test/example")), emptyHeaders, new SciTag(1, 2, true),
+        false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -121,7 +123,7 @@ public class TpcIntegrationTest {
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
     PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), headers, false, true);
+        "/test/example", URI.create(mockUrl("/test/example")), headers, null, false, true);
 
     mockServer.when(request().withMethod("PUT").withPath("/test/example"), Times.exactly(1))
       .respond(HttpResponse.response()
@@ -153,7 +155,7 @@ public class TpcIntegrationTest {
 
 
     GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockUrl("/test/example")), headers, false, false);
+        "/test/example", URI.create(mockUrl("/test/example")), headers, null, false, false);
 
 
     mockServer.when(request().withMethod("GET").withPath("/test/example"), Times.exactly(1))

@@ -1,0 +1,55 @@
+server:
+  jetty:
+    accesslog:
+      enabled: false
+oauth:
+  enable-oidc: false
+
+storm:
+  sa:
+    config-dir: src/test/resources/lhcb/sa.d
+  
+  tls:
+    trust-anchors-dir: src/test/resources/trust-anchors
+    certificate-path: src/test/resources/hostcert/hostcert.pem
+    private-key-path: src/test/resources/hostcert/hostkey.pem
+    
+  voms:
+    trust-store:
+      dir: src/test/resources/vomsdir
+  
+  redirector:
+    enabled: false
+    
+  authz:
+    policies:
+    - sa: lhcb_disk
+      description: Grant all access to lhcb VOMS group members for /failover and its subfolders
+      actions:
+      - all
+      paths:
+      - /failover/**
+      effect: permit
+      principals:
+      - type: vo
+        params:
+          vo: lhcb  
+    - sa: lhcb_disk
+      description: Grant all access to lhcb prod VOMS group members 
+      actions:
+      - all
+      effect: permit
+      principals:  
+      - type: fqan
+        params:
+          fqan: /lhcb/Role=production/Capability=NULL
+    - sa: lhcb_disk
+      description: Grant only read and list access to lhcb VOMS group members 
+      actions:
+      - read
+      - list
+      effect: permit
+      principals:
+      - type: vo
+        params:
+          vo: lhcb

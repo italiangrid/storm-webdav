@@ -113,8 +113,8 @@ public class PushTransferTest extends TransferFilterTestSupport {
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
 
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames()).thenReturn(enumeration(
+        asList(TRANSFER_HEADER_AUTHORIZATION_KEY, TRANSFER_HEADER_WHATEVER_KEY, SCITAG_HEADER)));
 
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -132,12 +132,13 @@ public class PushTransferTest extends TransferFilterTestSupport {
         is(TRANSFER_HEADER_AUTHORIZATION_VALUE));
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
+    assertThat(xferHeaders.containsKey("SciTag"), is(false));
   }
 
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
-    when(request.getHeaderNames())
-      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
@@ -206,5 +207,27 @@ public class PushTransferTest extends TransferFilterTestSupport {
     assertThat(xferHeaders.size(), is(1));
 
     assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(false));
+  }
+
+  @Test
+  void bothSciTagAndTransferHeaderSciTag() throws IOException, ServletException {
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
+
+    when(request.getHeader(SCITAG_HEADER)).thenReturn(SCITAG_HEADER_VALUE);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(putXferRequest.capture(), Mockito.any());
+
+    assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
+    assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
+    assertThat(putXferRequest.getValue().overwrite(), is(true));
+    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+
+
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(0));
+
+    assertThat(xferHeaders.containsKey("SciTag"), is(false));
   }
 }

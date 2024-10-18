@@ -15,14 +15,16 @@
  */
 package org.italiangrid.storm.webdav.server;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
-import org.italiangrid.utils.jetty.ThreadPoolBuilder;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
@@ -42,18 +44,19 @@ public class DefaultWebServerFactory
     this.metricRegistry = registry;
   }
 
+  private InstrumentedQueuedThreadPool getInstrumentedThreadPool() {
+    InstrumentedQueuedThreadPool tPool =
+        new InstrumentedQueuedThreadPool(metricRegistry, configuration.getMaxConnections(),
+            configuration.getMinConnections(), configuration.getThreadPoolMaxIdleTimeInMsec(),
+            new ArrayBlockingQueue<>(configuration.getMaxQueueSize()), "storm.http");
+    tPool.setName("thread-pool");
+    return tPool;
+  }
+
   @Override
   public void customize(JettyServletWebServerFactory factory) {
 
-    factory.setThreadPool(ThreadPoolBuilder.instance()
-      .withMaxRequestQueueSize(configuration.getMaxQueueSize())
-      .withMaxThreads(serverProperties.getJetty().getThreads().getMax())
-      .withMinThreads(serverProperties.getJetty().getThreads().getMin())
-      .registry(metricRegistry)
-      .withPrefix("storm.http")
-      .withName("thread-pool")
-      .build());
-
+    factory.setThreadPool(getInstrumentedThreadPool());
     factory.addServerCustomizers(serverCustomizer);
   }
 

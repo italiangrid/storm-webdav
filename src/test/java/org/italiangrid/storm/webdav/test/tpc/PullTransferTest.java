@@ -104,9 +104,11 @@ public class PullTransferTest extends TransferFilterTestSupport {
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
+    when(request.getHeader(TRANSFER_HEADER_SCITAG)).thenReturn(SCITAG_HEADER_VALUE);
+    when(request.getHeader(SCITAG_HEADER)).thenReturn(null);
 
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames()).thenReturn(enumeration(
+        asList(TRANSFER_HEADER_AUTHORIZATION_KEY, TRANSFER_HEADER_WHATEVER_KEY, TRANSFER_HEADER_SCITAG)));
 
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -118,18 +120,20 @@ public class PullTransferTest extends TransferFilterTestSupport {
 
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(2));
+    assertThat(xferHeaders.size(), is(3));
     assertThat(xferHeaders.containsKey("Authorization"), is(true));
     assertThat(xferHeaders.get("Authorization").iterator().next(),
         is(TRANSFER_HEADER_AUTHORIZATION_VALUE));
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
+    assertThat(xferHeaders.containsKey("SciTag"), is(true));
+    assertThat(xferHeaders.get("SciTag").iterator().next(), is(SCITAG_HEADER_VALUE));
   }
 
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
-    when(request.getHeaderNames())
-      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames()).thenReturn(
+        enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
@@ -148,6 +152,28 @@ public class PullTransferTest extends TransferFilterTestSupport {
 
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
+  }
+
+  @Test
+  void bothSciTagAndTransferHeaderSciTag() throws IOException, ServletException {
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
+
+    when(request.getHeader(SCITAG_HEADER)).thenReturn(SCITAG_HEADER_VALUE);
+
+    filter.doFilter(request, response, chain);
+    verify(client).handle(getXferRequest.capture(), Mockito.any());
+
+    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
+    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
+    assertThat(getXferRequest.getValue().overwrite(), is(true));
+    assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
+
+
+    Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(0));
+
+    assertThat(xferHeaders.containsKey("SciTag"), is(false));
   }
 
 }
