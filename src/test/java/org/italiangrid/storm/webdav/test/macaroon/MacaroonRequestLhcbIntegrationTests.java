@@ -15,9 +15,6 @@
  */
 package org.italiangrid.storm.webdav.test.macaroon;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,9 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.macaroon.MacaroonRequestDTO;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
-import org.italiangrid.storm.webdav.macaroon.MacaroonResponseDTO;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +44,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jwt.SignedJWT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
