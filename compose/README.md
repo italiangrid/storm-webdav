@@ -13,8 +13,8 @@ The docker-compose contains several services:
 * `webdav`: is the main service, also known as StoRM WebDAV. The StoRM WebDAV base URL is https://storm.test.example:8443. It serves the following storage areas:
   * `test.vo` for users presenting a proxy issued by a _test.vo_ VO
   * `noauth`: which allows read/write mode also to anonymous users
-  * `fga`: for a fined grained authorization storage area. Its access policies are set in the [application](./assets/etc/storm/webdav/config/application.yml) file
-  * `oauth-authz`: for users presenting a token issued by the [WLCG IAM](https://wlcg.cloud.cnaf.infn.it)
+  * `fga`: for a fined grained authorization storage area. Its access policies are set in the [application](./assets/etc/storm/webdav/config/application-policies.yml) file
+  * `oauth-authz`: for users presenting a token issued by the [IAM DEV](https://iam-dev.cloud.cnaf.infn.it)
 * `ts`: used for running the StoRM WebDAV testsuite. It shares the storage with the `webdav` service, to run local tests
 * `nginx`: is the NGINX service supporting VOMS authentication, used as remote StoRM server for WebDAV calls. It does not forward requests to StoRM WebDAV, but just serves local resources in a separate storage. URL of this service is https://storm-alias.test.example. In the testsuite, the local resources are served by an `oauth-authz` endpoint, that does not require authentication.
 
