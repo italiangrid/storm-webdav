@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -ex
 
-IAM_CLIENT_ID=${IAM_CLIENT_ID:-}
-IAM_TOKEN_ENDPOINT=${IAM_TOKEN_ENDPOINT:-}
+OIDC_AGENT_ALIAS=${OIDC_AGENT_ALIAS:-dev-wlcg}
 
-export IAM_ACCESS_TOKEN=$(curl -d grant_type=client_credentials \
-    -d client_id=${IAM_CLIENT_ID} ${IAM_TOKEN_ENDPOINT} \
-    | jq .access_token | tr -d '"')
+eval $(oidc-agent --no-autoload)
+oidc-add --pw-cmd='echo ${OIDC_AGENT_SECRET}' ${OIDC_AGENT_ALIAS}
+export IAM_ACCESS_TOKEN=$(oidc-token ${OIDC_AGENT_ALIAS})
 
 /scripts/init-usercerts.sh
 echo "pass123" | voms-proxy-init --cert /tmp/usercerts/test0.p12 -voms test.vo --pwstdin

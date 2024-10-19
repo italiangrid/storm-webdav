@@ -47,7 +47,7 @@ services:
       STORM_WEBDAV_HOSTNAME_0: storm.test.example
       STORM_WEBDAV_AUTHZ_SERVER_ENABLE: true
       STORM_WEBDAV_AUTHZ_SERVER_ISSUER: https://storm.test.example:8443
-      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=ts
+      STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=policies,issuers
 
     volumes:
       - storage:/storage
@@ -57,7 +57,8 @@ services:
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d/:ro
-      - ./assets/etc/storm/webdav/config/application-ts.yml:/app/application-ts.yml:ro
+      - ./assets/etc/storm/webdav/config/application-policies.yml:/app/application-policies.yml:ro
+      - ./assets/etc/storm/webdav/config/application-issuers.yml:/app/application-issuers.yml:ro
       - ../:/code:ro
 
     healthcheck:
@@ -77,8 +78,8 @@ services:
     environment:
       - TZ=UTC
       - ROBOT_ARGS
-      - IAM_CLIENT_ID
-      - IAM_TOKEN_ENDPOINT=https://wlcg.cloud.cnaf.infn.it/token
+      - OIDC_AGENT_ALIAS
+      - OIDC_AGENT_SECRET
       - IAM_ACCESS_TOKEN
 
     depends_on:
@@ -95,6 +96,7 @@ services:
       - ./assets/vomsdir:/etc/grid-security/vomsdir
       - ./assets/scripts:/scripts:ro
       - ./assets/usercerts/:/usercerts:ro
+      - ./assets/oidc-agent:/home/test/.config/oidc-agent
       - ../:/code:ro
 
     entrypoint:  sleep infinity

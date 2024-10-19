@@ -1,0 +1,54 @@
+storm:
+  authz:
+    policies:
+    - sa: fga
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to test.vo VOMS users
+      principals:
+      - type: vo
+        params:
+          vo: test.vo
+    - sa: fga
+      actions:
+      - list
+      - read
+      effect: permit
+      description: Grant read access to anyone to the public area
+      paths:
+      - /public/**
+      principals:
+      - type: anyone
+    - sa: fga
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write to the "cms" token group in the cms namespace
+      paths:
+      - /cms/**
+      principals:
+      - type: jwt-group
+        params:
+          iss: https://iam-dev.cloud.cnaf.infn.it/
+          group: /cms/**
+    - sa: fga
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write to the "data-manager" token group
+      principals:
+      - type: jwt-group
+        params:
+          iss: https://iam-dev.cloud.cnaf.infn.it/
+          group: /data-manager
+    - sa: fga
+      actions:
+      - list
+      - read
+      effect: permit
+      description: Grant read access to tokens issued by iam-dev
+      principals:
+      - type: jwt-issuer
+        params:
+          iss: https://iam-dev.cloud.cnaf.infn.it/

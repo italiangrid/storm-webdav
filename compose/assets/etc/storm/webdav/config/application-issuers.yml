@@ -1,0 +1,6 @@
+oauth:
+  issuers:
+    - name: egi-checkin
+      issuer: https://egi-checkin.example/
+    - name: dev
+      issuer: https://iam-dev.cloud.cnaf.infn.it/
