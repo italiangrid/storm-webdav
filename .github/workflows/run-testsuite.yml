@@ -16,7 +16,7 @@ jobs:
 
     env:
       ARTIFACTS: ${HOME}/artifacts
-      ROBOT_ARGS: -L DEBUG --variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443 --ignore known-issue
+      ROBOT_ARGS: -L DEBUG --variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443 --exclude known-issue
       OIDC_AGENT_SECRET: ${{ secrets.OIDC_AGENT_SECRET }}
     
     steps:
