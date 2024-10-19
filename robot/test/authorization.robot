@@ -68,6 +68,22 @@ Anonymous mkcol not allowed to the public area
     Should Match Regexp  ${out}  401|403
     [Teardown]  Teardown directory fga  public
 
+Anonymous read not allowed outside the public area
+    [Tags]  fga  get
+    [Setup]  Setup directory fga  anonymous
+    ${url}   DAVS URL  anonymous/test_file  ${sa.fga}
+    ${rc}  ${out}  Curl Error   ${url}  ${curl.opts.default}
+    Should Match Regexp  ${out}  401|403
+    [Teardown]  Teardown directory fga  anonymous
+
+Anonymous list not allowed outside the public area
+    [Tags]  fga  propfind
+    [Setup]  Setup directory fga  anonymous
+    ${url}   DAVS URL  anonymous  ${sa.fga}
+    ${rc}  ${out}  Curl Error   ${url}  -X PROPFIND ${curl.opts.default}
+    Should Match Regexp  ${out}  401|403
+    [Teardown]  Teardown directory fga  anonymous
+
 Read access allowed to trusted issued tokens
     [Tags]  fga  get  oauth
     [Setup]  Setup directory fga  trusted_issuer
@@ -146,6 +162,26 @@ Mkcol allowed to the cms group in the namespace
     ${url}  DAVS URL  cms/cms_group  ${sa.fga}
     Curl Success  ${url}  -X MKCOL ${curl.opts.oauth} ${curl.opts.default}
     [Teardown]   Teardown directory fga  cms
+
+Put denied to the cms group outside the namespace
+    [Tags]  fga  put  oauth
+    [Setup]  Run Keywords  Create Temporary File   denied   123456789
+    ...      AND           Setup directory fga  denied
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
+    ${url}  DAVS URL  denied/denied  ${sa.fga}
+    ${rc}  ${out}  Curl Error  ${url}  -X PUT -T ${TEMPDIR}/denied ${curl.opts.oauth} ${curl.opts.default}
+    Should Match Regexp  ${out}  401|403
+    [Teardown]   Run Keywords  Remove Temporary File  denied
+    ...          AND           Teardown directory fga  denied
+
+Mkcol denied to the cms group outside the namespace
+    [Tags]  fga  mkcol  oauth
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
+    ${url}  DAVS URL  denied  ${sa.fga}
+    ${rc}  ${out}  Curl Error  ${url}  -X MKCOL ${curl.opts.oauth} ${curl.opts.default}
+    Should Match Regexp  ${out}  401|403
 
 Read access allowed to data-manager group
     [Tags]  fga  get  oauth
