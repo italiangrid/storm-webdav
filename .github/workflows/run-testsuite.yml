@@ -1,0 +1,52 @@
+name: Run testsuite
+
+on:
+  push:
+
+jobs:
+  run-testsuite:
+    name: WebDAV test suite
+
+    runs-on: ubuntu-latest
+
+    env:
+      ARTIFACTS: ${HOME}/artifacts
+      ROBOT_ARGS: -L DEBUG --variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443 --exclude known-issue
+      OIDC_AGENT_SECRET: ${{ secrets.OIDC_AGENT_SECRET }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Provide trustanchors
+        working-directory: compose
+        run: docker compose up trust
+
+      - name: Start services
+        working-directory: compose
+        run: docker compose up --build -d storage-setup webdav nginx
+
+      - name: Run testsuite
+        working-directory: compose
+        run: |
+          docker compose up -d ts
+          docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
+        continue-on-error: true
+
+      - name: Create artifacts directory
+        if: ${{ always() }}
+        run: mkdir -p ${ARTIFACTS}
+
+      - name: Collect test reports
+        run: docker cp storm-webdav-ts-1:/home/test/robot/reports ${ARTIFACTS}
+
+      - name: Collect service log
+        if: ${{ always() }}
+        run: docker logs storm-webdav-webdav-1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
+
+      - name: Archive reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-and-reports
+          path: ${{ env.ARTIFACTS }}
