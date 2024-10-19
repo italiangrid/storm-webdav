@@ -8,9 +8,6 @@ Resource    test/variables.robot
 Test Setup  Default Setup
 Test Teardown   Default Teardown
 
-*** Keywords ***
-OAuth Get Works Setup
-
 
 *** Test cases ***
 

@@ -24,19 +24,19 @@ storm:
       actions:
       - all
       effect: permit
-      description: Grant read/write to the "cms" token group in the cms namespace
+      description: Grant read/write to the "cms" token (default) group in the cms namespace
       paths:
       - /cms/**
       principals:
       - type: jwt-group
         params:
           iss: https://iam-dev.cloud.cnaf.infn.it/
-          group: /cms/**
+          group: /cms
     - sa: fga
       actions:
       - all
       effect: permit
-      description: Grant read/write to the "data-manager" token group
+      description: Grant read/write to the "data-manager" token (optional) group
       principals:
       - type: jwt-group
         params:

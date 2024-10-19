@@ -7,12 +7,10 @@ Resource    common/setup_and_teardown.robot
 Resource    common/oidc-agent.robot
 Resource    test/variables.robot
 
-Test Setup  Default Setup
-Test Teardown   Default Teardown
+Test Setup  Get token
+Test Teardown   Get token
 
 *** Variables ***
-
-${authz_header}   -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
 
 ${oauth.group.claim}   wlcg.groups
 ${oauth.group.value}   cms
@@ -73,52 +71,58 @@ Anonymous mkcol not allowed to the public area
 Read access allowed to trusted issued tokens
     [Tags]  fga  get  oauth
     [Setup]  Setup directory fga  trusted_issuer
-    Get token  -s openid
+    ${token}  Get token  scope=-s openid
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  trusted_issuer/test_file  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}   Hello world!
     [Teardown]  Teardown directory fga  trusted_issuer
 
 List access allowed to trusted issued tokens
     [Tags]  fga  propfind  oauth
     [Setup]  Setup directory fga  trusted_issuer
-    Get token  -s openid
+    ${token}  Get token  scope=-s openid
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  trusted_issuer  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}  test_file
     [Teardown]  Teardown directory fga  trusted_issuer
 
 Put not allowed to the trusted issued tokens
     [Tags]  fga  put  oauth
     [Setup]  Create Temporary File   trusted_issuer   123456789
-    Get token  -s openid
+    ${token}  Get token  scope=-s openid
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  trusted_issuer  ${sa.fga}
-    ${rc}  ${out}  Curl Error  ${url}  -X PUT -T ${TEMPDIR}/trusted_issuer ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Error  ${url}  -X PUT -T ${TEMPDIR}/trusted_issuer ${curl.opts.oauth} ${curl.opts.default}
     Should Match Regexp  ${out}  401|403
     [Teardown]   Remove Temporary File  trusted_issuer
 
 Mkcol not allowed to the trusted issued tokens
     [Tags]  fga  mkcol  oauth
-    Get token  -s openid
+    ${token}  Get token  scope=-s openid
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  trusted_issuer  ${sa.fga}
-    ${rc}  ${out}  Curl Error  ${url}  -X MKCOL ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Error  ${url}  -X MKCOL ${curl.opts.oauth} ${curl.opts.default}
     Should Match Regexp  ${out}  401|403
 
 Read access allowed to the cms group in the namespace
     [Tags]  fga  get  oauth
     [Setup]  Setup directory fga  cms
-    Get token  -s ${oauth.group.claim}
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  cms/test_file  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}   Hello world!
     [Teardown]  Teardown directory fga  cms
 
 List access allowed to the cms group in the namespace
     [Tags]  fga  propfind  oaut
     [Setup]  Setup directory fga  cms
-    Get token  -s ${oauth.group.claim}
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  cms  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}  test_file
     [Teardown]  Teardown directory fga  cms
 
@@ -126,9 +130,10 @@ Put allowed to the cms group in the namespace
     [Tags]  fga  put  oauth
     [Setup]  Run Keywords  Create Temporary File   cms_group   123456789
     ...      AND           Setup directory fga  cms
-    Get token  -s ${oauth.group.claim}
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  cms/cms_group  ${sa.fga}
-    ${rc}  ${out}  Curl Success  ${url}  -X PUT -T ${TEMPDIR}/cms_group ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success  ${url}  -X PUT -T ${TEMPDIR}/cms_group ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}   201 Created
     [Teardown]   Run Keywords  Remove Temporary File  cms_group
     ...          AND           Teardown directory fga  cms
@@ -136,42 +141,47 @@ Put allowed to the cms group in the namespace
 Mkcol allowed to the cms group in the namespace
     [Tags]  fga  mkcol  oauth
     [Setup]  Setup directory fga  cms
-    Get token  -s ${oauth.group.claim}
+    ${token}  Get token  scope=-s ${oauth.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  cms/cms_group  ${sa.fga}
-    Curl Success  ${url}  -X MKCOL ${authz_header} ${curl.opts.default}
+    Curl Success  ${url}  -X MKCOL ${curl.opts.oauth} ${curl.opts.default}
     [Teardown]   Teardown directory fga  cms
 
 Read access allowed to data-manager group
     [Tags]  fga  get  oauth
     [Setup]  Setup directory fga  data-manager
-    Get token  -s ${oauth.optional.group.claim}
+    ${token}  Get token  scope=-s ${oauth.optional.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  data-manager/test_file  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}   Hello world!
     [Teardown]  Teardown directory fga  data-manager
 
 List access allowed to data-manager group
     [Tags]  fga  propfind  oauth
     [Setup]  Setup directory fga  data-manager
-    Get token  -s ${oauth.optional.group.claim}
+    ${token}  Get token  scope=-s ${oauth.optional.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}   DAVS URL  data-manager  ${sa.fga}
-    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success   ${url}  -X PROPFIND ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}  test_file
     [Teardown]  Teardown directory fga  data-manager
 
 Put allowed to data-manager group
     [Tags]  fga  put  oauth
     [Setup]  Create Temporary File   data-manager   123456789
-    Get token  -s ${oauth.optional.group.claim}
+    ${token}  Get token  scope=-s ${oauth.optional.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  data-manager  ${sa.fga}
-    ${rc}  ${out}  Curl Success  ${url}  -X PUT -T ${TEMPDIR}/data-manager ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success  ${url}  -X PUT -T ${TEMPDIR}/data-manager ${curl.opts.oauth} ${curl.opts.default}
     Should Contain   ${out}   201 Created
     [Teardown]   Run Keywords   Remove Temporary File  data-manager
     ...          AND            Teardown file fga  data-manager
 
 Mkcol allowed to data-manager group
     [Tags]  fga  mkcol  oauth
-    Get token  -s ${oauth.optional.group.claim}
+    ${token}  Get token  scope=-s ${oauth.optional.group.claim}
+    ${curl.opts.oauth}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}"
     ${url}  DAVS URL  data-manager  ${sa.fga}
-    ${rc}  ${out}  Curl Success  ${url}  -X MKCOL ${authz_header} ${curl.opts.default}
+    ${rc}  ${out}  Curl Success  ${url}  -X MKCOL ${curl.opts.oauth} ${curl.opts.default}
     [Teardown]   Teardown directory fga  data-manager
