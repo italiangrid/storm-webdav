@@ -2,11 +2,6 @@ name: Run testsuite
 
 on:
   push:
-    paths:
-      - robot/**
-      - compose/**
-      - docker/**
-      - .github/workflows/**
 
 jobs:
   run-testsuite:
