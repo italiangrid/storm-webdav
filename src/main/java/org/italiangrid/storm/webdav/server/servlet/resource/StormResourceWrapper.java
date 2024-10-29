@@ -16,12 +16,16 @@
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,12 +37,15 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 public class StormResourceWrapper extends Resource {
 
+  private static final Logger LOG = LoggerFactory.getLogger(StormResourceWrapper.class);
   public static final String JETTY_DIR_TEMPLATE = "jetty-dir";
 
   final Resource delegate;
@@ -210,7 +217,26 @@ public class StormResourceWrapper extends Resource {
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return delegate.getInputStream();
+
+    /*
+     * Mimic behavior from old FileResource class and its usage of java.io.FileInputStream(File)
+     * which will trigger an IOException on construction if the path is a directory
+     */
+
+    Path path = delegate.getFile().toPath();
+    if (Files.isDirectory(path))
+      throw new IOException(path + " is a directory");
+
+    try {
+      File file = getFile();
+      if (file != null) {
+        return new FileInputStream(file);
+      }
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+    }
+
+    return Files.newInputStream(path, StandardOpenOption.READ);
   }
 
   @Override
