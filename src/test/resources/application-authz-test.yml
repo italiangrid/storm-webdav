@@ -55,4 +55,15 @@ storm:
         params:
          iss: https://issuer.example
          group: /example/admins
-         
+    - sa: wlcg
+      actions:
+       - all
+      effect: permit
+      description: Grant read/write access to a specific JWT client ID
+      paths:
+       - /**
+      principals:
+       - type: jwt-client
+         params:
+           iss: https://issuer.example
+           id: 1234

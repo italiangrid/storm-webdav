@@ -37,6 +37,7 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicyRepository;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.principal.Anyone;
 import org.italiangrid.storm.webdav.authz.pdp.principal.AuthorityHolder;
+import org.italiangrid.storm.webdav.oauth.authority.JwtClientAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,8 @@ public class AuthzPdpTests {
 
   public static final String TEST_ISSUER = "https://test.example";
   public static final String TEST2_ISSUER = "https://test2.example";
+  public static final String AUTHORIZED_JWT_CLIENT_ID = "1234";
+  public static final String UNAUTHORIZED_JWT_CLIENT_ID = "5678";
 
   @Mock
   PathAuthorizationPolicyRepository repo;
@@ -257,6 +260,44 @@ public class AuthzPdpTests {
     assertThat(result.getDecision(), is(PERMIT));
     assertThat(result.getPolicy().isPresent(), is(true));
     assertThat(result.getPolicy().get(), is(oauthTestPolicy));
+  }
+  
+  @Test
+  void oauthClientHolderPolicyApplied() {
+
+    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getMethod()).thenReturn("GET");
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new JwtClientAuthority(TEST_ISSUER, AUTHORIZED_JWT_CLIENT_ID)));
+
+    PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
+      .withPermit()
+      .withPrincipalMatcher(AuthorityHolder
+        .fromAuthority(new JwtClientAuthority(TEST_ISSUER, AUTHORIZED_JWT_CLIENT_ID)))
+      .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+      .build();
+
+    PathAuthorizationPolicy denyAllPolicy = PathAuthorizationPolicy.builder()
+      .withDeny()
+      .withPrincipalMatcher(new Anyone())
+      .withRequestMatcher(new AntPathRequestMatcher("/**"))
+      .build();
+
+    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    when(repo.getPolicies()).thenReturn(policies);
+
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(PERMIT));
+    assertThat(result.getPolicy().isPresent(), is(true));
+    assertThat(result.getPolicy().get(), is(oauthTestPolicy));
+
+    when(authentication.getAuthorities())
+      .thenReturn(authorities(new JwtClientAuthority(TEST_ISSUER, UNAUTHORIZED_JWT_CLIENT_ID)));
+
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
+    assertThat(result.getDecision(), is(DENY));
   }
 
   @Test

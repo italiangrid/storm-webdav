@@ -17,15 +17,16 @@ package org.italiangrid.storm.webdav.oidc;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport;
+import org.italiangrid.storm.webdav.oauth.authority.JwtClientAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -37,7 +38,6 @@ import com.google.common.collect.Sets;
 public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSupport
     implements GrantedAuthoritiesMapper {
 
-  @Autowired
   public OidcGrantedAuthoritiesMapper(StorageAreaConfiguration conf,
       ServiceConfigurationProperties props) {
     super(conf, props);
@@ -66,9 +66,13 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
 
     authorities.addAll(authzMap.get(idTokenIssuer));
     authorities.addAll(grantGroupAuthorities(userAuthority));
-    authorities.add(new JwtIssuerAuthority(userAuthority.getIdToken().getIssuer().toString()));
-    authorities.add(new JwtSubjectAuthority(userAuthority.getIdToken().getIssuer().toString(),
-        userAuthority.getIdToken().getSubject()));
+    authorities.add(new JwtIssuerAuthority(idTokenIssuer));
+    authorities.add(new JwtSubjectAuthority(idTokenIssuer, userAuthority.getIdToken().getSubject()));
+    Optional<String> clientIdClaim =
+        Optional.ofNullable(userAuthority.getIdToken().getClaim("client_id"));
+    if (clientIdClaim.isPresent()) {
+      authorities.add(new JwtClientAuthority(idTokenIssuer, clientIdClaim.get()));
+    }
 
     return authorities;
   }
