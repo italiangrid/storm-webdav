@@ -57,6 +57,9 @@ public class AuthorizationIntegrationTests {
   public static final String UNKNOWN_ISSUER = "https://unknown.example";
   public static final String EXAMPLE_ISSUER = "https://issuer.example";
 
+  public static final String AUTHORIZED_JWT_CLIENT_ID = "1234";
+  public static final String UNAUTHORIZED_JWT_CLIENT_ID = "5678";
+
 
   @Autowired
   private MockMvc mvc;
@@ -127,11 +130,8 @@ public class AuthorizationIntegrationTests {
 
   @Test
   void getAccessAsJwtUserWithoutScopeLeadsToAccessDenied() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test").header("kid", "rsa1").issuer(WLCG_ISSUER).subject("123").build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
       .andExpect(status().isForbidden());
@@ -176,6 +176,104 @@ public class AuthorizationIntegrationTests {
       .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
+      .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  void readAccessAsJwtWithAllowedClient() throws Exception {
+    Jwt token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(EXAMPLE_ISSUER)
+      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isNotFound());
+
+  }
+
+  @Test
+  void readAccessWithoutMatchedJWTIsDenied() throws Exception {
+    Jwt token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(EXAMPLE_ISSUER)
+      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(UNKNOWN_ISSUER)
+      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(UNKNOWN_ISSUER)
+      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test").header("kid", "rsa1").issuer(UNKNOWN_ISSUER).build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+  }
+  
+  @Test
+  void writeAccessAsJwtWithAllowedClient() throws Exception {
+    Jwt token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(EXAMPLE_ISSUER)
+      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isOk());
+
+  }
+
+  @Test
+  void writeAccessWithoutMatchedJWTIsDenied() throws Exception {
+    Jwt token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(EXAMPLE_ISSUER)
+      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(UNKNOWN_ISSUER)
+      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test")
+      .header("kid", "rsa1")
+      .issuer(UNKNOWN_ISSUER)
+      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+      .build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+      .andExpect(status().isForbidden());
+
+    token = Jwt.withTokenValue("test").header("kid", "rsa1").issuer(UNKNOWN_ISSUER).build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
       .andExpect(status().isForbidden());
 
   }

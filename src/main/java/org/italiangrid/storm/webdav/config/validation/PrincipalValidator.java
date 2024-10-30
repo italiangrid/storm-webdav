@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.config.validation;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
+import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_CLIENT;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_GROUP;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_SCOPE;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_ISSUER;
@@ -50,6 +51,8 @@ public class PrincipalValidator implements
         .put(JWT_SUBJECT, "iss")
         .put(JWT_SUBJECT, "sub")
         .put(JWT_ISSUER, "iss")
+        .put(JWT_CLIENT, "iss")
+        .put(JWT_CLIENT, "id")
         .put(VO, "vo")
         .put(VO_MAP, "vo")
         .put(X509_SUBJECT, "subject")

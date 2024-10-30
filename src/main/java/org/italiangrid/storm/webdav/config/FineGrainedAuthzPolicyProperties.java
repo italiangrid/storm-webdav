@@ -45,6 +45,7 @@ public class FineGrainedAuthzPolicyProperties {
       JWT_SCOPE,
       JWT_ISSUER,
       JWT_SUBJECT,
+      JWT_CLIENT,
       VO,
       FQAN,
       VO_MAP,

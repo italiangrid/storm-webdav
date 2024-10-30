@@ -1,0 +1,51 @@
+server:
+  jetty:
+    accesslog:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: env
+
+oauth:
+  enable-oidc: false
+  issuers:
+      - name: iam-dev
+        issuer: https://iam-dev.cloud.cnaf.infn.it/
+
+storm:
+  connector:
+    port: 8086
+    securePort: 9443
+  sa:
+    config-dir: src/test/resources/conf/sa.d
+  tls:
+    trust-anchors-dir: src/test/resources/trust-anchors
+    certificate-path: src/test/resources/hostcert/hostcert.pem
+    private-key-path: src/test/resources/hostcert/hostkey.pem
+  authz-server:
+    enabled: true
+  voms:
+    trust-store:
+      dir: src/test/resources/vomsdir
+  tape:
+    well-known:
+      source: src/test/resources/well-known/wlcg-tape-rest-api.json
+
+  authz:
+    policies:  
+    - sa: fga
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to a specific client
+      paths:
+      - /**
+      principals:
+      - type: jwt-client
+        params:
+          iss: https://iam-dev.cloud.cnaf.infn.it/
+          id: 42999a63-7449-43fb-952e-42f2d75b865b
+

@@ -40,6 +40,7 @@ import org.italiangrid.storm.webdav.authz.util.WriteHttpMethodMatcher;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
+import org.italiangrid.storm.webdav.oauth.authority.JwtClientAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtGroupAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtScopeAuthority;
@@ -137,6 +138,9 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
     } else if (PrincipalType.JWT_SUBJECT.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(
           new JwtSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
+    } else if (PrincipalType.JWT_CLIENT.equals(p.getType())) {
+        matcher = AuthorityHolder.fromAuthority(
+          new JwtClientAuthority(p.getParams().get("iss"), p.getParams().get("id")));
     } else if (PrincipalType.VO.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOAuthority(p.getParams().get("vo")));
     } else if (PrincipalType.VO_MAP.equals(p.getType())) {
