@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
@@ -42,28 +43,29 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class TransferReturnStatusTest extends TransferFilterTestSupport {
+class TransferReturnStatusTest extends TransferFilterTestSupport {
 
+  @Override
   @BeforeEach
   public void setup() throws IOException {
     super.setup();
     when(request.getMethod()).thenReturn(COPY.name());
     when(request.getServletPath()).thenReturn(SERVLET_PATH);
     when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
     when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
   }
 
   @Test
-  public void filterAnswers202() throws IOException, ServletException {
+  void filterAnswers202() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
     assertThat(httpStatus.getValue(), is(SC_ACCEPTED));
   }
 
   @Test
-  public void filterAnswers412ForClientProtocolException() throws IOException, ServletException {
+  void filterAnswers412ForClientProtocolException() throws IOException, ServletException {
     Mockito.doThrow(new ClientProtocolException("Connection error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
@@ -75,7 +77,7 @@ public class TransferReturnStatusTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void filterAnswers412ForHttpExceptionError() throws IOException, ServletException {
+  void filterAnswers412ForHttpExceptionError() throws IOException, ServletException {
     Mockito.doThrow(new HttpResponseException(HttpServletResponse.SC_FORBIDDEN, "Access denied"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
@@ -88,7 +90,7 @@ public class TransferReturnStatusTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void filterAnswers412ForChecksumVerificationError() throws IOException, ServletException {
+  void filterAnswers412ForChecksumVerificationError() throws IOException, ServletException {
     Mockito.doThrow(new ChecksumVerificationError("Checksum verification error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
@@ -100,7 +102,7 @@ public class TransferReturnStatusTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void filterAnswers412ForGenericTransferError() throws IOException, ServletException {
+  void filterAnswers412ForGenericTransferError() throws IOException, ServletException {
     Mockito.doThrow(new TransferError("Error"))
       .when(client)
       .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());

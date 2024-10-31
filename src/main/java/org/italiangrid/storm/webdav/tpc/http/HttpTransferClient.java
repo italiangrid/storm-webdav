@@ -116,7 +116,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     return get;
   }
 
-  HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) throws IOException {
+  HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) {
 
     request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
 
@@ -170,9 +170,9 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     HttpGet get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
 
-    ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(() -> {
-      reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
-    }, reportDelaySec, reportDelaySec, TimeUnit.SECONDS);
+    ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(
+        () -> reportStatus(cb, request, statusBuilder.inProgress(os.getCount())), reportDelaySec,
+        reportDelaySec, TimeUnit.SECONDS);
 
     try {
 
@@ -233,13 +233,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     HttpPut put = null;
     HttpClientContext context = HttpClientContext.create();
 
-    try {
-      put = prepareRequest(request, cfe);
-    } catch (IOException e) {
-      logException(e);
-      reportStatus(cb, request, statusBuilder
-        .error(format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
-    }
+    put = prepareRequest(request, cfe);
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(
         () -> reportStatus(cb, request, statusBuilder.inProgress(cfe.getCount())), reportDelaySec,

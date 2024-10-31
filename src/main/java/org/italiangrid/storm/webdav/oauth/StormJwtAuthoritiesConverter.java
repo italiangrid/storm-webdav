@@ -85,7 +85,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
     String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
 
     for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
-      if (Boolean.TRUE.equals(jwt.containsClaim(groupClaim))) {
+      if (jwt.hasClaim(groupClaim)) {
         jwt.getClaimAsStringList(groupClaim)
           .forEach(gc -> groupAuthorities.add(new JwtGroupAuthority(tokenIssuer, gc)));
         break;

@@ -184,14 +184,13 @@ public class StoRMFileResource extends StoRMResource
   @Override
   public Object getProperty(QName name) {
 
-    if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)) {
-      if (name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
-        try {
-          return getExtendedAttributesHelper().getChecksumAttribute(getFile());
-        } catch (IOException e) {
-          logger.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
-          return null;
-        }
+    if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)
+        && name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
+      try {
+        return getExtendedAttributesHelper().getChecksumAttribute(getFile());
+      } catch (IOException e) {
+        logger.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
+        return null;
       }
     }
 

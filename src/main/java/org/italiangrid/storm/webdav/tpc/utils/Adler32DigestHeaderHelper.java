@@ -31,6 +31,8 @@ public class Adler32DigestHeaderHelper {
   public static final String DIGEST_HEADER_REGEX = "^\\s*adler32\\s*=\\s*([0-9a-zA-Z]{8})\\s*";
   public static final Pattern DIGEST_HEADER_PATTERN = Pattern.compile(DIGEST_HEADER_REGEX);
 
+  private Adler32DigestHeaderHelper() {}
+
   public static Optional<String> extractAdler32DigestFromResponse(HttpResponse response) {
 
     checkNotNull(response);
@@ -40,7 +42,7 @@ public class Adler32DigestHeaderHelper {
     if (digestHeader.isPresent()) {
 
       String digestHeaderValue = digestHeader.get().getValue();
-      
+
       if (!isNullOrEmpty(digestHeaderValue)) {
         Matcher m = DIGEST_HEADER_PATTERN.matcher(digestHeaderValue);
 

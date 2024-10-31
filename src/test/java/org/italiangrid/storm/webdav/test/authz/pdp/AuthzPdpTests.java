@@ -83,7 +83,7 @@ public class AuthzPdpTests {
 
 
   @Test
-  public void notApplicableWithEmptyPolicies() {
+  void notApplicableWithEmptyPolicies() {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
@@ -92,7 +92,7 @@ public class AuthzPdpTests {
 
 
   @Test
-  public void denyPolicyApplied() {
+  void denyPolicyApplied() {
 
     PathAuthorizationPolicy denyAllPolicy = PathAuthorizationPolicy.builder()
       .withDeny()
@@ -112,7 +112,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void firstApplicablePolicyApplied() {
+  void firstApplicablePolicyApplied() {
 
     PathAuthorizationPolicy denyAllPolicy = PathAuthorizationPolicy.builder()
       .withDeny()
@@ -138,7 +138,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void oauthGroupHolderPolicyNotAppliedAsItDoesNotMatchPath() {
+  void oauthGroupHolderPolicyNotAppliedAsItDoesNotMatchPath() {
 
     PathAuthorizationPolicy oauthTestPolicy = PathAuthorizationPolicy.builder()
       .withPermit()
@@ -164,7 +164,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void oauthGroupHolderPolicyNotAppliedDueToWrongGroup() {
+  void oauthGroupHolderPolicyNotAppliedDueToWrongGroup() {
 
     when(authentication.getAuthorities())
       .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/test/subgroup")));
@@ -197,7 +197,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void oauthGroupHolderPolicyNotAppliedDueToWrongIssuer() {
+  void oauthGroupHolderPolicyNotAppliedDueToWrongIssuer() {
 
     when(authentication.getAuthorities())
       .thenReturn(authorities(new JwtGroupAuthority(TEST2_ISSUER, "/test")));
@@ -228,7 +228,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void oauthGroupHolderPolicyApplied() {
+  void oauthGroupHolderPolicyApplied() {
 
     when(request.getServletPath()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
@@ -260,7 +260,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void multiplePrincipalMatchersWorkAsExpected() {
+  void multiplePrincipalMatchersWorkAsExpected() {
 
     when(request.getServletPath()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
@@ -310,7 +310,7 @@ public class AuthzPdpTests {
   }
 
   @Test
-  public void multiplePathsMatchersWorkAsExpected() {
+  void multiplePathsMatchersWorkAsExpected() {
 
     when(request.getServletPath()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");

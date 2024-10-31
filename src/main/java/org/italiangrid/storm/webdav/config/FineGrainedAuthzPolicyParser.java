@@ -162,7 +162,7 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
     policy.getPrincipals()
       .stream()
       .map(this::parsePrincipal)
-      .forEach(builder::withPrincipalMatcher);;
+      .forEach(builder::withPrincipalMatcher);
 
     return builder.build();
   }

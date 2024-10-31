@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.authz.vomap;
 import static java.util.Collections.emptySet;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -76,15 +75,7 @@ public class VOMapDetailServiceBuilder {
     File configDir = new File(serviceConf.getVOMapFilesConfigDir());
     directorySanityChecks(configDir);
 
-    File[] files = configDir.listFiles(new FilenameFilter() {
-
-      @Override
-      public boolean accept(File dir, String name) {
-
-        return name.endsWith(VOMAPFILE_SUFFIX);
-
-      }
-    });
+    File[] files = configDir.listFiles((dir, name) -> name.endsWith(VOMAPFILE_SUFFIX));
 
     if (files.length == 0) {
       logger.warn("No mapfiles found in {}. Was looking for files ending in {}", configDir,
@@ -94,7 +85,7 @@ public class VOMapDetailServiceBuilder {
 
 
 
-    Set<VOMembershipProvider> providers = new HashSet<VOMembershipProvider>();
+    Set<VOMembershipProvider> providers = new HashSet<>();
     for (File f : files) {
       try {
         String voName = FilenameUtils.removeExtension(f.getName());
@@ -106,7 +97,6 @@ public class VOMapDetailServiceBuilder {
 
       } catch (Throwable t) {
         logger.error("Error parsing mapfile {}: {}", f.getAbsolutePath(), t.getMessage(), t);
-        continue;
       }
     }
 

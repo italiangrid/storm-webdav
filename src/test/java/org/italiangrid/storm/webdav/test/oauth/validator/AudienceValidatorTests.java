@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.google.common.collect.Lists;
 
 @ExtendWith(MockitoExtension.class)
-public class AudienceValidatorTests {
+class AudienceValidatorTests {
 
   @Mock
   AuthorizationServer server;
@@ -52,7 +52,7 @@ public class AudienceValidatorTests {
   }
 
   @Test
-  public void testNullAudiences() {
+  void testNullAudiences() {
     when(server.getAudiences()).thenReturn(null);
     assertThrows(IllegalArgumentException.class, () -> {
       validator = new AudienceValidator(server);
@@ -60,7 +60,7 @@ public class AudienceValidatorTests {
   }
 
   @Test
-  public void testEmptyAudiences() {
+  void testEmptyAudiences() {
     when(server.getAudiences()).thenReturn(emptyList());
     assertThrows(IllegalArgumentException.class, () -> {
       validator = new AudienceValidator(server);
@@ -68,28 +68,28 @@ public class AudienceValidatorTests {
   }
 
   @Test
-  public void testNoAudienceInTokenYeldsSuccess() {
+  void testNoAudienceInTokenYeldsSuccess() {
     when(jwt.getAudience()).thenReturn(null);
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(false));
   }
 
   @Test
-  public void testEmptyAudienceInTokenYeldsSuccess() {
+  void testEmptyAudienceInTokenYeldsSuccess() {
     when(jwt.getAudience()).thenReturn(emptyList());
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(false));
   }
 
   @Test
-  public void testInvalidAudienceIsError() {
+  void testInvalidAudienceIsError() {
     when(jwt.getAudience()).thenReturn(Lists.newArrayList("testAudience"));
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(true));
   }
 
   @Test
-  public void testAudienceValidationSuccess() {
+  void testAudienceValidationSuccess() {
     when(jwt.getAudience()).thenReturn(Lists.newArrayList("any"));
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(false));

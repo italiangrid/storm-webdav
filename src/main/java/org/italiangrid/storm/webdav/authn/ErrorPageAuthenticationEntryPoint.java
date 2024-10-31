@@ -35,7 +35,7 @@ import org.springframework.util.StringUtils;
 
 public class ErrorPageAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-  final String errorPage = "/errors/401";
+  static final String ERROR_PAGE = "/errors/401";
 
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -73,7 +73,7 @@ public class ErrorPageAuthenticationEntryPoint implements AuthenticationEntryPoi
 
       request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, authException);
 
-      RequestDispatcher dispatcher = request.getRequestDispatcher(errorPage);
+      RequestDispatcher dispatcher = request.getRequestDispatcher(ERROR_PAGE);
       dispatcher.forward(request, response);
     }
   }

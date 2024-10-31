@@ -24,10 +24,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ClientInfoParserTest {
+class ClientInfoParserTest {
 
   @Test
-  public void testClientInfoHeaderParsing() {
+  void testClientInfoHeaderParsing() {
     ClientInfo ci = ClientInfo
       .fromHeaderString("job-id=34f98a5e-1e49-11e9-ab17-fa163edecedf;file-id=8764139989;retry=0");
 

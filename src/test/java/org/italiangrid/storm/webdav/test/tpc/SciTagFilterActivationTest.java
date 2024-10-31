@@ -39,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 
 @ExtendWith(MockitoExtension.class)
 class SciTagFilterActivationTest extends TransferFilterTestSupport {
@@ -64,7 +65,7 @@ class SciTagFilterActivationTest extends TransferFilterTestSupport {
     lenient().when(resolver.resolveStorageArea(FULL_LOCAL_PATH)).thenReturn(testSa);
     lenient().when(resolver.resolveStorageArea("/test/otherfile")).thenReturn(testSa);
     lenient().when(resolver.resolveStorageArea("/other/file")).thenReturn(otherSa);
-    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
   }
 
   @Test

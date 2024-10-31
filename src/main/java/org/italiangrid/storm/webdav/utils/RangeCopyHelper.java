@@ -28,6 +28,8 @@ import java.nio.channels.ReadableByteChannel;
 
 public class RangeCopyHelper {
 
+  private RangeCopyHelper() {}
+
   public static long rangeCopy(InputStream is, File f, long rangeStart, long rangeCount) throws IOException {
 
     checkNotNull(is);

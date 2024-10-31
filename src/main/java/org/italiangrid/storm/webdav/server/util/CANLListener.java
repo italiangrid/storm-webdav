@@ -35,13 +35,13 @@ public class CANLListener implements StoreUpdateListener, ValidationErrorListene
       location = location.substring(5, location.length());
 
     if (level.equals(Severity.ERROR)) {
-      LOG.error("Error for {} {}: {}.", new Object[] {type, location, cause.getMessage()});
+      LOG.error("Error for {} {}: {}.", type, location, cause.getMessage());
 
     } else if (level.equals(Severity.WARNING)) {
-      LOG.debug("Warning for {} {}: {}.", new Object[] {type, location, cause.getMessage()});
+      LOG.debug("Warning for {} {}: {}.", type, location, cause.getMessage());
 
     } else if (level.equals(Severity.NOTIFICATION)) {
-      LOG.debug("Loading {} {}.", new Object[] {type, location});
+      LOG.debug("Loading {} {}.", type, location);
     }
   }
 

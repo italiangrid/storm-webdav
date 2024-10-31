@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,8 +43,8 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(LocalAuthorizationPdp.class);
 
-  public static final EnumSet<Permission> READ_PERMS = EnumSet.of(Permission.r, Permission.rw);
-  public static final EnumSet<Permission> WRITE_PERMS = EnumSet.of(Permission.w, Permission.rw);
+  private static final Set<Permission> READ_PERMS = EnumSet.of(Permission.r, Permission.rw);
+  private static final Set<Permission> WRITE_PERMS = EnumSet.of(Permission.w, Permission.rw);
 
   private final URL localAuthzServerIssuer;
 

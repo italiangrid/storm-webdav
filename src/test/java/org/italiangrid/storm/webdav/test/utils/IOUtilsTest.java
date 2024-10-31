@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class IOUtilsTest {
+class IOUtilsTest {
 
   @TempDir
   public File testFolder;
@@ -48,7 +48,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testAllFileCopy() throws IOException {
+  void testAllFileCopy() throws IOException {
     File source = tempFileOfChar("source", 0, 128);
     File dest = tempFileOfChar("dest", 1, 128);
 
@@ -66,7 +66,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testLongerSourceFileCopy() throws IOException {
+  void testLongerSourceFileCopy() throws IOException {
     File source = tempFileOfChar("source", 0, 200);
     File dest = tempFileOfChar("dest", 1, 64);
 
@@ -84,7 +84,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testShorterSourceFileCopy() throws IOException {
+  void testShorterSourceFileCopy() throws IOException {
     File source = tempFileOfChar("source", 0, 16);
     File dest = tempFileOfChar("dest", 1, 512);
 
@@ -102,7 +102,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testPartialWriteCopy() throws IOException {
+  void testPartialWriteCopy() throws IOException {
     File source = tempFileOfChar("source", 0, 128);
     File dest = tempFileOfChar("dest", 1, 512);
 
@@ -120,7 +120,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testMiddleWrite() throws IOException {
+  void testMiddleWrite() throws IOException {
     File source = tempFileOfChar("source", 0, 640);
     File dest = tempFileOfChar("dest", 1, 256);
 

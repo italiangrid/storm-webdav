@@ -58,7 +58,6 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider,
 
     } finally {
       refreshLock.readLock().unlock();
-      ;
     }
   }
 

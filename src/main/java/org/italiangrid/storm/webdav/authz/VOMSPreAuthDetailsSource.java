@@ -109,7 +109,7 @@ public class VOMSPreAuthDetailsSource
     Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
     if (chain.isPresent()) {
       return Optional.of(new X509SubjectAuthority(
-          ProxyUtils.getEndUserCertificate(chain.get()).getSubjectDN().getName()));
+          ProxyUtils.getEndUserCertificate(chain.get()).getSubjectX500Principal().getName()));
     }
 
     return Optional.empty();

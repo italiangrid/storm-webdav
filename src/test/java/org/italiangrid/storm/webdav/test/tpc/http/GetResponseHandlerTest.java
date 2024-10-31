@@ -36,36 +36,37 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class GetResponseHandlerTest extends ClientTestSupport {
+class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock
   StatusLine status;
-  
+
   @Mock
   HttpEntity entity;
-  
+
   @Mock
   HttpResponse response;
-  
+
   @Mock
   StormCountingOutputStream os;
-  
+
   GetResponseHandler handler;
 
+  @Override
   @BeforeEach
   public void setup() {
-    
+
     handler = new GetResponseHandler(null, os, eah);
     lenient().when(response.getStatusLine()).thenReturn(status);
     lenient().when(response.getEntity()).thenReturn(entity);
   }
-  
+
   @Test
-  public void handlerWritesToStream() throws IOException {
+  void handlerWritesToStream() throws IOException {
     when(status.getStatusCode()).thenReturn(200);
-    
+
     handler.handleResponse(response);
-    
+
     verify(entity).getContent();
     verify(eah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
   }

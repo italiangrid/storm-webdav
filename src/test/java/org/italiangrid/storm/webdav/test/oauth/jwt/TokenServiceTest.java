@@ -82,7 +82,7 @@ public class TokenServiceTest {
   }
 
   @Test
-  public void canGenerateTokenResponse() {
+  void canGenerateTokenResponse() {
     TokenResponseDTO response = issuerService.createAccessToken(request, auth);
 
     assertThat(response.getTokenType(), is(BEARER_TOKEN_TYPE));

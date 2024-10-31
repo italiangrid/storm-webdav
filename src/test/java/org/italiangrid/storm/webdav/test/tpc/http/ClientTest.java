@@ -42,12 +42,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.google.common.collect.ArrayListMultimap;
 
 @ExtendWith(MockitoExtension.class)
-public class ClientTest extends ClientTestSupport {
+class ClientTest extends ClientTestSupport {
 
   @TempDir
   public File storage;
 
   @SuppressWarnings("unchecked")
+  @Override
   @BeforeEach
   public void setup() throws IOException {
 
@@ -69,7 +70,7 @@ public class ClientTest extends ClientTestSupport {
   }
 
   @Test
-  public void testClientCorrectlyBuildsHttpRequestNoHeaders() throws IOException {
+  void testClientCorrectlyBuildsHttpRequestNoHeaders() throws IOException {
 
     client.handle(req, (r, s) -> {
     });
@@ -86,7 +87,7 @@ public class ClientTest extends ClientTestSupport {
   }
 
   @Test
-  public void testClientCorrectlyBuildsHttpRequestWithHeaders() throws IOException {
+  void testClientCorrectlyBuildsHttpRequestWithHeaders() throws IOException {
 
     when(req.transferHeaders()).thenReturn(HEADER_MAP);
 

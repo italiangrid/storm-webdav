@@ -121,8 +121,8 @@ public class ServletConfiguration {
       RedirectionService redirectionService) {
     LOG.info("Redirector filter enabled");
 
-    FilterRegistrationBean<RedirectFilter> filter = new FilterRegistrationBean<RedirectFilter>(
-        new RedirectFilter(pathResolver, redirectionService));
+    FilterRegistrationBean<RedirectFilter> filter =
+        new FilterRegistrationBean<>(new RedirectFilter(pathResolver, redirectionService));
 
     filter.addUrlPatterns("/*");
     filter.setOrder(REDIRECT_REQ_FILTER_ORDER);
@@ -200,9 +200,9 @@ public class ServletConfiguration {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
-    FilterRegistrationBean<TransferFilter> tpcFilter = new FilterRegistrationBean<>(
-        new TransferFilter(clock, metricsClient, resolver, lus, props.isVerifyChecksum(),
-            props.getEnableExpectContinueThreshold()));
+    FilterRegistrationBean<TransferFilter> tpcFilter =
+        new FilterRegistrationBean<>(new TransferFilter(clock, metricsClient, resolver, lus,
+            props.isVerifyChecksum(), props.getEnableExpectContinueThreshold()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
@@ -213,8 +213,7 @@ public class ServletConfiguration {
       PathResolver resolver) {
 
     FilterRegistrationBean<StorageAreaStatsFilter> filter =
-        new FilterRegistrationBean<StorageAreaStatsFilter>(
-            new StorageAreaStatsFilter(registry, resolver));
+        new FilterRegistrationBean<>(new StorageAreaStatsFilter(registry, resolver));
     filter.addUrlPatterns("/*");
     filter.setOrder(STATS_FILTER_ORDER);
     return filter;

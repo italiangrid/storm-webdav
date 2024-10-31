@@ -43,7 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.google.common.collect.Lists;
 
 @ExtendWith(MockitoExtension.class)
-public class PolicyParserTests {
+class PolicyParserTests {
 
   ServiceConfigurationProperties properties = new ServiceConfigurationProperties();
 
@@ -65,13 +65,13 @@ public class PolicyParserTests {
   }
 
   @Test
-  public void testNoPolicyParsing() throws Exception {
+  void testNoPolicyParsing() throws Exception {
     assertThat(parser.parsePolicies(), empty());
   }
 
 
   @Test
-  public void testSimplePolicyParsing() throws Exception {
+  void testSimplePolicyParsing() throws Exception {
 
     FineGrainedAuthzPolicyProperties.PrincipalProperties anonymous =
         new FineGrainedAuthzPolicyProperties.PrincipalProperties();

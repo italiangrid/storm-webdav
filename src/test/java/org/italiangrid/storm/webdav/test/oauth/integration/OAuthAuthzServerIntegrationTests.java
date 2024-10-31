@@ -93,27 +93,27 @@ public class OAuthAuthzServerIntegrationTests {
   }
 
   @Test
-  public void getNotSupported() throws Exception {
+  void getNotSupported() throws Exception {
     mvc.perform(get("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  public void postNotSupportedForAnonymous() throws Exception {
+  void postNotSupportedForAnonymous() throws Exception {
     mvc.perform(post("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isUnauthorized());
   }
 
   @Test
   @WithMockUser(username = "test")
-  public void postNotSupportedForAuthenticatedNonVomsUsers() throws Exception {
+  void postNotSupportedForAuthenticatedNonVomsUsers() throws Exception {
     mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isForbidden());
   }
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
-  public void postSupportedForAuthenticatedVomsUsers() throws Exception {
+  void postSupportedForAuthenticatedVomsUsers() throws Exception {
     mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token").exists())
@@ -123,7 +123,7 @@ public class OAuthAuthzServerIntegrationTests {
 
   @Test
   @WithMockVOMSUser
-  public void invalidGrantTypeRejected() throws Exception {
+  void invalidGrantTypeRejected() throws Exception {
     mvc
       .perform(
           post("/oauth/token").content(CONTENT_CUSTOM).contentType(APPLICATION_FORM_URLENCODED))
@@ -135,7 +135,7 @@ public class OAuthAuthzServerIntegrationTests {
 
   @Test
   @WithMockVOMSUser
-  public void requestedLifetimeHonoured() throws Exception {
+  void requestedLifetimeHonoured() throws Exception {
     mvc
       .perform(post("/oauth/token").content(format("%s&lifetime=50", CONTENT))
         .contentType(APPLICATION_FORM_URLENCODED))
@@ -147,7 +147,7 @@ public class OAuthAuthzServerIntegrationTests {
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
-  public void requestedLifetimeLimited() throws Exception {
+  void requestedLifetimeLimited() throws Exception {
     mvc
       .perform(post("/oauth/token").content(format("%s&lifetime=200000", CONTENT))
         .contentType(APPLICATION_FORM_URLENCODED))
@@ -159,7 +159,7 @@ public class OAuthAuthzServerIntegrationTests {
 
   @Test
   @WithMockVOMSUser
-  public void scopeLengthIsChecked() throws Exception {
+  void scopeLengthIsChecked() throws Exception {
 
     String randomAlphabetic = randomAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
 

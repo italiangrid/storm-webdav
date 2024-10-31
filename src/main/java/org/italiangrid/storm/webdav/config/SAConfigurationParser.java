@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.config;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -32,12 +31,12 @@ import com.google.common.collect.Sets;
 
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-  private final Set<String> RESERVED_SA_NAMES =
-      Sets.newHashSet("oauth", ".well-known", "actuator", "assets", "authn-info", "logout", "oidc-login");
+  private static final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known",
+      "actuator", "assets", "authn-info", "logout", "oidc-login");
 
   private final ServiceConfiguration serviceConfig;
 
-  private String PROPERTIES_FILENAME_SUFFIX = ".properties";
+  private static final String PROPERTIES_FILENAME_SUFFIX = ".properties";
 
   private List<StorageAreaInfo> saInfos;
 
@@ -54,15 +53,11 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
     File dir = new File(saConfDir);
     directorySanityChecks(dir);
 
-    File[] saFiles = dir.listFiles(new FilenameFilter() {
-
-      @Override
-      public boolean accept(File file, String name) {
-        if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
-          log.warn("Skipping {} as it is a reserved storage area name");
-        }
-        return (!RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
+    File[] saFiles = dir.listFiles((file, name) -> {
+      if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
+        log.warn("Skipping {} as it is a reserved storage area name", name);
       }
+      return (!RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
     });
 
     if (saFiles.length == 0) {
@@ -72,7 +67,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
       throw new StoRMIntializationError(msg);
     }
 
-    saInfos = new ArrayList<StorageAreaInfo>();
+    saInfos = new ArrayList<>();
 
     for (File f : saFiles) {
 

@@ -32,7 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.Sets;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RandomReplicaSelectorTests extends RedirectorTestSupport {
+class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
   ServiceConfigurationProperties config;
   RandomReplicaSelector selector;
@@ -44,14 +44,14 @@ public class RandomReplicaSelectorTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void testEmptyOptionalOnEmptyEndpointList() {
+  void testEmptyOptionalOnEmptyEndpointList() {
 
     assertThat(selector.selectReplica().isPresent(), is(false));
 
   }
 
   @Test
-  public void testSingleEndpointList() {
+  void testSingleEndpointList() {
 
     ReplicaEndpointProperties replica = new ReplicaEndpointProperties();
     replica.setEndpoint(ENDPOINT_URI_0);
@@ -65,7 +65,7 @@ public class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
 
   @Test
-  public void testDoubleEndpointList() {
+  void testDoubleEndpointList() {
 
     ReplicaEndpointProperties replica0 = new ReplicaEndpointProperties();
     replica0.setEndpoint(ENDPOINT_URI_0);

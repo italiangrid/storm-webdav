@@ -125,7 +125,7 @@ import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 
 @Configuration
-public class AppConfig implements TransferConstants {
+public class AppConfig {
 
   public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
@@ -266,10 +266,10 @@ public class AppConfig implements TransferConstants {
     LayeredConnectionSocketFactory tlsSf = new TpcSSLConnectionSocketFactory(ctx);
 
     Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
-      .register(HTTP, sf)
-      .register(HTTPS, tlsSf)
-      .register(DAV, sf)
-      .register(DAVS, tlsSf)
+      .register(TransferConstants.HTTP, sf)
+      .register(TransferConstants.HTTPS, tlsSf)
+      .register(TransferConstants.DAV, sf)
+      .register(TransferConstants.DAVS, tlsSf)
       .build();
 
     PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
@@ -331,7 +331,7 @@ public class AppConfig implements TransferConstants {
     LOG.info("OpenID providers configuration will be refreshed every {} minutes",
         props.getRefreshPeriodMinutes());
 
-    return (k) -> {
+    return k -> {
       try {
         return clients.get(k);
       } catch (ExecutionException e) {
@@ -428,7 +428,7 @@ public class AppConfig implements TransferConstants {
   @Bean
   @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "false")
   ClientRegistrationRepository emptyClientRegistrationRepository() {
-    return (id) -> null;
+    return id -> null;
   }
 
 

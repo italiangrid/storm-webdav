@@ -49,7 +49,7 @@ import org.springframework.security.core.Authentication;
 import com.nimbusds.jwt.SignedJWT;
 
 @ExtendWith(MockitoExtension.class)
-public class RedirectionServiceTests extends RedirectorTestSupport {
+class RedirectionServiceTests extends RedirectorTestSupport {
 
 
   @Mock
@@ -91,7 +91,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
 
 
   @Test
-  public void testRedirectFailureOnEmptyReplica() {
+  void testRedirectFailureOnEmptyReplica() {
 
     Exception e = assertThrows(RedirectError.class, () -> {
       service.buildRedirect(authentication, request, response);
@@ -100,7 +100,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void testRedirectUriConstruction() {
+  void testRedirectUriConstruction() {
     when(selector.selectReplica()).thenReturn(Optional.of(REPLICA_0));
 
     String uriString = service.buildRedirect(authentication, request, response);
@@ -121,7 +121,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void testPutRedirectUriConstruction() {
+  void testPutRedirectUriConstruction() {
     when(selector.selectReplica()).thenReturn(Optional.of(REPLICA_0));
     when(request.getMethod()).thenReturn("PUT");
 
@@ -143,7 +143,7 @@ public class RedirectionServiceTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void testRedirectUriWithPrefixConstruction() {
+  void testRedirectUriWithPrefixConstruction() {
     when(selector.selectReplica()).thenReturn(Optional.of(REPLICA_WITH_PREFIX));
 
     String uriString = service.buildRedirect(authentication, request, response);

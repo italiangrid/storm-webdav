@@ -143,7 +143,7 @@ public class JwtIssuerTest {
   }
 
   @Test
-  public void canCreateSignedJWT() throws ParseException, JOSEException {
+  void canCreateSignedJWT() throws ParseException, JOSEException {
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
     assertThat(jwt, notNullValue());
@@ -162,7 +162,7 @@ public class JwtIssuerTest {
 
 
   @Test
-  public void returnsAuthoritiesAsExpected() throws ParseException {
+  void returnsAuthoritiesAsExpected() throws ParseException {
 
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
@@ -184,7 +184,7 @@ public class JwtIssuerTest {
   }
 
   @Test
-  public void tokenIssuerLimitsTokenValidityToAcLifetime() throws ParseException {
+  void tokenIssuerLimitsTokenValidityToAcLifetime() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
 
@@ -201,7 +201,7 @@ public class JwtIssuerTest {
   }
 
   @Test
-  public void tokenIssuerLimitsTokenValidtyWithRequestedLifetime() throws ParseException {
+  void tokenIssuerLimitsTokenValidtyWithRequestedLifetime() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
     when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
@@ -218,7 +218,7 @@ public class JwtIssuerTest {
 
 
   @Test
-  public void tokenIssuerIgnoresRequestedLifetimeWhenExceedsInternalLimit() throws ParseException {
+  void tokenIssuerIgnoresRequestedLifetimeWhenExceedsInternalLimit() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
     when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
@@ -234,7 +234,7 @@ public class JwtIssuerTest {
   }
 
   @Test
-  public void tokenIssuerCreatesResourceAccessToken() throws ParseException {
+  void tokenIssuerCreatesResourceAccessToken() throws ParseException {
 
     when(resourceAtRequest.getPath()).thenReturn("/example/resource");
     when(resourceAtRequest.getPermission()).thenReturn(Permission.r);

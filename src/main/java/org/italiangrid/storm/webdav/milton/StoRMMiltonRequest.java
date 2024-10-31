@@ -28,8 +28,8 @@ import io.milton.servlet.ServletRequest;
 
 public class StoRMMiltonRequest extends ServletRequest {
 
-  private static final String regex = "(http.*:\\d*)/webdav/(.*)$";
-  private static final Pattern p = Pattern.compile(regex);
+  private static final String REGEX = "(http.*:\\d*)/webdav/(.*)$";
+  private static final Pattern p = Pattern.compile(REGEX);
 
   public StoRMMiltonRequest(HttpServletRequest r, ServletContext servletContext) {
 
@@ -60,5 +60,5 @@ public class StoRMMiltonRequest extends ServletRequest {
     // Always return null as milton is confused by the OAuth2 Bearer scheme
     return null;
   }
-  
+
 }

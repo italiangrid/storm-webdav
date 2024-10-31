@@ -77,12 +77,12 @@ public class LocalAuthzIntegrationTests {
   }
 
   @Test
-  public void testLocalAuthz() throws Exception {
+  void testLocalAuthz() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void testInvalidTokenAuthz() throws Exception {
+  void testInvalidTokenAuthz() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(UNKNOWN_ISSUER)
@@ -104,7 +104,7 @@ public class LocalAuthzIntegrationTests {
   }
 
   @Test
-  public void testValidLocalTokenAuthz() throws Exception {
+  void testValidLocalTokenAuthz() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(LOCAL_ISSUER)
@@ -123,7 +123,7 @@ public class LocalAuthzIntegrationTests {
   }
 
   @Test
-  public void testInvalidPathLocalTokenAuthz() throws Exception {
+  void testInvalidPathLocalTokenAuthz() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(LOCAL_ISSUER)
@@ -139,7 +139,7 @@ public class LocalAuthzIntegrationTests {
   }
 
   @Test
-  public void testInvalidLocalToken() throws Exception {
+  void testInvalidLocalToken() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
       .header("kid", "rsa1")
       .issuer(LOCAL_ISSUER)
