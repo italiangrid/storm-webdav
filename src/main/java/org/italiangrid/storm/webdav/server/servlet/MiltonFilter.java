@@ -126,7 +126,7 @@ public class MiltonFilter implements Filter {
 
     try {
       // Is this really needed?
-      MiltonServlet.setThreadlocals((HttpServletRequest) request, (HttpServletResponse) response);
+      MiltonServlet.setThreadlocals(request, response);
 
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 

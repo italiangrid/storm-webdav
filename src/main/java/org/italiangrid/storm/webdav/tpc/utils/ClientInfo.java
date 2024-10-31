@@ -27,8 +27,10 @@ import com.google.common.base.Splitter.MapSplitter;
 
 public class ClientInfo {
 
+  private static final String INVALID_CLIENTINFO_HEADER_MESSAGE = "Invalid ClientInfo header: %s";
+
   public static final String CLIENT_INFO_MDC_KEY = "tpc.clientInfo";
-  
+
   public static final String JOB_ID_KEY = "job-id";
   public static final String FILE_ID_KEY = "file-id";
   public static final String RETRY_COUNT_KEY = "retry";
@@ -59,13 +61,13 @@ public class ClientInfo {
   }
 
   public static ClientInfo fromHeaderString(String headerString) {
-    checkArgument(!isNullOrEmpty(headerString), "Invalid ClientInfo header: %s", headerString);
+    checkArgument(!isNullOrEmpty(headerString), INVALID_CLIENTINFO_HEADER_MESSAGE, headerString);
     Map<String, String> splitResult = SPLITTER.split(headerString);
-    checkArgument(splitResult.containsKey(JOB_ID_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(JOB_ID_KEY), INVALID_CLIENTINFO_HEADER_MESSAGE,
         headerString);
-    checkArgument(splitResult.containsKey(FILE_ID_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(FILE_ID_KEY), INVALID_CLIENTINFO_HEADER_MESSAGE,
         headerString);
-    checkArgument(splitResult.containsKey(RETRY_COUNT_KEY), "Invalid ClientInfo header: %s",
+    checkArgument(splitResult.containsKey(RETRY_COUNT_KEY), INVALID_CLIENTINFO_HEADER_MESSAGE,
         headerString);
     return new ClientInfo(splitResult.get(JOB_ID_KEY), splitResult.get(FILE_ID_KEY),
         Integer.parseInt(splitResult.get(RETRY_COUNT_KEY)));
@@ -74,6 +76,6 @@ public class ClientInfo {
   public void addToMDC() {
     final String ciStr = String.format("job-id:%s,file-id:%s,retry:%d", jobId, fileId, retryCount);
     MDC.put(CLIENT_INFO_MDC_KEY, ciStr);
-    
+
   }
 }

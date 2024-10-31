@@ -96,7 +96,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
       validators.add(new AudienceValidator(as));
     }
 
-    decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<Jwt>(validators));
+    decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validators));
 
     return decoder;
   }

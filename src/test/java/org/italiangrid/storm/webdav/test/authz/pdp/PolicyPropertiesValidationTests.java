@@ -42,7 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.google.common.collect.Lists;
 
 @ExtendWith(MockitoExtension.class)
-public class PolicyPropertiesValidationTests {
+class PolicyPropertiesValidationTests {
 
   private Validator validator;
 
@@ -69,7 +69,7 @@ public class PolicyPropertiesValidationTests {
   }
 
   @Test
-  public void testValidAuthzPolicyPassesValidation() throws Exception {
+  void testValidAuthzPolicyPassesValidation() throws Exception {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
 
@@ -81,7 +81,7 @@ public class PolicyPropertiesValidationTests {
   }
 
   @Test
-  public void testDescriptionRequired() throws Exception {
+  void testDescriptionRequired() throws Exception {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setDescription(null);
@@ -96,7 +96,7 @@ public class PolicyPropertiesValidationTests {
   }
 
   @Test
-  public void testSaRequired() throws Exception {
+  void testSaRequired() throws Exception {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setSa(null);
@@ -111,7 +111,7 @@ public class PolicyPropertiesValidationTests {
   }
 
   @Test
-  public void testPrincipalsNotEmpty() throws Exception {
+  void testPrincipalsNotEmpty() throws Exception {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setPrincipals(emptyList());

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ChecksumHelperTest {
+class ChecksumHelperTest {
 
   private File testFile;
   private Adler32ChecksumInputStream cis;
@@ -60,12 +60,12 @@ public class ChecksumHelperTest {
   }
 
   @AfterEach
-  public void finalize() throws IOException {
+  public void cleanup() throws IOException {
     cis.close();
   }
 
   @Test
-  public void testGetChecksumValueFromFile() throws IOException {
+  void testGetChecksumValueFromFile() {
 
     String newChecksum = cis.getChecksumValue();
     String oldChecksum = Long.toHexString(cis.getChecksum().getValue());
@@ -76,7 +76,7 @@ public class ChecksumHelperTest {
   }
 
   @Test
-  public void testChecksumHelperAddLeadingZero() {
+  void testChecksumHelperAddLeadingZero() {
 
     final String CHECKSUM_VALUE = "abcdefgh";
     assertEquals(CHECKSUM_VALUE, ChecksumHelper.addLeadingZero(CHECKSUM_VALUE, 8));

@@ -100,7 +100,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void noPathRaisesException() throws Exception {
+  void noPathRaisesException() {
 
     when(jwt.getClaimAsString("path")).thenReturn(null);
     Exception e = assertThrows(IllegalArgumentException.class, () -> {
@@ -110,7 +110,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void noPermsRaisesException() throws Exception {
+  void noPermsRaisesException() {
 
     when(jwt.getClaimAsString("perms")).thenReturn(null);
     Exception e = assertThrows(IllegalArgumentException.class, () -> {
@@ -120,7 +120,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void pathMismatchYeldsDeny() throws Exception {
+  void pathMismatchYeldsDeny() {
     when(jwt.getClaimAsString("path")).thenReturn("/test/another");
 
     PathAuthorizationResult result =
@@ -130,7 +130,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void permMismatchYeldsDeny() throws Exception {
+  void permMismatchYeldsDeny() throws Exception {
     when(request.getMethod()).thenReturn("PUT");
 
     PathAuthorizationResult result =
@@ -140,7 +140,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void originMismatchYeldsDeny() throws Exception {
+  void originMismatchYeldsDeny() {
     when(request.getRemoteAddr()).thenReturn(REMOTE_ADDR);
     when(jwt.getClaimAsString(ORIGIN_CLAIM)).thenReturn(ANOTHER_REMOTE_ADDR);
 
@@ -151,7 +151,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  public void testPermit() throws Exception {
+  void testPermit() throws Exception {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 

@@ -18,13 +18,13 @@ package org.italiangrid.storm.webdav.oauth.authzserver;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(NON_EMPTY)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ErrorResponseDTO {
-  
+
   public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
   public static final String INVALID_REQUEST = "invalid_request";
   public static final String INVALID_SCOPE = "invalid_scope";

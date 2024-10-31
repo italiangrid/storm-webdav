@@ -30,7 +30,7 @@ import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
 
-public interface TpcUtils extends TransferConstants {
+public interface TpcUtils {
 
   default Supplier<ResourceNotFound> resourceNotFoundError(String path) {
     return () -> new ResourceNotFound(format("No storage area found matching path: %s", path));
@@ -47,27 +47,29 @@ public interface TpcUtils extends TransferConstants {
   }
 
   default String destinationHeader(HttpServletRequest request) {
-    return request.getHeader(DESTINATION_HEADER);
+    return request.getHeader(TransferConstants.DESTINATION_HEADER);
   }
 
   default boolean requestHasSourceHeader(HttpServletRequest request) {
-    return Optional.ofNullable(request.getHeader(SOURCE_HEADER)).isPresent();
+    return Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER)).isPresent();
   }
 
   default boolean requestHasDestinationHeader(HttpServletRequest request) {
-    return Optional.ofNullable(request.getHeader(DESTINATION_HEADER)).isPresent();
+    return Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER)).isPresent();
   }
 
   default boolean requestHasLocalDestinationHeader(HttpServletRequest request,
       LocalURLService localURLService) {
-    Optional<String> destination = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
+    Optional<String> destination =
+        Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
 
     return (destination.isPresent() && localURLService.isLocalURL(destination.get()));
   }
 
   default boolean requestHasRemoteDestinationHeader(HttpServletRequest request,
       LocalURLService localURLService) {
-    Optional<String> destination = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
+    Optional<String> destination =
+        Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
 
     return (destination.isPresent() && !localURLService.isLocalURL(destination.get()));
   }
@@ -112,7 +114,7 @@ public interface TpcUtils extends TransferConstants {
     Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
       String headerName = headerNames.nextElement();
-      if (headerName.toLowerCase().startsWith(TRANSFER_HEADER_LC)) {
+      if (headerName.toLowerCase().startsWith(TransferConstants.TRANSFER_HEADER_LC)) {
         return true;
       }
     }
@@ -130,7 +132,7 @@ public interface TpcUtils extends TransferConstants {
   }
 
   default String dropSlashWebdavFromPath(String path) {
-    Matcher m = WEBDAV_PATH_PATTERN.matcher(path);
+    Matcher m = TransferConstants.WEBDAV_PATH_PATTERN.matcher(path);
 
     if (m.matches()) {
       return String.format("/%s", m.group(1));

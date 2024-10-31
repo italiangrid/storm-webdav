@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
@@ -42,7 +41,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-public class TransferFilterTestSupport implements TransferConstants {
+public class TransferFilterTestSupport {
 
   public static final Instant NOW = Instant.parse("2021-01-01T00:00:00.00Z");
 
@@ -74,7 +73,7 @@ public class TransferFilterTestSupport implements TransferConstants {
   public static final URI HTTP_URL_URI = URI.create(HTTP_URL);
   public static final URI HTTPS_URL_URI = URI.create(HTTPS_URL);
 
-  public static String[] INVALID_URLs =
+  public static final String[] INVALID_URLs =
       {"http:whatever", "httpg://storm.example/test", "gsiftp://whatever/test"};
 
   public static final String EXPECTED_HEADER = org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE;

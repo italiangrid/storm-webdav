@@ -40,7 +40,7 @@ public class TransferStatsTest {
   TransferStatus.Builder status = TransferStatus.builder(clock);
 
   @Test
-  public void testByteCountPull() {
+  void testByteCountPull() {
 
     GetTransferRequest req = GetTransferRequestBuilder.create().build();
 
@@ -57,7 +57,7 @@ public class TransferStatsTest {
   }
 
   @Test
-  public void testOneMsecByteCountPull() {
+  void testOneMsecByteCountPull() {
 
     GetTransferRequest req = GetTransferRequestBuilder.create().build();
     req.setTransferStatus(status.inProgress(0));
@@ -72,7 +72,7 @@ public class TransferStatsTest {
   }
 
   @Test
-  public void testHalfMsecByteCountPull() {
+  void testHalfMsecByteCountPull() {
 
     GetTransferRequest req = GetTransferRequestBuilder.create().build();
     req.setTransferStatus(status.inProgress(0));

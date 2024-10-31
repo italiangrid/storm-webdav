@@ -23,7 +23,7 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.NottableString.not;
 import static org.mockserver.verify.VerificationTimes.exactly;
-import static org.springframework.util.SocketUtils.findAvailableTcpPort;
+import static org.springframework.test.util.TestSocketUtils.findAvailableTcpPort;
 
 import java.net.URI;
 import java.util.UUID;
@@ -70,7 +70,7 @@ public class TpcIntegrationTest {
 
   @BeforeAll
   public static void startMockServer() {
-    port = findAvailableTcpPort(15000);
+    port = findAvailableTcpPort();
     mockServer = startClientAndServer(port);
   }
 
@@ -89,7 +89,7 @@ public class TpcIntegrationTest {
   }
 
   @Test
-  public void testPutRedirectHandled() {
+  void testPutRedirectHandled() {
     Multimap<String, String> emptyHeaders = ArrayListMultimap.create();
 
     PutTransferRequest putRequest = new PutTransferRequestImpl(UUID.randomUUID().toString(),
@@ -118,7 +118,7 @@ public class TpcIntegrationTest {
   }
 
   @Test
-  public void testAuthorizationHeaderIsDroppedOnRedirectForPut() {
+  void testAuthorizationHeaderIsDroppedOnRedirectForPut() {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
@@ -149,7 +149,7 @@ public class TpcIntegrationTest {
   }
 
   @Test
-  public void testAuthorizationHeaderIsDroppedOnRedirectForGet() {
+  void testAuthorizationHeaderIsDroppedOnRedirectForGet() {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 

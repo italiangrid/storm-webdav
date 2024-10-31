@@ -24,18 +24,18 @@ import org.junit.jupiter.api.Test;
 
 public class VOMSMapTests {
 
-	public static final String mySubject = "CN=Andrea Ceccanti,L=CNAF,OU=Personal Certificate,O=INFN,C=IT";
+	public static final String MY_SUBJECT = "CN=Andrea Ceccanti,L=CNAF,OU=Personal Certificate,O=INFN,C=IT";
 	@Test
-	public void VOMapParserTest() {
+	void VOMapParserTest() {
 
-		MapfileVOMembershipSource m = new MapfileVOMembershipSource("testers", 
+		MapfileVOMembershipSource m = new MapfileVOMembershipSource("testers",
 			new File("src/test/resources/vomsmap/testers.map"));
-		
+
 		Assert.assertEquals("testers",m.getVOName());
-		Assert.assertTrue(m.getVOMembers().contains(mySubject));
-		
+		Assert.assertTrue(m.getVOMembers().contains(MY_SUBJECT));
+
 		Assert.assertFalse(m.getVOMembers().contains("CN=I am not Real, L=CNAF"));
-		
+
 	}
 
 }

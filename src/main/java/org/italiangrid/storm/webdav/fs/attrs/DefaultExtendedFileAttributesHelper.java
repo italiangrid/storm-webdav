@@ -31,6 +31,9 @@ import java.util.List;
 public class DefaultExtendedFileAttributesHelper implements
   ExtendedAttributesHelper {
 
+  private static final String USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE =
+      "UserDefinedFileAttributeView not supported on file ";
+
   public static final String STORM_ADLER32_CHECKSUM_ATTR_NAME = "storm.checksum.adler32";
 
   public DefaultExtendedFileAttributesHelper() {
@@ -62,8 +65,7 @@ public class DefaultExtendedFileAttributesHelper implements
 
     if (faView == null) {
       throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
+          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
     }
 
     faView.write(attributeName, StandardCharsets.UTF_8.encode(attributeValue));
@@ -75,14 +77,13 @@ public class DefaultExtendedFileAttributesHelper implements
 
     checkNotNull(f);
     checkArgument(!isNullOrEmpty(attributeName));
-    
+
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 
     if (faView == null) {
       throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
+          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
     }
 
     return getAttributeValue(faView, attributeName);
@@ -93,14 +94,13 @@ public class DefaultExtendedFileAttributesHelper implements
   public List<String> getExtendedFileAttributeNames(File f) throws IOException {
 
     checkNotNull(f);
-    
+
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 
     if (faView == null) {
       throw new IOException(
-        "UserDefinedFileAttributeView not supported on file "
-          + f.getAbsolutePath());
+          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
     }
 
     return faView.list();
@@ -127,7 +127,7 @@ public class DefaultExtendedFileAttributesHelper implements
   public boolean fileSupportsExtendedAttributes(File f) throws IOException {
 
     checkNotNull(f);
-    
+
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
 
@@ -137,7 +137,7 @@ public class DefaultExtendedFileAttributesHelper implements
   @Override
   public void setChecksumAttribute(Path p, String checksumValue) throws IOException {
     setChecksumAttribute(p.toFile(), checksumValue);
-    
+
   }
 
   @Override

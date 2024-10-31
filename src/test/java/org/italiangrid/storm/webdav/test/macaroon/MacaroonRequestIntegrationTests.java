@@ -95,19 +95,19 @@ public class MacaroonRequestIntegrationTests {
   }
 
   @Test
-  public void getNotSupported() throws Exception {
+  void getNotSupported() throws Exception {
     mvc.perform(get("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  public void emptyRequestFails() throws Exception {
+  void emptyRequestFails() throws Exception {
     mvc.perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE))
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  public void vomsRequired() throws Exception {
+  void vomsRequired() throws Exception {
     mvc
       .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
         .content(EMPTY_JSON_OBJECT))
@@ -116,7 +116,7 @@ public class MacaroonRequestIntegrationTests {
 
   @Test
   @WithMockVOMSUser
-  public void macaroonIssued() throws Exception {
+  void macaroonIssued() throws Exception {
     mvc
       .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
         .content(EMPTY_JSON_OBJECT))
@@ -127,7 +127,7 @@ public class MacaroonRequestIntegrationTests {
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 43200)
-  public void validityEnforced() throws Exception {
+  void validityEnforced() throws Exception {
 
     MacaroonRequestDTO dto = new MacaroonRequestDTO();
     dto.setValidity("PT2H");

@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 public class PathResolverTests {
 
-  private final String ROOTDIR = "/storage";
+  private static final String ROOTDIR = "/storage";
 
   /*
    * Map SA-name -> VO name
@@ -93,29 +93,29 @@ public class PathResolverTests {
   }
 
   @Test
-  public void checkResolvedRootPath() {
+  void checkResolvedRootPath() {
 
     for (String name : input.keySet()) {
 
       String pathToTest = "/".concat(name).concat("/testdir");
       String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
         .concat("/testdir");
-      
+
       String rootPath = pathResolver.resolvePath(pathToTest);
       Assert.assertEquals(expectedRootPath, rootPath);
     }
 
   }
-  
+
   @Test
-  public void checkResolvedStorageArea() {
+  void checkResolvedStorageArea() {
 
     for (String name : input.keySet()) {
 
       String pathToTest = "/".concat(name).concat("/testdir");
       String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
         .concat("/testdir");
-      
+
       StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
       Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
     }

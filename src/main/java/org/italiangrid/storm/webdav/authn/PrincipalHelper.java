@@ -43,13 +43,11 @@ public class PrincipalHelper {
 
   public String getPrincipalAsString(Authentication authn) {
     if (authn == null || authn instanceof AnonymousAuthenticationToken) {
-      return "anonymous";
+      return ANONYMOUS;
     } else if (authn instanceof OAuth2AuthenticationToken) {
       OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authn;
       Map<String, Object> attributes = authToken.getPrincipal().getAttributes();
-      String subjectIssuer = String.format("%s@%s", attributes.get("sub"), attributes.get("iss"));
-      return subjectIssuer;
-
+      return String.format("%s@%s", attributes.get("sub"), attributes.get("iss"));
     } else if (authn instanceof PreAuthenticatedAuthenticationToken) {
       return authn.getName();
     } else if (authn instanceof JwtAuthenticationToken) {

@@ -31,8 +31,9 @@ import com.google.common.collect.Sets;
 
 public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(AudienceValidator.class);
+  public static final Logger LOG = LoggerFactory.getLogger(WlcgProfileValidator.class);
 
+  public static final String INVALID_TOKEN_ERROR_CODE = "invalid_token";
   public static final String WLCG_VER_CLAIM = "wlcg.ver";
   public static final String SCOPE_CLAIM = "scope";
 
@@ -40,25 +41,25 @@ public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
       Collections.unmodifiableSet(Sets.newHashSet("1.0"));
 
   private static final OAuth2Error INVALID_PROFILE_VERSION =
-      new OAuth2Error("invalid_token", "Unsupported WLCG token profile version", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "Unsupported WLCG token profile version", null);
 
   private static final OAuth2Error MISSING_SCOPE =
-      new OAuth2Error("invalid_token", "scope claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "scope claim not found in token", null);
 
   private static final OAuth2Error MISSING_NBF =
-      new OAuth2Error("invalid_token", "nbf claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "nbf claim not found in token", null);
 
   private static final OAuth2Error MISSING_EXP =
-      new OAuth2Error("invalid_token", "exp claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "exp claim not found in token", null);
 
   private static final OAuth2Error MISSING_SUB =
-      new OAuth2Error("invalid_token", "sub claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "sub claim not found in token", null);
 
   private static final OAuth2Error MISSING_AUD =
-      new OAuth2Error("invalid_token", "aud claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "aud claim not found in token", null);
 
   private static final OAuth2Error MISSING_JTI =
-      new OAuth2Error("invalid_token", "jti claim not found in token", null);
+      new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "jti claim not found in token", null);
 
   private static final OAuth2TokenValidatorResult SUCCESS = OAuth2TokenValidatorResult.success();
 
@@ -76,7 +77,7 @@ public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
       return OAuth2TokenValidatorResult.failure(INVALID_PROFILE_VERSION);
     }
 
-    if (Boolean.FALSE.equals(token.containsClaim(SCOPE_CLAIM))) {
+    if (!token.hasClaim(SCOPE_CLAIM)) {
       return OAuth2TokenValidatorResult.failure(MISSING_SCOPE);
     }
 

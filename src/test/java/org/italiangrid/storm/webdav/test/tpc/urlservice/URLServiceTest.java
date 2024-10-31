@@ -29,13 +29,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class URLServiceTest {
+class URLServiceTest {
 
   public static final String[] SERVICE_ALIASES =
       {"storm.example", "alias.storm.example", "localhost"};
 
   @Test
-  public void testEmptyList() {
+  void testEmptyList() {
 
     assertThrows(IllegalArgumentException.class, () -> {
       new StaticHostListLocalURLService(Collections.emptyList());
@@ -43,7 +43,7 @@ public class URLServiceTest {
   }
 
   @Test
-  public void testNullList() {
+  void testNullList() {
 
     assertThrows(NullPointerException.class, () -> {
       new StaticHostListLocalURLService(null);
@@ -51,7 +51,7 @@ public class URLServiceTest {
   }
 
   @Test
-  public void testResolution() {
+  void testResolution() {
     StaticHostListLocalURLService service =
         new StaticHostListLocalURLService(Arrays.asList(SERVICE_ALIASES));
 
@@ -66,7 +66,7 @@ public class URLServiceTest {
   }
 
   @Test
-  public void testInvalidUrlResolution() {
+  void testInvalidUrlResolution() {
 
     StaticHostListLocalURLService service =
         new StaticHostListLocalURLService(Arrays.asList(SERVICE_ALIASES));

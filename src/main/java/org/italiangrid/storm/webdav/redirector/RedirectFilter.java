@@ -35,7 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.common.base.Strings;
 
-public class RedirectFilter implements Filter, TpcUtils, RedirectConstants {
+public class RedirectFilter implements Filter, TpcUtils {
   public static final String LOCATION = "Location";
 
   public static final String NO_REDIRECT_QUERY_PARAM = "no_redirect";
@@ -93,7 +93,7 @@ public class RedirectFilter implements Filter, TpcUtils, RedirectConstants {
 
 
   private boolean requestDoesNotHaveAccessToken(HttpServletRequest req) {
-    String accessToken = req.getParameter(ACCESS_TOKEN_PARAMETER);
+    String accessToken = req.getParameter(RedirectConstants.ACCESS_TOKEN_PARAMETER);
     return Strings.isNullOrEmpty(accessToken);
   }
 

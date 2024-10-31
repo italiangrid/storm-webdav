@@ -28,6 +28,7 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.ConfigAttribute;
@@ -57,7 +58,7 @@ public class WlcgScopeAuthzCopyMoveVoter extends PathAuthzPdpVoterSupport {
       return ACCESS_ABSTAIN;
     }
 
-    String destination = filter.getRequest().getHeader(DESTINATION_HEADER);
+    String destination = filter.getRequest().getHeader(TransferConstants.DESTINATION_HEADER);
 
     if (destination == null) {
       return ACCESS_ABSTAIN;

@@ -21,13 +21,7 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.NottableString.not;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
-import java.io.IOException;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
 import java.util.UUID;
 
 import javax.net.ssl.SSLContext;
@@ -93,8 +87,7 @@ public class TpcClientRedirectionTest {
     @Bean("tpcConnectionManager")
     @Primary
     public HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
-        ServiceConfiguration conf) throws KeyStoreException, CertificateException, IOException,
-        NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
+        ServiceConfiguration conf) {
 
       SSLContext ctx = KeyStoreFactory.keyStoreFactory().sslContext();
       ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
@@ -144,7 +137,7 @@ public class TpcClientRedirectionTest {
   }
 
   @Test
-  public void handleCrossProtocolRedirectionCorrectly() {
+  void handleCrossProtocolRedirectionCorrectly() {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 

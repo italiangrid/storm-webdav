@@ -94,7 +94,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresPlainHttpRequests() throws IOException, ServletException {
+  void filterIgnoresPlainHttpRequests() throws IOException, ServletException {
     when(request.getScheme()).thenReturn("http");
 
     filter.doFilter(request, response, filterChain);
@@ -104,7 +104,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresPlainDavRequests() throws IOException, ServletException {
+  void filterIgnoresPlainDavRequests() throws IOException, ServletException {
     when(request.getScheme()).thenReturn("dav");
 
     filter.doFilter(request, response, filterChain);
@@ -114,7 +114,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresRequestWithAccessToken() throws IOException, ServletException {
+  void filterIgnoresRequestWithAccessToken() throws IOException, ServletException {
     when(request.getParameter("access_token")).thenReturn(RANDOM_TOKEN_STRING);
 
     filter.doFilter(request, response, filterChain);
@@ -124,7 +124,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresRequestWithNoRedirect() throws IOException, ServletException {
+  void filterIgnoresRequestWithNoRedirect() throws IOException, ServletException {
     Map<String, String[]> parameterMap = Maps.newHashMap();
     parameterMap.put("no_redirect", new String[] {});
 
@@ -137,7 +137,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresDirectoryRequest() throws IOException, ServletException {
+  void filterIgnoresDirectoryRequest() throws IOException, ServletException {
 
     when(file.isFile()).thenReturn(false);
 
@@ -148,7 +148,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterIgnoresResourceNotFound() throws IOException, ServletException {
+  void filterIgnoresResourceNotFound() throws IOException, ServletException {
 
     when(pathResolver.getPath("/example/file")).thenReturn(null);
 
@@ -159,13 +159,13 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   }
 
   @Test
-  public void filterSendsRedirect() throws IOException, ServletException {
+  void filterSendsRedirect() throws IOException, ServletException {
 
 
     filter.doFilter(request, response, filterChain);
     verify(redirectionService).buildRedirect(Mockito.any(), Mockito.eq(request),
         Mockito.eq(response));
-    verify(response).setStatus(Mockito.eq(SC_TEMPORARY_REDIRECT));
+    verify(response).setStatus(SC_TEMPORARY_REDIRECT);
     verify(response).setHeader(Mockito.eq("Location"), redirectUrl.capture());
 
     assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));

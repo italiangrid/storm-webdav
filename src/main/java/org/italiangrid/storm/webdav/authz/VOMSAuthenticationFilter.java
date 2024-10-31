@@ -50,9 +50,9 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 
   public Object extractPrincipal(X509Certificate cert) {
 
-    return cert.getSubjectDN().getName();
+    return cert.getSubjectX500Principal().getName();
   }
-  
+
   @Override
   public boolean principalChanged(HttpServletRequest request,
       Authentication currentAuthentication) {

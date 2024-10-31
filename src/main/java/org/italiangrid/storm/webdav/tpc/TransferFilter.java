@@ -108,7 +108,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     try {
 
       if (validRequest(request, response)) {
-        Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
+        Optional<String> source =
+            Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER));
         SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
         if (source.isPresent()) {
           handlePullCopy(request, response, scitag);
@@ -123,7 +124,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   }
 
   private void setupLoggingContext(HttpServletRequest request) {
-    Optional<String> clientInfoHeader = Optional.ofNullable(request.getHeader(CLIENT_INFO_HEADER));
+    Optional<String> clientInfoHeader =
+        Optional.ofNullable(request.getHeader(TransferConstants.CLIENT_INFO_HEADER));
 
     if (clientInfoHeader.isPresent()) {
       try {
@@ -147,8 +149,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
     LOG.info(
         "Pull third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
-        req.remoteURI(), req.path(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER),
-        req.uuid());
+        req.remoteURI(), req.path(),
+        req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER), req.uuid());
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
     }
@@ -157,8 +159,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   protected void logTransferStart(PutTransferRequest req) {
     LOG.info(
         "Push third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
-        req.path(), req.remoteURI(), req.transferHeaders().containsKey(AUTHORIZATION_HEADER),
-        req.uuid());
+        req.path(), req.remoteURI(),
+        req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER), req.uuid());
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
     }
@@ -215,7 +217,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   protected void handlePullCopy(HttpServletRequest request, HttpServletResponse response,
       SciTag scitag) throws IOException {
 
-    URI uri = URI.create(request.getHeader(SOURCE_HEADER));
+    URI uri = URI.create(request.getHeader(TransferConstants.SOURCE_HEADER));
     String path = getScopedPathInfo(request);
 
     GetTransferRequest xferRequest = GetTransferRequestBuilder.create()
@@ -254,7 +256,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   protected void handlePushCopy(HttpServletRequest request, HttpServletResponse response,
       SciTag scitag) throws IOException {
-    URI uri = URI.create(request.getHeader(DESTINATION_HEADER));
+    URI uri = URI.create(request.getHeader(TransferConstants.DESTINATION_HEADER));
     String path = getScopedPathInfo(request);
 
     PutTransferRequest xferRequest = PutTransferRequestBuilder.create()

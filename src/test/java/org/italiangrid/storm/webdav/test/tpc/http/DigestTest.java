@@ -37,7 +37,7 @@ public class DigestTest {
   @Mock
   Header header;
 
-  public static String[] INVALID_HEADERS =
+  public static final String[] INVALID_HEADERS =
       {"", "adler54=1233456", "adler32=8a23d4f889", "sha256:437648", null};
 
   public static final String[] VALID_HEADERS =
@@ -51,7 +51,7 @@ public class DigestTest {
   }
 
   @Test
-  public void testInvalidHeader() {
+  void testInvalidHeader() {
 
     for (String s : INVALID_HEADERS) {
       instrumentResponse(s);

@@ -21,7 +21,7 @@ public class ResourceAccessTokenRequest {
     r,
     w,
     rw
-  };
+  }
 
   final String path;
   final Permission permission;

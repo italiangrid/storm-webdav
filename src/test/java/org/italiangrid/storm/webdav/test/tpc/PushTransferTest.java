@@ -37,27 +37,29 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 
 import com.google.common.collect.Multimap;
 
 @ExtendWith(MockitoExtension.class)
-public class PushTransferTest extends TransferFilterTestSupport {
+class PushTransferTest extends TransferFilterTestSupport {
 
 
+  @Override
   @BeforeEach
   public void setup() throws IOException {
     super.setup();
     lenient().when(request.getMethod()).thenReturn(COPY.name());
     lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
     lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    lenient().when(request.getHeader(DESTINATION_HEADER)).thenReturn(HTTPS_URL);
+    lenient().when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(HTTPS_URL);
     lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(true);
-    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(CLIENT_INFO_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(OVERWRITE_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(CREDENTIAL_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.CLIENT_INFO_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn(null);
   }
 
 
@@ -81,7 +83,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
   @Test
   void overwriteHeaderRecognized() throws IOException, ServletException {
-    when(request.getHeader(OVERWRITE_HEADER)).thenReturn("F");
+    when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn("F");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
@@ -94,7 +96,7 @@ public class PushTransferTest extends TransferFilterTestSupport {
 
   @Test
   void checksumRecognized() throws IOException, ServletException {
-    when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
+    when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));

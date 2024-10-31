@@ -87,7 +87,7 @@ public class SecurityConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
-  private final static List<String> ALLOWED_METHODS;
+  private static final List<String> ALLOWED_METHODS;
 
   static {
     ALLOWED_METHODS = Lists.newArrayList();

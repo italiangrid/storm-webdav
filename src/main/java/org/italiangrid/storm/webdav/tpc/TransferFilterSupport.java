@@ -46,7 +46,7 @@ import org.springframework.http.HttpStatus;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class TransferFilterSupport implements TransferConstants, TpcUtils {
+public class TransferFilterSupport implements TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
 
@@ -81,8 +81,8 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
     while (headerNames.hasMoreElements()) {
       String headerName = headerNames.nextElement();
 
-      if (headerName.toLowerCase().startsWith(TRANSFER_HEADER_LC)) {
-        String xferHeaderName = headerName.substring(TRANFER_HEADER_LENGTH);
+      if (headerName.toLowerCase().startsWith(TransferConstants.TRANSFER_HEADER_LC)) {
+        String xferHeaderName = headerName.substring(TransferConstants.TRANFER_HEADER_LENGTH);
         if (xferHeaderName.trim().length() == 0) {
           LOG.warn("Ignoring invalid transfer header {}", headerName);
           continue;
@@ -109,7 +109,7 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
   protected boolean verifyChecksumRequested(HttpServletRequest request) {
     Optional<String> verifyChecksumFromHeader =
-        Optional.ofNullable(request.getHeader(REQUIRE_CHECKSUM_HEADER));
+        Optional.ofNullable(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER));
 
     if (verifyChecksumFromHeader.isPresent()) {
       return "true".equals(verifyChecksumFromHeader.get());
@@ -119,7 +119,8 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
   }
 
   protected boolean overwriteRequested(HttpServletRequest request) {
-    Optional<String> overwrite = Optional.ofNullable(request.getHeader(OVERWRITE_HEADER));
+    Optional<String> overwrite =
+        Optional.ofNullable(request.getHeader(TransferConstants.OVERWRITE_HEADER));
 
     if (overwrite.isPresent()) {
       return "T".equalsIgnoreCase(overwrite.get());
@@ -130,7 +131,7 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
 
   protected boolean isSupportedTransferURI(URI uri) {
-    return SUPPORTED_PROTOCOLS.contains(uri.getScheme()) && uri.getPath() != null;
+    return TransferConstants.SUPPORTED_PROTOCOLS.contains(uri.getScheme()) && uri.getPath() != null;
   }
 
   protected boolean validTransferURI(String xferUri) {
@@ -242,26 +243,33 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
   protected boolean validRequest(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    Optional<String> source = Optional.ofNullable(request.getHeader(SOURCE_HEADER));
-    Optional<String> dest = Optional.ofNullable(request.getHeader(DESTINATION_HEADER));
-    Optional<String> overwrite = Optional.ofNullable(request.getHeader(OVERWRITE_HEADER));
-    Optional<String> checksum = Optional.ofNullable(request.getHeader(REQUIRE_CHECKSUM_HEADER));
-    Optional<String> credential = Optional.ofNullable(request.getHeader(CREDENTIAL_HEADER));
+    Optional<String> source =
+        Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER));
+    Optional<String> dest =
+        Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
+    Optional<String> overwrite =
+        Optional.ofNullable(request.getHeader(TransferConstants.OVERWRITE_HEADER));
+    Optional<String> checksum =
+        Optional.ofNullable(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER));
+    Optional<String> credential =
+        Optional.ofNullable(request.getHeader(TransferConstants.CREDENTIAL_HEADER));
 
     if (source.isPresent() && dest.isPresent()) {
       invalidRequest(response, "Source and Destination headers are both present!");
       return false;
     }
 
-    if (source.isPresent() && !validTransferURI(request.getHeader(SOURCE_HEADER))) {
-      invalidRequest(response,
-          format("Invalid %s header: %s", SOURCE_HEADER, request.getHeader(SOURCE_HEADER)));
+    if (source.isPresent()
+        && !validTransferURI(request.getHeader(TransferConstants.SOURCE_HEADER))) {
+      invalidRequest(response, format("Invalid %s header: %s", TransferConstants.SOURCE_HEADER,
+          request.getHeader(TransferConstants.SOURCE_HEADER)));
       return false;
     }
 
-    if (dest.isPresent() && !validTransferURI(request.getHeader(DESTINATION_HEADER))) {
-      invalidRequest(response, format("Invalid %s header: %s", DESTINATION_HEADER,
-          request.getHeader(DESTINATION_HEADER)));
+    if (dest.isPresent()
+        && !validTransferURI(request.getHeader(TransferConstants.DESTINATION_HEADER))) {
+      invalidRequest(response, format("Invalid %s header: %s", TransferConstants.DESTINATION_HEADER,
+          request.getHeader(TransferConstants.DESTINATION_HEADER)));
       return false;
     }
 
@@ -284,7 +292,8 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
       }
 
       if (invalidOverwrite) {
-        invalidRequest(response, format("Invalid %s header value: %s", OVERWRITE_HEADER, val));
+        invalidRequest(response,
+            format("Invalid %s header value: %s", TransferConstants.OVERWRITE_HEADER, val));
         return false;
       }
     }
@@ -301,12 +310,13 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
       if (invalidChecksum) {
         invalidRequest(response,
-            format("Invalid %s header value: %s", REQUIRE_CHECKSUM_HEADER, val));
+            format("Invalid %s header value: %s", TransferConstants.REQUIRE_CHECKSUM_HEADER, val));
         return false;
       }
     }
 
-    if (credential.isPresent() && !CREDENTIAL_HEADER_NONE_VALUE.equals(credential.get())) {
+    if (credential.isPresent()
+        && !TransferConstants.CREDENTIAL_HEADER_NONE_VALUE.equals(credential.get())) {
       invalidRequest(response, "Unsupported Credential header value: " + credential.get());
       return false;
     }

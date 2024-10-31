@@ -36,10 +36,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 
 @ExtendWith(MockitoExtension.class)
-public class TransferRequestValidationTest extends TransferFilterTestSupport {
+class TransferRequestValidationTest extends TransferFilterTestSupport {
 
+  @Override
   @BeforeEach
   public void setup() throws IOException {
     super.setup();
@@ -49,18 +51,18 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
     lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
-    lenient().when(request.getHeader(SOURCE_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(OVERWRITE_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(DESTINATION_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(CLIENT_INFO_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(CREDENTIAL_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.CLIENT_INFO_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
   }
 
   @Test
-  public void sourceAndDestHeaderPresent() throws IOException, ServletException {
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeader(DESTINATION_HEADER)).thenReturn(HTTP_URL);
+  void sourceAndDestHeaderPresent() throws IOException, ServletException {
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(HTTP_URL);
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
@@ -69,9 +71,9 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void invalidDestinationURIs() throws IOException, ServletException {
+  void invalidDestinationURIs() throws IOException, ServletException {
     for (String u : INVALID_URLs) {
-      when(request.getHeader(DESTINATION_HEADER)).thenReturn(u);
+      when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
       assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
@@ -82,9 +84,9 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
 
 
   @Test
-  public void invalidSourceURIs() throws IOException, ServletException {
+  void invalidSourceURIs() throws IOException, ServletException {
     for (String u : INVALID_URLs) {
-      when(request.getHeader(SOURCE_HEADER)).thenReturn(u);
+      when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
       assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
@@ -94,14 +96,14 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void invalidOverwriteHeader() throws IOException, ServletException {
+  void invalidOverwriteHeader() throws IOException, ServletException {
 
     String[] invalidValues = {"", "cccc", "whatever", "true", "false"};
 
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
 
     for (String s : invalidValues) {
-      when(request.getHeader(OVERWRITE_HEADER)).thenReturn(s);
+      when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(s);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
       assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
@@ -111,12 +113,12 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void invalidRequireChecksumHeader() throws IOException, ServletException {
+  void invalidRequireChecksumHeader() throws IOException, ServletException {
     String[] invalidValues = {"t", "F", ""};
 
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
     for (String s : invalidValues) {
-      when(request.getHeader(REQUIRE_CHECKSUM_HEADER)).thenReturn(s);
+      when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(s);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
       assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
@@ -126,8 +128,8 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void emptyOrNullPathInfo() throws IOException, ServletException {
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
+  void emptyOrNullPathInfo() throws IOException, ServletException {
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
 
     String[] invalidPathInfos = {null, "", "does/not/start/with/slash"};
     String[] expectedErrorMsgs = {"Null or empty", "Null or empty", "Invalid local path"};
@@ -145,9 +147,9 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void invalidCredentialHeader() throws IOException, ServletException {
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("gridsite");
+  void invalidCredentialHeader() throws IOException, ServletException {
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn("gridsite");
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_BAD_REQUEST));
@@ -155,9 +157,9 @@ public class TransferRequestValidationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  public void noneCredentialHeaderAccepted() throws IOException, ServletException {
-    when(request.getHeader(SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeader(CREDENTIAL_HEADER)).thenReturn("none");
+  void noneCredentialHeaderAccepted() throws IOException, ServletException {
+    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
+    when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn("none");
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
 
