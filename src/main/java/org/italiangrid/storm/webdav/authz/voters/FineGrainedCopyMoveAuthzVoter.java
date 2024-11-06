@@ -72,7 +72,7 @@ public class FineGrainedCopyMoveAuthzVoter extends PathAuthzPdpVoterSupport {
         return ACCESS_ABSTAIN;
       }
 
-      if (Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
+      if (!sa.fineGrainedAuthzEnabled()) {
         return ACCESS_ABSTAIN;
       }
 

@@ -48,7 +48,7 @@ public class FineGrainedAuthzVoter extends PathAuthzPdpVoterSupport {
     final String requestPath = getRequestPath(filter.getHttpRequest());
     StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
 
-    if (isNull(sa) || Boolean.FALSE.equals(sa.fineGrainedAuthzEnabled())) {
+    if (isNull(sa) || !sa.fineGrainedAuthzEnabled()) {
       return ACCESS_ABSTAIN;
     }
 

@@ -54,18 +54,18 @@ public class GrantedAuthoritiesMapperSupport {
     }
 
     for (StorageAreaInfo sa : conf.getStorageAreaInfo()) {
-      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())) {
+      if (sa.anonymousReadEnabled()) {
         anonymousGrantedAuthorities.add(SAPermission.canRead(sa.name()));
       }
     }
   }
 
   protected void addSaGrantedAuthorities(StorageAreaInfo sa, String issuer) {
-    if (Boolean.TRUE.equals(sa.orgsGrantReadPermission())) {
+    if (sa.orgsGrantReadPermission()) {
       authzMap.put(issuer, SAPermission.canRead(sa.name()));
     }
 
-    if (Boolean.TRUE.equals(sa.orgsGrantWritePermission())) {
+    if (sa.orgsGrantWritePermission()) {
       authzMap.put(issuer, SAPermission.canWrite(sa.name()));
     }
 
