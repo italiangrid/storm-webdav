@@ -34,7 +34,7 @@ public class GrantedAuthoritiesMapperSupport {
   protected final Multimap<String, GrantedAuthority> authzMap = ArrayListMultimap.create();
   protected final AuthorizationServerProperties authzServerProperties;
 
-  public static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups"};
+  public static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
   public static final String SCOPE_CLAIM_NAME = "scope";
 
   protected final Set<GrantedAuthority> anonymousGrantedAuthorities = Sets.newHashSet();
