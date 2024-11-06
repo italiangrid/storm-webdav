@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport.OAUTH_GROUP_CLAIM_NAMES;
 
 import java.net.URI;
 
@@ -275,7 +276,24 @@ public class AuthorizationIntegrationTests {
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
       .andExpect(status().isForbidden());
+  }
 
+  @Test
+  void readWriteAccessAsJwtWithAllowedGroup() throws Exception {
+
+    for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
+      Jwt token = Jwt.withTokenValue("test")
+        .header("kid", "rsa1")
+        .issuer(EXAMPLE_ISSUER)
+        .claim(groupClaim, "/example/admins")
+        .build();
+
+      mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isNotFound());
+
+      mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isOk());
+    }
   }
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
