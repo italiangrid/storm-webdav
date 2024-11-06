@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oidc;
 
-import static java.util.Objects.isNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +49,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
 
     for (String groupClaimName : OAUTH_GROUP_CLAIM_NAMES) {
       List<String> groups = userAuthority.getIdToken().getClaimAsStringList(groupClaimName);
-      if (!isNull(groups)) {
+      if (groups != null) {
         groups.stream()
           .map(g -> new JwtGroupAuthority(idTokenIssuer, g))
           .forEach(groupAuthorities::add);

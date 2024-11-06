@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.authz.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.nonNull;
 
 import java.nio.file.Path;
 import java.util.regex.Matcher;
@@ -33,7 +32,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   public static final Logger LOG = LoggerFactory.getLogger(StructuredPathScopeMatcher.class);
 
   private static final Pattern POINT_DIR_MATCHER = Pattern.compile("\\.\\./?");
-  
+
   private static final Character SEP = ':';
   private static final String SEP_STR = SEP.toString();
 
@@ -55,24 +54,24 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
 
   @Override
   public boolean matchesScope(String scope) {
-    checkArgument(nonNull(scope), "scope must be non-null");
+    checkArgument(scope != null, "scope must be non-null");
 
     if (POINT_DIR_MATCHER.matcher(scope).find()) {
       throw new IllegalArgumentException("Scope contains relative path references");
     }
 
     Matcher prefixMatcher = prefixMatchPattern.matcher(scope);
-    
+
     boolean prefixMatches = prefixMatcher.find();
-    
+
     if (prefixMatches) {
       final String scopePath = scope.substring(prefix.length() + 1);
-      return pathMatchPattern.matcher(scopePath).matches(); 
+      return pathMatchPattern.matcher(scopePath).matches();
     } else {
       return false;
     }
   }
-  
+
   public boolean matchesPath(String path) {
     return pathMatchPattern.matcher(path).matches();
   }
@@ -81,7 +80,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
     Path targetPath = Path.of(path);
     return this.path.startsWith(targetPath) || matchesPath(path);
   }
-  
+
   public static StructuredPathScopeMatcher fromString(String scope) {
     final int sepIndex = scope.indexOf(SEP);
     final String prefix = scope.substring(0, sepIndex);
@@ -143,5 +142,5 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   public String getPath() {
     return path.toString();
   }
-  
+
 }

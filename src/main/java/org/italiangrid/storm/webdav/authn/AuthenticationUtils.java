@@ -15,10 +15,7 @@
  */
 package org.italiangrid.storm.webdav.authn;
 
-import static java.util.Objects.isNull;
-
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,7 +30,7 @@ public class AuthenticationUtils {
   }
 
   public static String getPalatableSubject(Authentication authn) {
-    if (Objects.isNull(authn) || authn instanceof AnonymousAuthenticationToken) {
+    if (authn == null || authn instanceof AnonymousAuthenticationToken) {
       return "Anonymous user";
     } else if (authn instanceof OAuth2AuthenticationToken) {
       OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authn;
@@ -41,7 +38,7 @@ public class AuthenticationUtils {
 
       String subjectIssuer = String.format("%s @ %s", attributes.get("sub"), attributes.get("iss"));
 
-      if (!isNull(attributes.get("name"))) {
+      if (attributes.get("name") != null) {
         return (String) attributes.get("name");
       }
 

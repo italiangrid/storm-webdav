@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.authz.pdp;
 
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.deny;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.indeterminate;
@@ -181,13 +180,13 @@ public class WlcgStructuredPathAuthorizationPdp
 
     JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
 
-    if (isNull(jwtAuth.getToken().getClaimAsString(SCOPE_CLAIM))) {
+    if (jwtAuth.getToken().getClaimAsString(SCOPE_CLAIM) == null) {
       return indeterminate(ERROR_INVALID_TOKEN_NO_SCOPE);
     }
 
     StorageAreaInfo sa = pathResolver.resolveStorageArea(requestPath);
 
-    if (isNull(sa)) {
+    if (sa == null) {
       return indeterminate(ERROR_SA_NOT_FOUND);
     }
 

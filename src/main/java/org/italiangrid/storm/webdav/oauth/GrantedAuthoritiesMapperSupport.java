@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth;
 
-import static java.util.Objects.isNull;
-
 import java.util.Collection;
 import java.util.Set;
 
@@ -48,7 +46,7 @@ public class GrantedAuthoritiesMapperSupport {
     authzServerProperties = props.getAuthzServer();
 
     for (StorageAreaInfo sa : conf.getStorageAreaInfo()) {
-      if (!isNull(sa.orgs())) {
+      if (sa.orgs() != null) {
         sa.orgs().forEach(i -> addSaGrantedAuthorities(sa, i));
       }
     }

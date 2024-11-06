@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.oauth.validator;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.isNull;
 
 import java.util.Collections;
 import java.util.Set;
@@ -81,23 +80,23 @@ public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
       return OAuth2TokenValidatorResult.failure(MISSING_SCOPE);
     }
 
-    if (isNull(token.getNotBefore())) {
+    if (token.getNotBefore() == null) {
       return OAuth2TokenValidatorResult.failure(MISSING_NBF);
     }
 
-    if (isNull(token.getExpiresAt())) {
+    if (token.getExpiresAt() == null) {
       return OAuth2TokenValidatorResult.failure(MISSING_EXP);
     }
 
-    if (isNull(token.getSubject())) {
+    if (token.getSubject() == null) {
       return OAuth2TokenValidatorResult.failure(MISSING_SUB);
     }
 
-    if (isNull(token.getAudience()) || token.getAudience().isEmpty()) {
+    if (token.getAudience() == null || token.getAudience().isEmpty()) {
       return OAuth2TokenValidatorResult.failure(MISSING_AUD);
     }
-    
-    if (isNull(token.getId())) {
+
+    if (token.getId() == null) {
       return OAuth2TokenValidatorResult.failure(MISSING_JTI);
     }
 

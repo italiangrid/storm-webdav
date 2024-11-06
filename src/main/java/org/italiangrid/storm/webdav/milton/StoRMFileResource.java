@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.milton;
 
 import static io.milton.property.PropertySource.PropertyAccessibility.READ_ONLY;
-import static java.util.Objects.isNull;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -126,7 +125,7 @@ public class StoRMFileResource extends StoRMResource
   protected void validateRange(Range range) {
     long fileSize = getFile().length();
 
-    if (isNull(range.getStart())) {
+    if (range.getStart() == null) {
       throw new StoRMWebDAVError("Invalid range: range start not defined");
     }
 
@@ -134,7 +133,7 @@ public class StoRMFileResource extends StoRMResource
       throw new StoRMWebDAVError("Invalid range: range start out of bounds");
     }
 
-    if (!isNull(range.getFinish()) && range.getFinish() > fileSize) {
+    if (range.getFinish() != null && range.getFinish() > fileSize) {
       throw new StoRMWebDAVError("Invalid range: range end out of bounds");
     }
   }
@@ -147,7 +146,7 @@ public class StoRMFileResource extends StoRMResource
     long rangeStart = range.getStart();
     long rangeEnd = getFile().length();
 
-    if (!isNull(range.getFinish()) && range.getFinish() < rangeEnd) {
+    if (range.getFinish() != null && range.getFinish() < rangeEnd) {
       rangeEnd = range.getFinish();
     }
 

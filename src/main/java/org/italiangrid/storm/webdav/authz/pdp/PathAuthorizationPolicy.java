@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.authz.pdp;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -158,7 +157,7 @@ public class PathAuthorizationPolicy {
     }
 
     public PathAuthorizationPolicy build() {
-      if (Objects.isNull(id)) {
+      if (id == null) {
         id = UUID.randomUUID().toString();
       }
       return new PathAuthorizationPolicy(this);

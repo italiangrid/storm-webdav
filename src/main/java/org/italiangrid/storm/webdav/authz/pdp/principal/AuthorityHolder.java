@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz.pdp.principal;
 
-import java.util.Objects;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -39,7 +37,7 @@ public class AuthorityHolder implements PrincipalMatcher {
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
 
-    return !Objects.isNull(authentication) && authentication.getAuthorities()
+    return authentication != null && authentication.getAuthorities()
       .stream()
       .anyMatch(a -> a.getAuthority().equals(authority.getAuthority()));
   }

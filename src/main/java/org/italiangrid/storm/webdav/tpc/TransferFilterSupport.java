@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -131,7 +130,7 @@ public class TransferFilterSupport implements TransferConstants, TpcUtils {
 
 
   protected boolean isSupportedTransferURI(URI uri) {
-    return SUPPORTED_PROTOCOLS.contains(uri.getScheme()) && !isNull(uri.getPath());
+    return SUPPORTED_PROTOCOLS.contains(uri.getScheme()) && uri.getPath() != null;
   }
 
   protected boolean validTransferURI(String xferUri) {

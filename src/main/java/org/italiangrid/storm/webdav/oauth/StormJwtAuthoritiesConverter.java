@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.oauth;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -58,7 +57,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
     Optional.ofNullable(
         jwt.getClaimAsStringList(CLAIM_AUTHORITIES))
       .ifPresent(a -> a.forEach(at -> authorities.add(SAPermission.fromString(at))));
-      
+
     return authorities;
   }
 
@@ -66,7 +65,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
 
     Set<GrantedAuthority> scopeAuthorities = Sets.newHashSet();
 
-    if (!Objects.isNull(jwt.getClaimAsString(SCOPE_CLAIM_NAME))) {
+    if (jwt.getClaimAsString(SCOPE_CLAIM_NAME) != null) {
       String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
 
       String[] scopes = jwt.getClaimAsString(SCOPE_CLAIM_NAME).split(" ");

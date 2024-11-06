@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.authn;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -43,7 +42,7 @@ public class PrincipalHelper {
   }
 
   public String getPrincipalAsString(Authentication authn) {
-    if (Objects.isNull(authn) || authn instanceof AnonymousAuthenticationToken) {
+    if (authn == null || authn instanceof AnonymousAuthenticationToken) {
       return "anonymous";
     } else if (authn instanceof OAuth2AuthenticationToken) {
       OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authn;

@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz.pdp.principal;
 
-import static java.util.Objects.isNull;
-
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
@@ -24,7 +22,7 @@ public class AnonymousUser implements PrincipalMatcher {
 
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
-    return isNull(authentication) || authentication instanceof AnonymousAuthenticationToken;
+    return authentication == null || authentication instanceof AnonymousAuthenticationToken;
   }
 
   @Override
