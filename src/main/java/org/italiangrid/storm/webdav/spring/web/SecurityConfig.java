@@ -220,7 +220,7 @@ public class SecurityConfig {
     final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-      if (Boolean.TRUE.equals(sa.anonymousReadEnabled())) {
+      if (sa.anonymousReadEnabled()) {
         anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
       }
     }

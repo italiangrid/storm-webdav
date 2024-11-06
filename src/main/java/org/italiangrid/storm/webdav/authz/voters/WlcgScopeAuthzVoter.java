@@ -57,7 +57,7 @@ public class WlcgScopeAuthzVoter extends PathAuthzPdpVoterSupport {
       return ACCESS_ABSTAIN;
     }
 
-    if (Boolean.FALSE.equals(sa.wlcgScopeAuthzEnabled())) {
+    if (!sa.wlcgScopeAuthzEnabled()) {
       return ACCESS_ABSTAIN;
     }
 

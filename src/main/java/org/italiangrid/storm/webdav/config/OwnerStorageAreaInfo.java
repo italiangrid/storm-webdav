@@ -39,34 +39,34 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   public Set<String> orgs();
 
   @DefaultValue("false")
-  public Boolean anonymousReadEnabled();
+  public boolean anonymousReadEnabled();
 
   @Override
   @DefaultValue("false")
-  public Boolean authenticatedReadEnabled();
+  public boolean authenticatedReadEnabled();
 
   @Override
   @DefaultValue("true")
-  public Boolean voMapEnabled();
+  public boolean voMapEnabled();
 
   @Override
   @DefaultValue("false")
-  public Boolean voMapGrantsWritePermission();
+  public boolean voMapGrantsWritePermission();
 
   @Override
   @DefaultValue("true")
-  public Boolean orgsGrantReadPermission();
+  public boolean orgsGrantReadPermission();
 
   @Override
   @DefaultValue("true")
-  public Boolean orgsGrantWritePermission();
+  public boolean orgsGrantWritePermission();
 
   @Override
   @DefaultValue("false")
-  public Boolean wlcgScopeAuthzEnabled();
+  public boolean wlcgScopeAuthzEnabled();
 
   @Override
   @DefaultValue("false")
-  public Boolean fineGrainedAuthzEnabled();
+  public boolean fineGrainedAuthzEnabled();
 
 }

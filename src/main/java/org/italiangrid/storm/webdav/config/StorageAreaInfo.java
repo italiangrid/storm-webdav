@@ -32,19 +32,19 @@ public interface StorageAreaInfo {
 
   public Set<String> orgs();
 
-  public Boolean anonymousReadEnabled();
+  public boolean anonymousReadEnabled();
 
-  public Boolean authenticatedReadEnabled();
+  public boolean authenticatedReadEnabled();
 
-  public Boolean voMapEnabled();
+  public boolean voMapEnabled();
 
-  public Boolean voMapGrantsWritePermission();
+  public boolean voMapGrantsWritePermission();
 
-  public Boolean orgsGrantReadPermission();
+  public boolean orgsGrantReadPermission();
 
-  public Boolean orgsGrantWritePermission();
+  public boolean orgsGrantWritePermission();
 
-  public Boolean wlcgScopeAuthzEnabled();
-  
-  public Boolean fineGrainedAuthzEnabled();
+  public boolean wlcgScopeAuthzEnabled();
+
+  public boolean fineGrainedAuthzEnabled();
 }
