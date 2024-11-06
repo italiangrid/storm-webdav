@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.tpc.http;
 
-import static java.util.Objects.isNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,7 +68,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     final InputStream inStream = entity.getContent();
 
-    if (!isNull(inStream)) {
+    if (inStream != null) {
       try {
         int l;
         final byte[] tmp = new byte[bufferSize];

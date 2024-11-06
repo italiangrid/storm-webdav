@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz;
 
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.authz.SAPermission.canRead;
 import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
 
@@ -49,7 +48,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
     voMapPerms = ArrayListMultimap.create();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
-      if (!isNull(sa.vos())) {
+      if (sa.vos() != null) {
         for (String vo : sa.vos()) {
           voPerms.put(vo, canRead(sa.name()));
           voPerms.put(vo, canWrite(sa.name()));

@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.spring;
 
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.server.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
 import java.io.IOException;
@@ -247,7 +246,7 @@ public class AppConfig implements TransferConstants {
     SSLContext ctx;
 
     if (props.isUseConscrypt()) {
-      if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
+      if (Security.getProvider(CONSCRYPT_PROVIDER) == null) {
         Security.addProvider(new OpenSSLProvider());
       }
       ctx = SSLContext.getInstance(props.getTlsProtocol(), CONSCRYPT_PROVIDER);

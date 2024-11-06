@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.test.utils.voms;
 
-import static java.util.Objects.isNull;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -64,7 +63,7 @@ public class VOMSSecurityContextBuilder {
   public VOMSSecurityContextBuilder vos(String... vos) {
 
     for (String vo : vos) {
-      if (!isNull(authorities)) {
+      if (authorities != null) {
         authorities.add(new VOMSVOAuthority(vo));
 
       } else {
@@ -76,7 +75,7 @@ public class VOMSSecurityContextBuilder {
 
   public VOMSSecurityContextBuilder saReadPermissions(String... sas) {
     for (String sa : sas) {
-      if (!isNull(authorities)) {
+      if (authorities != null) {
         authorities.add(SAPermission.canRead(sa));
       } else {
         authorities = Lists.newArrayList(SAPermission.canRead(sa));
@@ -87,7 +86,7 @@ public class VOMSSecurityContextBuilder {
 
   public VOMSSecurityContextBuilder saWritePermissions(String... sas) {
     for (String sa : sas) {
-      if (!isNull(authorities)) {
+      if (authorities != null) {
         authorities.add(SAPermission.canWrite(sa));
       } else {
         authorities = Lists.newArrayList(SAPermission.canWrite(sa));

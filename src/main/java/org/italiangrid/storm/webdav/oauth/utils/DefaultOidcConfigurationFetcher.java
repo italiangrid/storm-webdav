@@ -21,7 +21,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.slf4j.Logger;
@@ -100,7 +99,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       throw new OidcConfigurationResolutionError(
           format("Received status code: %s", response.getStatusCodeValue()));
     }
-    if (Objects.isNull(response.getBody())) {
+    if (response.getBody() == null) {
       throw new OidcConfigurationResolutionError("Received null body");
     }
     metadataChecks(issuer, response.getBody());

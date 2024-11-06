@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.oauth.validator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.isNull;
 
 import java.util.Set;
 
@@ -45,7 +44,7 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
       OAuth2TokenValidatorResult.failure(INVALID_AUDIENCE_ERROR);
 
   public AudienceValidator(AuthorizationServer server) {
-    checkArgument(!isNull(server.getAudiences()), "null audiences");
+    checkArgument(server.getAudiences() != null, "null audiences");
     checkArgument(!server.getAudiences().isEmpty(), "empty audiences");
     requiredAudiences.addAll(server.getAudiences());
   }
@@ -53,7 +52,7 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
   @Override
   public OAuth2TokenValidatorResult validate(Jwt jwt) {
 
-    if (isNull(jwt.getAudience()) || jwt.getAudience().isEmpty()) {
+    if (jwt.getAudience() == null || jwt.getAudience().isEmpty()) {
       return SUCCESS;
     }
 
@@ -65,7 +64,7 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
     LOG.debug("Audience check failed. Token audience: {}, local audience: {}", jwt.getAudience(),
         requiredAudiences);
-    
+
     return INVALID_AUDIENCE;
   }
 

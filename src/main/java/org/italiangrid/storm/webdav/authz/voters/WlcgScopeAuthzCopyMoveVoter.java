@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz.voters;
 
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.PUT;
 
@@ -74,7 +73,7 @@ public class WlcgScopeAuthzCopyMoveVoter extends PathAuthzPdpVoterSupport {
       String destinationPath = getSanitizedPathFromUrl(destination);
       StorageAreaInfo sa = resolver.resolveStorageArea(destinationPath);
 
-      if (isNull(sa)) {
+      if (sa == null) {
         return ACCESS_ABSTAIN;
       }
 

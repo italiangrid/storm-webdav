@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.tpc.http;
 
-import static java.util.Objects.isNull;
-
 import java.util.Map;
 
 import org.apache.http.StatusLine;
@@ -30,9 +28,9 @@ public abstract class ResponseHandlerSupport {
   protected ResponseHandlerSupport(Map<String, String> mdcContextMap) {
     this.mdcContextMap = mdcContextMap;
   }
-  
+
   protected void setupMDC() {
-    if (!isNull(mdcContextMap)) {
+    if (mdcContextMap != null) {
       MDC.setContextMap(mdcContextMap);
     }
   }

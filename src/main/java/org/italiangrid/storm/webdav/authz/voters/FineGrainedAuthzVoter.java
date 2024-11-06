@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz.voters;
 
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 
 import java.util.Collection;
@@ -48,7 +47,7 @@ public class FineGrainedAuthzVoter extends PathAuthzPdpVoterSupport {
     final String requestPath = getRequestPath(filter.getHttpRequest());
     StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
 
-    if (isNull(sa) || !sa.fineGrainedAuthzEnabled()) {
+    if (sa == null || !sa.fineGrainedAuthzEnabled()) {
       return ACCESS_ABSTAIN;
     }
 

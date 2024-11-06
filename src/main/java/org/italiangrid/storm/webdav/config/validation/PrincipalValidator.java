@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.config.validation;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_GROUP;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_SCOPE;
@@ -63,8 +62,8 @@ public class PrincipalValidator implements
       ConstraintValidatorContext context) {
 
     Collection<String> requiredArgs = REQUIRED_ARGS.get(value.getType());
-    
-    if (isNull(requiredArgs) || requiredArgs.isEmpty()) {
+
+    if (requiredArgs == null || requiredArgs.isEmpty()) {
       return true;
     }
 

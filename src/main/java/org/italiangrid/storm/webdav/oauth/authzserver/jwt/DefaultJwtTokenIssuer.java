@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
 
-import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
 import java.time.Clock;
@@ -98,7 +97,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     Instant defaultExpiration = now.plusSeconds(properties.getMaxTokenLifetimeSec());
     Instant expiration = defaultExpiration;
 
-    if (!isNull(request.getLifetime()) && request.getLifetime() > 0) {
+    if (request.getLifetime() != null && request.getLifetime() > 0) {
       requestedExpiration = Optional.of(now.plusSeconds(request.getLifetime()));
     }
 
@@ -126,19 +125,19 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
   public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication) {
 
     Set<GrantedAuthority> tokenAuthorities = Sets.newHashSet();
-    
+
     Set<GrantedAuthority> saAuthorities = policyService.getSAPermissions(authentication);
     tokenAuthorities.addAll(saAuthorities);
-    
+
     tokenAuthorities.addAll(authentication.getAuthorities());
-    
+
     JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
 
     claimsSet.issuer(properties.getIssuer());
     claimsSet.audience(properties.getIssuer());
     claimsSet.subject(authentication.getName());
     claimsSet.expirationTime(computeTokenExpirationTimestamp(request, authentication));
-    
+
     claimsSet.claim(CLAIM_AUTHORITIES,
         tokenAuthorities.stream().map(Object::toString).collect(toList()));
 
@@ -162,7 +161,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
 
     claimsSet.subject(helper.getPrincipalAsString(authentication));
     claimsSet.expirationTime(computeResourceTokenExpiration(request));
-    
+
     claimsSet.claim(PATH_CLAIM, request.getPath());
     claimsSet.claim(PERMS_CLAIM, request.getPermission().name());
     claimsSet.claim(ORIGIN_CLAIM, request.getOrigin());

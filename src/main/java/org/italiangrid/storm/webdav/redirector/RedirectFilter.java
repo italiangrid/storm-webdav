@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.redirector;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Objects;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -60,7 +59,7 @@ public class RedirectFilter implements Filter, TpcUtils, RedirectConstants {
     SecurityContext context = resolveSecurityContext();
 
     if (isRedirectable(req)) {
-      
+
       res.setHeader(LOCATION, service.buildRedirect(context.getAuthentication(), req, res));
       res.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
 
@@ -73,7 +72,7 @@ public class RedirectFilter implements Filter, TpcUtils, RedirectConstants {
   private SecurityContext resolveSecurityContext() {
     SecurityContext context = SecurityContextHolder.getContext();
 
-    if (Objects.isNull(context)) {
+    if (context == null) {
       throw new RedirectError("Failed to enstabilish a valid security context");
     }
 
@@ -103,7 +102,7 @@ public class RedirectFilter implements Filter, TpcUtils, RedirectConstants {
     String path = getSerlvetRequestPath(req);
     Path p = pathResolver.getPath(path);
 
-    if (Objects.isNull(p)) {
+    if (p == null) {
       return false;
     }
 

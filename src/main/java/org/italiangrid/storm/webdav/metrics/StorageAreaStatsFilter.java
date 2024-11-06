@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.metrics;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static java.util.Objects.isNull;
 
 import java.io.IOException;
 
@@ -52,7 +51,7 @@ public class StorageAreaStatsFilter implements Filter, TpcUtils {
   private void updateStats(HttpServletRequest request, HttpServletResponse response) {
     StorageAreaInfo sa = resolver.resolveStorageArea(getSerlvetRequestPath(request));
 
-    if (!isNull(sa)) {
+    if (sa != null) {
       String prefix = name(SA_KEY, sa.name(), REQUESTS_KEY);
       registry.meter(prefix).mark();
       if (response.getStatus() >= 400) {

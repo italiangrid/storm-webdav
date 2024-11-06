@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.oidc;
 
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +110,7 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
   public ClientRegistration load(String key) throws Exception {
     OAuth2ClientProperties.Registration reg = clientProperties.getRegistration().get(key);
 
-    if (isNull(reg)) {
+    if (reg == null) {
       return null;
     }
 

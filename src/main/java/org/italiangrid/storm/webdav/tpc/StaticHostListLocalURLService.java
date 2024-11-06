@@ -17,7 +17,6 @@ package org.italiangrid.storm.webdav.tpc;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Objects.isNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,8 +41,7 @@ public class StaticHostListLocalURLService implements LocalURLService {
 
       URI uri = new URI(url);
 
-      if (isNull(uri.getScheme())
-          || (!isNull(uri.getHost()) && uri.getHost().equals("localhost"))) {
+      if (uri.getScheme() == null || (uri.getHost() != null && uri.getHost().equals("localhost"))) {
         return true;
       }
 

@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.server;
 
-import static java.util.Objects.isNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -56,7 +54,7 @@ import eu.emi.security.authn.x509.impl.PEMCredential;
 /**
  * A builder that configures a Jetty server TLS connector integrated with CANL
  * {@link X509CertChainValidatorExt} certificate validation services.
- * 
+ *
  */
 public class TLSServerConnectorBuilder {
 
@@ -193,7 +191,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Returns an instance of the {@link TLSServerConnectorBuilder}.
-   * 
+   *
    * @param s the {@link Server} for which the connector is being created
    * @param certificateValidator a {@link X509CertChainValidatorExt} used to validate certificates
    * @return an instance of the {@link TLSServerConnectorBuilder}
@@ -206,7 +204,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Private ctor.
-   * 
+   *
    * @param s the {@link Server} for which the connector is being created
    * @param certificateValidator a {@link X509CertChainValidatorExt} used to validate certificates
    */
@@ -254,7 +252,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Configures SSL session parameters for the jetty {@link SslContextFactory}.
-   * 
+   *
    * @param contextFactory the {@link SslContextFactory} being configured
    */
   private void configureContextFactory(SslContextFactory.Server contextFactory) {
@@ -296,7 +294,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Builds a default {@link HttpConfiguration} for the TLS-enabled connector being created
-   * 
+   *
    * @return the default {@link HttpConfiguration}
    */
   private HttpConfiguration defaultHttpConfiguration() {
@@ -323,7 +321,7 @@ public class TLSServerConnectorBuilder {
   /**
    * Gives access to the {@link HttpConfiguration} used for the TLS-enabled connector being created.
    * If the configuration is not set, it creates it using {@link #defaultHttpConfiguration()}.
-   * 
+   *
    * @return the {@link HttpConfiguration} being used for the TLS-enabled connector.
    */
   public HttpConfiguration httpConfiguration() {
@@ -338,7 +336,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the port for the connector being created.
-   * 
+   *
    * @param port the port for the connector
    * @return this builder
    */
@@ -350,7 +348,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the certificate file for the connector being created.
-   * 
+   *
    * @param certificateFile the certificate file
    * @return this builder
    */
@@ -362,7 +360,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the certificate key file for the connector being created.
-   * 
+   *
    * @param certificateKeyFile the certificate key file
    * @return this builder
    */
@@ -374,7 +372,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * The the certificate key password for the connector being built
-   * 
+   *
    * @param certificateKeyPassword the certificate key password
    * @return this builder
    */
@@ -387,7 +385,7 @@ public class TLSServerConnectorBuilder {
   /**
    * Sets the {@link SslContextFactory#setNeedClientAuth(boolean)} parameter for the connector being
    * created.
-   * 
+   *
    * @param needClientAuth true if client authentication is required
    * @return this builder
    */
@@ -400,7 +398,7 @@ public class TLSServerConnectorBuilder {
   /**
    * Sets the {@link SslContextFactory#setWantClientAuth(boolean)} parameter for the connector being
    * created.
-   * 
+   *
    * @param wantClientAuth true if client authentication is wanted
    * @return this builder
    */
@@ -412,7 +410,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets SSL included protocols. See {@link SslContextFactory#setIncludeProtocols(String...)}.
-   * 
+   *
    * @param includeProtocols the array of included protocol names
    * @return this builder
    */
@@ -424,7 +422,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets SSL excluded protocols. See {@link SslContextFactory#setExcludeProtocols(String...)}.
-   * 
+   *
    * @param excludeProtocols the array of excluded protocol names
    * @return this builder
    */
@@ -436,7 +434,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the SSL included cipher suites.
-   * 
+   *
    * @param includeCipherSuites the array of included cipher suites.
    * @return this builder
    */
@@ -448,7 +446,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the SSL ecluded cipher suites.
-   * 
+   *
    * @param excludeCipherSuites the array of excluded cipher suites.
    * @return this builder
    */
@@ -460,7 +458,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the {@link HttpConfiguration} for the connector being built.
-   * 
+   *
    * @param conf the {@link HttpConfiguration} to use
    * @return this builder
    */
@@ -472,7 +470,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Sets the {@link KeyManager} for the connector being built.
-   * 
+   *
    * @param km the {@link KeyManager} to use
    * @return this builder
    */
@@ -539,7 +537,7 @@ public class TLSServerConnectorBuilder {
 
       if (useConscrypt) {
 
-        if (isNull(Security.getProvider(CONSCRYPT_PROVIDER))) {
+        if (Security.getProvider(CONSCRYPT_PROVIDER) == null) {
           Security.addProvider(new OpenSSLProvider());
         }
 
@@ -564,7 +562,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Builds a {@link ServerConnector} based on the {@link TLSServerConnectorBuilder} parameters
-   * 
+   *
    * @return a {@link ServerConnector}
    */
   public ServerConnector build() {
@@ -637,7 +635,7 @@ public class TLSServerConnectorBuilder {
 
   /**
    * Checks that file exists and is readable.
-   * 
+   *
    * @param f the {@link File} to be checked
    * @param prefix A prefix string for the error message, in case the file does not exist and is not
    *        readable

@@ -18,7 +18,6 @@ package org.italiangrid.storm.webdav.tpc.transfer.impl;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.italiangrid.storm.webdav.scitag.SciTag;
@@ -165,7 +164,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
   @Override
   public Duration duration() {
 
-    if (Objects.isNull(startTime) || Objects.isNull(endTime)) {
+    if (startTime == null || endTime == null) {
       LOG.debug("Duration called before end of trasnfer, will return ZERO");
       return Duration.ZERO;
     }

@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.server;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.util.Objects.isNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,13 +66,13 @@ public class DefaultPathResolver implements PathResolver {
   @Override
   public String resolvePath(String pathInContext) {
 
-    if (isNull(pathInContext)) {
+    if (pathInContext == null) {
       return null;
     }
 
     Path p = getPath(pathInContext);
 
-    if (!isNull(p)) {
+    if (p != null) {
       return p.toString();
     }
 
@@ -102,7 +101,7 @@ public class DefaultPathResolver implements PathResolver {
   public boolean pathExists(String pathInContext) {
     String resolvedPath = resolvePath(pathInContext);
 
-    if (isNull(resolvedPath)) {
+    if (resolvedPath == null) {
       return false;
     }
 
@@ -112,7 +111,7 @@ public class DefaultPathResolver implements PathResolver {
   @Override
   public Path getPath(String pathInContext) {
 
-    if (isNull(pathInContext)) {
+    if (pathInContext == null) {
       return null;
     }
 
