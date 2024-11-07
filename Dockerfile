@@ -1,5 +1,5 @@
 # https://spring.io/guides/topicals/spring-boot-docker#_multi_stage_build
-FROM eclipse-temurin:11-jdk-alpine as build
+FROM eclipse-temurin:17-jdk-alpine as build
 WORKDIR /workspace/app
 RUN apk add maven
 COPY pom.xml .
@@ -11,7 +11,7 @@ COPY src src
 RUN mvn package -Dmaven.test.skip
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM eclipse-temurin:11-centos7
+FROM eclipse-temurin:17-centos7
 ENV STORM_WEBDAV_JVM_OPTS="-Dspring.profiles.active=dev"
 ARG DEPENDENCY=/workspace/app/target/dependency
 

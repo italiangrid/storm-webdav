@@ -17,7 +17,7 @@ jobs:
         run: |
           dnf upgrade -y
           [[ "${{ matrix.version }}" = 8 ]] && dnf module enable -y maven:3.8/common
-          dnf install -y git rpmdevtools rpmlint maven-openjdk11
+          dnf install -y git rpmdevtools rpmlint maven-openjdk17
       - name: Setup build tree
         run: |
           echo "%_topdir $(pwd)/rpmbuild" >> ~/.rpmmacros
