@@ -7,7 +7,7 @@ The StoRM webdav service provides http/webdav access to resources shared on a fi
 You will need:
 
 - git
-- java 11
+- java 17
 - maven 3
 
 ## Build instructions

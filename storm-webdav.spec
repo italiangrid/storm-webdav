@@ -29,9 +29,9 @@ URL:     https://github.com/italiangrid/storm-webdav
 
 BuildArch: noarch
 
-BuildRequires: maven-openjdk11
+BuildRequires: maven-openjdk17
 
-Requires: java-11-openjdk-headless
+Requires: java-17-openjdk-headless
 
 %description
 StoRM provides an SRM interface to any POSIX filesystem with direct file
