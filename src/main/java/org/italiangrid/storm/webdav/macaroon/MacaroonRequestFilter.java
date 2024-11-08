@@ -52,7 +52,7 @@ public class MacaroonRequestFilter implements Filter {
     this.service = service;
   }
 
-  protected boolean isMacaroonRequest(HttpServletRequest request) {
+  public static boolean isMacaroonRequest(HttpServletRequest request) {
     return (MACAROON_REQUEST_CONTENT_TYPE.equals(request.getContentType()));
   }
 
@@ -92,7 +92,7 @@ public class MacaroonRequestFilter implements Filter {
     } catch (AccessDeniedException e) {
       httpResponse.sendError(SC_FORBIDDEN,
           "Access denied");
-      
+
     } catch (IOException e) {
       httpResponse.sendError(SC_BAD_REQUEST,
           "Invalid macaroon request");

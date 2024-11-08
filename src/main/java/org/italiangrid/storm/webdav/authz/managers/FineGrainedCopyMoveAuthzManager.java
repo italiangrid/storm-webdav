@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.authz.voters;
+package org.italiangrid.storm.webdav.authz.managers;
 
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.PUT;
 
 import java.net.MalformedURLException;
-import java.util.Collection;
+import java.util.function.Supplier;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
@@ -31,36 +31,38 @@ import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-public class FineGrainedCopyMoveAuthzVoter extends PathAuthzPdpVoterSupport {
+public class FineGrainedCopyMoveAuthzManager extends PathAuthzPdpManagerSupport {
 
-  public static final Logger LOG = LoggerFactory.getLogger(FineGrainedCopyMoveAuthzVoter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(FineGrainedCopyMoveAuthzManager.class);
 
-  public FineGrainedCopyMoveAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+  public FineGrainedCopyMoveAuthzManager(ServiceConfigurationProperties config,
+      PathResolver resolver, PathAuthorizationPdp pdp, LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
   }
 
   @Override
-  public int vote(Authentication authentication, FilterInvocation filter,
-      Collection<ConfigAttribute> attributes) {
+  public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext requestAuthorizationContext) {
 
-    if (!isCopyOrMoveRequest(filter.getRequest())) {
-      return ACCESS_ABSTAIN;
+    if (!isCopyOrMoveRequest(requestAuthorizationContext.getRequest())) {
+      return null;
     }
 
-    String destination = filter.getRequest().getHeader(TransferConstants.DESTINATION_HEADER);
+    String destination =
+        requestAuthorizationContext.getRequest().getHeader(TransferConstants.DESTINATION_HEADER);
 
     if (destination == null) {
-      return ACCESS_ABSTAIN;
+      return null;
     }
 
-    if (COPY.name().equals(filter.getRequest().getMethod())
-        && requestHasRemoteDestinationHeader(filter.getRequest(), localUrlService)) {
-      return ACCESS_ABSTAIN;
+    if (COPY.name().equals(requestAuthorizationContext.getRequest().getMethod())
+        && requestHasRemoteDestinationHeader(requestAuthorizationContext.getRequest(),
+            localUrlService)) {
+      return null;
     }
 
     try {
@@ -69,15 +71,16 @@ public class FineGrainedCopyMoveAuthzVoter extends PathAuthzPdpVoterSupport {
       StorageAreaInfo sa = resolver.resolveStorageArea(destinationPath);
 
       if (sa == null) {
-        return ACCESS_ABSTAIN;
+        return null;
       }
 
       if (!sa.fineGrainedAuthzEnabled()) {
-        return ACCESS_ABSTAIN;
+        return null;
       }
 
-      return renderDecision(PathAuthorizationRequest
-        .newAuthorizationRequest(filter.getHttpRequest(), authentication, destinationPath, PUT),
+      return renderDecision(
+          PathAuthorizationRequest.newAuthorizationRequest(requestAuthorizationContext.getRequest(),
+              authentication.get(), destinationPath, PUT),
           LOG);
 
     } catch (MalformedURLException e) {

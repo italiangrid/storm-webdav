@@ -16,7 +16,7 @@
 package org.italiangrid.storm.webdav.spring.web;
 
 import static java.util.Arrays.asList;
-import static org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter.forVoters;
+import static org.italiangrid.storm.webdav.authz.managers.UnanimousDelegatedManager.forVoters;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
@@ -41,13 +41,15 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
-import org.italiangrid.storm.webdav.authz.voters.FineGrainedAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.FineGrainedCopyMoveAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.LocalAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.MacaroonAuthzVoter;
-import org.italiangrid.storm.webdav.authz.voters.UnanimousDelegatedVoter;
-import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzCopyMoveVoter;
-import org.italiangrid.storm.webdav.authz.voters.WlcgScopeAuthzVoter;
+import org.italiangrid.storm.webdav.authz.managers.ConsensusBasedManager;
+import org.italiangrid.storm.webdav.authz.managers.FineGrainedAuthzManager;
+import org.italiangrid.storm.webdav.authz.managers.FineGrainedCopyMoveAuthzManager;
+import org.italiangrid.storm.webdav.authz.managers.LocalAuthzManager;
+import org.italiangrid.storm.webdav.authz.managers.MacaroonAuthzManager;
+import org.italiangrid.storm.webdav.authz.managers.OauthAuthzManager;
+import org.italiangrid.storm.webdav.authz.managers.UnanimousDelegatedManager;
+import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzCopyMoveManager;
+import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzManager;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -65,22 +67,24 @@ import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.ConsensusBased;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.HstsConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
+@EnableMethodSecurity(proxyTargetClass = true)
 public class SecurityConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
@@ -146,50 +150,61 @@ public class SecurityConfig {
 
     if (serviceConfigurationProperties.getAuthz().isDisabled()) {
       LOG.warn("AUTHORIZATION DISABLED: this shouldn't be used in production!");
-      http.authorizeRequests().anyRequest().permitAll();
+      http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
     } else {
-      http.authorizeRequests().accessDecisionManager(fineGrainedAccessDecisionManager());
       addAccessRules(http);
       addAnonymousAccessRules(http);
     }
 
     if (serviceConfigurationProperties.getRedirector().isEnabled()) {
-      http.headers().httpStrictTransportSecurity().disable();
+      http.headers(headers -> headers.httpStrictTransportSecurity(HstsConfig::disable));
     }
 
-    http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(authConverter);
+    http.oauth2ResourceServer(
+        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authConverter)));
 
-    http.authorizeRequests().antMatchers("/errors/**").permitAll();
+    http.authorizeHttpRequests(
+        authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/errors/**"))
+          .permitAll());
 
-    http.authorizeRequests()
-      .antMatchers(HttpMethod.GET, "/.well-known/oauth-authorization-server",
-          "/.well-known/openid-configuration", "/.well-known/wlcg-tape-rest-api")
-      .permitAll();
-
-    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
-    handler.setErrorPage("/errors/403");
-    http.exceptionHandling()
-      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler));
-
-    http.logout()
-      .logoutUrl("/logout")
-      .clearAuthentication(true)
-      .invalidateHttpSession(true)
-      .logoutSuccessUrl("/");
-
-    if (!oauthProperties.isEnableOidc()) {
-      http.exceptionHandling().authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint());
-    }
+    http.authorizeHttpRequests(authorize -> authorize
+      .requestMatchers(AntPathRequestMatcher.antMatcher("/"),
+          AntPathRequestMatcher.antMatcher("/assets/css/*"),
+          AntPathRequestMatcher.antMatcher("/assets/js/*"),
+          AntPathRequestMatcher.antMatcher("/authn-info"),
+          AntPathRequestMatcher.antMatcher("/actuator/*"),
+          AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
+          AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
+          AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
+      .permitAll());
 
     configureOidcAuthn(http);
 
-    http.csrf().disable();
-    http.cors().disable();
+    if (!serviceConfigurationProperties.getAuthz().isDisabled()) {
+      http.authorizeHttpRequests(
+          authorize -> authorize.anyRequest().access(fineGrainedAuthorizationManager(null)));
+    }
+
+    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
+    handler.setErrorPage("/errors/403");
+    http.exceptionHandling(exception -> exception
+      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler)));
+
+    http.logout(logout -> logout.logoutUrl("/logout")
+      .clearAuthentication(true)
+      .invalidateHttpSession(true)
+      .logoutSuccessUrl("/"));
+
+    if (!oauthProperties.isEnableOidc()) {
+      http.exceptionHandling(
+          exception -> exception.authenticationEntryPoint(new ErrorPageAuthenticationEntryPoint()));
+    }
+
+    http.csrf(csrf -> csrf.disable());
+    http.cors(cors -> cors.disable());
 
     return http.build();
   }
-
-
 
   @Bean
   static ErrorPageRegistrar securityErrorPageRegistrar() {
@@ -202,11 +217,6 @@ public class SecurityConfig {
       r.addErrorPages(new ErrorPage(NOT_FOUND, "/errors/404"));
       r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, "/errors/405"));
     };
-  }
-
-  @Bean
-  WebSecurityCustomizer webSecurityCustomizer() {
-    return web -> web.ignoring().antMatchers("/css/*", "/js/*");
   }
 
   @Bean
@@ -224,13 +234,16 @@ public class SecurityConfig {
     }
 
     if (!anonymousAccessPermissions.isEmpty()) {
-      http.anonymous().authorities(anonymousAccessPermissions);
+      http.anonymous(anonymous -> anonymous.authorities(anonymousAccessPermissions));
     }
   }
 
   protected void configureOidcAuthn(HttpSecurity http) throws Exception {
     if (oauthProperties.isEnableOidc()) {
-      http.oauth2Login().loginPage("/oidc-login");
+      http.authorizeHttpRequests(
+          authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/oidc-login"))
+            .permitAll());
+      http.oauth2Login(oauth2Login -> oauth2Login.loginPage("/oidc-login"));
     }
   }
 
@@ -249,45 +262,58 @@ public class SecurityConfig {
       String readAccessRule =
           String.format("hasAuthority('%s')", SAPermission.canRead(sa).getAuthority());
       LOG.debug("Read access rule: {}", readAccessRule);
-      http.authorizeRequests()
-        .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-        .access(readAccessRule);
+      http.authorizeHttpRequests(
+          authorize -> authorize.requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+            .access(fineGrainedAuthorizationManager(
+                new WebExpressionAuthorizationManager(readAccessRule))));
 
-      http.authorizeRequests().antMatchers(ap + "/**").access(writeAccessRule);
+      http.authorizeHttpRequests(
+          authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher(ap + "/**"))
+            .access(fineGrainedAuthorizationManager(
+                new WebExpressionAuthorizationManager(writeAccessRule))));
     }
   }
 
-  protected AccessDecisionManager fineGrainedAccessDecisionManager() throws MalformedURLException {
-    List<AccessDecisionVoter<?>> voters = new ArrayList<>();
+  protected AuthorizationManager<RequestAuthorizationContext> fineGrainedAuthorizationManager(
+      WebExpressionAuthorizationManager webExpressionAuthorizationManager) {
+    List<AuthorizationManager<RequestAuthorizationContext>> voters = new ArrayList<>();
 
-    UnanimousDelegatedVoter fineGrainedVoters = forVoters("FineGrainedAuthz",
+    UnanimousDelegatedManager fineGrainedVoters = forVoters("FineGrainedAuthz",
         asList(
-            new FineGrainedAuthzVoter(serviceConfigurationProperties, pathResolver,
+            new FineGrainedAuthzManager(serviceConfigurationProperties, pathResolver,
                 fineGrainedAuthzPdp, localURLService),
-            new FineGrainedCopyMoveAuthzVoter(serviceConfigurationProperties, pathResolver,
+            new FineGrainedCopyMoveAuthzManager(serviceConfigurationProperties, pathResolver,
                 fineGrainedAuthzPdp, localURLService)));
 
     WlcgStructuredPathAuthorizationPdp wlcgPdp = new WlcgStructuredPathAuthorizationPdp(
         serviceConfigurationProperties, pathResolver, localURLService);
 
-    UnanimousDelegatedVoter wlcgVoters = forVoters("WLCGScopeBasedAuthz",
+    UnanimousDelegatedManager wlcgVoters = forVoters("WLCGScopeBasedAuthz",
         asList(
-            new WlcgScopeAuthzVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+            new WlcgScopeAuthzManager(serviceConfigurationProperties, pathResolver, wlcgPdp,
                 localURLService),
-            new WlcgScopeAuthzCopyMoveVoter(serviceConfigurationProperties, pathResolver, wlcgPdp,
+            new WlcgScopeAuthzCopyMoveManager(serviceConfigurationProperties, pathResolver, wlcgPdp,
                 localURLService)));
 
     if (serviceConfigurationProperties.getRedirector().isEnabled()) {
-      voters.add(new LocalAuthzVoter(serviceConfigurationProperties, pathResolver,
-          new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
+      try {
+        voters.add(new LocalAuthzManager(serviceConfigurationProperties, pathResolver,
+            new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
+      } catch (MalformedURLException e) {
+        LOG.error(e.getMessage(), e);
+      }
     }
-    if (serviceConfigurationProperties.getAuthzServer().isEnabled()
-        && serviceConfigurationProperties.getMacaroonFilter().isEnabled()) {
-      voters.add(new MacaroonAuthzVoter());
+    if (serviceConfigurationProperties.getAuthzServer().isEnabled()) {
+      voters.add(new OauthAuthzManager());
     }
-    voters.add(new WebExpressionVoter());
+    if (serviceConfigurationProperties.getMacaroonFilter().isEnabled()) {
+      voters.add(new MacaroonAuthzManager());
+    }
+    if (webExpressionAuthorizationManager != null) {
+      voters.add(webExpressionAuthorizationManager);
+    }
     voters.add(fineGrainedVoters);
     voters.add(wlcgVoters);
-    return new ConsensusBased(voters);
+    return new ConsensusBasedManager("Consensus", voters);
   }
 }

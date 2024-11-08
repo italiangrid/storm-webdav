@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.authz.voters;
+package org.italiangrid.storm.webdav.authz.managers;
 
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 
-import java.util.Collection;
+import java.util.function.Supplier;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -26,32 +26,43 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+
+public class WlcgScopeAuthzManager extends PathAuthzPdpManagerSupport {
+
+  public static final Logger LOG = LoggerFactory.getLogger(WlcgScopeAuthzManager.class);
 
 
-public class FineGrainedAuthzVoter extends PathAuthzPdpVoterSupport {
-
-  public static final Logger LOG = LoggerFactory.getLogger(FineGrainedAuthzVoter.class);
-
-  public FineGrainedAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
+  public WlcgScopeAuthzManager(ServiceConfigurationProperties config, PathResolver resolver,
       PathAuthorizationPdp pdp, LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
   }
 
   @Override
-  public int vote(Authentication authentication, FilterInvocation filter,
-      Collection<ConfigAttribute> attributes) {
+  public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext requestAuthorizationContext) {
 
-    final String requestPath = getRequestPath(filter.getHttpRequest());
-    StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
-
-    if (sa == null || !sa.fineGrainedAuthzEnabled()) {
-      return ACCESS_ABSTAIN;
+    if (!(authentication.get() instanceof JwtAuthenticationToken)) {
+      return null;
     }
 
-    return renderDecision(newAuthorizationRequest(filter.getHttpRequest(), authentication), LOG);
+    final String requestPath = getRequestPath(requestAuthorizationContext.getRequest());
+    StorageAreaInfo sa = resolver.resolveStorageArea(requestPath);
+
+    if (sa == null) {
+      return null;
+    }
+
+    if (!sa.wlcgScopeAuthzEnabled()) {
+      return null;
+    }
+
+    return renderDecision(
+        newAuthorizationRequest(requestAuthorizationContext.getRequest(), authentication.get()),
+        LOG);
 
   }
 

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.authz.voters;
+package org.italiangrid.storm.webdav.authz.managers;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.function.Supplier;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
@@ -28,48 +28,53 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.util.StringUtils;
 
-public class LocalAuthzVoter extends PathAuthzPdpVoterSupport {
+public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LocalAuthzVoter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LocalAuthzManager.class);
 
-  final URL localTokenIssuer;
+  final URI localTokenIssuer;
 
-  public LocalAuthzVoter(ServiceConfigurationProperties config, PathResolver resolver,
+  public LocalAuthzManager(ServiceConfigurationProperties config, PathResolver resolver,
       PathAuthorizationPdp pdp, LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
     try {
-      localTokenIssuer = new URL(config.getAuthzServer().getIssuer());
-    } catch (MalformedURLException e) {
+      localTokenIssuer = new URI(config.getAuthzServer().getIssuer());
+    } catch (URISyntaxException e) {
       throw new StoRMIntializationError(e.getMessage());
     }
   }
 
   private boolean isLocalAuthzToken(JwtAuthenticationToken token) {
-    return localTokenIssuer.equals(token.getToken().getIssuer())
+    try {
+      return localTokenIssuer.equals(token.getToken().getIssuer().toURI())
         && StringUtils.hasText(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
+    } catch (URISyntaxException e) {
+      LOG.warn("{}", e.getMessage());
+      return false;
+    }
   }
 
   @Override
-  public int vote(Authentication authentication, FilterInvocation object,
-      Collection<ConfigAttribute> attributes) {
+  public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext requestAuthorizationContext) {
 
-    if (!(authentication instanceof JwtAuthenticationToken)) {
-      return ACCESS_ABSTAIN;
+    if (!(authentication.get() instanceof JwtAuthenticationToken)) {
+      return null;
     }
 
-    JwtAuthenticationToken token = (JwtAuthenticationToken) authentication;
+    JwtAuthenticationToken token = (JwtAuthenticationToken) authentication.get();
     if (!isLocalAuthzToken(token)) {
-      return ACCESS_ABSTAIN;
+      return null;
     }
 
-    return renderDecision(
-        PathAuthorizationRequest.newAuthorizationRequest(object.getRequest(), authentication), LOG);
+    return renderDecision(PathAuthorizationRequest.newAuthorizationRequest(
+        requestAuthorizationContext.getRequest(), authentication.get()), LOG);
   }
 
 }

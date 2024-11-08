@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.authz.voters;
+package org.italiangrid.storm.webdav.authz.managers;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -28,12 +28,12 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-public abstract class PathAuthzPdpVoterSupport
-    implements MatcherUtils, TpcUtils, AccessDecisionVoter<FilterInvocation> {
+public abstract class PathAuthzPdpManagerSupport
+    implements MatcherUtils, TpcUtils, AuthorizationManager<RequestAuthorizationContext> {
 
   protected static final Set<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
       EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
@@ -45,7 +45,7 @@ public abstract class PathAuthzPdpVoterSupport
   protected final LocalURLService localUrlService;
   protected final boolean permissive;
 
-  public PathAuthzPdpVoterSupport(ServiceConfigurationProperties config, PathResolver resolver,
+  protected PathAuthzPdpManagerSupport(ServiceConfigurationProperties config, PathResolver resolver,
       PathAuthorizationPdp pdp, LocalURLService localUrlService, boolean permissive) {
     this.config = config;
     this.resolver = resolver;
@@ -53,17 +53,6 @@ public abstract class PathAuthzPdpVoterSupport
     this.localUrlService = localUrlService;
     this.permissive = permissive;
   }
-
-  @Override
-  public boolean supports(ConfigAttribute attribute) {
-    return false;
-  }
-
-  @Override
-  public boolean supports(Class<?> clazz) {
-    return FilterInvocation.class.isAssignableFrom(clazz);
-  }
-
 
   protected void logPdpDecision(PathAuthorizationRequest request, PathAuthorizationResult result,
       Logger logger) {
@@ -73,26 +62,25 @@ public abstract class PathAuthzPdpVoterSupport
         result.getPolicy());
   }
 
-  public int renderDecision(PathAuthorizationResult result) {
+  public AuthorizationDecision renderDecision(PathAuthorizationResult result) {
     if (ABSTAIN_DECISIONS.contains(result.getDecision()) && permissive) {
-      return ACCESS_ABSTAIN;
+      return null;
     }
 
     if (PathAuthorizationResult.Decision.PERMIT.equals(result.getDecision())) {
-      return ACCESS_GRANTED;
+      return new AuthorizationDecision(true);
     }
 
-    return ACCESS_DENIED;
+    return new AuthorizationDecision(false);
   }
 
-  public int renderDecision(PathAuthorizationRequest request, Logger log) {
+  public AuthorizationDecision renderDecision(PathAuthorizationRequest request, Logger log) {
     PathAuthorizationResult result = pdp.authorizeRequest(request);
 
     logPdpDecision(request, result, log);
 
     return renderDecision(result);
   }
-
 
   public boolean isPermissive() {
     return permissive;

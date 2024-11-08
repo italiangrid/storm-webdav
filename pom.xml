@@ -32,6 +32,7 @@
 
     <!-- Keep this aligned with the parent project version! -->
     <spring-boot.version>2.7.18</spring-boot.version>
+    <spring-security.version>5.8.15</spring-security.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
