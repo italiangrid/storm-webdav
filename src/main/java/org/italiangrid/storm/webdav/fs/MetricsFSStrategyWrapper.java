@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.fs;
 import static com.codahale.metrics.MetricRegistry.name;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import com.codahale.metrics.MetricRegistry;
@@ -68,12 +69,12 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
   }
 
   @Override
-  public boolean rm(File f) {
+  public void rm(File f) throws IOException {
 
     final Timer.Context context = rmTimer.time();
 
     try {
-      return delegate.rm(f);
+      delegate.rm(f);
 
     } finally {
       context.stop();

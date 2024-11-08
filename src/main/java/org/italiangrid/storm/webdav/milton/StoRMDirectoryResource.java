@@ -20,12 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.milton.http.Request;
 import io.milton.http.exceptions.BadRequestException;
@@ -41,6 +44,8 @@ import io.milton.resource.Resource;
 
 public class StoRMDirectoryResource extends StoRMResource implements PutableResource,
     MakeCollectionableResource, DeletableResource, DeletableCollectionResource, CopyableResource {
+
+  private static final Logger logger = LoggerFactory.getLogger(StoRMDirectoryResource.class);
 
   public StoRMDirectoryResource(StoRMResourceFactory factory, File f) {
 
@@ -112,8 +117,13 @@ public class StoRMDirectoryResource extends StoRMResource implements PutableReso
       throw new StoRMWebDAVError(e);
     }
 
-    getFilesystemAccess().rm(getFile());
-
+    try {
+      getFilesystemAccess().rm(getFile());
+    } catch (NoSuchFileException e) {
+      logger.warn("Unable to remove directory {}: {}", getFile(), e.getMessage());
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
+    }
   }
 
   @Override

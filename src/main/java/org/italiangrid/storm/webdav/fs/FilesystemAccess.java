@@ -16,13 +16,14 @@
 package org.italiangrid.storm.webdav.fs;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 public interface FilesystemAccess {
 
   public File mkdir(File parentDirectory, String dirName);
 
-  public boolean rm(File f);
+  public void rm(File f) throws IOException;
 
   public void mv(File source, File dest);
 
