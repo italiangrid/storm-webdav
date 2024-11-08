@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
+import java.nio.file.NoSuchFileException;
 import java.util.List;
 import java.util.Map;
 
@@ -84,8 +85,14 @@ public class StoRMFileResource extends StoRMResource
   @Override
   public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
 
-    getFilesystemAccess().rm(getFile());
-
+    try {
+      getFilesystemAccess().rm(getFile());
+    } catch (NoSuchFileException e) {
+      logger.warn("Unable to remove file {}: {}", getFile(), e.getMessage());
+    } catch (IOException e) {
+      logger.error("Unable to remove file {}: {}", getFile(), e.getMessage());
+      throw new StoRMWebDAVError(e);
+    }
   }
 
   protected void handleIOException(IOException e) {

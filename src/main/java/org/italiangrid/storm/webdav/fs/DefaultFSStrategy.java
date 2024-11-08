@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,8 +30,6 @@ import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.io.Files;
 
 @Component
 public class DefaultFSStrategy implements FilesystemAccess {
@@ -60,10 +59,10 @@ public class DefaultFSStrategy implements FilesystemAccess {
   }
 
   @Override
-  public boolean rm(File f) {
+  public void rm(File f) throws IOException {
 
     LOG.debug("rm: {}", f.getAbsolutePath());
-    return f.delete();
+    Files.delete(f.toPath());
   }
 
   @Override
@@ -79,7 +78,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
       }
       
       // Overwrites the destination, if it exists 
-      Files.move(source, dest);
+      Files.move(source.toPath(), dest.toPath());
 
     } catch (IOException e) {
       throw new StoRMWebDAVError(e.getMessage(), e);
@@ -112,7 +111,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
       } else {
 
-        Files.copy(source, dest);
+        Files.copy(source.toPath(), dest.toPath());
 
       }
 
