@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -70,15 +71,15 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
     LOG.debug("mv: source={}, dest={}", source.getAbsolutePath(),
       dest.getAbsolutePath());
-    
+
     try {
 
       if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
         throw new SameFileError("Source and destination files are the same");
       }
-      
-      // Overwrites the destination, if it exists 
-      Files.move(source.toPath(), dest.toPath());
+
+      // Overwrites the destination, if it exists
+      Files.move(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
     } catch (IOException e) {
       throw new StoRMWebDAVError(e.getMessage(), e);
@@ -100,7 +101,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
       dest.getAbsolutePath());
 
     try {
-      
+
       if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
         throw new SameFileError("Source and destination files are the same");
       }
