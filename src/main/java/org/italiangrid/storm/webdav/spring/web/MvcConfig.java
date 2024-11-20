@@ -31,16 +31,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
-  
+
   @Autowired
   ServiceConfigurationProperties properties;
-  
+
   @Autowired
   OAuthProperties oauthProperties;
 
   @Autowired
   StorageAreaConfiguration saConfig;
-  
+
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new ViewUtilsInterceptor(properties, saConfig, oauthProperties));

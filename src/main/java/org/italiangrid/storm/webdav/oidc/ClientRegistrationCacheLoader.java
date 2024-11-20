@@ -56,7 +56,7 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
 
   private ClientRegistration getClientRegistration(String registrationId,
       OAuth2ClientProperties.Registration properties, Map<String, Provider> providers) {
-    String provider = StringUtils.trimWhitespace(properties.getProvider());
+    String provider = properties.getProvider().strip();
     Builder builder = getBuilderFromIssuerIfPossible(registrationId, provider, providers);
     if (builder == null) {
       return null;

@@ -16,33 +16,26 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.protocol.HttpContext;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 
-public class TpcPlainConnectionSocketFactory extends PlainConnectionSocketFactory {
+public class TpcTlsSocketStrategy extends DefaultClientTlsStrategy {
 
-  public static final TpcPlainConnectionSocketFactory INSTANCE =
-      new TpcPlainConnectionSocketFactory();
-
-  public static TpcPlainConnectionSocketFactory getSocketFactory() {
-    return INSTANCE;
-  }
-
-  public TpcPlainConnectionSocketFactory() {
-    super();
+  public TpcTlsSocketStrategy(SSLContext sslContext) {
+    super(sslContext);
   }
 
   @Override
-  public Socket connectSocket(int connectTimeout, Socket socket, HttpHost host,
-      InetSocketAddress remoteAddress, InetSocketAddress localAddress, HttpContext context)
+  public SSLSocket upgrade(Socket socket, String target, int port, Object attachment, HttpContext context)
       throws IOException {
-    Socket s =
-        super.connectSocket(connectTimeout, socket, host, remoteAddress, localAddress, context);
+    SSLSocket s = super.upgrade(socket, target, port, attachment, context);
     SciTag scitag = (SciTag) context.getAttribute(SciTag.SCITAG_ATTRIBUTE);
     if (scitag != null) {
       SciTagTransfer scitagTransfer =

@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -54,5 +54,5 @@ public class ReadonlyHttpMethodMatcher implements RequestMatcher {
   public String toString() {
     return "ReadonlyHttpMethodMatcher [delegate=" + delegate + "]";
   }
-  
+
 }

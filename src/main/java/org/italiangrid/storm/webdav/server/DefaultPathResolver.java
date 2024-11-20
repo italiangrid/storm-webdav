@@ -57,7 +57,7 @@ public class DefaultPathResolver implements PathResolver {
 
   protected String stripContextPath(String context, String path) {
 
-    if (context != null && context.length() > 0) {
+    if (context != null && !context.isEmpty()) {
       return path.replaceFirst(context, "");
     } else {
       return path;

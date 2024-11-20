@@ -16,8 +16,8 @@
 package org.italiangrid.storm.webdav.test.tpc;
 
 import static java.util.Collections.emptyEnumeration;
-import static javax.servlet.http.HttpServletResponse.SC_ACCEPTED;
-import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static jakarta.servlet.http.HttpServletResponse.SC_ACCEPTED;
+import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
@@ -26,11 +26,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;

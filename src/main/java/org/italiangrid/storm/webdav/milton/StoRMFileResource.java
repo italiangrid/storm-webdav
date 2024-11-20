@@ -33,7 +33,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
@@ -56,10 +55,8 @@ import io.milton.resource.CopyableResource;
 import io.milton.resource.DeletableResource;
 import io.milton.resource.GetableResource;
 import io.milton.resource.MultiNamespaceCustomPropertyResource;
-import io.milton.resource.ReplaceableResource;
 
-public class StoRMFileResource extends StoRMResource
-    implements DeletableResource, CopyableResource, ReplaceableResource,
+public class StoRMFileResource extends StoRMResource implements DeletableResource, CopyableResource,
     MultiNamespaceCustomPropertyResource, GetableResource, PartialllyUpdateableResource {
 
   private static final FileNameMap MIME_TYPE_MAP = URLConnection.getFileNameMap();
@@ -70,8 +67,8 @@ public class StoRMFileResource extends StoRMResource
   public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
 
   private static final Map<QName, PropertyMetaData> PROPERTY_METADATA =
-        Map.of(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
-            new PropertyMetaData(READ_ONLY, String.class));
+      Map.of(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
+          new PropertyMetaData(READ_ONLY, String.class));
 
   private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
 
@@ -209,7 +206,8 @@ public class StoRMFileResource extends StoRMResource
   public void setProperty(QName name, Object value)
       throws PropertySetException, NotAuthorizedException {
 
-    throw new NotImplementedException("StoRM WebDAV does not support setting DAV properties.");
+    throw new UnsupportedOperationException(
+        "StoRM WebDAV does not support setting DAV properties.");
   }
 
   @Override
@@ -229,7 +227,8 @@ public class StoRMFileResource extends StoRMResource
       String contentType)
       throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 
-    throw new NotImplementedException();
+    // Not implemented
+    throw new UnsupportedOperationException();
 
   }
 

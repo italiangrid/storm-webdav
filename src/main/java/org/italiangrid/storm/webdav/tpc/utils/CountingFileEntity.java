@@ -15,13 +15,13 @@
  */
 package org.italiangrid.storm.webdav.tpc.utils;
 
-import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.entity.FileEntity;
+import org.apache.hc.core5.http.io.entity.FileEntity;
 
 import com.google.common.io.CountingOutputStream;
 

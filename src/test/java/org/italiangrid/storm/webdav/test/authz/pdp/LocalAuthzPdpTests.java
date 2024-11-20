@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
@@ -81,7 +81,7 @@ public class LocalAuthzPdpTests {
   LocalAuthorizationPdp pdp;
 
   @BeforeEach
-  public void setup() throws MalformedURLException {
+  void setup() throws MalformedURLException {
 
     AuthorizationServerProperties props = new AuthorizationServerProperties();
     props.setIssuer(LOCAL_AUTHZ_SERVER_ISSUER);
@@ -130,7 +130,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  void permMismatchYeldsDeny() throws Exception {
+  void permMismatchYeldsDeny() {
     when(request.getMethod()).thenReturn("PUT");
 
     PathAuthorizationResult result =
@@ -151,7 +151,7 @@ public class LocalAuthzPdpTests {
   }
 
   @Test
-  void testPermit() throws Exception {
+  void testPermit() {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 

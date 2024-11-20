@@ -18,14 +18,12 @@ package org.italiangrid.storm.webdav.test.tpc.http;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,13 +37,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock
-  StatusLine status;
-
-  @Mock
   HttpEntity entity;
 
   @Mock
-  HttpResponse response;
+  ClassicHttpResponse response;
 
   @Mock
   StormCountingOutputStream os;
@@ -57,14 +52,11 @@ class GetResponseHandlerTest extends ClientTestSupport {
   public void setup() {
 
     handler = new GetResponseHandler(null, os, eah);
-    lenient().when(response.getStatusLine()).thenReturn(status);
     lenient().when(response.getEntity()).thenReturn(entity);
   }
 
   @Test
   void handlerWritesToStream() throws IOException {
-    when(status.getStatusCode()).thenReturn(200);
-
     handler.handleResponse(response);
 
     verify(entity).getContent();

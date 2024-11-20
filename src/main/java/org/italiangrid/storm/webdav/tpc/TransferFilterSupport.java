@@ -16,7 +16,7 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -28,11 +28,13 @@ import java.time.Clock;
 import java.util.Enumeration;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
@@ -83,7 +85,7 @@ public class TransferFilterSupport implements TpcUtils {
 
       if (headerName.toLowerCase().startsWith(TransferConstants.TRANSFER_HEADER_LC)) {
         String xferHeaderName = headerName.substring(TransferConstants.TRANFER_HEADER_LENGTH);
-        if (xferHeaderName.trim().length() == 0) {
+        if (xferHeaderName.isBlank()) {
           LOG.warn("Ignoring invalid transfer header {}", headerName);
           continue;
         }
@@ -99,9 +101,9 @@ public class TransferFilterSupport implements TpcUtils {
       }
     }
 
-    if (isPushTpc(request, localURLService) && request.getContentLength() >= enableExpectContinueThreshold) {
-      xferHeaders.put(org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE,
-          org.apache.http.protocol.HTTP.EXPECT_CONTINUE);
+    if (isPushTpc(request, localURLService)
+        && request.getContentLength() >= enableExpectContinueThreshold) {
+      xferHeaders.put(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
     }
 
     return xferHeaders;
@@ -184,7 +186,7 @@ public class TransferFilterSupport implements TpcUtils {
 
     Optional<String> pathInfo = Optional.ofNullable(request.getPathInfo());
 
-    if (!pathInfo.isPresent() || pathInfo.get().trim().length() == 0) {
+    if (!pathInfo.isPresent() || pathInfo.get().isBlank()) {
       invalidRequest(response, "Null or empty local path information!");
       return false;
     }
@@ -213,7 +215,7 @@ public class TransferFilterSupport implements TpcUtils {
 
     Optional<String> pathInfo = Optional.ofNullable(request.getPathInfo());
 
-    if (!pathInfo.isPresent() || pathInfo.get().trim().length() == 0) {
+    if (!pathInfo.isPresent() || pathInfo.get().isBlank()) {
       invalidRequest(response, "Null or empty local path information!");
       return false;
     }
@@ -286,7 +288,7 @@ public class TransferFilterSupport implements TpcUtils {
 
       String val = overwrite.get();
 
-      if (val.trim().length() == 0 || val.trim().length() > 1
+      if (val.isBlank() || val.trim().length() > 1
           || (!"T".equalsIgnoreCase(val) && !"F".equalsIgnoreCase(val))) {
         invalidOverwrite = true;
       }
@@ -304,7 +306,7 @@ public class TransferFilterSupport implements TpcUtils {
 
       String val = checksum.get();
 
-      if (val.trim().length() == 0 || (!"true".equals(val) && !"false".equals(val))) {
+      if (val.isBlank() || (!"true".equals(val) && !"false".equals(val))) {
         invalidChecksum = true;
       }
 

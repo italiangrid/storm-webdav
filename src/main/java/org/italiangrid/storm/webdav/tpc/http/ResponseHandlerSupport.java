@@ -17,8 +17,8 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import java.util.Map;
 
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.client5.http.HttpResponseException;
 import org.slf4j.MDC;
 
 public abstract class ResponseHandlerSupport {
@@ -35,9 +35,9 @@ public abstract class ResponseHandlerSupport {
     }
   }
 
-  protected void checkResponseStatus(StatusLine sl) throws HttpResponseException {
-    if (sl.getStatusCode() >= 300) {
-      throw new HttpResponseException(sl.getStatusCode(), sl.getReasonPhrase());
+  protected void checkResponseStatus(HttpResponse response) throws HttpResponseException {
+    if (response.getCode() >= 300) {
+      throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
     }
   }
 

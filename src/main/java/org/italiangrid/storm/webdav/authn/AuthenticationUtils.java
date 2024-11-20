@@ -32,8 +32,7 @@ public class AuthenticationUtils {
   public static String getPalatableSubject(Authentication authn) {
     if (authn == null || authn instanceof AnonymousAuthenticationToken) {
       return "Anonymous user";
-    } else if (authn instanceof OAuth2AuthenticationToken) {
-      OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authn;
+    } else if (authn instanceof OAuth2AuthenticationToken authToken) {
       Map<String, Object> attributes = authToken.getPrincipal().getAttributes();
 
       String subjectIssuer = String.format("%s @ %s", attributes.get("sub"), attributes.get("iss"));
@@ -46,8 +45,7 @@ public class AuthenticationUtils {
 
     } else if (authn instanceof PreAuthenticatedAuthenticationToken) {
       return authn.getName();
-    } else if (authn instanceof JwtAuthenticationToken) {
-      JwtAuthenticationToken jwtToken = (JwtAuthenticationToken) authn;
+    } else if (authn instanceof JwtAuthenticationToken jwtToken) {
       return String.format("%s @ %s", jwtToken.getToken().getSubject(),
           jwtToken.getToken().getIssuer());
     } else {

@@ -15,7 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.redirector;
 
-import static javax.servlet.http.HttpServletResponse.SC_TEMPORARY_REDIRECT;
+import static jakarta.servlet.http.HttpServletResponse.SC_TEMPORARY_REDIRECT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -29,10 +29,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.redirector.RedirectFilter;
 import org.italiangrid.storm.webdav.redirector.RedirectionService;

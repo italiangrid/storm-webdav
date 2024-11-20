@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.oauth.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.util.StringUtils;
 
 /**
- * 
+ *
  * Does not raise error when a bearer token is found both as parameter and in the Authorization
  * header. Request parameter takes precedence
  *

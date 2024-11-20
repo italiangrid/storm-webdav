@@ -44,7 +44,7 @@ class AuthzTest {
   VOMSAuthenticationFilter filter;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     filter.setCheckForPrincipalChanges(false);
   }
 

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
@@ -39,14 +40,28 @@ public class ConsensusBasedManager implements AuthorizationManager<RequestAuthor
     this.managers = managers;
   }
 
+  /**
+   * @deprecated To be remove in Spring Security 7
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext requestAuthorizationContext) {
+    if (authorize(authentication,
+        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+      return authorizationDecision;
+    }
+    return null;
+  }
+
+  @Override
+  public AuthorizationResult authorize(Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
     int grant = 0;
     int notGrant = 0;
 
     for (AuthorizationManager<RequestAuthorizationContext> manager : managers) {
-      AuthorizationDecision result = manager.check(authentication, requestAuthorizationContext);
+      AuthorizationResult result = manager.authorize(authentication, requestAuthorizationContext);
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("Voter: {}, returned: {}", manager, result);
