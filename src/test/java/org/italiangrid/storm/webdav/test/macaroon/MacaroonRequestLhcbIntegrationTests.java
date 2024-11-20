@@ -80,7 +80,7 @@ public class MacaroonRequestLhcbIntegrationTests {
   ObjectMapper mapper;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     filter.setCheckForPrincipalChanges(false);
   }
 

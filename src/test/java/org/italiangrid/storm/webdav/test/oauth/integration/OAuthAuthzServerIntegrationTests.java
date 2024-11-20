@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.test.oauth.integration;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -30,6 +29,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
@@ -88,7 +88,7 @@ public class OAuthAuthzServerIntegrationTests {
   ObjectMapper mapper;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     filter.setCheckForPrincipalChanges(false);
   }
 
@@ -161,7 +161,9 @@ public class OAuthAuthzServerIntegrationTests {
   @WithMockVOMSUser
   void scopeLengthIsChecked() throws Exception {
 
-    String randomAlphabetic = randomAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
+    RandomStringUtils randomStringUtils = RandomStringUtils.insecure();
+
+    String randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
 
     mvc
       .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))
@@ -169,7 +171,7 @@ public class OAuthAuthzServerIntegrationTests {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token").exists());
 
-    randomAlphabetic = randomAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH + 1);
+    randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH + 1);
 
     mvc
       .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))

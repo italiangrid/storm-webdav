@@ -37,7 +37,7 @@ public abstract class StoRMResource implements Resource, PropFindableResource, M
   protected final StoRMResourceFactory resourceFactory;
   protected final File file;
 
-  public StoRMResource(StoRMResourceFactory factory, File f) {
+  protected StoRMResource(StoRMResourceFactory factory, File f) {
 
     resourceFactory = factory;
     file = f;

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.SAPermission;
@@ -70,7 +70,7 @@ public class JwtIssuerTest {
 
   public static final String ISSUER = "https://storm.example";
   public static final String AUTHN_SUBJECT = "CN=test";
-  public static final String SECRET = RandomStringUtils.random(256, true, true);
+  public static final String SECRET = RandomStringUtils.insecure().nextAlphanumeric(256);
 
   public static final int MAX_TOKEN_LIFETIME_SEC = 43200;
 

@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-import org.apache.http.client.ClientProtocolException;
+import org.apache.hc.client5.http.ClientProtocolException;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
@@ -82,17 +82,18 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
   }
 
   private void updateThroughput(GetTransferRequest request) {
-
-    if (request.endedSuccesfully() && request.transferThroughputBytesPerSec().isPresent()) {
-      pullThroughput.update(request.transferThroughputBytesPerSec().get().longValue());
+    if (request.endedSuccesfully()) {
+      request.transferThroughputBytesPerSec()
+        .ifPresent(transferThroughputBytesPerSec -> pullThroughput
+          .update(transferThroughputBytesPerSec.longValue()));
     }
-
   }
 
   private void updateThroughput(PutTransferRequest request) {
-
-    if (request.endedSuccesfully() && request.transferThroughputBytesPerSec().isPresent()) {
-      pushThroughput.update(request.transferThroughputBytesPerSec().get().longValue());
+    if (request.endedSuccesfully()) {
+      request.transferThroughputBytesPerSec()
+        .ifPresent(transferThroughputBytesPerSec -> pushThroughput
+          .update(transferThroughputBytesPerSec.longValue()));
     }
   }
 

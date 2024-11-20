@@ -22,7 +22,7 @@ Get PROPFIND PROPNAME body
   [Return]  ${output}
 
 Get PROPFIND PROP body  [Arguments]  ${propname}
-  ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:prop><D:${propname}/><prop/></D:propfind>"
+  ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:prop/><D:${propname}/></D:propfind>"
   [Return]  ${output}
 
 

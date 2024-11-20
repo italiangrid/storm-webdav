@@ -20,22 +20,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.italiangrid.storm.webdav.server.util.JettyErrorPageHandler;
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
+import org.eclipse.jetty.ee10.webapp.Configuration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 
 public class DefaultJettyServletWebServerFactory extends JettyServletWebServerFactory {
-
-  @Override
-  protected void postProcessWebAppContext(WebAppContext context) {
-    context.setCompactPath(true);
-  }
 
   @Override
   protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
@@ -49,32 +42,30 @@ public class DefaultJettyServletWebServerFactory extends JettyServletWebServerFa
   }
 
   private Configuration getStormErrorPageConfiguration() {
-    return new AbstractConfiguration() {
+    return new AbstractConfiguration(new AbstractConfiguration.Builder()) {
 
       @Override
       public void configure(WebAppContext context) throws Exception {
-        JettyErrorPageHandler errorHandler = new JettyErrorPageHandler();
+        ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
         context.setErrorHandler(errorHandler);
         addErrorPages(errorHandler, getErrorPages());
         errorHandler.setShowStacks(false);
       }
 
-      private void addErrorPages(ErrorHandler errorHandler, Collection<ErrorPage> errorPages) {
-        if (errorHandler instanceof ErrorPageErrorHandler handler) {
-          for (ErrorPage errorPage : errorPages) {
-            if (errorPage.isGlobal()) {
-              handler.addErrorPage(ErrorPageErrorHandler.GLOBAL_ERROR_PAGE, errorPage.getPath());
+      private void addErrorPages(ErrorPageErrorHandler errorHandler,
+          Collection<ErrorPage> errorPages) {
+        for (ErrorPage errorPage : errorPages) {
+          if (errorPage.isGlobal()) {
+            errorHandler.addErrorPage(ErrorPageErrorHandler.GLOBAL_ERROR_PAGE, errorPage.getPath());
+          } else {
+            if (errorPage.getExceptionName() != null) {
+              errorHandler.addErrorPage(errorPage.getExceptionName(), errorPage.getPath());
             } else {
-              if (errorPage.getExceptionName() != null) {
-                handler.addErrorPage(errorPage.getExceptionName(), errorPage.getPath());
-              } else {
-                handler.addErrorPage(errorPage.getStatusCode(), errorPage.getPath());
-              }
+              errorHandler.addErrorPage(errorPage.getStatusCode(), errorPage.getPath());
             }
           }
         }
       }
-
     };
   }
 }

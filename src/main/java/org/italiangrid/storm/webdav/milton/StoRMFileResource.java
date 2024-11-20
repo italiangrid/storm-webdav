@@ -33,7 +33,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
@@ -205,7 +204,7 @@ public class StoRMFileResource extends StoRMResource
   public void setProperty(QName name, Object value)
       throws PropertySetException, NotAuthorizedException {
 
-    throw new NotImplementedException("StoRM WebDAV does not support setting DAV properties.");
+    throw new UnsupportedOperationException("StoRM WebDAV does not support setting DAV properties.");
   }
 
   @Override
@@ -225,7 +224,8 @@ public class StoRMFileResource extends StoRMResource
       String contentType)
       throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 
-    throw new NotImplementedException();
+    // Not implemented
+    throw new UnsupportedOperationException();
 
   }
 

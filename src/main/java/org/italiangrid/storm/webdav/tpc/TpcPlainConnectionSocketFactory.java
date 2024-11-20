@@ -18,9 +18,10 @@ package org.italiangrid.storm.webdav.tpc;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.TimeValue;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 
@@ -38,7 +39,7 @@ public class TpcPlainConnectionSocketFactory extends PlainConnectionSocketFactor
   }
 
   @Override
-  public Socket connectSocket(int connectTimeout, Socket socket, HttpHost host,
+  public Socket connectSocket(TimeValue connectTimeout, Socket socket, HttpHost host,
       InetSocketAddress remoteAddress, InetSocketAddress localAddress, HttpContext context)
       throws IOException {
     Socket s =

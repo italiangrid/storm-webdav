@@ -85,7 +85,7 @@ public class StoRMDirectoryResource extends StoRMResource implements PutableReso
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
 
-    List<StoRMResource> childResources = new ArrayList<StoRMResource>();
+    List<StoRMResource> childResources = new ArrayList<>();
 
     for (File f : file.listFiles()) {
       if (f.isDirectory()) {
