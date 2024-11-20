@@ -28,8 +28,8 @@ import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperti
 
 import java.util.Collection;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;

@@ -17,7 +17,7 @@ package org.italiangrid.storm.webdav.authz.util;
 
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,5 +53,5 @@ public class CustomHttpMethodMatcher implements RequestMatcher, MatcherUtils {
   public String toString() {
     return "CustomHttpMethodMatcher [supportedMethods=" + supportedMethods + "]";
   }
-  
+
 }

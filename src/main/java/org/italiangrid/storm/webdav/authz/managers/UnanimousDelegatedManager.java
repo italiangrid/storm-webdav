@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
@@ -40,13 +41,26 @@ public class UnanimousDelegatedManager
     this.managers = managers;
   }
 
+  /**
+   * @deprecated To be remove in Spring Security 7
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext filter) {
+    if (authorize(authentication, filter) instanceof AuthorizationDecision authorizationDecision) {
+      return authorizationDecision;
+    }
+    return null;
+  }
+
+  @Override
+  public AuthorizationResult authorize(Supplier<Authentication> authentication,
       RequestAuthorizationContext filter) {
     int grant = 0;
 
     for (AuthorizationManager<RequestAuthorizationContext> manager : managers) {
-      AuthorizationDecision result = manager.check(authentication, filter);
+      AuthorizationResult result = manager.authorize(authentication, filter);
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("Voter: {}, returned: {}", manager, result);

@@ -15,15 +15,15 @@
  */
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,40 +45,45 @@ public class StormResourceWrapper extends Resource {
   final TemplateEngine engine;
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
+  final String pathInContext;
 
   public StormResourceWrapper(OAuthProperties oauth, ServiceConfigurationProperties serviceConfig,
-      TemplateEngine engine, Resource delegate) {
+      TemplateEngine engine, Resource delegate, String pathInContext) {
 
     this.oauthProperties = oauth;
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
+    this.pathInContext = pathInContext;
 
   }
 
+  // Adapted from
+  // https://github.com/jetty/jetty.project/blob/jetty-12.0.x/jetty-core/jetty-server/src/main/java/org/eclipse/jetty/server/ResourceListing.java
   /**
-   * Encode any characters that could break the URI string in an HREF. Such as <a
-   * href="/path/to;<script>Window.alert("XSS"+'%20'+"here");</script>">Link</a>
+   * <p>
+   * Encode any characters that could break the URI string in an HREF.
+   * </p>
    *
+   * <p>
+   * Such as: {@code <a href="/path/to;<script>Window.alert('XSS'+'%20'+'here');</script>">Link</a>}
+   * </p>
+   * <p>
    * The above example would parse incorrectly on various browsers as the "<" or '"' characters
    * would end the href attribute value string prematurely.
+   * </p>
    *
    * @param raw the raw text to encode.
    * @return the defanged text.
    */
   private static String hrefEncodeURI(String raw) {
-
     StringBuffer buf = null;
 
-    loop: for (int i = 0; i < raw.length(); i++) {
+    for (int i = 0; i < raw.length(); i++) {
       char c = raw.charAt(i);
-      switch (c) {
-        case '\'':
-        case '"':
-        case '<':
-        case '>':
-          buf = new StringBuffer(raw.length() << 1);
-          break loop;
+      if (c == '\'' || c == '"' || c == '<' || c == '>') {
+        buf = new StringBuffer(raw.length() << 1);
+        break;
       }
     }
     if (buf == null)
@@ -87,39 +92,21 @@ public class StormResourceWrapper extends Resource {
     for (int i = 0; i < raw.length(); i++) {
       char c = raw.charAt(i);
       switch (c) {
-        case '"':
-          buf.append("%22");
-          continue;
-        case '\'':
-          buf.append("%27");
-          continue;
-        case '<':
-          buf.append("%3C");
-          continue;
-        case '>':
-          buf.append("%3E");
-          continue;
-        default:
-          buf.append(c);
-          continue;
+        case '"' -> buf.append("%22");
+        case '\'' -> buf.append("%27");
+        case '<' -> buf.append("%3C");
+        case '>' -> buf.append("%3E");
+        default -> buf.append(c);
       }
     }
 
     return buf.toString();
   }
 
-
-  @Override
-  public String getListHTML(String base, boolean parent, String query) throws IOException {
-
+  public String getListHTML(String base) {
     base = URIUtil.canonicalPath(base);
-    if (base == null || !isDirectory())
-      return null;
 
-    String[] rawListing = list();
-    if (rawListing == null) {
-      return null;
-    }
+    List<Resource> rawListing = list();
 
     Context context = new Context();
 
@@ -139,17 +126,16 @@ public class StormResourceWrapper extends Resource {
 
     String parentDir = URIUtil.addPaths(encodedBase, "../");
 
-    Arrays.sort(rawListing);
+    Collections.sort(rawListing, (a, b) -> a.getFileName().compareTo(b.getFileName()));
 
     List<StormFsResourceView> resources = new ArrayList<>();
 
-    for (String l : rawListing) {
-      Resource r = addPath(l);
+    for (Resource r : rawListing) {
       resources.add(StormFsResourceView.builder()
-        .withName(l)
-        .withPath(URIUtil.addEncodedPaths(encodedBase, URIUtil.encodePath(l)))
+        .withName(r.getFileName())
+        .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
         .withIsDirectory(r.isDirectory())
-        .withLastModificationTime(new Date(r.lastModified()))
+        .withLastModificationTime(Date.from(r.lastModified()))
         .withSizeInBytes(r.length())
         .build());
     }
@@ -161,29 +147,23 @@ public class StormResourceWrapper extends Resource {
   }
 
   @Override
-  public boolean isContainedIn(Resource r) throws MalformedURLException {
-
-    return delegate.isContainedIn(r);
-  }
-
-  @Override
-  public void close() {
-
-    delegate.close();
-  }
-
-  @Override
   public boolean exists() {
     return delegate.exists();
   }
 
   @Override
   public boolean isDirectory() {
-    return delegate.isDirectory();
+    // We must lie otherwise Jetty uses its non-overridable directory listing
+    return false;
   }
 
   @Override
-  public long lastModified() {
+  public boolean isReadable() {
+    return delegate.isReadable();
+  }
+
+  @Override
+  public Instant lastModified() {
     return delegate.lastModified();
   }
 
@@ -192,15 +172,14 @@ public class StormResourceWrapper extends Resource {
     return delegate.length();
   }
 
-  @SuppressWarnings("deprecation")
   @Override
-  public URL getURL() {
-    return delegate.getURL();
+  public URI getURI() {
+    return delegate.getURI();
   }
 
   @Override
-  public File getFile() throws IOException {
-    return delegate.getFile();
+  public String getFileName() {
+    return delegate.getFileName();
   }
 
   @Override
@@ -209,85 +188,23 @@ public class StormResourceWrapper extends Resource {
   }
 
   @Override
-  public InputStream getInputStream() throws IOException {
-    return delegate.getInputStream();
+  public Path getPath() {
+    // We must lie so Jetty uses our overrided newInputStream
+    return null;
   }
 
   @Override
-  public ReadableByteChannel getReadableByteChannel() throws IOException {
-    return delegate.getReadableByteChannel();
+  public InputStream newInputStream() throws IOException {
+    return new ByteArrayInputStream(getListHTML(pathInContext).getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
-  public boolean delete() throws SecurityException {
-    return delegate.delete();
-  }
-
-  @Override
-  public boolean renameTo(Resource dest) throws SecurityException {
-    return delegate.renameTo(dest);
-  }
-
-  @Override
-  public String[] list() {
+  public List<Resource> list() {
     return delegate.list();
   }
 
   @Override
-  public Resource addPath(String path) throws IOException {
-    return delegate.addPath(path);
+  public Resource resolve(String subUriPath) {
+    return delegate.resolve(subUriPath);
   }
-
-  @Override
-  public void writeTo(OutputStream out, long start, long count) throws IOException {
-
-    try (InputStream in = getInputStream()) {
-      if (start > 0) {
-        long n = in.skip(start);
-        if (n < start) {
-          throw new IOException("Skipped " + start + " bytes but read " + n);
-        }
-      }
-      if (count < 0) {
-        internalCopy(in, out);
-      } else {
-        internalCopy(in, out, count);
-      }
-    }
-
-  }
-
-  private void internalCopy(InputStream in, OutputStream out, long byteCount) throws IOException {
-
-    int bufferSize = serviceConfig.getBuffer().getFileBufferSizeBytes();
-    byte[] buffer = new byte[bufferSize];
-    int len = bufferSize;
-
-    if (byteCount >= 0) {
-      while (byteCount > 0) {
-        int max = byteCount < bufferSize ? (int) byteCount : bufferSize;
-        len = in.read(buffer, 0, max);
-
-        if (len == -1)
-          break;
-
-        byteCount -= len;
-        out.write(buffer, 0, len);
-      }
-    } else {
-      while (true) {
-        len = in.read(buffer, 0, bufferSize);
-        if (len < 0)
-          break;
-        out.write(buffer, 0, len);
-      }
-    }
-
-  }
-
-  private void internalCopy(InputStream in, OutputStream out) throws IOException {
-    internalCopy(in, out, -1);
-  }
-
-
 }

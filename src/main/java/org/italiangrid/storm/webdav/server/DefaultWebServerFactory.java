@@ -24,7 +24,7 @@ import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
+import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
@@ -45,10 +45,10 @@ public class DefaultWebServerFactory
   }
 
   private InstrumentedQueuedThreadPool getInstrumentedThreadPool() {
-    InstrumentedQueuedThreadPool tPool =
-        new InstrumentedQueuedThreadPool(metricRegistry, configuration.getMaxConnections(),
-            configuration.getMinConnections(), configuration.getThreadPoolMaxIdleTimeInMsec(),
-            new ArrayBlockingQueue<>(configuration.getMaxQueueSize()), "storm.http");
+    InstrumentedQueuedThreadPool tPool = new InstrumentedQueuedThreadPool(metricRegistry,
+        configuration.getMaxConnections(), configuration.getMinConnections(),
+        configuration.getThreadPoolMaxIdleTimeInMsec(),
+        new ArrayBlockingQueue<>(configuration.getMaxQueueSize()), new ThreadGroup("storm.http"));
     tPool.setName("thread-pool");
     return tPool;
   }

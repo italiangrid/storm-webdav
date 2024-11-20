@@ -70,27 +70,27 @@ class AvoidTraceMethodFilterTest {
 
   @Test
   void trackAsAnonymousLeadsTo405() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/test/file")))
+    mvc.perform(MockMvcRequestBuilders.request(HttpMethod.valueOf("TRACK"), new URI("/test/file")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   void trackAsNonAnonymousLeadsTo405() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/wlcg/file")))
+    mvc.perform(MockMvcRequestBuilders.request(HttpMethod.valueOf("TRACK"), new URI("/wlcg/file")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void trackAsAnonymousOnRootLeadsTo405() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/")))
+    mvc.perform(MockMvcRequestBuilders.request(HttpMethod.valueOf("TRACK"), new URI("/")))
       .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   void trackAsNonAnonymousOnRootLeadsTo405() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.request("TRACK", new URI("/")))
+    mvc.perform(MockMvcRequestBuilders.request(HttpMethod.valueOf("TRACK"), new URI("/")))
       .andExpect(status().isMethodNotAllowed());
   }
 

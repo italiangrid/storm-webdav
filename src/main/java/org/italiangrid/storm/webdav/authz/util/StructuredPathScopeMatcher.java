@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   public static StructuredPathScopeMatcher fromString(String scope) {
     final int sepIndex = scope.indexOf(SEP);
     final String prefix = scope.substring(0, sepIndex);
-    final String path = scope.substring(sepIndex+1, scope.length());
+    final String path = scope.substring(sepIndex + 1, scope.length());
     return new StructuredPathScopeMatcher(prefix, path);
   }
 

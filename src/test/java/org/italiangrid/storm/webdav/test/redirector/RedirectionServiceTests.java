@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
@@ -79,9 +79,10 @@ class RedirectionServiceTests extends RedirectorTestSupport {
   DefaultRedirectionService service;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     config = buildConfigurationProperties();
-    lenient().when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any())).thenReturn(token);
+    lenient().when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any()))
+      .thenReturn(token);
     lenient().when(token.serialize()).thenReturn(RANDOM_TOKEN_STRING);
     lenient().when(selector.selectReplica()).thenReturn(Optional.empty());
     lenient().when(request.getServletPath()).thenReturn(PATH);
