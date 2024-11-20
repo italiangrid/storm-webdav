@@ -17,9 +17,10 @@ spring:
   session:
     store-type: redis
 
-  redis:
-    host: redis.host.example
-    port: 6379
+  data:
+    redis:
+      host: redis.host.example
+      port: 6379
 
 management:
   health:
@@ -30,4 +31,4 @@ management:
 For other redis connection configuration options, see the [Spring boot reference guide][spring-boot-reference].
 
 [redis]: https://redis.io/
-[spring-boot-reference]: https://docs.spring.io/spring-boot/docs/2.2.9.RELEASE/reference/htmlsingle/#data-properties
+[spring-boot-reference]: https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.data

@@ -21,10 +21,10 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GetResponseHandler extends ResponseHandlerSupport
-    implements org.apache.http.client.ResponseHandler<Boolean> {
+    implements HttpClientResponseHandler<Boolean> {
 
 
   public static final int DEFAULT_BUFFER_SIZE = 4096;
@@ -83,15 +83,14 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
 
   @Override
-  public Boolean handleResponse(HttpResponse response) throws IOException {
+  public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
 
     setupMDC();
     LOG.debug("Response: {}", response);
 
-    StatusLine sl = response.getStatusLine();
     HttpEntity entity = response.getEntity();
 
-    checkResponseStatus(sl);
+    checkResponseStatus(response);
 
     Adler32ChecksumOutputStream checkedStream = null;
 

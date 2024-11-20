@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;

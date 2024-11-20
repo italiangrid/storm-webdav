@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PathResolverTests {
+class PathResolverTests {
 
   private static final String ROOTDIR = "/storage";
 
@@ -44,7 +44,7 @@ public class PathResolverTests {
   private static Map<String, String> input;
 
   @BeforeAll
-  public static void init() {
+  static void init() {
 
     input = new HashMap<String, String>();
     input.put("test.vo.bis", "testers.eu-emi.eu");
@@ -64,7 +64,7 @@ public class PathResolverTests {
   List<StorageAreaInfo> saInfoList;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
 
     saInfoList = new ArrayList<StorageAreaInfo>();
     for (String ap : input.keySet()) {

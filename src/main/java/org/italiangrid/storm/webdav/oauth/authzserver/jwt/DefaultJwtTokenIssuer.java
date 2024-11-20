@@ -74,11 +74,10 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
 
   protected Optional<Instant> vomsAcExpiration(Authentication authentication) {
 
-    if (authentication.getDetails() instanceof VOMSAuthenticationDetails details) {
-      if (!details.getVomsAttributes().isEmpty()) {
-        Date acNotAfter = details.getVomsAttributes().get(0).getNotAfter();
-        return Optional.of(acNotAfter.toInstant());
-      }
+    if (authentication.getDetails() instanceof VOMSAuthenticationDetails details
+        && !details.getVomsAttributes().isEmpty()) {
+      Date acNotAfter = details.getVomsAttributes().get(0).getNotAfter();
+      return Optional.of(acNotAfter.toInstant());
     }
 
     return Optional.empty();

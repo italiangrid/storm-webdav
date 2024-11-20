@@ -18,8 +18,9 @@ package org.italiangrid.storm.webdav.server;
 import java.io.File;
 import java.nio.file.Paths;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
+import org.eclipse.jetty.rewrite.handler.CompactPathRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -37,8 +38,8 @@ import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.util.StringUtils;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
-import com.codahale.metrics.jetty9.InstrumentedHandler;
+import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
+import io.dropwizard.metrics.jetty12.ee10.InstrumentedEE10Handler;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -147,8 +148,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     RewriteHandler rh = new RewriteHandler();
 
-    rh.setRewritePathInfo(true);
-    rh.setRewriteRequestURI(true);
+    CompactPathRule compactPathRule = new CompactPathRule();
 
     RewriteRegexRule dropLegacyWebDAV = new RewriteRegexRule();
     dropLegacyWebDAV.setRegex("/webdav/(.*)");
@@ -158,12 +158,13 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     dropLegacyFileTransfer.setRegex("/fileTransfer/(.*)");
     dropLegacyFileTransfer.setReplacement("/$1");
 
+    rh.addRule(compactPathRule);
     rh.addRule(dropLegacyWebDAV);
     rh.addRule(dropLegacyFileTransfer);
 
     rh.setHandler(server.getHandler());
 
-    InstrumentedHandler ih = new InstrumentedHandler(metricRegistry, "storm.http.handler");
+    InstrumentedEE10Handler ih = new InstrumentedEE10Handler(metricRegistry, "storm.http.handler");
     ih.setHandler(rh);
     server.setHandler(ih);
 

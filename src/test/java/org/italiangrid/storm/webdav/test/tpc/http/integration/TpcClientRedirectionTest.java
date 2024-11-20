@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.test.tpc.http.integration;
 
+import static org.mockserver.configuration.Configuration.configuration;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
@@ -24,21 +25,14 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.HttpsURLConnection;
 
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.italiangrid.storm.webdav.WebdavService;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.test.tpc.http.integration.TpcClientRedirectionTest.TestConfig;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
@@ -48,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.logging.MockServerLogger;
 import org.mockserver.matchers.Times;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.socket.PortFactory;
@@ -88,42 +83,31 @@ public class TpcClientRedirectionTest {
     @Primary
     public HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
         ServiceConfiguration conf) {
-
-      SSLContext ctx = KeyStoreFactory.keyStoreFactory().sslContext();
-      ConnectionSocketFactory sf = PlainConnectionSocketFactory.getSocketFactory();
-      LayeredConnectionSocketFactory tlsSf = new SSLConnectionSocketFactory(ctx);
-
-      Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
-        .register(TransferConstants.HTTP, sf)
-        .register(TransferConstants.HTTPS, tlsSf)
-        .register(TransferConstants.DAV, sf)
-        .register(TransferConstants.DAVS, tlsSf)
+      return PoolingHttpClientConnectionManagerBuilder.create()
+        .setMaxConnTotal(props.getMaxConnections())
         .build();
-
-      PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
-      cm.setMaxTotal(props.getMaxConnections());
-      return cm;
     }
   }
 
   @BeforeAll
-  public static void startMockServer() {
-    // port = findAvailableTcpPort(15000);
-
+  static void startMockServer() {
+    // Ensure all connection using HTTPS will use the SSL context defined by
+    // MockServer to allow dynamically generated certificates to be accepted
+    HttpsURLConnection.setDefaultSSLSocketFactory(
+        new KeyStoreFactory(configuration(), new MockServerLogger()).sslContext()
+          .getSocketFactory());
     httpPort = PortFactory.findFreePort();
     httpsPort = httpPort + 1;
     mockServer = startClientAndServer(httpPort, httpsPort);
-
-
   }
 
   @AfterAll
-  public static void stopMockServer() {
+  static void stopMockServer() {
     mockServer.stop();
   }
 
   @BeforeEach
-  public void before() {
+  void before() {
     mockServer.reset();
 
   }

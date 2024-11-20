@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.junit.jupiter.api.BeforeEach;

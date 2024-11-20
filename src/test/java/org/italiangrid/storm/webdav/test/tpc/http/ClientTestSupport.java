@@ -22,8 +22,8 @@ import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.BufferProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -79,7 +79,7 @@ public class ClientTestSupport {
   HttpTransferClient client;
 
   @Captor
-  ArgumentCaptor<HttpGet> getRequest;
+  ArgumentCaptor<BasicClassicHttpRequest> getRequest;
 
   public static final String MOCKFS_WORKDIR = "/mockfs";
 
@@ -94,15 +94,14 @@ public class ClientTestSupport {
   }
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     ThirdPartyCopyProperties props = new ThirdPartyCopyProperties();
     ServiceConfigurationProperties config = new ServiceConfigurationProperties();
     BufferProperties buffer = new BufferProperties();
     config.setBuffer(buffer);
 
-    client =
-        new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, props,
-            config);
+    client = new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, props,
+        config);
   }
 
 }

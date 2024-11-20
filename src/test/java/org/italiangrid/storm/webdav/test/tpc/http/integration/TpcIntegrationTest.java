@@ -69,18 +69,18 @@ public class TpcIntegrationTest {
 
 
   @BeforeAll
-  public static void startMockServer() {
+  static void startMockServer() {
     port = findAvailableTcpPort();
     mockServer = startClientAndServer(port);
   }
 
   @AfterAll
-  public static void stopMockServer() {
+  static void stopMockServer() {
     mockServer.stop();
   }
 
   @BeforeEach
-  public void before() {
+  void before() {
     mockServer.reset();
   }
 

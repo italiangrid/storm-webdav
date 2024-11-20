@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,6 +61,8 @@ public class AuthorizationIntegrationTests {
   public static final String AUTHORIZED_JWT_CLIENT_ID = "1234";
   public static final String UNAUTHORIZED_JWT_CLIENT_ID = "5678";
 
+  public static final HttpMethod COPY_HTTP_METHOD = HttpMethod.valueOf("COPY");
+  public static final HttpMethod MOVE_HTTP_METHOD = HttpMethod.valueOf("MOVE");
 
   @Autowired
   private MockMvc mvc;
@@ -74,7 +77,7 @@ public class AuthorizationIntegrationTests {
   private StormJwtAuthoritiesConverter authConverter;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     filter.setCheckForPrincipalChanges(false);
 
     HttpManager httpManager = Mockito.mock(HttpManager.class);
@@ -300,17 +303,17 @@ public class AuthorizationIntegrationTests {
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
   @Test
   void localVomsCopyRequiresWithReadPermissionsGetsAccessDenied() throws Exception {
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source")).header("Destination",
-        "http://localhost/wlcg/destination"))
+    mvc
+      .perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+        .header("Destination", "http://localhost/wlcg/destination"))
       .andExpect(status().isForbidden());
   }
 
   @WithMockVOMSUser(vos = "wlcg", saWritePermissions = {"wlcg"}, saReadPermissions = {"wlcg"})
   @Test
   void localVomsCopyRequiresReadAndWritePermissions() throws Exception {
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source")).header("Destination",
-        "http://localhost/wlcg/destination"))
-      .andExpect(status().isOk());
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+      .header("Destination", "http://localhost/wlcg/destination")).andExpect(status().isOk());
   }
 
   @Test
@@ -322,7 +325,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Source", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
   }
@@ -336,7 +339,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.modify:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Source", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isAccepted());
   }
@@ -350,7 +353,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.modify:/subdir storage.read:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Source", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
   }
@@ -365,7 +368,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -376,7 +379,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.modify:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -387,7 +390,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/ storage.modify:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isOk());
 
@@ -398,7 +401,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/subdir storage.modify:/")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -409,7 +412,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/ storage.modify:/subdir")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -420,7 +423,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/source storage.modify:/destination")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isOk());
   }
@@ -434,7 +437,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.read:/")
       .build();
 
-    mvc.perform(request("MOVE", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -445,7 +448,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.modify:/")
       .build();
 
-    mvc.perform(request("MOVE", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isOk());
 
@@ -457,7 +460,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "storage.modify:/subdir")
       .build();
 
-    mvc.perform(request("MOVE", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isForbidden());
 
@@ -469,7 +472,7 @@ public class AuthorizationIntegrationTests {
       .claim("scope", "openid storage.modify:/source storage.modify:/destination")
       .build();
 
-    mvc.perform(request("MOVE", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token))).andExpect(status().isOk());
   }
@@ -484,7 +487,7 @@ public class AuthorizationIntegrationTests {
       .subject("123")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
 
@@ -496,7 +499,7 @@ public class AuthorizationIntegrationTests {
       .claim("groups", "/example/admins")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isOk());
 
@@ -507,7 +510,7 @@ public class AuthorizationIntegrationTests {
       .claim("groups", "/example")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
 
@@ -518,7 +521,7 @@ public class AuthorizationIntegrationTests {
       .claim("groups", "/example/admins")
       .build();
 
-    mvc.perform(request("COPY", URI.create("http://localhost/wlcg/source"))
+    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
       .header("Destination", "http://localhost/wlcg/destination")
       .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
 

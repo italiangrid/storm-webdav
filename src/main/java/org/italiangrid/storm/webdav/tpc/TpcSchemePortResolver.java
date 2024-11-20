@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.italiangrid.storm.webdav.tpc.transfer;
+package org.italiangrid.storm.webdav.tpc;
 
-import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.impl.DefaultSchemePortResolver;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.net.NamedEndpoint;
 
-public interface TransferClient {
+public class TpcSchemePortResolver extends DefaultSchemePortResolver {
 
-  void handle(GetTransferRequest request, TransferStatusCallback status)
-      throws ClientProtocolException;
-
-  void handle(PutTransferRequest request, TransferStatusCallback status)
-      throws ClientProtocolException;
+  @Override
+  public int resolve(String scheme, final NamedEndpoint endpoint) {
+    if (scheme.equals(TransferConstants.DAV)) {
+      scheme = URIScheme.HTTP.toString();
+    } else if (scheme.equals(TransferConstants.DAVS)) {
+      scheme = URIScheme.HTTPS.toString();
+    }
+    return super.resolve(scheme, endpoint);
+  }
 
 }

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,8 +109,8 @@ class PullTransferTest extends TransferFilterTestSupport {
     when(request.getHeader(TRANSFER_HEADER_SCITAG)).thenReturn(SCITAG_HEADER_VALUE);
     when(request.getHeader(SCITAG_HEADER)).thenReturn(null);
 
-    when(request.getHeaderNames()).thenReturn(enumeration(
-        asList(TRANSFER_HEADER_AUTHORIZATION_KEY, TRANSFER_HEADER_WHATEVER_KEY, TRANSFER_HEADER_SCITAG)));
+    when(request.getHeaderNames()).thenReturn(enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY,
+        TRANSFER_HEADER_WHATEVER_KEY, TRANSFER_HEADER_SCITAG)));
 
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -134,8 +134,8 @@ class PullTransferTest extends TransferFilterTestSupport {
 
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);

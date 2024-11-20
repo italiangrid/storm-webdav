@@ -44,14 +44,12 @@ public class PrincipalHelper {
   public String getPrincipalAsString(Authentication authn) {
     if (authn == null || authn instanceof AnonymousAuthenticationToken) {
       return ANONYMOUS;
-    } else if (authn instanceof OAuth2AuthenticationToken) {
-      OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authn;
+    } else if (authn instanceof OAuth2AuthenticationToken authToken) {
       Map<String, Object> attributes = authToken.getPrincipal().getAttributes();
       return String.format("%s@%s", attributes.get("sub"), attributes.get("iss"));
     } else if (authn instanceof PreAuthenticatedAuthenticationToken) {
       return authn.getName();
-    } else if (authn instanceof JwtAuthenticationToken) {
-      JwtAuthenticationToken jwtToken = (JwtAuthenticationToken) authn;
+    } else if (authn instanceof JwtAuthenticationToken jwtToken) {
       if (localAuthzServerIssuer.isPresent()
           && localAuthzServerIssuer.get().equals(jwtToken.getToken().getIssuer())) {
         return jwtToken.getToken().getSubject();

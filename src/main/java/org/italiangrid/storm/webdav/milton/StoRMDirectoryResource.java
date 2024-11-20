@@ -37,13 +37,12 @@ import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.CollectionResource;
 import io.milton.resource.CopyableResource;
 import io.milton.resource.DeletableCollectionResource;
-import io.milton.resource.DeletableResource;
 import io.milton.resource.MakeCollectionableResource;
 import io.milton.resource.PutableResource;
 import io.milton.resource.Resource;
 
 public class StoRMDirectoryResource extends StoRMResource implements PutableResource,
-    MakeCollectionableResource, DeletableResource, DeletableCollectionResource, CopyableResource {
+    MakeCollectionableResource, DeletableCollectionResource, CopyableResource {
 
   private static final Logger logger = LoggerFactory.getLogger(StoRMDirectoryResource.class);
 
@@ -85,7 +84,7 @@ public class StoRMDirectoryResource extends StoRMResource implements PutableReso
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
 
-    List<StoRMResource> childResources = new ArrayList<StoRMResource>();
+    List<StoRMResource> childResources = new ArrayList<>();
 
     for (File f : file.listFiles()) {
       if (f.isDirectory()) {

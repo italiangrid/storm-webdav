@@ -26,6 +26,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,16 +38,17 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.io.ManagedHttpClientConnection;
+import org.apache.hc.client5.http.impl.ChainElement;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
@@ -89,9 +91,9 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.util.CANLListener;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
-import org.italiangrid.storm.webdav.tpc.TpcPlainConnectionSocketFactory;
-import org.italiangrid.storm.webdav.tpc.TpcSSLConnectionSocketFactory;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
+import org.italiangrid.storm.webdav.tpc.TpcSchemePortResolver;
+import org.italiangrid.storm.webdav.tpc.TpcTlsSocketStrategy;
+import org.italiangrid.storm.webdav.tpc.http.DropAuthorizationHeaderExec;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
@@ -108,6 +110,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.session.MapSession;
+import org.springframework.session.MapSessionRepository;
+import org.springframework.session.SessionRepository;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -245,6 +250,17 @@ public class AppConfig {
   HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
       ServiceConfiguration conf) throws KeyStoreException, CertificateException, IOException,
       NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
+
+    Http1Config customHttpConfig =
+        Http1Config.custom().setBufferSize(props.getHttpClientSocketBufferSize()).build();
+    HttpConnectionFactory<ManagedHttpClientConnection> connectionFactory =
+        ManagedHttpClientConnectionFactory.builder().http1Config(customHttpConfig).build();
+
+    ConnectionConfig connectionConfig = ConnectionConfig.custom()
+      .setSocketTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
+      .setConnectTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
+      .build();
+
     PEMCredential serviceCredential = serviceCredential(conf);
 
     X509CertChainValidatorExt validator = canlCertChainCustomValidator(conf,
@@ -270,42 +286,30 @@ public class AppConfig {
       ctx.init(null, new TrustManager[] {tm}, null);
     }
 
-    ConnectionSocketFactory sf = TpcPlainConnectionSocketFactory.getSocketFactory();
-    LayeredConnectionSocketFactory tlsSf = new TpcSSLConnectionSocketFactory(ctx);
-
-    Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
-      .register(TransferConstants.HTTP, sf)
-      .register(TransferConstants.HTTPS, tlsSf)
-      .register(TransferConstants.DAV, sf)
-      .register(TransferConstants.DAVS, tlsSf)
+    return PoolingHttpClientConnectionManagerBuilder.create()
+      .setConnectionFactory(connectionFactory)
+      .setDefaultConnectionConfig(connectionConfig)
+      .setMaxConnPerRoute(props.getMaxConnectionsPerRoute())
+      .setSchemePortResolver(new TpcSchemePortResolver())
+      .setTlsSocketStrategy(new TpcTlsSocketStrategy(ctx))
       .build();
-
-    PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
-    cm.setMaxTotal(props.getMaxConnections());
-    cm.setDefaultMaxPerRoute(props.getMaxConnectionsPerRoute());
-    return cm;
   }
 
   @Bean
   CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
       @Qualifier("tpcConnectionManager") HttpClientConnectionManager cm) {
 
-    ConnectionConfig connectionConfig =
-        ConnectionConfig.custom().setBufferSize(props.getHttpClientSocketBufferSize()).build();
-
-    int timeoutMsec = (int) TimeUnit.SECONDS.toMillis(props.getTimeoutInSecs());
     RequestConfig config = RequestConfig.custom()
       .setExpectContinueEnabled(false)
-      .setConnectTimeout(timeoutMsec)
-      .setConnectionRequestTimeout(timeoutMsec)
-      .setSocketTimeout(timeoutMsec)
+      .setConnectionRequestTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
       .build();
 
     return HttpClients.custom()
       .setConnectionManager(cm)
-      .setDefaultConnectionConfig(connectionConfig)
       .setDefaultRequestConfig(config)
       .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
+      .addExecInterceptorAfter(ChainElement.REDIRECT.name(), "DropAuthorizationHeader",
+          new DropAuthorizationHeaderExec(SuperLaxRedirectStrategy.INSTANCE))
       .build();
   }
 
@@ -451,6 +455,13 @@ public class AppConfig {
       throws MalformedURLException {
     return new PrincipalHelper(config);
   }
+
+  @Bean
+  @ConditionalOnProperty(name = "spring.session.store-type", havingValue = "none")
+  public SessionRepository<MapSession> sessionRepository() {
+    return new MapSessionRepository(new HashMap<>());
+  }
+
 }
 
 

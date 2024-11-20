@@ -22,8 +22,8 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.IN
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.INVALID_SCOPE;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidScopeError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidTokenRequestError;
@@ -58,7 +58,8 @@ public class AuthzServerController {
       throw new InvalidTokenRequestError(e.getDefaultMessage());
     }
     if (INVALID_GRANT_TYPE.equals(e.getDefaultMessage())) {
-      throw new UnsupportedGrantTypeError(format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
+      throw new UnsupportedGrantTypeError(
+          format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
     }
     throw new InvalidScopeError(e.getDefaultMessage() != null ? e.getDefaultMessage() : "");
   }

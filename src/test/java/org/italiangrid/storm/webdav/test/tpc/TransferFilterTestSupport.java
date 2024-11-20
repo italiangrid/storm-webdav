@@ -26,10 +26,12 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
+import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
@@ -76,8 +78,8 @@ public class TransferFilterTestSupport {
   public static final String[] INVALID_URLs =
       {"http:whatever", "httpg://storm.example/test", "gsiftp://whatever/test"};
 
-  public static final String EXPECTED_HEADER = org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE;
-  public static final String EXPECTED_VALUE = org.apache.http.protocol.HTTP.EXPECT_CONTINUE;
+  public static final String EXPECTED_HEADER = HttpHeaders.EXPECT;
+  public static final String EXPECTED_VALUE = HeaderElements.CONTINUE;
 
   @Mock
   FilterChain chain;
@@ -117,7 +119,7 @@ public class TransferFilterTestSupport {
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
   protected void setup() throws IOException {
-    filter = new TransferFilter(clock, client, resolver, lus, true, 1024L*1024L);
+    filter = new TransferFilter(clock, client, resolver, lus, true, 1024L * 1024L);
     lenient().when(request.getHeaderNames()).thenReturn(requestHeaderNames);
 
   }

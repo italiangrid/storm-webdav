@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
@@ -106,8 +106,9 @@ public interface TpcUtils {
   }
 
   default boolean isPushTpc(HttpServletRequest request, LocalURLService localUrlService) {
-    return "COPY".equals(request.getMethod()) && (requestHasRemoteDestinationHeader(request, localUrlService)
-        || requestHasTranferHeader(request));
+    return "COPY".equals(request.getMethod())
+        && (requestHasRemoteDestinationHeader(request, localUrlService)
+            || requestHasTranferHeader(request));
   }
 
   default boolean requestHasTranferHeader(HttpServletRequest request) {

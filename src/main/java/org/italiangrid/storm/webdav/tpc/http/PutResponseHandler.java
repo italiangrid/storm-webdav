@@ -18,14 +18,15 @@ package org.italiangrid.storm.webdav.tpc.http;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-public class PutResponseHandler extends ResponseHandlerSupport implements ResponseHandler<Boolean> {
+public class PutResponseHandler extends ResponseHandlerSupport
+    implements HttpClientResponseHandler<Boolean> {
 
   public static final Logger LOG = LoggerFactory.getLogger(PutResponseHandler.class);
 
@@ -34,11 +35,11 @@ public class PutResponseHandler extends ResponseHandlerSupport implements Respon
   }
 
   @Override
-  public Boolean handleResponse(HttpResponse response) throws IOException {
+  public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
     setupMDC();
-    
+
     try {
-      checkResponseStatus(response.getStatusLine());
+      checkResponseStatus(response);
       return true;
     } finally {
       EntityUtils.consumeQuietly(response.getEntity());

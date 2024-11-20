@@ -30,14 +30,13 @@ import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.CollectionResource;
 import io.milton.resource.MoveableResource;
 import io.milton.resource.PropFindableResource;
-import io.milton.resource.Resource;
 
-public abstract class StoRMResource implements Resource, PropFindableResource, MoveableResource {
+public abstract class StoRMResource implements PropFindableResource, MoveableResource {
 
   protected final StoRMResourceFactory resourceFactory;
   protected final File file;
 
-  public StoRMResource(StoRMResourceFactory factory, File f) {
+  protected StoRMResource(StoRMResourceFactory factory, File f) {
 
     resourceFactory = factory;
     file = f;

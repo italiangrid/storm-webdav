@@ -19,13 +19,14 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
+
+import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class Utils {
-
-  public static final String X509_CERT_REQ_ATTR = "javax.servlet.request.X509Certificate";
 
   private Utils() {
 
@@ -34,7 +35,8 @@ public class Utils {
   public static Optional<X509Certificate[]> getCertificateChainFromRequest(
       HttpServletRequest request) {
 
-    X509Certificate[] chain = (X509Certificate[]) request.getAttribute(X509_CERT_REQ_ATTR);
+    X509Certificate[] chain =
+        (X509Certificate[]) request.getAttribute(ServletContextRequest.PEER_CERTIFICATES);
 
     return Optional.ofNullable(chain);
   }

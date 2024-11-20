@@ -66,9 +66,11 @@ public class StoRMResourceFactory implements ResourceFactory {
     LOG.debug("getResource: path={}, resolvedPath={}", path, requestedFile.getAbsolutePath());
 
     if (!requestedFile.exists()) {
-      LOG.debug(
-          "Requested file '{}' does not exists or user {} does not have the rights to read it.",
-          requestedFile, System.getProperty("user.name"));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            "Requested file '{}' does not exists or user {} does not have the rights to read it.",
+            requestedFile, System.getProperty("user.name"));
+      }
       return null;
     }
 
@@ -88,7 +90,7 @@ public class StoRMResourceFactory implements ResourceFactory {
 
     return attrsHelper;
   }
-  
+
   public ReplaceContentStrategy getReplaceContentStrategy() {
     return rcs;
   }

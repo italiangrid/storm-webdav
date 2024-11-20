@@ -33,18 +33,15 @@ public class StormFsResourceView {
 
   private StormFsResourceView(Builder b) {
     if (b.isDirectory && !b.name.endsWith("/")) {
-      this.name = b.name +"/";
+      this.name = b.name + "/";
     } else {
       this.name = b.name;
     }
-    
     this.isDirectory = b.isDirectory;
     this.path = b.path;
     this.sizeInBytes = b.sizeInBytes;
     this.lastModificationTime = b.lastModificationTime;
     this.creationTime = b.creationTime;
-    
-    
   }
 
   public String getName() {
@@ -80,6 +77,7 @@ public class StormFsResourceView {
   public static Builder builder() {
     return new Builder();
   }
+
   public static class Builder {
     String name;
     boolean isDirectory;
