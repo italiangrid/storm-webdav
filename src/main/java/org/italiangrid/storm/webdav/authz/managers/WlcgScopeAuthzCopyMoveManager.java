@@ -32,6 +32,7 @@ import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
@@ -45,9 +46,22 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
     super(config, resolver, pdp, localUrlService, true);
   }
 
-
+  /**
+   * @deprecated To be remove in Spring Security 7
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(Supplier<Authentication> authentication,
+      RequestAuthorizationContext requestAuthorizationContext) {
+    if (authorize(authentication,
+        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+      return authorizationDecision;
+    }
+    return null;
+  }
+
+  @Override
+  public AuthorizationResult authorize(Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
 
     if (!(authentication.get() instanceof JwtAuthenticationToken)) {

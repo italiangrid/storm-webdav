@@ -18,8 +18,12 @@ package org.italiangrid.storm.webdav.authz.expression;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOMapAuthority;
 import org.springframework.security.core.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StormSecurityExpressionMethods {
+
+  private static final Logger LOG = LoggerFactory.getLogger(StormSecurityExpressionMethods.class);
 
   final Authentication authentication;
 
@@ -28,6 +32,7 @@ public class StormSecurityExpressionMethods {
   }
 
   public boolean isVOMSAuthenticated() {
+    LOG.warn("isVOMSAuthenticated: {}", authentication.getAuthorities().stream().anyMatch(VOMSVOAuthority.class::isInstance));
     return authentication.getAuthorities().stream().anyMatch(VOMSVOAuthority.class::isInstance);
   }
 

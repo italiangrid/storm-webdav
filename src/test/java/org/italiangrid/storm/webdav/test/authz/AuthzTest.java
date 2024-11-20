@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,9 @@ class AuthzTest {
 
   @Autowired
   VOMSAuthenticationFilter filter;
+
+  @Autowired
+  ServiceConfigurationProperties props;
 
   @BeforeEach
   public void setup() {

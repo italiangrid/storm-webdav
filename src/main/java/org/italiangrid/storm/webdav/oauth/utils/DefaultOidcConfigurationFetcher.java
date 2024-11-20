@@ -57,7 +57,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
   public DefaultOidcConfigurationFetcher(RestTemplateBuilder restBuilder,
       OAuthProperties oAuthProperties) {
     final Duration timeout = Duration.ofSeconds(oAuthProperties.getRefreshTimeoutSeconds());
-    this.restTemplate = restBuilder.setConnectTimeout(timeout).setReadTimeout(timeout).build();
+    this.restTemplate = restBuilder.connectTimeout(timeout).readTimeout(timeout).build();
   }
 
   private void metadataChecks(String issuer, Map<String, Object> oidcConfiguration) {
@@ -95,9 +95,9 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       }
       throw new OidcConfigurationResolutionError(errorMsg, e);
     }
-    if (response.getStatusCodeValue() != 200) {
+    if (response.getStatusCode().value() != 200) {
       throw new OidcConfigurationResolutionError(
-          format("Received status code: %s", response.getStatusCodeValue()));
+          format("Received status code: %s", response.getStatusCode().value()));
     }
     if (response.getBody() == null) {
       throw new OidcConfigurationResolutionError("Received null body");
@@ -124,9 +124,9 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       }
       throw new RemoteKeySourceException(errorMsg, e);
     }
-    if (response.getStatusCodeValue() != 200) {
+    if (response.getStatusCode().value() != 200) {
       throw new KeySourceException(format("Unable to get JWK from '%s': received status code %s",
-          uri, response.getStatusCodeValue()));
+          uri, response.getStatusCode().value()));
     }
     return response.getBody();
   }

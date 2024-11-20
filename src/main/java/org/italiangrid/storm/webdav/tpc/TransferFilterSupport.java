@@ -16,7 +16,7 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
@@ -28,11 +28,11 @@ import java.time.Clock;
 import java.util.Enumeration;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
@@ -99,9 +99,9 @@ public class TransferFilterSupport implements TpcUtils {
       }
     }
 
-    if (isPushTpc(request, localURLService) && request.getContentLength() >= enableExpectContinueThreshold) {
-      xferHeaders.put(org.apache.http.protocol.HTTP.EXPECT_DIRECTIVE,
-          org.apache.http.protocol.HTTP.EXPECT_CONTINUE);
+    if (isPushTpc(request, localURLService)
+        && request.getContentLength() >= enableExpectContinueThreshold) {
+      xferHeaders.put("Expect", "100-continue");
     }
 
     return xferHeaders;

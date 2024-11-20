@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.authz;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;

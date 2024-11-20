@@ -15,7 +15,7 @@
  */
 package org.italiangrid.storm.webdav.tpc;
 
-import static javax.servlet.http.HttpServletResponse.SC_ACCEPTED;
+import static jakarta.servlet.http.HttpServletResponse.SC_ACCEPTED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,17 +23,17 @@ import java.net.URI;
 import java.time.Clock;
 import java.util.Optional;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.scitag.SciTag;
@@ -183,11 +183,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       if (TransferStatus.Status.DONE.equals(lastStatus.getStatus())) {
         LOG.info(
             "Pull third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
-            lastStatus, req.remoteURI(), req.path(),
-            req.bytesTransferred(),
-            req.duration().toMillis(),
-            getUserFriendlyThroughputString(req),
-            req.uuid());
+            lastStatus, req.remoteURI(), req.path(), req.bytesTransferred(),
+            req.duration().toMillis(), getUserFriendlyThroughputString(req), req.uuid());
       } else {
         LOG.warn("Pull third-party transfer completed: {}. Source: {}, Destination: {}", lastStatus,
             req.remoteURI(), req.path());
@@ -196,13 +193,12 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   }
 
   protected void logTransferDone(PutTransferRequest req) {
-    if (req.lastTransferStatus().isPresent() && LOG.isInfoEnabled()) {
-
-      LOG.info(
-          "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
-          req.lastTransferStatus().get(), req.path(), req.remoteURI(),
-          req.bytesTransferred(), req.duration().toMillis(), getUserFriendlyThroughputString(req),
-          req.uuid());
+    if (LOG.isInfoEnabled()) {
+      req.lastTransferStatus()
+        .ifPresent(lastTransferStatus -> LOG.info(
+            "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
+            lastTransferStatus, req.path(), req.remoteURI(), req.bytesTransferred(),
+            req.duration().toMillis(), getUserFriendlyThroughputString(req), req.uuid()));
     }
   }
 

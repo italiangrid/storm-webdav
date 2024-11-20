@@ -32,7 +32,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision;
@@ -459,8 +459,7 @@ public class ScopePathAuthzPdpTests {
 
     lenient().when(pathResolver.resolveStorageArea(anyString())).thenReturn(sa);
     lenient().when(request.getPathInfo()).thenReturn("test/dir/subdir");
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/dir/subdir");
+    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/dir/subdir");
     lenient().when(request.getMethod()).thenReturn("MKCOL");
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));

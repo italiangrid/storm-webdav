@@ -32,15 +32,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
@@ -105,10 +104,10 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     executorService.shutdownNow();
   }
 
-  HttpGet prepareRequest(GetTransferRequest request) {
+  BasicClassicHttpRequest prepareRequest(GetTransferRequest request) {
     request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
 
-    HttpGet get = new HttpGet(request.remoteURI());
+    BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, request.remoteURI());
 
     for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
       get.addHeader(h.getKey(), h.getValue());
@@ -116,11 +115,11 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     return get;
   }
 
-  HttpPut prepareRequest(PutTransferRequest request, HttpEntity cfe) {
+  BasicClassicHttpRequest prepareRequest(PutTransferRequest request, HttpEntity cfe) {
 
     request.setTransferStatus(TransferStatus.builder(clock).inProgress(0));
 
-    HttpPut put = new HttpPut(request.remoteURI());
+    BasicClassicHttpRequest put = new BasicClassicHttpRequest(Method.PUT, request.remoteURI());
 
     for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
       put.addHeader(h.getKey(), h.getValue());
@@ -167,7 +166,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
 
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
-    HttpGet get = prepareRequest(request);
+    BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
 
     ScheduledFuture<?> reportTask = executorService.scheduleAtFixedRate(
@@ -177,8 +176,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
 
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
-      httpClient.execute(get, new GetResponseHandler(request, os, attributesHelper,
-          MDC.getCopyOfContextMap(), socketBufferSize, true), context);
+      httpClient.execute(get, context, new GetResponseHandler(request, os, attributesHelper,
+          MDC.getCopyOfContextMap(), socketBufferSize, true));
 
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
@@ -215,13 +214,15 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
         head.addHeader(h.getKey(), h.getValue());
       }
-      CloseableHttpResponse response = httpClient.execute(head);
-      if (response.getStatusLine().getStatusCode() == 200) {
-        throw new TransferError("Remote file exists and overwrite is false");
-      } else if (response.getStatusLine().getStatusCode() != 404) {
-        throw new TransferError(format("Error checking if remote file exists: %d %s",
-            response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase()));
-      }
+      httpClient.execute(head, response -> {
+        if (response.getCode() == 200) {
+          throw new TransferError("Remote file exists and overwrite is false");
+        } else if (response.getCode() != 404) {
+          throw new TransferError(format("Error checking if remote file exists: %d %s",
+              response.getCode(), response.getReasonPhrase()));
+        }
+        return null;
+      });
     }
   }
 
@@ -230,7 +231,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
 
-    HttpPut put = null;
+    BasicClassicHttpRequest put = null;
     HttpClientContext context = HttpClientContext.create();
 
     put = prepareRequest(request, cfe);
@@ -242,7 +243,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
       checkOverwrite(request);
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
-      httpClient.execute(put, new PutResponseHandler(MDC.getCopyOfContextMap()), context);
+      httpClient.execute(put, context, new PutResponseHandler(MDC.getCopyOfContextMap()));
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(cfe.getCount()));
     } catch (HttpResponseException e) {
