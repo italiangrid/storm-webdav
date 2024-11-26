@@ -208,7 +208,9 @@ public class AppConfig implements TransferConstants {
     long refreshInterval =
         TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    return builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
+    NamespaceCheckingMode checkingMode = NamespaceCheckingMode.valueOf(configuration.getNamespaceCheckingMode());
+
+    return builder.namespaceChecks(checkingMode)
       .crlChecks(CrlCheckingMode.IF_VALID)
       .ocspChecks(OCSPCheckingMode.IGNORE)
       .lazyAnchorsLoading(false)

@@ -19,6 +19,7 @@ import static org.italiangrid.storm.webdav.config.ServiceConfigurationProperties
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -363,6 +364,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @NotBlank
     String protocol = "TLS";
 
+    @NotBlank
+    String namespaceCheckingMode = "EUGRIDPMA_AND_GLOBUS_REQUIRE";
+
     public String getCertificatePath() {
       return certificatePath;
     }
@@ -425,6 +429,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setProtocol(String protocol) {
       this.protocol = protocol;
+    }
+
+    public void setNamespaceCheckingMode(String checkingMode) {
+      this.namespaceCheckingMode = Objects.requireNonNull(checkingMode);
+    }
+
+    public String getNamespaceCheckingMode() {
+      return namespaceCheckingMode;
     }
   }
 
@@ -784,6 +796,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public boolean requireClientCertificateAuthentication() {
     return getTls().isRequireClientCert();
+  }
+
+  @Override
+  public String getNamespaceCheckingMode() {
+        return getTls().getNamespaceCheckingMode();
   }
 
 

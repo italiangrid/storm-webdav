@@ -57,4 +57,6 @@ public interface ServiceConfiguration {
 
   public String getTlsProtocol();
 
+  public String getNamespaceCheckingMode();
+
 }
