@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -200,24 +201,30 @@ public class AppConfig {
 
   @Bean
   X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
+    return canlCertChainCustomValidator(configuration,
+            b -> b.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE));
+  }
+
+  private X509CertChainValidatorExt canlCertChainCustomValidator(ServiceConfiguration configuration,
+          Function<CertificateValidatorBuilder,CertificateValidatorBuilder> customiseValidatorBuilder) {
 
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
-    CertificateValidatorBuilder builder = new CertificateValidatorBuilder();
 
     long refreshInterval =
         TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    return builder.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE)
+    CertificateValidatorBuilder builder = new CertificateValidatorBuilder()
       .crlChecks(CrlCheckingMode.IF_VALID)
       .ocspChecks(OCSPCheckingMode.IGNORE)
       .lazyAnchorsLoading(false)
       .storeUpdateListener(l)
       .validationErrorListener(l)
       .trustAnchorsDir(configuration.getTrustAnchorsDir())
-      .trustAnchorsUpdateInterval(refreshInterval)
-      .build();
+      .trustAnchorsUpdateInterval(refreshInterval);
 
+    return customiseValidatorBuilder.apply(builder).build();
   }
+
 
   @Bean
   PathResolver pathResolver(ServiceConfiguration conf) {
@@ -241,7 +248,9 @@ public class AppConfig {
       NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
     PEMCredential serviceCredential = serviceCredential(conf);
 
-    SSLTrustManager tm = new SSLTrustManager(canlCertChainValidator(conf));
+    X509CertChainValidatorExt validator = canlCertChainCustomValidator(conf,
+            b -> b.namespaceChecks(NamespaceCheckingMode.IGNORE));
+    SSLTrustManager tm = new SSLTrustManager(validator);
 
     SSLContext ctx;
 
