@@ -41,7 +41,7 @@ public class VOMSMapTests {
 
     Assert.assertEquals("testers", m.getVOName());
     Assert.assertTrue(m.getVOMembers().contains(AC_SUBJECT));
-    Assert.assertTrue(m.getVOMembers().contains(EV_SUBJECT));
+    Assert.assertFalse(m.getVOMembers().contains(EV_SUBJECT));
     Assert.assertFalse(m.getVOMembers().contains(COMMA_SUBJECT));
     Assert.assertTrue(m.getVOMembers().contains(RM_SUBJECT));
     Assert.assertFalse(m.getVOMembers().contains("CN=I am not Real, L=CNAF"));
