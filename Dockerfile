@@ -3,13 +3,12 @@ FROM eclipse-temurin:11-jdk-alpine as build
 WORKDIR /workspace/app
 RUN apk add maven
 COPY pom.xml .
-COPY maven maven
-RUN mvn dependency:resolve -s maven/cnaf-mirror-settings.xml
-RUN mvn dependency:resolve-plugins -s maven/cnaf-mirror-settings.xml
+RUN mvn dependency:resolve
+RUN mvn dependency:resolve-plugins
 COPY .git .git
 COPY etc etc
 COPY src src
-RUN mvn package -s maven/cnaf-mirror-settings.xml -Dmaven.test.skip
+RUN mvn package -Dmaven.test.skip
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:11-centos7
