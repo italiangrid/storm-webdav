@@ -64,12 +64,12 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
   private boolean isValidCSVRecord(CSVRecord r) {
 
     if (r.size() > 3) {
-      logger.debug("Invalid CSVRecord: {}. Illegal size: {}", r, r.size());
+      logger.warn("Invalid CSVRecord: {}. Illegal size: {}", r, r.size());
       return false;
     }
 
     if (!r.get(0).startsWith("/")) {
-      logger.debug("Invalid CSVRecord: {}. Subject does not start with / : {}",
+      logger.warn("Invalid CSVRecord: {}. Subject does not start with / : {}",
         r, r.get(0));
       return false;
     }
@@ -97,7 +97,8 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
         }
 
         if (!isValidCSVRecord(r)) {
-          break;
+          /* Fix https://issues.infn.it/jira/browse/STOR-1399 */
+          continue;
         }
 
         String subject = r.get(0);
