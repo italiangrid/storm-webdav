@@ -125,7 +125,6 @@
             <exlude>src/main/resources/static/**</exlude>
             <exclude>src/main/resources/META-INF/spring.factories</exclude>
             <exclude>maven/**</exclude>
-            <exclude>cnaf-mirror-settings.xml</exclude>
             <exclude>sonar-project.properties</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
