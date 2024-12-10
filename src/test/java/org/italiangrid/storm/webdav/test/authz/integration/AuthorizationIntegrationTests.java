@@ -228,7 +228,7 @@ public class AuthorizationIntegrationTests {
       .andExpect(status().isForbidden());
 
   }
-  
+
   @Test
   void writeAccessAsJwtWithAllowedClient() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
@@ -275,7 +275,26 @@ public class AuthorizationIntegrationTests {
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
       .andExpect(status().isForbidden());
+  }
 
+  @Test
+  void readWriteAccessAsJwtWithAllowedGroup() throws Exception {
+
+    final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
+
+    for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
+      Jwt token = Jwt.withTokenValue("test")
+        .header("kid", "rsa1")
+        .issuer(EXAMPLE_ISSUER)
+        .claim(groupClaim, "/example/admins")
+        .build();
+
+      mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isNotFound());
+
+      mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isOk());
+    }
   }
 
   @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
