@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport.OAUTH_GROUP_CLAIM_NAMES;
 
 import java.net.URI;
 
@@ -229,7 +228,7 @@ public class AuthorizationIntegrationTests {
       .andExpect(status().isForbidden());
 
   }
-  
+
   @Test
   void writeAccessAsJwtWithAllowedClient() throws Exception {
     Jwt token = Jwt.withTokenValue("test")
@@ -280,6 +279,8 @@ public class AuthorizationIntegrationTests {
 
   @Test
   void readWriteAccessAsJwtWithAllowedGroup() throws Exception {
+
+    final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
 
     for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
       Jwt token = Jwt.withTokenValue("test")
