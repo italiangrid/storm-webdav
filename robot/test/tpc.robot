@@ -119,6 +119,18 @@ Pull copy works oauth and https
     Curl Success   ${dest}   ${davix.opts.oauth}
     [Teardown]  Pull copy works oauth and https Teardown
 
+Pull copy works oauth and https with Expect 100-Continue
+    [Tags]  oauth  tpc
+    [Setup]  Pull copy works oauth and https Setup
+    ${dest}  DAVS URL  tpc_test_oauth_https
+    ${src}   Remote DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
+    ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
+    ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=454; retry=0" ${opts}
+    ${opts}  Set Variable  -H "Expect: 100-Continue" ${opts}
+    ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
+    Should Contain  ${out}  100 Continue
+    [Teardown]  Pull copy works oauth and https Teardown
+
 Push copy works
     [Tags]  voms  oauth  tpc  push
     [Setup]  Push copy works Setup

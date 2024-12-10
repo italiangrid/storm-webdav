@@ -63,8 +63,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   final TransferClient client;
 
   public TransferFilter(Clock clock, TransferClient c, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum, long enableExpectContinueThreshold) {
-    super(clock, resolver, lus, verifyChecksum, enableExpectContinueThreshold);
+      boolean verifyChecksum) {
+    super(clock, resolver, lus, verifyChecksum);
     client = c;
   }
 

@@ -174,44 +174,6 @@ class PushTransferTest extends TransferFilterTestSupport {
   }
 
   @Test
-  void checkExpectContinueHeaderIsSet() throws IOException, ServletException {
-
-    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
-      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
-    when(request.getContentLength()).thenReturn(1024*1024+1);
-
-    filter.doFilter(request, response, chain);
-    verify(client).handle(putXferRequest.capture(), Mockito.any());
-
-    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(2));
-
-    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(true));
-    assertThat(xferHeaders.get(EXPECTED_HEADER).iterator().next(), is(EXPECTED_VALUE));
-
-  }
-
-  @Test
-  void checkExpectContinueHeaderIsNotSet() throws IOException, ServletException {
-
-    when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
-      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
-    when(request.getContentLength()).thenReturn(1024*1024-1);
-
-    filter.doFilter(request, response, chain);
-    verify(client).handle(putXferRequest.capture(), Mockito.any());
-
-    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(1));
-
-    assertThat(xferHeaders.containsKey(EXPECTED_HEADER), is(false));
-  }
-
-  @Test
   void bothSciTagAndTransferHeaderSciTag() throws IOException, ServletException {
     when(request.getHeaderNames())
       .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));

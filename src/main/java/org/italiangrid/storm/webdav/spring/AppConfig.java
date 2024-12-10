@@ -287,7 +287,7 @@ public class AppConfig {
 
     int timeoutMsec = (int) TimeUnit.SECONDS.toMillis(props.getTimeoutInSecs());
     RequestConfig config = RequestConfig.custom()
-      .setExpectContinueEnabled(false)
+      .setExpectContinueEnabled(true)
       .setConnectTimeout(timeoutMsec)
       .setConnectionRequestTimeout(timeoutMsec)
       .setSocketTimeout(timeoutMsec)
