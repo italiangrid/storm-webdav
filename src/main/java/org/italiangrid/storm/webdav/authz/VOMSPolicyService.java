@@ -20,7 +20,9 @@ import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -29,10 +31,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 @Service
 public class VOMSPolicyService implements AuthorizationPolicyService {
@@ -72,7 +72,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
   public Set<GrantedAuthority> getSAPermissions(
       Collection<? extends GrantedAuthority> authorities) {
 
-    Set<GrantedAuthority> saPermissions = Sets.newHashSet();
+    Set<GrantedAuthority> saPermissions = new HashSet<>();
 
     authorities.stream()
       .filter(VOMSVOAuthority.class::isInstance)
@@ -90,7 +90,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
 
   @Override
   public Set<GrantedAuthority> getSAPermissions(Authentication authn) {
-    Preconditions.checkNotNull(authn);
+    Objects.requireNonNull(authn);
     return getSAPermissions(authn.getAuthorities());
   }
 

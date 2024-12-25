@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -34,6 +33,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -59,8 +60,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -105,7 +104,7 @@ public class JwtIssuerTest {
 
   @Spy
   Authentication authn = new PreAuthenticatedAuthenticationToken(AUTHN_SUBJECT, null,
-      newArrayList(VO_TEST_AUTHORITY, FQAN_TEST_AUTHORITY));
+      List.of(VO_TEST_AUTHORITY, FQAN_TEST_AUTHORITY));
 
   @Mock
   AccessTokenRequest req;
@@ -129,7 +128,7 @@ public class JwtIssuerTest {
 
 
     lenient().when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));
-    lenient().when(details.getVomsAttributes()).thenReturn(Lists.newArrayList(vomsAttribute));
+    lenient().when(details.getVomsAttributes()).thenReturn(List.of(vomsAttribute));
     lenient().when(props.getIssuer()).thenReturn(ISSUER);
     lenient().when(props.getSecret()).thenReturn(SECRET);
     lenient().when(props.getMaxTokenLifetimeSec()).thenReturn(MAX_TOKEN_LIFETIME_SEC);
@@ -167,7 +166,7 @@ public class JwtIssuerTest {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
 
-    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(ps.getSAPermissions(authn)).thenReturn(Set.of(canReadTest, canWriteTest));
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
@@ -188,7 +187,7 @@ public class JwtIssuerTest {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
 
-    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(ps.getSAPermissions(authn)).thenReturn(Set.of(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
@@ -204,7 +203,7 @@ public class JwtIssuerTest {
   void tokenIssuerLimitsTokenValidtyWithRequestedLifetime() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
-    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(ps.getSAPermissions(authn)).thenReturn(Set.of(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
     when(req.getLifetime()).thenReturn(50L);
 
@@ -221,7 +220,7 @@ public class JwtIssuerTest {
   void tokenIssuerIgnoresRequestedLifetimeWhenExceedsInternalLimit() throws ParseException {
     SAPermission canReadTest = SAPermission.canRead("test");
     SAPermission canWriteTest = SAPermission.canWrite("test");
-    when(ps.getSAPermissions(authn)).thenReturn(Sets.newHashSet(canReadTest, canWriteTest));
+    when(ps.getSAPermissions(authn)).thenReturn(Set.of(canReadTest, canWriteTest));
     when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_EARLY));
     when(req.getLifetime()).thenReturn(TimeUnit.DAYS.toSeconds(10));
 

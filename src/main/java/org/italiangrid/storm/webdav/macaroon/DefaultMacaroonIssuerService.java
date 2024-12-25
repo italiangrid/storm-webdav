@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.macaroon;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
@@ -29,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.nimbusds.jwt.SignedJWT;
 
@@ -49,7 +48,7 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
   protected AccessTokenRequest createRequest(MacaroonRequestDTO request) {
     AccessTokenRequest req = new AccessTokenRequest();
 
-    if (!isNullOrEmpty(request.getValidity())) {
+    if (StringUtils.hasText(request.getValidity())) {
 
       try {
         final long requestedValidity = Duration.parse(request.getValidity()).getSeconds();

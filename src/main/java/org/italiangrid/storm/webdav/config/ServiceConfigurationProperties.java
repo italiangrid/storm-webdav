@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.config;
 import static org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaPoolProperties.ReplicaSelectionPolicy.RANDOM;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -30,8 +31,6 @@ import javax.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
-
-import com.google.common.collect.Lists;
 
 @Configuration
 @ConfigurationProperties("storm")
@@ -127,7 +126,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
       }
 
       @NotEmpty
-      List<ReplicaEndpointProperties> endpoints = Lists.newArrayList();
+      List<ReplicaEndpointProperties> endpoints = new ArrayList<>();
 
       ReplicaSelectionPolicy policy = RANDOM;
 
@@ -230,7 +229,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     boolean disabled = false;
 
     @Valid
-    List<FineGrainedAuthzPolicyProperties> policies = Lists.newArrayList();
+    List<FineGrainedAuthzPolicyProperties> policies = new ArrayList<>();
 
     public boolean isDisabled() {
       return disabled;

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.lenient;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -42,8 +43,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.nimbusds.jose.KeySourceException;
 
@@ -71,10 +70,10 @@ class TrustedJwtDecoderCacheLoaderTest {
     AuthorizationServer as = new AuthorizationServer();
     as.setIssuer(ISSUER);
     as.setJwkUri(JWK_URI);
-    List<AuthorizationServer> issuerServers = Lists.newArrayList(as);
+    List<AuthorizationServer> issuerServers = List.of(as);
     lenient().when(oauthProperties.getIssuers()).thenReturn(issuerServers);
 
-    Map<String, Object> oidcConfiguration = Maps.newHashMap();
+    Map<String, Object> oidcConfiguration = new HashMap<>();
     oidcConfiguration.put("issuer", ISSUER);
     oidcConfiguration.put("jwks_uri", JWK_URI);
 

@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.config.validation;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_CLIENT;
@@ -34,6 +33,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -78,7 +78,7 @@ public class PrincipalValidator implements
         return false;
       }
 
-      if (isNullOrEmpty(value.getParams().get(ra))) {
+      if (!StringUtils.hasText(value.getParams().get(ra))) {
         context.disableDefaultConstraintViolation();
         context
           .buildConstraintViolationWithTemplate(

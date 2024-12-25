@@ -15,24 +15,23 @@
  */
 package org.italiangrid.storm.webdav.tpc;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
+import org.springframework.util.Assert;
 
 public class StaticHostListLocalURLService implements LocalURLService {
 
   private final Set<String> serviceAliases;
 
   public StaticHostListLocalURLService(List<String> serviceAliases) {
-    checkNotNull(serviceAliases, "serviceAliases must be non-null");
-    checkArgument(!serviceAliases.isEmpty(), "serviceAliases must not be empty");
-    this.serviceAliases = Sets.newHashSet(serviceAliases);
+    Objects.requireNonNull(serviceAliases, "serviceAliases must be non-null");
+    Assert.notEmpty(serviceAliases, "serviceAliases must not be empty");
+    this.serviceAliases = new HashSet<>(serviceAliases);
   }
 
   @Override

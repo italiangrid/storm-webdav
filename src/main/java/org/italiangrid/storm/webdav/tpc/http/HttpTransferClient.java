@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.tpc.http;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 import java.io.BufferedOutputStream;
@@ -28,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -133,14 +133,14 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
   CountingFileEntity prepareFileEntity(String path) {
 
-    checkNotNull(path, "Impossible path resolution error");
+    Objects.requireNonNull(path, "Impossible path resolution error");
 
     Path p = Paths.get(path);
     return CountingFileEntity.create(p.toFile());
   }
 
   StormCountingOutputStream prepareOutputStream(String path) {
-    checkNotNull(path, "Impossible path resolution error");
+    Objects.requireNonNull(path, "Impossible path resolution error");
 
     try {
       Path p = Paths.get(path);

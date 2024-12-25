@@ -29,6 +29,8 @@ import static org.mockito.Mockito.when;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,9 +51,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @ExtendWith(MockitoExtension.class)
 public class ScopePathAuthzPdpTests {
@@ -97,8 +96,8 @@ public class ScopePathAuthzPdpTests {
     lenient().when(request.getServletPath()).thenReturn("/");
     lenient().when(request.getPathInfo()).thenReturn("test/example");
     lenient().when(sa.rootPath()).thenReturn("/storage");
-    lenient().when(sa.accessPoints()).thenReturn(Lists.newArrayList("/test"));
-    lenient().when(sa.orgs()).thenReturn(Sets.newHashSet("https://issuer.example"));
+    lenient().when(sa.accessPoints()).thenReturn(List.of("/test"));
+    lenient().when(sa.orgs()).thenReturn(Set.of("https://issuer.example"));
     lenient().when(pathResolver.resolveStorageArea("/test/example")).thenReturn(sa);
   }
 

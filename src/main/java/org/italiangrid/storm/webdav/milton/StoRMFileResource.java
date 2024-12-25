@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +41,6 @@ import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 import io.milton.http.Auth;
 import io.milton.http.Range;
@@ -70,11 +69,9 @@ public class StoRMFileResource extends StoRMResource
 
   public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
 
-  private static final ImmutableMap<QName, PropertyMetaData> PROPERTY_METADATA =
-      new ImmutableMap.Builder<QName, PropertyMetaData>()
-        .put(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
-            new PropertyMetaData(READ_ONLY, String.class))
-        .build();
+  private static final Map<QName, PropertyMetaData> PROPERTY_METADATA =
+        Map.of(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
+            new PropertyMetaData(READ_ONLY, String.class));
 
   private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
 
@@ -220,7 +217,7 @@ public class StoRMFileResource extends StoRMResource
   @Override
   public List<QName> getAllPropertyNames() {
 
-    return PROPERTY_METADATA.keySet().asList();
+    return new ArrayList<>(PROPERTY_METADATA.keySet());
   }
 
   @Override

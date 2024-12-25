@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -40,8 +39,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.google.common.collect.Lists;
-
 @ExtendWith(MockitoExtension.class)
 class PolicyParserTests {
 
@@ -57,21 +54,21 @@ class PolicyParserTests {
 
   @BeforeEach
   public void setup() {
-    lenient().when(saConfig.getStorageAreaInfo()).thenReturn(newArrayList(saInfo));
+    lenient().when(saConfig.getStorageAreaInfo()).thenReturn(List.of(saInfo));
     lenient().when(saInfo.name()).thenReturn("test");
-    lenient().when(saInfo.accessPoints()).thenReturn(newArrayList("/test"));
+    lenient().when(saInfo.accessPoints()).thenReturn(List.of("/test"));
 
     parser = new FineGrainedAuthzPolicyParser(properties, saConfig);
   }
 
   @Test
-  void testNoPolicyParsing() throws Exception {
+  void testNoPolicyParsing() {
     assertThat(parser.parsePolicies(), empty());
   }
 
 
   @Test
-  void testSimplePolicyParsing() throws Exception {
+  void testSimplePolicyParsing() {
 
     FineGrainedAuthzPolicyProperties.PrincipalProperties anonymous =
         new FineGrainedAuthzPolicyProperties.PrincipalProperties();
@@ -82,10 +79,10 @@ class PolicyParserTests {
     policy.setDescription("desc");
     policy.setSa("test");
     policy.setEffect(PolicyEffect.DENY);
-    policy.setPrincipals(Lists.newArrayList(anonymous));
+    policy.setPrincipals(List.of(anonymous));
     policy.setActions(EnumSet.allOf(Action.class));
 
-    properties.getAuthz().setPolicies(Lists.newArrayList(policy));
+    properties.getAuthz().setPolicies(List.of(policy));
     List<PathAuthorizationPolicy> policies = parser.parsePolicies();
 
     assertThat(policies, hasSize(1));

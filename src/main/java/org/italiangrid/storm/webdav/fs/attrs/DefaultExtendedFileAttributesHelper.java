@@ -15,10 +15,6 @@
  */
 package org.italiangrid.storm.webdav.fs.attrs;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,6 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.List;
+import java.util.Objects;
+
+import org.springframework.util.Assert;
 
 public class DefaultExtendedFileAttributesHelper implements
   ExtendedAttributesHelper {
@@ -57,8 +56,8 @@ public class DefaultExtendedFileAttributesHelper implements
   public void setExtendedFileAttribute(File f, String attributeName,
     String attributeValue) throws IOException {
 
-    checkNotNull(f);
-    checkArgument(!isNullOrEmpty(attributeName));
+    Objects.requireNonNull(f);
+    Assert.hasText(attributeName, "Attribute name must not be empty");
 
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
@@ -75,8 +74,8 @@ public class DefaultExtendedFileAttributesHelper implements
   public String getExtendedFileAttributeValue(File f, String attributeName)
     throws IOException {
 
-    checkNotNull(f);
-    checkArgument(!isNullOrEmpty(attributeName));
+    Objects.requireNonNull(f);
+    Assert.hasText(attributeName, "Attribute name must not be empty");
 
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
@@ -93,7 +92,7 @@ public class DefaultExtendedFileAttributesHelper implements
   @Override
   public List<String> getExtendedFileAttributeNames(File f) throws IOException {
 
-    checkNotNull(f);
+    Objects.requireNonNull(f);
 
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);
@@ -126,7 +125,7 @@ public class DefaultExtendedFileAttributesHelper implements
   @Override
   public boolean fileSupportsExtendedAttributes(File f) throws IOException {
 
-    checkNotNull(f);
+    Objects.requireNonNull(f);
 
     UserDefinedFileAttributeView faView = Files.getFileAttributeView(
       f.toPath(), UserDefinedFileAttributeView.class);

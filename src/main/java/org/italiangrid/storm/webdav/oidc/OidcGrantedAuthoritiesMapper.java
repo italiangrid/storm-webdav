@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.oidc;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,8 +33,6 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 @Component
 public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSupport
     implements GrantedAuthoritiesMapper {
@@ -44,7 +43,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
   }
 
   protected Collection<GrantedAuthority> grantGroupAuthorities(OidcUserAuthority userAuthority) {
-    Set<GrantedAuthority> groupAuthorities = Sets.newHashSet();
+    Set<GrantedAuthority> groupAuthorities = new HashSet<>();
     String idTokenIssuer = userAuthority.getIdToken().getIssuer().toString();
 
     for (String groupClaimName : OAUTH_GROUP_CLAIM_NAMES) {
@@ -61,7 +60,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
   }
 
   protected Collection<GrantedAuthority> mapAuthorities(OidcUserAuthority userAuthority) {
-    Set<GrantedAuthority> authorities = Sets.newHashSet();
+    Set<GrantedAuthority> authorities = new HashSet<>();
     String idTokenIssuer = userAuthority.getIdToken().getIssuer().toString();
 
     authorities.addAll(authzMap.get(idTokenIssuer));
@@ -81,7 +80,7 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
   public Collection<? extends GrantedAuthority> mapAuthorities(
       Collection<? extends GrantedAuthority> authorities) {
 
-    Set<GrantedAuthority> grantedAuthorities = Sets.newHashSet();
+    Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
     authorities.stream()
       .filter(OidcUserAuthority.class::isInstance)

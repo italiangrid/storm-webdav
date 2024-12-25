@@ -15,10 +15,8 @@
  */
 package org.italiangrid.storm.webdav.authz.util;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +24,7 @@ import javax.annotation.Generated;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 public class StructuredPathScopeMatcher implements ScopeMatcher {
 
@@ -54,7 +53,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
 
   @Override
   public boolean matchesScope(String scope) {
-    checkArgument(scope != null, "scope must be non-null");
+    Objects.requireNonNull(scope, "scope must be non-null");
 
     if (POINT_DIR_MATCHER.matcher(scope).find()) {
       throw new IllegalArgumentException("Scope contains relative path references");
@@ -89,10 +88,10 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   }
 
   public static StructuredPathScopeMatcher structuredPathMatcher(String prefix, String path) {
-    checkArgument(!isNullOrEmpty(prefix), "empty or null prefix");
-    checkArgument(!prefix.contains(SEP_STR), "prefix must not contain context separator");
-    checkArgument(!isNullOrEmpty(path), "empty or null path");
-    checkArgument(path.startsWith("/"), "path must start with a /");
+    Assert.hasText(prefix, "empty or null prefix");
+    Assert.doesNotContain(prefix, SEP_STR, "prefix must not contain context separator");
+    Assert.hasText(path, "empty or null path");
+    Assert.isTrue(path.startsWith("/"), "path must start with a /");
 
     return new StructuredPathScopeMatcher(prefix, path);
   }

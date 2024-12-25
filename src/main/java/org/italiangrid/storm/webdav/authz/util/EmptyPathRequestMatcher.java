@@ -15,17 +15,16 @@
  */
 package org.italiangrid.storm.webdav.authz.util;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
 
 public class EmptyPathRequestMatcher implements RequestMatcher {
 
   @Override
   public boolean matches(HttpServletRequest request) {
-    return isNullOrEmpty(getRequestPath(request));
+    return !StringUtils.hasLength(getRequestPath(request));
   }
 
   private String getRequestPath(HttpServletRequest request) {

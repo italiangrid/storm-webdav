@@ -26,6 +26,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,9 +51,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-
 @ExtendWith(MockitoExtension.class)
 public class AuthzPdpTests {
 
@@ -74,8 +72,8 @@ public class AuthzPdpTests {
   DefaultPathAuthorizationPdp pdp;
 
   @SuppressWarnings("unchecked")
-  private <T> ImmutableSet<T> authorities(GrantedAuthority... authorities) {
-    return (ImmutableSet<T>) ImmutableSet.copyOf(authorities);
+  private <T> Set<T> authorities(GrantedAuthority... authorities) {
+    return (Set<T>) Set.of(authorities);
   }
 
   @BeforeEach
@@ -103,7 +101,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     PathAuthorizationResult result =
@@ -129,7 +127,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(permitAllPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(permitAllPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     PathAuthorizationResult result =
@@ -156,7 +154,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     PathAuthorizationResult result =
@@ -187,7 +185,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     when(request.getServletPath()).thenReturn("/test/ciccio");
@@ -219,7 +217,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
     when(request.getServletPath()).thenReturn("/test/ciccio");
 
@@ -252,7 +250,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     PathAuthorizationResult result =
@@ -261,7 +259,7 @@ public class AuthzPdpTests {
     assertThat(result.getPolicy().isPresent(), is(true));
     assertThat(result.getPolicy().get(), is(oauthTestPolicy));
   }
-  
+
   @Test
   void oauthClientHolderPolicyApplied() {
 
@@ -284,7 +282,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/**"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(oauthTestPolicy, denyAllPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     PathAuthorizationResult result =
@@ -315,7 +313,7 @@ public class AuthzPdpTests {
       .build();
 
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(multiplePrincipalsPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(multiplePrincipalsPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     when(authentication.getAuthorities())
@@ -365,7 +363,7 @@ public class AuthzPdpTests {
       .withRequestMatcher(new AntPathRequestMatcher("/other/**", "GET"))
       .build();
 
-    List<PathAuthorizationPolicy> policies = Lists.newArrayList(multiplePathsPolicy);
+    List<PathAuthorizationPolicy> policies = List.of(multiplePathsPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
     when(authentication.getAuthorities())

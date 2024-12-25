@@ -15,10 +15,10 @@
  */
 package org.italiangrid.storm.webdav.config;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -93,7 +93,7 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
       } else if (Action.DELETE.equals(a)) {
         return new AntPathRequestMatcher(pattern, "DELETE");
       } else if (Action.LIST.equals(a)) {
-        return new AndRequestMatcher(new CustomHttpMethodMatcher(newHashSet("PROPFIND")),
+        return new AndRequestMatcher(new CustomHttpMethodMatcher(Set.of("PROPFIND")),
             new AntPathRequestMatcher(pattern));
       } else {
         throw new IllegalArgumentException("Unknown action: " + a);

@@ -80,8 +80,6 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
-import com.google.common.collect.Lists;
-
 @Configuration
 public class SecurityConfig {
 
@@ -90,7 +88,7 @@ public class SecurityConfig {
   private static final List<String> ALLOWED_METHODS;
 
   static {
-    ALLOWED_METHODS = Lists.newArrayList();
+    ALLOWED_METHODS = new ArrayList<>();
     ALLOWED_METHODS.add(HttpMethod.HEAD.name());
     ALLOWED_METHODS.add(HttpMethod.GET.name());
     ALLOWED_METHODS.add(HttpMethod.POST.name());

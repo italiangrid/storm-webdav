@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.authz.voters;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -34,6 +32,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.StringUtils;
 
 public class LocalAuthzVoter extends PathAuthzPdpVoterSupport {
 
@@ -53,7 +52,7 @@ public class LocalAuthzVoter extends PathAuthzPdpVoterSupport {
 
   private boolean isLocalAuthzToken(JwtAuthenticationToken token) {
     return localTokenIssuer.equals(token.getToken().getIssuer())
-        && !isNullOrEmpty(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
+        && StringUtils.hasText(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
   }
 
   @Override

@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -53,7 +54,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.google.common.collect.Maps;
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -82,7 +82,7 @@ class OidcConfigurationFetcherTest {
   OAuthProperties oAuthProperties;
 
   private Map<String, Object> getMapWithIssuerAndJwkUri(String issuer, String jwkUri) {
-    Map<String, Object> m = Maps.newHashMap();
+    Map<String, Object> m = new HashMap<>();
     m.put("issuer", issuer);
     m.put("jwks_uri", jwkUri);
     return m;

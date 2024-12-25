@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.oauth;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.authz.SAPermission;
@@ -27,7 +28,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 public class GrantedAuthoritiesMapperSupport {
 
@@ -37,7 +37,7 @@ public class GrantedAuthoritiesMapperSupport {
   protected static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
   protected static final String SCOPE_CLAIM_NAME = "scope";
 
-  protected final Set<GrantedAuthority> anonymousGrantedAuthorities = Sets.newHashSet();
+  protected final Set<GrantedAuthority> anonymousGrantedAuthorities = new HashSet<>();
 
 
   public GrantedAuthoritiesMapperSupport(StorageAreaConfiguration conf,

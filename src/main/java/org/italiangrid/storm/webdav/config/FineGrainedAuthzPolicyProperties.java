@@ -15,7 +15,9 @@
  */
 package org.italiangrid.storm.webdav.config;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +28,6 @@ import javax.validation.constraints.NotEmpty;
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.validation.Principal;
 import org.springframework.validation.annotation.Validated;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @Validated
 public class FineGrainedAuthzPolicyProperties {
@@ -54,7 +53,7 @@ public class FineGrainedAuthzPolicyProperties {
 
     PrincipalType type;
 
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
 
     public PrincipalType getType() {
       return type;
@@ -89,7 +88,7 @@ public class FineGrainedAuthzPolicyProperties {
   @NotBlank
   String sa;
 
-  List<String> paths = Lists.newArrayList();
+  List<String> paths = new ArrayList<>();
 
   @NotEmpty
   @Valid

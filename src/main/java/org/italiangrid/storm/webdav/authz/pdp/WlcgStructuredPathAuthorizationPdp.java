@@ -40,8 +40,6 @@ import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import com.google.common.collect.Sets;
-
 public class WlcgStructuredPathAuthorizationPdp
     implements PathAuthorizationPdp, MatcherUtils, TpcUtils {
 
@@ -58,10 +56,10 @@ public class WlcgStructuredPathAuthorizationPdp
   public static final String STORAGE_MODIFY = "storage.modify";
   public static final String STORAGE_CREATE = "storage.create";
 
-  protected static final Set<String> READ_SCOPES = Sets.newHashSet(STORAGE_READ, STORAGE_STAGE);
-  protected static final Set<String> WRITE_SCOPES = Sets.newHashSet(STORAGE_CREATE, STORAGE_MODIFY);
+  protected static final Set<String> READ_SCOPES = Set.of(STORAGE_READ, STORAGE_STAGE);
+  protected static final Set<String> WRITE_SCOPES = Set.of(STORAGE_CREATE, STORAGE_MODIFY);
   protected static final Set<String> ALL_STORAGE_SCOPES =
-      Sets.newHashSet(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
+      Set.of(STORAGE_READ, STORAGE_MODIFY, STORAGE_CREATE, STORAGE_STAGE);
 
   public static final String ERROR_INVALID_AUTHENTICATION =
       "Invalid authentication: expected a JwtAuthenticationToken object";
@@ -73,10 +71,10 @@ public class WlcgStructuredPathAuthorizationPdp
 
   public static final String ERROR_UNKNOWN_TOKEN_ISSUER = "Unknown token issuer: %s";
 
-  protected static final Set<String> READONLY_METHODS = Sets.newHashSet("GET", "PROPFIND");
-  protected static final Set<String> REPLACE_METHODS = Sets.newHashSet("PUT", "MKCOL");
-  protected static final Set<String> MODIFY_METHODS = Sets.newHashSet("PATCH", "DELETE");
-  protected static final Set<String> CATCHALL_METHODS = Sets.newHashSet("HEAD", "OPTIONS");
+  protected static final Set<String> READONLY_METHODS = Set.of("GET", "PROPFIND");
+  protected static final Set<String> REPLACE_METHODS = Set.of("PUT", "MKCOL");
+  protected static final Set<String> MODIFY_METHODS = Set.of("PATCH", "DELETE");
+  protected static final Set<String> CATCHALL_METHODS = Set.of("HEAD", "OPTIONS");
 
   public static final String COPY_METHOD = "COPY";
   public static final String MOVE_METHOD = "MOVE";

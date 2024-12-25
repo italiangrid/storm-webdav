@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.oauth.utils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +40,6 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import com.google.common.cache.CacheLoader;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -88,7 +88,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
     OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
     OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();
 
-    List<OAuth2TokenValidator<Jwt>> validators = Lists.newArrayList();
+    List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
     validators.add(jwtValidator);
     validators.add(wlcgProfileValidator);
 
