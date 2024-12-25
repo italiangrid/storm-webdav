@@ -15,9 +15,6 @@
  */
 package org.italiangrid.storm.webdav.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +22,9 @@ import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Objects;
+
+import org.springframework.util.Assert;
 
 public class RangeCopyHelper {
 
@@ -32,10 +32,10 @@ public class RangeCopyHelper {
 
   public static long rangeCopy(InputStream is, File f, long rangeStart, long rangeCount) throws IOException {
 
-    checkNotNull(is);
-    checkNotNull(f);
-    checkArgument(rangeStart >= 0, "rangeStart must be >= 0");
-    checkArgument(rangeCount > 0, "rangeCount must be > 0");
+    Objects.requireNonNull(is);
+    Objects.requireNonNull(f);
+    Assert.isTrue(rangeStart >= 0, "rangeStart must be >= 0");
+    Assert.isTrue(rangeCount > 0, "rangeCount must be > 0");
 
     try (ReadableByteChannel src = Channels.newChannel(is);
         RandomAccessFile raf = new RandomAccessFile(f, "rw")) {

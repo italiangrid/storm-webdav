@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -44,8 +45,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.google.common.collect.Maps;
 
 @ExtendWith(MockitoExtension.class)
 public class RedirectFilterTests extends RedirectorTestSupport {
@@ -125,7 +124,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
 
   @Test
   void filterIgnoresRequestWithNoRedirect() throws IOException, ServletException {
-    Map<String, String[]> parameterMap = Maps.newHashMap();
+    Map<String, String[]> parameterMap = new HashMap<>();
     parameterMap.put("no_redirect", new String[] {});
 
     when(request.getParameterMap()).thenReturn(parameterMap);

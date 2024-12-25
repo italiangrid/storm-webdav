@@ -15,14 +15,12 @@
  */
 package org.italiangrid.storm.webdav.authz.vomap;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
@@ -30,8 +28,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
+import org.springframework.util.Assert;
 
 import eu.emi.security.authn.x509.impl.OpensslNameUtils;
 
@@ -45,9 +42,9 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
   public MapfileVOMembershipSource(String voName, File mapFile) {
 
-    checkNotNull(mapFile);
-    checkArgument(!isNullOrEmpty(voName));
-    
+    Objects.requireNonNull(mapFile);
+    Assert.hasText(voName, "VO name must not be empty");
+
     this.voName = voName;
     this.mapFile = mapFile;
 
@@ -83,7 +80,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     long startTime = System.currentTimeMillis();
 
-    Set<String> subjects = Sets.newHashSet();
+    Set<String> subjects = new HashSet<>();
 
     CSVParser parser = getParser();
 

@@ -15,7 +15,6 @@
  */
 package org.italiangrid.storm.webdav.server.servlet;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 
 import java.io.File;
@@ -35,14 +34,15 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 public class ChecksumFilter implements Filter {
 
   private final ExtendedAttributesHelper attributeHelper;
   private final PathResolver resolver;
-  
+
   public static final Logger logger = LoggerFactory.getLogger(ChecksumFilter.class);
-  
+
   @Autowired
   public ChecksumFilter(ExtendedAttributesHelper attributeHelper,
     PathResolver resolver) {
@@ -63,9 +63,9 @@ public class ChecksumFilter implements Filter {
     FilterChain chain) throws IOException, ServletException {
 
     addChecksumHeader((HttpServletRequest) request, (HttpServletResponse) response);
-    
+
     chain.doFilter(request, response);
-    
+
   }
 
   @Override
@@ -74,41 +74,41 @@ public class ChecksumFilter implements Filter {
     logger.debug("Destroying checksum filter.");
 
   }
-  
+
   private void addChecksumHeader(HttpServletRequest request,
     HttpServletResponse response) {
 
     String method = request.getMethod().toUpperCase();
-    
+
     if (!(method.equals("HEAD") || method.equals("GET"))) {
-      
+
       // Skip if request is not a HEAD or a GET
       return;
     }
-    
+
     logger.debug("Retrieving checksum value ...");
     String requestPath = format("%s%s", request.getServletPath(), request.getPathInfo());
 
     String pathResolved = resolver.resolvePath(requestPath);
-      
+
     if (pathResolved == null) {
       logger.debug("Unable to resolve path {} to a local file", requestPath);
       return;
     }
 
     File f = new File(pathResolved);
-    
+
     if (!f.exists()) {
       logger.debug("File {} doesn't exist", f);
       return;
-      
+
     }
 
     if (f.isDirectory()) {
       logger.debug("{} is a directory: no checksum value to retrieve", f);
       return;
     }
-    
+
     String checksumValue;
 
     try {
@@ -119,14 +119,14 @@ public class ChecksumFilter implements Filter {
 
       logger.error("Error retrieving checksum value for path '{}': {}",
           pathResolved,e.getMessage());
-      
+
       if (logger.isDebugEnabled()) {
         logger.error(e.getMessage(), e);
       }
       return;
     }
 
-    if (isNullOrEmpty(checksumValue)) {
+    if (!StringUtils.hasText(checksumValue)) {
       logger.warn("Null or empty checksum value for path: {}", pathResolved);
       return;
     }

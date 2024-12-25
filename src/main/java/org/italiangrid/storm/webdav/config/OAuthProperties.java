@@ -15,6 +15,7 @@
  */
 package org.italiangrid.storm.webdav.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.Min;
@@ -24,8 +25,6 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
-
-import com.google.common.collect.Lists;
 
 @Configuration
 @ConfigurationProperties("oauth")
@@ -45,7 +44,7 @@ public class OAuthProperties {
 
     boolean enforceAudienceChecks = false;
 
-    List<String> audiences = Lists.newArrayList();
+    List<String> audiences = new ArrayList<>();
 
     public String getName() {
       return name;
@@ -90,7 +89,7 @@ public class OAuthProperties {
   }
 
   List<AuthorizationServer> issuers;
-  
+
   boolean enableOidc = false;
 
   @Min(value = 1, message = "The refresh period must be a positive integer")
@@ -126,7 +125,7 @@ public class OAuthProperties {
   public void setEnableOidc(boolean enableOidc) {
     this.enableOidc = enableOidc;
   }
-  
+
   public boolean isEnableOidc() {
     return enableOidc;
   }

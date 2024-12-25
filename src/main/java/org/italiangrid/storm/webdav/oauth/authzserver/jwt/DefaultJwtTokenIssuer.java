@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,7 +34,6 @@ import org.italiangrid.storm.webdav.oauth.authzserver.TokenCreationError;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import com.google.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -124,7 +124,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
   @Override
   public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication) {
 
-    Set<GrantedAuthority> tokenAuthorities = Sets.newHashSet();
+    Set<GrantedAuthority> tokenAuthorities = new HashSet<>();
 
     Set<GrantedAuthority> saAuthorities = policyService.getSAPermissions(authentication);
     tokenAuthorities.addAll(saAuthorities);

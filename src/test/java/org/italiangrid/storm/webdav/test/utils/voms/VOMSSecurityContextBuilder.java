@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +34,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import com.google.common.collect.Lists;
 
 public class VOMSSecurityContextBuilder {
 
@@ -61,36 +60,31 @@ public class VOMSSecurityContextBuilder {
   }
 
   public VOMSSecurityContextBuilder vos(String... vos) {
-
     for (String vo : vos) {
-      if (authorities != null) {
-        authorities.add(new VOMSVOAuthority(vo));
-
-      } else {
-        authorities = Lists.newArrayList(new VOMSVOAuthority(vo));
+      if (authorities == null) {
+        authorities = new ArrayList<>();
       }
+      authorities.add(new VOMSVOAuthority(vo));
     }
     return this;
   }
 
   public VOMSSecurityContextBuilder saReadPermissions(String... sas) {
     for (String sa : sas) {
-      if (authorities != null) {
-        authorities.add(SAPermission.canRead(sa));
-      } else {
-        authorities = Lists.newArrayList(SAPermission.canRead(sa));
+      if (authorities == null) {
+        authorities = new ArrayList<>();
       }
+      authorities.add(SAPermission.canRead(sa));
     }
     return this;
   }
 
   public VOMSSecurityContextBuilder saWritePermissions(String... sas) {
     for (String sa : sas) {
-      if (authorities != null) {
-        authorities.add(SAPermission.canWrite(sa));
-      } else {
-        authorities = Lists.newArrayList(SAPermission.canWrite(sa));
+      if (authorities == null) {
+        authorities = new ArrayList<>();
       }
+      authorities.add(SAPermission.canWrite(sa));
     }
     return this;
   }
@@ -109,7 +103,7 @@ public class VOMSSecurityContextBuilder {
     VOMSAttribute attrs = Mockito.mock(VOMSAttribute.class);
     VOMSAuthenticationDetails details = Mockito.mock(VOMSAuthenticationDetails.class);
 
-    when(details.getVomsAttributes()).thenReturn(Lists.newArrayList(attrs));
+    when(details.getVomsAttributes()).thenReturn(List.of(attrs));
     when(attrs.getNotAfter()).thenReturn(Date.from(expirationTime));
 
     token.setDetails(details);

@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.spring.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -28,8 +29,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 
-import com.google.common.collect.Lists;
-
 public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler {
 
   private static final Log logger = LogFactory.getLog(HttpMethodRequestRejectedHandler.class);
@@ -38,7 +37,7 @@ public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler 
 
   public HttpMethodRequestRejectedHandler(List<String> allowedMethods) {
 
-    this.allowedMethods = Lists.newArrayList();
+    this.allowedMethods = new ArrayList<>();
     this.allowedMethods.addAll(allowedMethods);
   }
 

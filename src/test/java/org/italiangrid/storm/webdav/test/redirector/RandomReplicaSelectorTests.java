@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -28,8 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import com.google.common.collect.Sets;
 
 @RunWith(MockitoJUnitRunner.class)
 class RandomReplicaSelectorTests extends RedirectorTestSupport {
@@ -77,7 +76,7 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
     config.getRedirector().getPool().getEndpoints().add(replica0);
     config.getRedirector().getPool().getEndpoints().add(replica1);
 
-    Set<ReplicaEndpointProperties> results = Sets.newHashSet();
+    Set<ReplicaEndpointProperties> results = new HashSet<>();
 
     // FIXME: this 10 index is completely arbitrary
     for (int i = 0; i < 10; i++) {

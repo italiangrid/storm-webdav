@@ -21,7 +21,7 @@ import io.milton.http.Handler;
 import io.milton.http.http11.DefaultHttp11ResponseHandler.BUFFERING;
 import io.milton.http.webdav.MoveHandler;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
 
@@ -33,8 +33,8 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
     setBuffering(BUFFERING.never);
     setEnableCompression(false);
 
-    ImmutableList<AuthenticationHandler> authHandlers = ImmutableList
-      .of((AuthenticationHandler) new NullAuthenticationHandler());
+    List<AuthenticationHandler> authHandlers =
+        List.of((AuthenticationHandler) new NullAuthenticationHandler());
 
     setAuthenticationHandlers(authHandlers);
 
@@ -53,7 +53,7 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
     disableDeleteExistingBeforeMoveInMoveHandler();
   }
 
-  
+
   private void disableDeleteExistingBeforeMoveInMoveHandler() {
 
     for (Handler h : getWebDavProtocol().getHandlers()) {

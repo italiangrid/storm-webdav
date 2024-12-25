@@ -18,8 +18,6 @@ package org.italiangrid.storm.webdav.tpc;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableSet;
-
 public final class TransferConstants {
 
   public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -42,8 +40,7 @@ public final class TransferConstants {
   public static final String DAV = "dav";
   public static final String DAVS = "davs";
 
-  public static final Set<String> SUPPORTED_PROTOCOLS =
-      ImmutableSet.<String>builder().add(HTTP, HTTPS, DAV, DAVS).build();
+  public static final Set<String> SUPPORTED_PROTOCOLS = Set.of(HTTP, HTTPS, DAV, DAVS);
 
   public static final String WEBDAV_PATH_REGEX = "/webdav/(.*)$";
   public static final Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);

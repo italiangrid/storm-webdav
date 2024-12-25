@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -103,6 +102,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -115,7 +115,6 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -229,8 +228,8 @@ public class AppConfig {
   ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
 
     final int tpSize = props.getProgressReportThreadPoolSize();
-    ThreadFactory namedThreadFactory =
-        new ThreadFactoryBuilder().setNameFormat("tpc-progress-%d").setDaemon(true).build();
+    CustomizableThreadFactory namedThreadFactory = new CustomizableThreadFactory("tpc-progress-%d");
+    namedThreadFactory.setDaemon(true);
 
     return Executors.newScheduledThreadPool(tpSize, namedThreadFactory);
   }
@@ -303,8 +302,8 @@ public class AppConfig {
 
   @Bean
   @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "true")
-  ClientRegistrationRepository clientRegistrationRepository(
-      OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
+  ClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties clientProperties,
+      OAuthProperties props, ExecutorService executor) {
 
 
     ClientRegistrationCacheLoader loader =

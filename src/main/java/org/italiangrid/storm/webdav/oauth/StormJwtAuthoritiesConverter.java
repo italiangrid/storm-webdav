@@ -18,6 +18,7 @@ package org.italiangrid.storm.webdav.oauth;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,8 +36,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 @Component
 public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSupport
     implements Converter<Jwt, Collection<GrantedAuthority>> {
@@ -51,7 +50,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
   }
 
   protected Set<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
-    Set<GrantedAuthority> authorities = Sets.newHashSet();
+    Set<GrantedAuthority> authorities = new HashSet<>();
 
     Optional.ofNullable(
         jwt.getClaimAsStringList(CLAIM_AUTHORITIES))
@@ -62,7 +61,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
 
   protected Set<GrantedAuthority> extractOauthScopeAuthorities(Jwt jwt) {
 
-    Set<GrantedAuthority> scopeAuthorities = Sets.newHashSet();
+    Set<GrantedAuthority> scopeAuthorities = new HashSet<>();
 
     if (jwt.getClaimAsString(SCOPE_CLAIM_NAME) != null) {
       String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
@@ -79,7 +78,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
 
   protected Set<GrantedAuthority> extractOauthGroupAuthorities(Jwt jwt) {
 
-    Set<GrantedAuthority> groupAuthorities = Sets.newHashSet();
+    Set<GrantedAuthority> groupAuthorities = new HashSet<>();
 
     String tokenIssuer = jwt.getClaimAsString(JwtClaimNames.ISS);
 
@@ -101,7 +100,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
       return extractAuthoritiesLocalAuthzServer(jwt);
     }
 
-    Set<GrantedAuthority> authorities = Sets.newHashSet();
+    Set<GrantedAuthority> authorities = new HashSet<>();
 
     authorities.addAll(extractAuthoritiesExternalAuthzServer(issuer));
     authorities.addAll(extractOauthGroupAuthorities(jwt));

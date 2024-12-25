@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.server;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.io.File;
 import java.nio.file.Paths;
 
@@ -36,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.util.StringUtils;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jetty9.InstrumentedConnectionFactory;
@@ -176,7 +175,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     rli.setQuiet(true);
     String accessLogConfiguration = configuration.getAccessLogConfigurationPath();
 
-    if (isNullOrEmpty(accessLogConfiguration)) {
+    if (!StringUtils.hasText(accessLogConfiguration)) {
       LOG.info("Null or empty access log configuration... access log will go to standard output");
       rli.setResource("/logback-access.xml");
     } else {

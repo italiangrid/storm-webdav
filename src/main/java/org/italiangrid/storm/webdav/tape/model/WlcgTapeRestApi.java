@@ -16,15 +16,14 @@
 
 package org.italiangrid.storm.webdav.tape.model;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 public class WlcgTapeRestApi {
 
   private String sitename;
   private String description;
-  private List<WlcgTapeRestApiEndpoint> endpoints = Lists.newArrayList();
+  private List<WlcgTapeRestApiEndpoint> endpoints = new ArrayList<>();
 
   public String getSitename() {
     return sitename;

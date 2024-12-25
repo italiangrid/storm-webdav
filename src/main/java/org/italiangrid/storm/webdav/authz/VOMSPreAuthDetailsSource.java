@@ -17,6 +17,7 @@ package org.italiangrid.storm.webdav.authz;
 
 import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +31,6 @@ import org.italiangrid.voms.VOMSAttribute;
 import org.italiangrid.voms.ac.VOMSACValidator;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
-
-import com.google.common.collect.Sets;
 
 import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
@@ -52,7 +51,7 @@ public class VOMSPreAuthDetailsSource
   @Override
   public VOMSAuthenticationDetails buildDetails(HttpServletRequest request) {
 
-    Set<GrantedAuthority> authorities = Sets.newHashSet();
+    Set<GrantedAuthority> authorities = new HashSet<>();
 
     List<VOMSAttribute> attributes = getAttributes(request);
 

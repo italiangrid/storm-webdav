@@ -15,15 +15,13 @@
  */
 package org.italiangrid.storm.webdav.authz;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANAuthority> {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -57,7 +55,7 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
   String fqanAuthority;
 
   public VOMSFQANAuthority(String fqan) {
-    checkArgument(!isNullOrEmpty(fqan));
+    Assert.hasText(fqan, "FQAN must not be empty");
     fqanAuthority = String.format("FQAN(%s)", fqan);
   }
 

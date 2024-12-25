@@ -16,6 +16,7 @@
 package org.italiangrid.storm.webdav.server.servlet;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -40,8 +41,6 @@ import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
 import io.milton.http.Response;
@@ -51,7 +50,7 @@ public class MiltonFilter implements Filter {
 
   public static final Logger LOG = LoggerFactory.getLogger(MiltonFilter.class);
 
-  static final Set<String> WEBDAV_METHOD_SET = Sets.newHashSet();
+  static final Set<String> WEBDAV_METHOD_SET = new HashSet<>();
   static final String SA_ROOT_PATH = "sa-root";
 
   static {

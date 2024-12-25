@@ -15,15 +15,14 @@
  */
 package org.italiangrid.storm.webdav.tpc.utils;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.springframework.util.StringUtils;
 
 public class Adler32DigestHeaderHelper {
 
@@ -35,7 +34,7 @@ public class Adler32DigestHeaderHelper {
 
   public static Optional<String> extractAdler32DigestFromResponse(HttpResponse response) {
 
-    checkNotNull(response);
+    Objects.requireNonNull(response);
 
     Optional<Header> digestHeader = Optional.ofNullable(response.getFirstHeader(DIGEST_HEADER));
 
@@ -43,7 +42,7 @@ public class Adler32DigestHeaderHelper {
 
       String digestHeaderValue = digestHeader.get().getValue();
 
-      if (!isNullOrEmpty(digestHeaderValue)) {
+      if (StringUtils.hasText(digestHeaderValue)) {
         Matcher m = DIGEST_HEADER_PATTERN.matcher(digestHeaderValue);
 
         if (m.matches()) {

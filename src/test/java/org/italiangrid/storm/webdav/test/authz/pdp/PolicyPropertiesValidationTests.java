@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -38,8 +39,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.google.common.collect.Lists;
 
 @ExtendWith(MockitoExtension.class)
 class PolicyPropertiesValidationTests {
@@ -63,13 +62,13 @@ class PolicyPropertiesValidationTests {
     props.setSa("example");
     props.setDescription("Policy description");
     props.setEffect(PolicyEffect.PERMIT);
-    props.setPrincipals(Lists.newArrayList(principal));
+    props.setPrincipals(List.of(principal));
     props.setActions(EnumSet.of(FineGrainedAuthzPolicyProperties.Action.READ));
     return props;
   }
 
   @Test
-  void testValidAuthzPolicyPassesValidation() throws Exception {
+  void testValidAuthzPolicyPassesValidation() {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
 
@@ -81,7 +80,7 @@ class PolicyPropertiesValidationTests {
   }
 
   @Test
-  void testDescriptionRequired() throws Exception {
+  void testDescriptionRequired() {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setDescription(null);
@@ -96,7 +95,7 @@ class PolicyPropertiesValidationTests {
   }
 
   @Test
-  void testSaRequired() throws Exception {
+  void testSaRequired() {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setSa(null);
@@ -111,7 +110,7 @@ class PolicyPropertiesValidationTests {
   }
 
   @Test
-  void testPrincipalsNotEmpty() throws Exception {
+  void testPrincipalsNotEmpty() {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
     props.setPrincipals(emptyList());

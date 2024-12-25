@@ -35,14 +35,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.google.common.collect.Lists;
-
 public class LogRequestFilter implements Filter {
 
   public static final Logger log = LoggerFactory.getLogger(LogRequestFilter.class);
 
-  private static final List<String> IP_HEADERS = Lists.newArrayList("X-Forwarded-For",
-      "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
+  private static final List<String> IP_HEADERS = List.of("X-Forwarded-For", "Proxy-Client-IP",
+      "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
 
   @Override
   public void destroy() {}

@@ -27,12 +27,10 @@ import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-  private static final Set<String> RESERVED_SA_NAMES = Sets.newHashSet("oauth", ".well-known",
-      "actuator", "assets", "authn-info", "logout", "oidc-login");
+  private static final Set<String> RESERVED_SA_NAMES =
+      Set.of("oauth", ".well-known", "actuator", "assets", "authn-info", "logout", "oidc-login");
 
   private final ServiceConfiguration serviceConfig;
 

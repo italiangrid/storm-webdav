@@ -15,8 +15,8 @@
  */
 package org.italiangrid.storm.webdav.oauth.validator;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
@@ -26,14 +26,13 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.google.common.collect.Sets;
+import org.springframework.util.Assert;
 
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
   public static final Logger LOG = LoggerFactory.getLogger(AudienceValidator.class);
 
-  private final Set<String> requiredAudiences = Sets.newHashSet();
+  private final Set<String> requiredAudiences = new HashSet<>();
 
   private static final OAuth2Error INVALID_AUDIENCE_ERROR = new OAuth2Error("invalid_audience",
       "The token audience does not match audience requirements defined for this server", null);
@@ -44,8 +43,8 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
       OAuth2TokenValidatorResult.failure(INVALID_AUDIENCE_ERROR);
 
   public AudienceValidator(AuthorizationServer server) {
-    checkArgument(server.getAudiences() != null, "null audiences");
-    checkArgument(!server.getAudiences().isEmpty(), "empty audiences");
+    Objects.requireNonNull(server.getAudiences(), "null audiences");
+    Assert.notEmpty(server.getAudiences(), "empty audiences");
     requiredAudiences.addAll(server.getAudiences());
   }
 

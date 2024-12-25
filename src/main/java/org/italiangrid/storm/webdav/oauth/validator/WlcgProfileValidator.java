@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth.validator;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,8 +24,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.google.common.collect.Sets;
+import org.springframework.util.StringUtils;
 
 public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
 
@@ -38,7 +35,7 @@ public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
   public static final String SCOPE_CLAIM = "scope";
 
   public static final Set<String> WLCG_PROFILE_SUPPORTED_VERSIONS =
-      Collections.unmodifiableSet(Sets.newHashSet("1.0"));
+      Collections.unmodifiableSet(Set.of("1.0"));
 
   private static final OAuth2Error INVALID_PROFILE_VERSION =
       new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "Unsupported WLCG token profile version", null);
@@ -66,7 +63,7 @@ public class WlcgProfileValidator implements OAuth2TokenValidator<Jwt> {
   @Override
   public OAuth2TokenValidatorResult validate(Jwt token) {
 
-    if (isNullOrEmpty(token.getClaimAsString(WLCG_VER_CLAIM))) {
+    if (!StringUtils.hasText(token.getClaimAsString(WLCG_VER_CLAIM))) {
       // This validator does not apply to non-WLCG tokens
       return SUCCESS;
     }

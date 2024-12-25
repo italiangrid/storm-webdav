@@ -15,8 +15,7 @@
  */
 package org.italiangrid.storm.webdav.server;
 
-import static com.google.common.collect.Lists.newArrayList;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +41,7 @@ public class DefaultJettyServletWebServerFactory extends JettyServletWebServerFa
   protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
       ServletContextInitializer... initializers) {
 
-    List<Configuration> configurations = newArrayList(
+    List<Configuration> configurations = new ArrayList<>(
         Arrays.asList(super.getWebAppContextConfigurations(webAppContext, initializers)));
 
     configurations.add(getStormErrorPageConfiguration());
