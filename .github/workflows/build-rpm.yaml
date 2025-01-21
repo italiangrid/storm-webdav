@@ -78,4 +78,4 @@ jobs:
       - name: Upload release to repo
         if: env.REPO != ''
         run: |
-          curl --fail --user "${NEXUS_USER}:${NEXUS_PASSWORD}" --upload-file rpmbuild/RPMS/noarch/*.rpm https://repo.cloud.cnaf.infn.it/repository/storm-rpm-${REPO}/redhat${{ matrix.version }}/
+          curl --fail --user "${{ vars.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}" --upload-file rpmbuild/RPMS/noarch/*.rpm https://repo.cloud.cnaf.infn.it/repository/storm-rpm-${REPO}/redhat${{ matrix.version }}/
