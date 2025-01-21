@@ -154,7 +154,7 @@ public class ServletConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(name = "storm.scitag.enabled", havingValue = "true")
+  @ConditionalOnProperty(name = "storm.scitags.enabled", havingValue = "true")
   FilterRegistrationBean<SciTagFilter> scitagFilter() {
     LOG.info("SciTag filter enabled");
     FilterRegistrationBean<SciTagFilter> filter = new FilterRegistrationBean<>(new SciTagFilter());
