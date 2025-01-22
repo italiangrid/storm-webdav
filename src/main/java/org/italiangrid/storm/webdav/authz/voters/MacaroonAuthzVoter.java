@@ -15,9 +15,10 @@
  */
 package org.italiangrid.storm.webdav.authz.voters;
 
+import static org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter.isMacaroonRequest;
+
 import java.util.Collection;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -41,11 +42,10 @@ public class MacaroonAuthzVoter implements AccessDecisionVoter<FilterInvocation>
       Collection<ConfigAttribute> attributes) {
     Assert.notNull(authentication, "authentication must not be null");
     Assert.notNull(filterInvocation, "filterInvocation must not be null");
- 
-    if (HttpMethod.POST.name().equals(filterInvocation.getHttpRequest().getMethod())) {
+
+    if (isMacaroonRequest(filterInvocation.getHttpRequest())) {
       return ACCESS_GRANTED;
     }
     return ACCESS_ABSTAIN;
   }
-
 }

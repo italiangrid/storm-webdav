@@ -95,7 +95,7 @@ public class MacaroonRequestIntegrationTests {
   }
 
   @Test
-  void getNotSupported() throws Exception {
+  void getMethodNotAllowed() throws Exception {
     mvc.perform(get("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE))
       .andExpect(status().isMethodNotAllowed());
   }
