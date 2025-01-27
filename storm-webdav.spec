@@ -29,7 +29,7 @@ URL:     https://github.com/italiangrid/storm-webdav
 
 BuildArch: noarch
 
-BuildRequires: maven-openjdk11
+BuildRequires: java-11-openjdk-devel
 
 Requires: java-11-openjdk-headless
 
