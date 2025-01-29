@@ -40,6 +40,7 @@ import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
+import org.italiangrid.storm.webdav.server.servlet.ServerResponseHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.tracing.LogbackAccessAuthnInfoFilter;
@@ -80,6 +81,7 @@ public class ServletConfiguration {
   static final int MOVE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1008;
   static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1009;
   static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
+  static final int SERVER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 100;
   static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
 
   @Bean
@@ -219,6 +221,14 @@ public class ServletConfiguration {
     return filter;
   }
 
+  @Bean
+  FilterRegistrationBean<ServerResponseHeaderFilter> serverHeaderFilter() {
+    FilterRegistrationBean<ServerResponseHeaderFilter> filter =
+        new FilterRegistrationBean<>(new ServerResponseHeaderFilter());
+    filter.addUrlPatterns("/*");
+    filter.setOrder(SERVER_FILTER_ORDER);
+    return filter;
+  }
 
   @Bean
   ServletRegistrationBean<MetricsServlet> metricsServlet(MetricRegistry registry) {
