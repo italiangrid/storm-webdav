@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.EnumSet;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
@@ -82,8 +82,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  void filterSkippedIfSourceAndDestionationHeaderMissing()
-      throws IOException, ServletException {
+  void filterSkippedIfSourceAndDestionationHeaderMissing() throws IOException, ServletException {
 
     // No source or destination header
     when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);

@@ -24,13 +24,14 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +54,9 @@ class ClientTest extends ClientTestSupport {
   public void setup() throws IOException {
 
     super.setup();
-    lenient().when(es.scheduleAtFixedRate(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(), Mockito.any()))
+    lenient()
+      .when(es.scheduleAtFixedRate(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(),
+          Mockito.any()))
       .thenReturn(sf);
     lenient().when(req.remoteURI()).thenReturn(HTTP_URI_URI);
     lenient().when(req.path()).thenReturn(LOCAL_PATH);
@@ -70,38 +73,36 @@ class ClientTest extends ClientTestSupport {
   }
 
   @Test
-  void testClientCorrectlyBuildsHttpRequestNoHeaders() throws IOException {
+  void testClientCorrectlyBuildsHttpRequestNoHeaders() throws IOException, URISyntaxException {
 
     client.handle(req, (r, s) -> {
     });
 
-    verify(httpClient).execute(getRequest.capture(),
-        ArgumentMatchers.<ResponseHandler<Boolean>>any(),
-        ArgumentMatchers.<HttpClientContext>any());
+    verify(httpClient).execute(getRequest.capture(), ArgumentMatchers.<HttpClientContext>any(),
+        ArgumentMatchers.<HttpClientResponseHandler<Boolean>>any());
 
-    HttpGet httpGetReq = getRequest.getValue();
+    BasicClassicHttpRequest httpGetReq = getRequest.getValue();
 
-    assertThat(httpGetReq.getURI(), is(HTTP_URI_URI));
-    assertThat(httpGetReq.getAllHeaders(), arrayWithSize(0));
+    assertThat(httpGetReq.getUri(), is(HTTP_URI_URI));
+    assertThat(httpGetReq.getHeaders(), arrayWithSize(0));
 
   }
 
   @Test
-  void testClientCorrectlyBuildsHttpRequestWithHeaders() throws IOException {
+  void testClientCorrectlyBuildsHttpRequestWithHeaders() throws IOException, URISyntaxException {
 
     when(req.transferHeaders()).thenReturn(HEADER_MAP);
 
     client.handle(req, (r, s) -> {
     });
 
-    verify(httpClient).execute(getRequest.capture(),
-        ArgumentMatchers.<ResponseHandler<Boolean>>any(),
-        ArgumentMatchers.<HttpClientContext>any());
+    verify(httpClient).execute(getRequest.capture(), ArgumentMatchers.<HttpClientContext>any(),
+        ArgumentMatchers.<HttpClientResponseHandler<Boolean>>any());
 
-    HttpGet httpGetReq = getRequest.getValue();
+    BasicClassicHttpRequest httpGetReq = getRequest.getValue();
 
-    assertThat(httpGetReq.getURI(), is(HTTP_URI_URI));
-    assertThat(httpGetReq.getAllHeaders(), arrayWithSize(1));
+    assertThat(httpGetReq.getUri(), is(HTTP_URI_URI));
+    assertThat(httpGetReq.getHeaders(), arrayWithSize(1));
     assertThat(httpGetReq.getHeaders(AUTHORIZATION_HEADER)[0].getValue(),
         is(AUTHORIZATION_HEADER_VALUE));
 

@@ -42,7 +42,6 @@ import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
 import org.italiangrid.storm.webdav.server.servlet.ServerResponseHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
-import org.italiangrid.storm.webdav.server.servlet.resource.StormResourceService;
 import org.italiangrid.storm.webdav.server.tracing.LogbackAccessAuthnInfoFilter;
 import org.italiangrid.storm.webdav.server.tracing.RequestIdFilter;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
@@ -60,7 +59,7 @@ import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.TemplateEngine;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.servlets.MetricsServlet;
+import io.dropwizard.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -243,14 +242,12 @@ public class ServletConfiguration {
       ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration saConfig,
       PathResolver pathResolver, TemplateEngine templateEngine) {
 
-    ServletRegistrationBean<StoRMServlet> stormServlet =
-        new ServletRegistrationBean<>(new StoRMServlet(oauthProperties, serviceConfig, pathResolver,
-            templateEngine, new StormResourceService()));
+    ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
+        new StoRMServlet(oauthProperties, serviceConfig, pathResolver, templateEngine));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");
-    stormServlet.addInitParameter("aliases", "false");
-    stormServlet.addInitParameter("gzip", "false");
+    stormServlet.addInitParameter("precompressed", "false");
 
 
     saConfig.getStorageAreaInfo()

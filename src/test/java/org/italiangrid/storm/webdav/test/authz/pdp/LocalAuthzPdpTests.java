@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;

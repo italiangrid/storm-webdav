@@ -15,7 +15,7 @@
  */
 package org.italiangrid.storm.webdav.authz.util;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 

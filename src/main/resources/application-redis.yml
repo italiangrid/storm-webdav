@@ -4,10 +4,11 @@ management:
       enabled: true
       
 spring:
-  redis:
-    host: ${STORM_WEBDAV_REDIS_HOST:localhost} 
-    port: ${STORM_WEBDAV_REDIS_PORT:6379}
-    password: ${STORM_WEBDAV_REDIS_PASSWORD:}
+  data:
+    redis:
+      host: ${STORM_WEBDAV_REDIS_HOST:localhost}
+      port: ${STORM_WEBDAV_REDIS_PORT:6379}
+      password: ${STORM_WEBDAV_REDIS_PASSWORD:}
  
   session:
     store-type: redis
