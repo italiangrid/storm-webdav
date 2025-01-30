@@ -167,16 +167,18 @@ public class SecurityConfig {
         authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/errors/**"))
           .permitAll());
 
-    http.authorizeHttpRequests(authorize -> authorize
-      .requestMatchers(AntPathRequestMatcher.antMatcher("/"),
-          AntPathRequestMatcher.antMatcher("/assets/css/*"),
-          AntPathRequestMatcher.antMatcher("/assets/js/*"),
-          AntPathRequestMatcher.antMatcher("/authn-info"),
-          AntPathRequestMatcher.antMatcher("/actuator/*"),
-          AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
-          AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
-          AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
-      .permitAll());
+    http.authorizeHttpRequests(
+        authorize -> authorize
+          .requestMatchers(AntPathRequestMatcher.antMatcher("/"),
+              AntPathRequestMatcher.antMatcher("/robots.txt"),
+              AntPathRequestMatcher.antMatcher("/assets/css/*"),
+              AntPathRequestMatcher.antMatcher("/assets/js/*"),
+              AntPathRequestMatcher.antMatcher("/authn-info"),
+              AntPathRequestMatcher.antMatcher("/actuator/*"),
+              AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
+              AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
+              AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
+          .permitAll());
 
     configureOidcAuthn(http);
 
