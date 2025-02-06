@@ -1,8 +1,30 @@
 # Changelog
 
+## 1.5.0 (2025-01-21)
+
+### Fixed
+
+* [STOR-1399](https://issues.infn.it/jira/browse/STOR-1399) - Skip invalid DN into the VO map file
+* [STOR-1568](https://issues.infn.it/jira/browse/STOR-1568) - StoRM WebDAV says DELETED but the file is there
+* [STOR-1583](https://issues.infn.it/jira/browse/STOR-1583) - Fix how a request with no remote IP address is logged
+* [STOR-1600](https://issues.infn.it/jira/browse/STOR-1600) - WLCG scope "storage.modify" must grant stat permission
+* [STOR-1602](https://issues.infn.it/jira/browse/STOR-1602) - Macaroon POST requests on files are failing with 403 Unauthorized
+* [STOR-1605](https://issues.infn.it/jira/browse/STOR-1605) - The storage.stage:/ scope is not sufficient to read
+* [STOR-1616](https://issues.infn.it/jira/browse/STOR-1616) - StoRM WebDAV does not permit the creation of non-existent parent directory even if the scope does it
+
+### Enhancements
+
+* [STOR-1564](https://issues.infn.it/jira/browse/STOR-1564) - Allow creation of non existent parent directories
+* [STOR-1618](https://issues.infn.it/jira/browse/STOR-1618) - Add SciTags support
+* Update Milton version from v2.7.1.7 to v2.8.0.3
+* Support for the 'entitlements' JWT claim
+* Add `jwt-client` principal to the ones available for the definition of a fine grained policy entry
+* Restored StoRM WebDAV testsuite.
+* Fixed Docker image used for testing purposes
+
 ## 1.4.2 (2023-06-27)
 
-## Description
+### Description
 
 This release:
 
@@ -11,7 +33,7 @@ This release:
 * tunes some default values (default TPC timeout, default heap size, etc.)
 * and fixes other minor bugs/issues.
 
-### fixes
+### Fixes
 
 * [[STOR-1396](https://issues.infn.it/jira/browse/STOR-1396)] - Ensure adler32 checksums are always 8 chars long
 * [[STOR-1450](https://issues.infn.it/jira/browse/STOR-1450)] - Increase default timeout for TPC to 30 seconds
