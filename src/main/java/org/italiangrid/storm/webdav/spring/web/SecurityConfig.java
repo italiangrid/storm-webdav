@@ -175,6 +175,8 @@ public class SecurityConfig {
               AntPathRequestMatcher.antMatcher("/assets/js/*"),
               AntPathRequestMatcher.antMatcher("/authn-info"),
               AntPathRequestMatcher.antMatcher("/actuator/*"),
+              AntPathRequestMatcher.antMatcher("/status/metrics"),
+              AntPathRequestMatcher.antMatcher("/oauth/token"),
               AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
               AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
               AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
