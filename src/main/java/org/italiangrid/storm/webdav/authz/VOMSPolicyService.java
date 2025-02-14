@@ -42,7 +42,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
   private final Multimap<String, SAPermission> voMapPerms;
 
   public VOMSPolicyService(StorageAreaConfiguration saConfig) {
-    authenticatedPerms = new ArrayList<SAPermission>();
+    authenticatedPerms = new ArrayList<>();
 
     voPerms = ArrayListMultimap.create();
     voMapPerms = ArrayListMultimap.create();

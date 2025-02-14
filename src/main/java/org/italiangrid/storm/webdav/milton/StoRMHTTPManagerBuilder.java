@@ -57,8 +57,8 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
   private void disableDeleteExistingBeforeMoveInMoveHandler() {
 
     for (Handler h : getWebDavProtocol().getHandlers()) {
-      if (h instanceof MoveHandler) {
-        ((MoveHandler) h).setDeleteExistingBeforeMove(false);
+      if (h instanceof MoveHandler moveHandler) {
+        moveHandler.setDeleteExistingBeforeMove(false);
       }
     }
   }

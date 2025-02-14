@@ -35,7 +35,7 @@ public class DefaultPathResolver implements PathResolver {
 
   private final StorageAreaConfiguration saConfig;
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultPathResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPathResolver.class);
 
   private final NavigableMap<String, StorageAreaInfo> contextMap;
 
@@ -46,7 +46,9 @@ public class DefaultPathResolver implements PathResolver {
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       for (String ap : sa.accessPoints()) {
-        logger.debug("Adding path mapping for sa {}: {} -> {}", sa.name(), ap, sa.rootPath());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Adding path mapping for sa {}: {} -> {}", sa.name(), ap, sa.rootPath());
+        }
         contextMap.put(ap, sa);
       }
     }
@@ -86,8 +88,8 @@ public class DefaultPathResolver implements PathResolver {
 
       if (pathInContext.startsWith(e.getKey())) {
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("{} matches with access point {}. Resolved storage area name: {}",
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("{} matches with access point {}. Resolved storage area name: {}",
               pathInContext, e.getKey(), e.getValue().name());
         }
 
@@ -122,9 +124,9 @@ public class DefaultPathResolver implements PathResolver {
         Path resolvedPath =
             Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("{} matches with access point {}. Resolved path: {}", pathInContext,
-              e.getKey(), resolvedPath);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("{} matches with access point {}. Resolved path: {}", pathInContext, e.getKey(),
+              resolvedPath);
         }
 
         return resolvedPath.toAbsolutePath();

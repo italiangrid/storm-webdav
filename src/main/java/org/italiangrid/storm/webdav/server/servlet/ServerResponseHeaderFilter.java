@@ -32,6 +32,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add 'Server' header response, using StoRM-WebDAV version (taken from the
@@ -39,6 +41,8 @@ import javax.servlet.http.HttpServletResponse;
  * between any two invocations of StoRM-WebDAV instances.
  */
 public class ServerResponseHeaderFilter implements Filter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ServerResponseHeaderFilter.class);
 
     private static final int INSTANCE_ID_LENGTH = 4;
 
@@ -51,15 +55,15 @@ public class ServerResponseHeaderFilter implements Filter {
         URL u = cs.getLocation();
 
         Optional<String> maybeVersion = Optional.empty();
-        try (InputStream is = u.openStream()) {
-            JarInputStream jis = new JarInputStream(is);
+        try (InputStream is = u.openStream(); JarInputStream jis = new JarInputStream(is)) {
             Manifest m = jis.getManifest();
             if (m != null) {
                 Attributes attributes = m.getMainAttributes();
                 String value = attributes.getValue("Implementation-Version");
                 maybeVersion = Optional.ofNullable(value);
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.warn(e.getMessage(), e);
         }
         return maybeVersion.orElse("unknown-version");
     }
@@ -81,20 +85,20 @@ public class ServerResponseHeaderFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        if (response instanceof HttpServletResponse) {
+        if (response instanceof HttpServletResponse httpServletResponse) {
             // Set the header now, in case the response is committed before
             // chain.doFilter returns.
-            specifyServerHeader((HttpServletResponse)response);
+            specifyServerHeader(httpServletResponse);
         }
 
         try {
             chain.doFilter(request, response);
         } finally {
-            if (response instanceof HttpServletResponse) {
+            if (response instanceof HttpServletResponse httpServletResponse) {
                 // Set the header now, in case the response is not yet
                 // committed.  This allows the code to override any
                 // {@literal Server} header value specified earlier.
-                specifyServerHeader((HttpServletResponse)response);
+                specifyServerHeader(httpServletResponse);
             }
         }
     }

@@ -46,7 +46,7 @@ class PolicyPropertiesValidationTests {
   private Validator validator;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     Locale.setDefault(Locale.ENGLISH);
     ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
     this.validator = vf.getValidator();

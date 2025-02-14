@@ -124,7 +124,7 @@ public class JwtIssuerTest {
   DefaultJwtTokenIssuer issuer;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
 
 
     lenient().when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));

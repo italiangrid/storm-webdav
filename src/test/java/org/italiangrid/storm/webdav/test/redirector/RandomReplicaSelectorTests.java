@@ -37,7 +37,7 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
   RandomReplicaSelector selector;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     config = buildConfigurationProperties();
     selector = new RandomReplicaSelector(config);
   }

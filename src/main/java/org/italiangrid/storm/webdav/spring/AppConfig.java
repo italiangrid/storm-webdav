@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -205,7 +205,7 @@ public class AppConfig {
   }
 
   private X509CertChainValidatorExt canlCertChainCustomValidator(ServiceConfiguration configuration,
-          Function<CertificateValidatorBuilder,CertificateValidatorBuilder> customiseValidatorBuilder) {
+      UnaryOperator<CertificateValidatorBuilder> customiseValidatorBuilder) {
 
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
 

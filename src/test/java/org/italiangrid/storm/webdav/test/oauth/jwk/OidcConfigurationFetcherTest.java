@@ -203,7 +203,7 @@ class OidcConfigurationFetcherTest {
   }
 
   @BeforeEach
-  public void setDebugLevel() {
+  void setDebugLevel() {
     System.setProperty("logging.level.org.italiangrid.storm", "DEBUG");
   }
 
