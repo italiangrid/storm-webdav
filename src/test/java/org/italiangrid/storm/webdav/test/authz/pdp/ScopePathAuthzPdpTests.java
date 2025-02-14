@@ -89,7 +89,7 @@ public class ScopePathAuthzPdpTests {
   WlcgStructuredPathAuthorizationPdp pdp;
 
   @BeforeEach
-  public void setup() throws MalformedURLException {
+  void setup() throws MalformedURLException {
     jwtAuth = new JwtAuthenticationToken(jwt);
     lenient().when(jwt.getIssuer()).thenReturn(new URL("https://issuer.example"));
     lenient().when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");

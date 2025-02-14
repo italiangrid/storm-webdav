@@ -77,7 +77,7 @@ public class AuthzPdpTests {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     lenient().when(request.getServletPath()).thenReturn("/");
     lenient().when(repo.getPolicies()).thenReturn(emptyList());
   }

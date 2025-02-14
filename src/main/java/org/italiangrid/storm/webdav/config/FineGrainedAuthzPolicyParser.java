@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.config;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -174,7 +172,7 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   @Override
   public List<PathAuthorizationPolicy> parsePolicies() {
 
-    return properties.getAuthz().getPolicies().stream().map(this::parsePolicy).collect(toList());
+    return properties.getAuthz().getPolicies().stream().map(this::parsePolicy).toList();
 
   }
 

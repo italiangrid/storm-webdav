@@ -79,7 +79,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   RedirectFilter filter;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
 
     filter = new RedirectFilter(pathResolver, redirectionService);
     lenient().when(request.getScheme()).thenReturn("https");

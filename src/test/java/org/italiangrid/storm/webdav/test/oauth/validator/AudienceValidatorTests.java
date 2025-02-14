@@ -45,7 +45,7 @@ class AudienceValidatorTests {
   Jwt jwt;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     lenient().when(server.getAudiences()).thenReturn(List.of("https://storm.example:8443", "any"));
 
   }

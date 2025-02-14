@@ -65,7 +65,7 @@ class TrustedJwtDecoderCacheLoaderTest {
   private TrustedJwtDecoderCacheLoader jwtLoader;
 
   @BeforeEach
-  public void setup() throws IOException, KeySourceException {
+  void setup() throws IOException, KeySourceException {
 
     AuthorizationServer as = new AuthorizationServer();
     as.setIssuer(ISSUER);

@@ -53,7 +53,7 @@ class PolicyParserTests {
   FineGrainedAuthzPolicyParser parser;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     lenient().when(saConfig.getStorageAreaInfo()).thenReturn(List.of(saInfo));
     lenient().when(saInfo.name()).thenReturn("test");
     lenient().when(saInfo.accessPoints()).thenReturn(List.of("/test"));

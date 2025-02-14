@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.authz.pdp;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.deny;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.indeterminate;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.permit;
@@ -199,7 +198,7 @@ public class WlcgStructuredPathAuthorizationPdp
     List<StructuredPathScopeMatcher> scopeMatchers = wlcgScopes.stream()
       .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
       .map(StructuredPathScopeMatcher::fromString)
-      .collect(toList());
+      .toList();
 
     // Here we return indeterminate when no WLCG storage access scopes
     // are found in the token, so that other authz mechanism can be used to
@@ -215,12 +214,12 @@ public class WlcgStructuredPathAuthorizationPdp
       scopeMatchers = scopeMatchers.stream()
         .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
         .filter(m -> m.matchesPathIncludingParents(saPath))
-        .collect(toList());
+        .toList();
     } else {
       scopeMatchers = scopeMatchers.stream()
         .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
         .filter(m -> m.matchesPath(saPath))
-        .collect(toList());
+        .toList();
     }
 
     if (scopeMatchers.isEmpty()) {

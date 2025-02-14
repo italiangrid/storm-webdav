@@ -15,8 +15,6 @@
  */
 package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
 
-import static java.util.stream.Collectors.toList;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
@@ -76,9 +74,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
 
   protected Optional<Instant> vomsAcExpiration(Authentication authentication) {
 
-    if (authentication.getDetails() instanceof VOMSAuthenticationDetails) {
-      VOMSAuthenticationDetails details = (VOMSAuthenticationDetails) authentication.getDetails();
-
+    if (authentication.getDetails() instanceof VOMSAuthenticationDetails details) {
       if (!details.getVomsAttributes().isEmpty()) {
         Date acNotAfter = details.getVomsAttributes().get(0).getNotAfter();
         return Optional.of(acNotAfter.toInstant());
@@ -138,8 +134,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     claimsSet.subject(authentication.getName());
     claimsSet.expirationTime(computeTokenExpirationTimestamp(request, authentication));
 
-    claimsSet.claim(CLAIM_AUTHORITIES,
-        tokenAuthorities.stream().map(Object::toString).collect(toList()));
+    claimsSet.claim(CLAIM_AUTHORITIES, tokenAuthorities.stream().map(Object::toString).toList());
 
     SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWS_ALGO), claimsSet.build());
 
