@@ -46,7 +46,6 @@ import org.italiangrid.storm.webdav.authz.managers.FineGrainedAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.FineGrainedCopyMoveAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.LocalAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.MacaroonAuthzManager;
-import org.italiangrid.storm.webdav.authz.managers.OauthAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.UnanimousDelegatedManager;
 import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzCopyMoveManager;
 import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzManager;
@@ -306,9 +305,6 @@ public class SecurityConfig {
       } catch (MalformedURLException e) {
         LOG.error(e.getMessage(), e);
       }
-    }
-    if (serviceConfigurationProperties.getAuthzServer().isEnabled()) {
-      voters.add(new OauthAuthzManager());
     }
     if (serviceConfigurationProperties.getMacaroonFilter().isEnabled()) {
       voters.add(new MacaroonAuthzManager());
