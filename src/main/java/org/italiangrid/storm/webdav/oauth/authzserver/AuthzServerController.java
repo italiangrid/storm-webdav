@@ -28,6 +28,7 @@ import javax.validation.Valid;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidScopeError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidTokenRequestError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.UnsupportedGrantTypeError;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@ConditionalOnExpression("${storm.authz-server.enabled}")
 @RequestMapping("/oauth")
 public class AuthzServerController {
 
