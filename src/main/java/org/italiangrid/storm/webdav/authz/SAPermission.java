@@ -66,18 +66,21 @@ public class SAPermission implements GrantedAuthority, Comparable<SAPermission> 
   @Override
   public boolean equals(Object obj) {
 
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    } else if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     SAPermission other = (SAPermission) obj;
     if (authority == null) {
-      if (other.authority != null)
+      if (other.authority != null) {
         return false;
-    } else if (!authority.equals(other.authority))
+      }
+    } else if (!authority.equals(other.authority)) {
       return false;
+    }
     return true;
   }
 

@@ -27,18 +27,21 @@ public class JwtScopeAuthority extends JwtAuthority implements Comparable<JwtSco
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    } else if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     JwtScopeAuthority other = (JwtScopeAuthority) obj;
     if (scope == null) {
-      if (other.scope != null)
+      if (other.scope != null) {
         return false;
-    } else if (!scope.equals(other.scope))
+      }
+    } else if (!scope.equals(other.scope)) {
       return false;
+    }
     return true;
   }
 

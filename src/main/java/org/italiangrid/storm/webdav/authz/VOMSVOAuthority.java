@@ -54,18 +54,21 @@ public class VOMSVOAuthority implements GrantedAuthority,
   @Override
   public boolean equals(Object obj) {
 
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    } else if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     VOMSVOAuthority other = (VOMSVOAuthority) obj;
     if (voAuthority == null) {
-      if (other.voAuthority != null)
+      if (other.voAuthority != null) {
         return false;
-    } else if (!voAuthority.equals(other.voAuthority))
+      }
+    } else if (!voAuthority.equals(other.voAuthority)) {
       return false;
+    }
     return true;
   }
 

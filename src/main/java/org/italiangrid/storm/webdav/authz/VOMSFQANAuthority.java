@@ -26,18 +26,21 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
   @Override
   public boolean equals(Object obj) {
 
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    } else if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     VOMSFQANAuthority other = (VOMSFQANAuthority) obj;
     if (fqanAuthority == null) {
-      if (other.fqanAuthority != null)
+      if (other.fqanAuthority != null) {
         return false;
-    } else if (!fqanAuthority.equals(other.fqanAuthority))
+      }
+    } else if (!fqanAuthority.equals(other.fqanAuthority)) {
       return false;
+    }
     return true;
   }
 

@@ -27,6 +27,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <plugin.license.version>1.9.0</plugin.license.version>
     <plugin.jacoco.version>0.8.12</plugin.jacoco.version>
+    <plugin.spotless.version>2.44.3</plugin.spotless.version>
 
     <java.version>17</java.version>
 
@@ -120,6 +121,17 @@ SPDX-License-Identifier: Apache-2.0
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${plugin.spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat />
+          </java>
+        </configuration>
       </plugin>
     </plugins>
   </build>

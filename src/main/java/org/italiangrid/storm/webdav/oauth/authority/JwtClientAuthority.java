@@ -27,18 +27,21 @@ public class JwtClientAuthority extends JwtAuthority {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    } else if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     JwtClientAuthority other = (JwtClientAuthority) obj;
     if (clientId == null) {
-      if (other.clientId != null)
+      if (other.clientId != null) {
         return false;
-    } else if (!clientId.equals(other.clientId))
+      }
+    } else if (!clientId.equals(other.clientId)) {
       return false;
+    }
     return true;
   }
 

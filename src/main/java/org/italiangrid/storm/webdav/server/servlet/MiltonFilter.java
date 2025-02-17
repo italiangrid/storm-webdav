@@ -104,8 +104,9 @@ public class MiltonFilter implements Filter {
 
     if (isWebDAVMethod(request)) {
       doMilton((HttpServletRequest) request, (HttpServletResponse) response);
-    } else
+    } else {
       chain.doFilter(request, response);
+    }
   }
 
   public void doMilton(HttpServletRequest request, HttpServletResponse response) {

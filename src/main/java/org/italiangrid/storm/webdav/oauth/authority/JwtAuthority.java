@@ -32,18 +32,21 @@ public abstract class JwtAuthority implements GrantedAuthority {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    } else if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     JwtAuthority other = (JwtAuthority) obj;
     if (issuer == null) {
-      if (other.issuer != null)
+      if (other.issuer != null) {
         return false;
-    } else if (!issuer.equals(other.issuer))
+      }
+    } else if (!issuer.equals(other.issuer)) {
       return false;
+    }
     return true;
   }
 

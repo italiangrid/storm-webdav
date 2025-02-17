@@ -29,8 +29,9 @@ public class StoRMMiltonRequest extends ServletRequest {
   public String getDestinationHeader() {
 
     String destHeaderValue = super.getDestinationHeader();
-    if (destHeaderValue == null)
+    if (destHeaderValue == null) {
       return null;
+    }
 
     Matcher m = p.matcher(destHeaderValue);
     if (m.matches()) {

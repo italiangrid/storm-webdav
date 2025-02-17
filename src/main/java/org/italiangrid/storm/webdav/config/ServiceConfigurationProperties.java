@@ -90,18 +90,21 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
       @Override
       public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
           return true;
-        if (obj == null)
+        } else if (obj == null) {
           return false;
-        if (getClass() != obj.getClass())
+        } else if (getClass() != obj.getClass()) {
           return false;
+        }
         ReplicaEndpointProperties other = (ReplicaEndpointProperties) obj;
         if (endpoint == null) {
-          if (other.endpoint != null)
+          if (other.endpoint != null) {
             return false;
-        } else if (!endpoint.equals(other.endpoint))
+          }
+        } else if (!endpoint.equals(other.endpoint)) {
           return false;
+        }
         return true;
       }
 

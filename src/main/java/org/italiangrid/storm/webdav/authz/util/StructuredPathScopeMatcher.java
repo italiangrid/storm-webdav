@@ -103,23 +103,28 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   @Override
   @Generated("eclipse")
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    } else if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     StructuredPathScopeMatcher other = (StructuredPathScopeMatcher) obj;
     if (path == null) {
-      if (other.path != null)
+      if (other.path != null) {
         return false;
-    } else if (!path.equals(other.path))
+      }
+    } else if (!path.equals(other.path)) {
       return false;
+    }
     if (prefix == null) {
-      if (other.prefix != null)
+      if (other.prefix != null) {
         return false;
-    } else if (!prefix.equals(other.prefix))
+      }
+    } else if (!prefix.equals(other.prefix)) {
       return false;
+    }
     return true;
   }
 

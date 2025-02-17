@@ -20,8 +20,9 @@ public class CANLListener implements StoreUpdateListener, ValidationErrorListene
   @Override
   public void loadingNotification(String location, String type, Severity level, Exception cause) {
 
-    if (location.startsWith("file:"))
+    if (location.startsWith("file:")) {
       location = location.substring(5, location.length());
+    }
 
     if (level.equals(Severity.ERROR)) {
       LOG.error("Error for {} {}: {}.", type, location, cause.getMessage());

@@ -41,18 +41,21 @@ public class JwtGroupAuthority extends JwtAuthority implements Comparable<JwtGro
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    } else if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    } else if (getClass() != obj.getClass()) {
       return false;
+    }
     JwtGroupAuthority other = (JwtGroupAuthority) obj;
     if (group == null) {
-      if (other.group != null)
+      if (other.group != null) {
         return false;
-    } else if (!group.equals(other.group))
+      }
+    } else if (!group.equals(other.group)) {
       return false;
+    }
     return true;
   }
 
