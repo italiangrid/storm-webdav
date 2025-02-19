@@ -28,7 +28,7 @@
     
      -->
     <encoder>
-       <pattern>%a %localPort "%reqAttribute{storm.remoteUser}" %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%m %U %H" %s %b %D</pattern>
+       <pattern>%replace(%a){'^$','-'} %localPort "%reqAttribute{storm.remoteUser}" %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%m %U %H" %s %b %D</pattern>
     </encoder>
   </appender>
 
