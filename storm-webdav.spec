@@ -109,8 +109,11 @@ if [ "$1" = "0" ] ; then
 fi
 
 %changelog
-* Thu Dec 5 2024 Enrico Vianello <enrico.vianello at cnaf.infn.it> - 1.5.0-0
-- Packaging for version 1.5.0-0
+* Wed Feb 19 2025 Enrico Vianello <enrico.vianello at cnaf.infn.it> - 1.6.0-1
+- Packaging for version 1.6.0-1
+
+* Thu Dec 5 2024 Enrico Vianello <enrico.vianello at cnaf.infn.it> - 1.5.0-1
+- Packaging for version 1.5.0-1
 
 * Mon Jun 26 2023 Enrico Vianello <enrico.vianello at cnaf.infn.it> - 1.4.2-1
 - Packaging for version 1.4.2-1
