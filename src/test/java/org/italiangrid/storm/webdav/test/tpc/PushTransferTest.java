@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.enumeration;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -139,8 +139,8 @@ class PushTransferTest extends TransferFilterTestSupport {
 
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
       .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
@@ -178,9 +178,9 @@ class PushTransferTest extends TransferFilterTestSupport {
 
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
-    when(request.getContentLength()).thenReturn(1024*1024+1);
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024 * 1024 + 1);
 
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
@@ -198,9 +198,9 @@ class PushTransferTest extends TransferFilterTestSupport {
 
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
       .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
-    when(request.getHeaderNames()).thenReturn(
-        enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
-    when(request.getContentLength()).thenReturn(1024*1024-1);
+    when(request.getHeaderNames())
+      .thenReturn(enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY)));
+    when(request.getContentLength()).thenReturn(1024 * 1024 - 1);
 
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());

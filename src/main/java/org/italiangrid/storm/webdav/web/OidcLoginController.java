@@ -16,7 +16,6 @@
 package org.italiangrid.storm.webdav.web;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +32,13 @@ public class OidcLoginController {
 
   final List<OidcClientModel> clients;
   final ServiceConfigurationProperties serviceProperties;
-  
+
 
   @Autowired
   public OidcLoginController(OAuth2ClientProperties clientProperties,
       ServiceConfigurationProperties serviceProperties) {
     this.serviceProperties = serviceProperties;
-    
+
     clients = clientProperties.getRegistration().entrySet().stream().map(e -> {
       Provider provider = clientProperties.getProvider().get(e.getValue().getProvider());
       OidcClientModel m = new OidcClientModel();
@@ -47,7 +46,7 @@ public class OidcLoginController {
       m.setIssuer(provider.getIssuerUri());
       m.setUrl(String.format("/oauth2/authorization/%s", e.getKey()));
       return m;
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
 
@@ -85,7 +84,7 @@ public class OidcLoginController {
     public void setUrl(String url) {
       this.url = url;
     }
-    
+
     @Override
     public String toString() {
       return "OidcClientModel [name=" + name + ", issuer=" + issuer + ", url=" + url + "]";

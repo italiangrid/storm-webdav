@@ -20,14 +20,14 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -44,8 +44,7 @@ public class ChecksumFilter implements Filter {
   public static final Logger logger = LoggerFactory.getLogger(ChecksumFilter.class);
 
   @Autowired
-  public ChecksumFilter(ExtendedAttributesHelper attributeHelper,
-    PathResolver resolver) {
+  public ChecksumFilter(ExtendedAttributesHelper attributeHelper, PathResolver resolver) {
 
     this.attributeHelper = attributeHelper;
     this.resolver = resolver;
@@ -59,8 +58,8 @@ public class ChecksumFilter implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response,
-    FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
 
     addChecksumHeader((HttpServletRequest) request, (HttpServletResponse) response);
 
@@ -75,8 +74,7 @@ public class ChecksumFilter implements Filter {
 
   }
 
-  private void addChecksumHeader(HttpServletRequest request,
-    HttpServletResponse response) {
+  private void addChecksumHeader(HttpServletRequest request, HttpServletResponse response) {
 
     String method = request.getMethod().toUpperCase();
 
@@ -117,8 +115,8 @@ public class ChecksumFilter implements Filter {
 
     } catch (IOException e) {
 
-      logger.error("Error retrieving checksum value for path '{}': {}",
-          pathResolved,e.getMessage());
+      logger.error("Error retrieving checksum value for path '{}': {}", pathResolved,
+          e.getMessage());
 
       if (logger.isDebugEnabled()) {
         logger.error(e.getMessage(), e);

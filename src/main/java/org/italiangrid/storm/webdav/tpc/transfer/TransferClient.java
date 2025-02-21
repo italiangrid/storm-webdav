@@ -15,12 +15,14 @@
  */
 package org.italiangrid.storm.webdav.tpc.transfer;
 
-import org.apache.http.client.ClientProtocolException;
+import org.apache.hc.client5.http.ClientProtocolException;
 
 public interface TransferClient {
 
-  void handle(GetTransferRequest request, TransferStatusCallback status) throws ClientProtocolException;
-  
-  void handle(PutTransferRequest request, TransferStatusCallback status) throws ClientProtocolException;
+  void handle(GetTransferRequest request, TransferStatusCallback status)
+      throws ClientProtocolException;
+
+  void handle(PutTransferRequest request, TransferStatusCallback status)
+      throws ClientProtocolException;
 
 }

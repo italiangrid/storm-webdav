@@ -72,7 +72,7 @@ public class TokenServiceTest {
       new JWTClaimsSet.Builder().expirationTime(Date.from(NOW_PLUS_100_SECS)).build();
 
   @BeforeEach
-  public void setup() throws ParseException {
+  void setup() throws ParseException {
 
     issuerService = new DefaultTokenIssuerService(props, tokenIssuer, mockClock);
 

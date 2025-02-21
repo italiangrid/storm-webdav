@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
 
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;

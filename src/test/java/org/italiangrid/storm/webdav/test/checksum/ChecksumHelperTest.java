@@ -38,7 +38,7 @@ class ChecksumHelperTest {
   private Adler32ChecksumInputStream cis;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
 
     String resourcePath = "storage/test/example";
 
@@ -60,7 +60,7 @@ class ChecksumHelperTest {
   }
 
   @AfterEach
-  public void cleanup() throws IOException {
+  void cleanup() throws IOException {
     cis.close();
   }
 

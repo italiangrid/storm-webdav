@@ -12,7 +12,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- Keep this aligned with the spring.boot-version property below! -->
-    <version>2.7.18</version>
+    <version>3.4.0</version>
     <relativePath />
   </parent>
 
@@ -26,29 +26,34 @@
     <plugin.assembly.version>2.4</plugin.assembly.version>
     <plugin.shade.version>2.3</plugin.shade.version>
     <plugin.license.version>1.9.0</plugin.license.version>
+    <plugin.git-commit-id.version>9.0.1</plugin.git-commit-id.version>
     <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
 
     <java.version>17</java.version>
 
     <!-- Keep this aligned with the parent project version! -->
-    <spring-boot.version>2.7.18</spring-boot.version>
-    <spring-security.version>5.8.15</spring-security.version>
+    <spring-boot.version>3.4.0</spring-boot.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/spring/RedirectExec.java</sonar.exclusions>
 
     <voms-api-java.version>3.3.3</voms-api-java.version>
-    <milton.version>2.8.0.3</milton.version>
+    <milton.version>4.0.4.2305</milton.version>
 
     <commons-lang.version>2.3</commons-lang.version>
     <commons-cli.version>1.2</commons-cli.version>
     <commons-csv.version>1.0</commons-csv.version>
     <jimfs.version>1.1</jimfs.version>
 
-    <http-core.version>4.2.2</http-core.version>
-    <http-client.version>4.2.1</http-client.version>
+    <metrics.version>4.2.28</metrics.version>
+    <http-server.version>11.0.24</http-server.version>
+    <httpclient5.version>5.4.1</httpclient5.version>
+
+    <logback-access.version>2.0.3</logback-access.version>
+    <logback-access-jetty12.version>2.0.4</logback-access-jetty12.version>
 
     <guava.version>32.0.0-jre</guava.version>
 
@@ -77,8 +82,20 @@
       </plugin>
 
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>${plugin.git-commit-id.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <parameters>true</parameters>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -127,6 +144,7 @@
             <exclude>src/main/resources/META-INF/spring.factories</exclude>
             <exclude>maven/**</exclude>
             <exclude>sonar-project.properties</exclude>
+            <exclude>src/main/java/org/italiangrid/storm/webdav/spring/RedirectExec.java</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <strictCheck>true</strictCheck>
@@ -170,6 +188,24 @@
   </build>
 
   <dependencies>
+    <!-- https://github.com/spring-projects/spring-boot/issues/43207 -->
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>4.0.22</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-properties-migrator</artifactId>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.vaadin.external.google</groupId>
+          <artifactId>android-json</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <groupId>com.google.jimfs</groupId>
       <artifactId>jimfs</artifactId>
@@ -313,11 +349,13 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
+      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-jetty9</artifactId>
+      <artifactId>metrics-jetty12</artifactId>
+      <version>${metrics.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.jetty</groupId>
@@ -328,12 +366,20 @@
 
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-servlets</artifactId>
+      <artifactId>metrics-jetty12-ee10</artifactId>
+      <version>${metrics.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-jakarta-servlets</artifactId>
+      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>http2-server</artifactId>
+      <version>${http-server.version}</version>
     </dependency>
 
     <dependency>
@@ -358,8 +404,9 @@
     </dependency>
 
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-access</artifactId>
+      <groupId>ch.qos.logback.access</groupId>
+      <artifactId>common</artifactId>
+      <version>${logback-access.version}</version>
     </dependency>
 
     <dependency>
@@ -373,8 +420,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
+      <groupId>ch.qos.logback.access</groupId>
+      <artifactId>logback-access-jetty12</artifactId>
+      <version>${logback-access-jetty12.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${httpclient5.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
