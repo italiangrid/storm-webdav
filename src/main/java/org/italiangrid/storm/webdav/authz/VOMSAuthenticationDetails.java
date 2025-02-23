@@ -18,7 +18,7 @@ package org.italiangrid.storm.webdav.authz;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.voms.VOMSAttribute;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,9 +26,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
 
 public class VOMSAuthenticationDetails
     extends PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails {
-  
+
   private static final long serialVersionUID = 1L;
-    
+
   // Transient here is due to the fact that VOMSAttributesImpl is not serializable!
   final transient List<VOMSAttribute> vomsAttributes;
 

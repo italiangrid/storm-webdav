@@ -50,6 +50,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -94,8 +95,7 @@ class OidcConfigurationFetcherTest {
 
     ResponseEntity<Map<String, Object>> mockedEntity =
         (ResponseEntity<Map<String, Object>>) Mockito.mock(ResponseEntity.class);
-    lenient().when(mockedEntity.getStatusCode()).thenReturn(status);
-    lenient().when(mockedEntity.getStatusCodeValue()).thenReturn(status.value());
+    lenient().when(mockedEntity.getStatusCode()).thenReturn(HttpStatusCode.valueOf(status.value()));
     lenient().when(mockedEntity.getBody()).thenReturn(map);
     return mockedEntity;
   }
@@ -113,8 +113,7 @@ class OidcConfigurationFetcherTest {
     ResponseEntity<String> mockedEntity =
         (ResponseEntity<String>) Mockito.mock(ResponseEntity.class);
     lenient().when(mockedEntity.getBody()).thenReturn(data);
-    lenient().when(mockedEntity.getStatusCode()).thenReturn(status);
-    lenient().when(mockedEntity.getStatusCodeValue()).thenReturn(status.value());
+    lenient().when(mockedEntity.getStatusCode()).thenReturn(HttpStatusCode.valueOf(status.value()));
     return mockedEntity;
   }
 
@@ -126,18 +125,20 @@ class OidcConfigurationFetcherTest {
     return getFetcher(restTemplate);
   }
 
-  private OidcConfigurationFetcher getFetcherWithException(ResponseEntity<Map<String, Object>> wellKnownResponse) {
+  private OidcConfigurationFetcher getFetcherWithException(
+      ResponseEntity<Map<String, Object>> wellKnownResponse) {
 
     lenient().when(restTemplate.exchange(any(), eq(typeReference))).thenReturn(wellKnownResponse);
-    lenient().when(restTemplate.exchange(any(), eq(String.class))).thenThrow(new RuntimeException("ERROR"));
+    lenient().when(restTemplate.exchange(any(), eq(String.class)))
+      .thenThrow(new RuntimeException("ERROR"));
     return getFetcher(restTemplate);
   }
 
   private OidcConfigurationFetcher getFetcher(RestTemplate restTemplate) {
 
     lenient().when(restBuilder.build()).thenReturn(restTemplate);
-    lenient().when(restBuilder.setConnectTimeout(any())).thenReturn(restBuilder);
-    lenient().when(restBuilder.setReadTimeout(any())).thenReturn(restBuilder);
+    lenient().when(restBuilder.connectTimeout(any())).thenReturn(restBuilder);
+    lenient().when(restBuilder.readTimeout(any())).thenReturn(restBuilder);
     lenient().when(oAuthProperties.getRefreshTimeoutSeconds()).thenReturn(30);
     lenient().when(oAuthProperties.getRefreshPeriodMinutes()).thenReturn(1);
     return new DefaultOidcConfigurationFetcher(restBuilder, oAuthProperties);
@@ -195,7 +196,8 @@ class OidcConfigurationFetcherTest {
     return getFetcher(mockedResponseMapEntity, mockedResponseStringEntity);
   }
 
-  private OidcConfigurationFetcher getFetcherWithRuntimeExceptionOnGetJwk() throws RestClientException {
+  private OidcConfigurationFetcher getFetcherWithRuntimeExceptionOnGetJwk()
+      throws RestClientException {
 
     ResponseEntity<Map<String, Object>> mockedResponseMapEntity =
         getWellKnownResponse(OK, getMapWithIssuerAndJwkUri(ISSUER, JWK_URI));

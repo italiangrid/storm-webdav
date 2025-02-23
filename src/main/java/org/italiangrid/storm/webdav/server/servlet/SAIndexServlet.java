@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -34,11 +34,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
+import org.thymeleaf.web.IWebExchange;
+import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 public class SAIndexServlet extends HttpServlet {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -8193945050086639692L;
 
@@ -55,10 +57,10 @@ public class SAIndexServlet extends HttpServlet {
   public static final String STORM_HOSTNAME_KEY = "storm";
   public static final String OIDC_ENABLED_KEY = "oidcEnabled";
 
-  private final OAuthProperties oauthProperties;
-  private final StorageAreaConfiguration saConfig;
-  private final ServiceConfigurationProperties serviceConfig;
-  private final TemplateEngine engine;
+  private final transient OAuthProperties oauthProperties;
+  private final transient StorageAreaConfiguration saConfig;
+  private final transient ServiceConfigurationProperties serviceConfig;
+  private final transient TemplateEngine engine;
 
   private final Map<String, String> saIndexMap;
 
@@ -69,7 +71,7 @@ public class SAIndexServlet extends HttpServlet {
     this.serviceConfig = serviceConfig;
     this.saConfig = config;
     this.engine = engine;
-    saIndexMap = new TreeMap<String, String>();
+    saIndexMap = new TreeMap<>();
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
       saIndexMap.put(sa.name(), sa.accessPoints().get(0));
     }
@@ -92,7 +94,11 @@ public class SAIndexServlet extends HttpServlet {
     req.setAttribute(STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
     req.setAttribute(OIDC_ENABLED_KEY, oauthProperties.isEnableOidc());
 
-    WebContext ctxt = new WebContext(req, resp, getServletContext(), req.getLocale());
+    final IWebExchange webExchange =
+        JakartaServletWebApplication.buildApplication(this.getServletContext())
+          .buildExchange(req, resp);
+
+    WebContext ctxt = new WebContext(webExchange, req.getLocale());
 
     engine.process(SA_INDEX_PAGE_NAME, ctxt, resp.getWriter());
   }

@@ -69,7 +69,7 @@ public class LocalAuthzIntegrationTests {
   SignedJwtTokenIssuer tokenIssuer;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     filter.setCheckForPrincipalChanges(false);
 
     HttpManager httpManager = Mockito.mock(HttpManager.class);

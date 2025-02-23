@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest.Permission;
@@ -97,8 +97,7 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
     if (LOG.isDebugEnabled()) {
       if (originIp.isPresent()) {
         LOG.debug("Ok: {}, pathMatches: {}, permMatches: {}, originMatches: {}", ok, pathMatches,
-            permMatches,
-            originMatches);
+            permMatches, originMatches);
       } else {
         LOG.debug("Ok: {}, pathMatches: {}, permMatches: {}", ok, pathMatches, permMatches);
       }

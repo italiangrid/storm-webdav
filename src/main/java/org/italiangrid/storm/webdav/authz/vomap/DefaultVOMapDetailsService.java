@@ -54,18 +54,10 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
   private void scheduleRefresh() {
 
-    Runnable refreshTask = new Runnable() {
+    Runnable refreshTask = this::refresh;
 
-      @Override
-      public void run() {
-
-        refresh();
-
-      }
-    };
-
-    scheduler.scheduleWithFixedDelay(refreshTask, 
-      refreshPeriodInSeconds, 
+    scheduler.scheduleWithFixedDelay(refreshTask,
+      refreshPeriodInSeconds,
       refreshPeriodInSeconds,
       TimeUnit.SECONDS);
 
@@ -76,7 +68,7 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
     Assert.notNull(principal, "PrincipalProperties cannot be null");
 
-    HashSet<String> voNames = new HashSet<String>();
+    HashSet<String> voNames = new HashSet<>();
 
     for (VOMembershipProvider p : providers) {
 
@@ -92,9 +84,9 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
     logger.debug("Refreshing vo membership providers...");
     for (VOMembershipProvider p : providers) {
-      if (p instanceof Refreshable) {
+      if (p instanceof Refreshable refreshable) {
         try {
-          ((Refreshable) p).refresh();
+          refreshable.refresh();
         } catch (Throwable t) {
           logger.warn(
             "Exception caught refreshing VOMembership provider for VO: {}. {}",
