@@ -115,6 +115,8 @@ public class StoRMFileResource extends StoRMResource
   public void replaceContent(InputStream in, Long length)
       throws BadRequestException, ConflictException, NotAuthorizedException {
 
+    logger.warn("Replacing file content: {}", getFile().getAbsolutePath());
+
     try {
 
       getResourceFactory().getReplaceContentStrategy().replaceContent(in, length, getFile());
@@ -144,6 +146,8 @@ public class StoRMFileResource extends StoRMResource
 
   @Override
   public void replacePartialContent(Range range, InputStream in) {
+
+    logger.warn("Replacing partial file content: {}", getFile().getAbsolutePath());
 
     validateRange(range);
 
