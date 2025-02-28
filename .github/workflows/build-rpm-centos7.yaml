@@ -48,7 +48,7 @@ jobs:
           git checkout centos7-rpm
       - name: Calculate version and repo
         run: |
-          VERSION='1.5.0'
+          VERSION='1.5.1'
           REPO='nightly'
           echo "REPO=${REPO}" >> "${GITHUB_ENV}"
           echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
