@@ -129,11 +129,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
     try (FileOutputStream fos = new FileOutputStream(file)) {
 
-      if (!file.createNewFile()) {
-        LOG.warn("Create file on a file that already exists: {}",
-          file.getAbsolutePath());
-      }
-
       Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
 
       IOUtils.copy(cis, fos);
