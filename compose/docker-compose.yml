@@ -4,6 +4,9 @@ volumes:
   storage:
   storage2:
 
+networks:
+  storm-network:
+    driver: bridge
 
 services:
   trust:
@@ -63,13 +66,13 @@ services:
 
     healthcheck:
       test: curl https://storm.test.example:8443/actuator/health --fail || exit 1
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
     networks:
-      default:
+      storm-network:
         aliases:
           - storm.test.example
 
@@ -84,6 +87,8 @@ services:
 
     depends_on:
       webdav:
+        condition: service_healthy
+      nginx:
         condition: service_healthy
       trust:
         condition: service_completed_successfully
@@ -102,7 +107,7 @@ services:
     entrypoint:  sleep infinity
 
     networks:
-      default:
+      storm-network:
 
   nginx:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
@@ -127,7 +132,14 @@ services:
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
       - storage2:/storage/oauth-authz
 
+    healthcheck:
+      test: curl https://storm-alias.test.example:443 --fail || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
     networks:
-      default:
+      storm-network:
         aliases:
           - storm-alias.test.example
