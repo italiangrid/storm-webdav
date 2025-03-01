@@ -2,7 +2,6 @@ volumes:
   trustanchors:
   cabundle:
   storage:
-  storage2:
 
 
 services:
@@ -107,6 +106,7 @@ services:
   nginx:
     image: ${NGINX_IMAGE}:${NGINX_IMAGE_TAG}
     ports:
+      - "80:80"
       - "443:443"
 
     depends_on:
@@ -125,7 +125,6 @@ services:
       - ./assets/vomsdir:/vomsdir
       - ./assets/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
-      - storage2:/storage/oauth-authz
 
     networks:
       default:

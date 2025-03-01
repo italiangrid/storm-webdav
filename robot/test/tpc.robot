@@ -85,6 +85,7 @@ Pull copy works
     [Setup]  Pull copy works Setup
     ${dest}  DAVS URL  tpc_test
     ${src}  Remote DAV URL  tpc_test
+    Curl Success  ${src}  --upload-file ${storage.root}/${sa.noauth}/tpc_test
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
     [Teardown]  Pull copy works Teardown
@@ -94,6 +95,7 @@ Pull copy works https
     [Setup]  Pull copy works https Setup
     ${dest}  DAVS URL  tpc_test_https
     ${src}  Remote DAVS URL  tpc_test_https   sa=${sa.noauth}
+    Curl Success  ${src}  --upload-file ${storage.root}/${sa.noauth}/tpc_test_https
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}
     Davix Get Success   ${dest}
     [Teardown]  Pull copy works https Teardown
@@ -115,8 +117,9 @@ Pull copy works oauth and https
     ${src}   Remote DAVS URL  tpc_test_oauth_https  sa=${sa.oauth}
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=454; retry=0" ${opts}
+    Curl Success  ${src}  --upload-file ${storage.root}/${sa.oauth}/tpc_test_oauth_https
     ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${src}  ${opts}
-    Curl Success   ${dest}   ${davix.opts.oauth}
+    Curl Voms Get Success   ${dest}
     [Teardown]  Pull copy works oauth and https Teardown
 
 Push copy works
@@ -138,6 +141,7 @@ Oauth pull copy works
     ${opts}  Set Variable  -H "TransferHeaderAuthorization: Bearer %{${cred.oauth.env_var_name}}" ${curl.opts.default}
     ${opts}  Set Variable  -H "Authorization: Bearer %{${cred.oauth.env_var_name}}" ${opts}
     ${opts}  Set Variable  -H "ClientInfo: job-id=123; file-id=456; retry=0" ${opts}
+    Curl Success  ${src}  --upload-file ${storage.root}/${sa.oauth}/oauth_pull_copy_works
     ${rc}  ${out}  Curl Pull COPY Success  ${dst}  ${src}  ${opts}
     Curl Success   ${dst}   ${davix.opts.oauth}
     [Teardown]  Oauth pull copy works Teardown

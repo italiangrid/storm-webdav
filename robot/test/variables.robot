@@ -2,7 +2,7 @@
 
 ## Endpoints
 
-${dav.host}   localhost
+${dav.host}   storm.test.example
 
 ${dav.port}   8085
 ${davs.port}   8443
@@ -12,9 +12,9 @@ ${davs.endpoint}  https://${dav.host}:${davs.port}
 
 ${token.endpoint}  https://${dav.host}:${davs.port}/oauth/token
 
-${remote.dav.host}             ${dav.host}
-${remote.dav.port}             ${dav.port}
-${remote.davs.port}            ${davs.port}
+${remote.dav.host}             storm-alias.test.example
+${remote.dav.port}             80
+${remote.davs.port}            443
 ${remote.davs.endpoint}        https://${remote.dav.host}:${remote.davs.port}
 ${remote.dav.endpoint}         http://${remote.dav.host}:${remote.dav.port}
 
