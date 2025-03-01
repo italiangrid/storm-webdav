@@ -22,7 +22,7 @@ Get PROPFIND PROPNAME body
   [Return]  ${output}
 
 Get PROPFIND PROP body  [Arguments]  ${propname}
-  ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:prop><D:${propname}/><prop/></D:propfind>"
+  ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:prop><D:${propname}/></D:prop></D:propfind>"
   [Return]  ${output}
 
 
@@ -61,14 +61,15 @@ Propfind propname works
     ${url}  DAVS URL  propfind_works
     ${body}  Get PROPFIND PROPNAME body
     ${rc}  ${out}  Curl Voms PROPFIND  ${url}  ${body}
-    Should Contain  ${out}  <d:displayname>propfind_works</d:displayname> 
+    Should Contain  ${out}  <d:status>HTTP/1.1 200 OK</d:status>
     [Teardown]   Teardown file  propfind_works
 
-Propfind status property works
+Propfind displayname property works
     [Tags]   voms
     [Setup]   Setup file  propfind_works
     ${url}  DAVS URL  propfind_works
-    ${body}  Get PROPFIND PROP body  status
+    ${body}  Get PROPFIND PROP body  displayname
     ${rc}  ${out}  Curl Voms PROPFIND  ${url}  ${body}
+    Should Contain  ${out}  <d:prop><d:displayname>propfind_works</d:displayname></d:prop>
     Should Contain  ${out}  <d:status>HTTP/1.1 200 OK</d:status>
     [Teardown]   Teardown file  propfind_works

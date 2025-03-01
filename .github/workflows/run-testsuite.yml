@@ -11,9 +11,9 @@ jobs:
 
     env:
       ARTIFACTS: ${HOME}/artifacts
-      ROBOT_ARGS: -L DEBUG --variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443 --exclude known-issue
+      ROBOT_ARGS: -L DEBUG --exclude known-issue
       OIDC_AGENT_SECRET: ${{ secrets.OIDC_AGENT_SECRET }}
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,7 +43,9 @@ jobs:
 
       - name: Collect service log
         if: ${{ always() }}
-        run: docker logs storm-webdav-webdav-1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
+        run: |
+          docker logs storm-webdav-webdav-1 > ${ARTIFACTS}/storm-webdav-server.log 2>&1
+          docker logs storm-webdav-nginx-1 > ${ARTIFACTS}/nginx.log 2>&1
 
       - name: Archive reports
         if: ${{ always() }}
