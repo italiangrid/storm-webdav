@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 (2025-03-03)
+
+### Changed
+
+* Upgrade to Spring Boot 3
+
 ## 1.6.1 (2025-02-28)
 
 ### Fixed
