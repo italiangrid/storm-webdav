@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 This is the StoRM webdav service storage area configuration.
 
 Each storage area is configured in a properties file. StoRM webdav will look 

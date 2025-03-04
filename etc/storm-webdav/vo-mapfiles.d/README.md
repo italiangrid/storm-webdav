@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 ## VO map files configuration
 VO map files contains the list of the members of a VOMS-managed Virtual Organization (VO).
 

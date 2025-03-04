@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # StoRM WebDAV storage area configuration
 
 Each storage area is configured by placing a properties file in the `/etc/storm/webdav/sa.d` directory.

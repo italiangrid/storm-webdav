@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # The StoRM WebDAV service
 
 The StoRM webdav service provides http/webdav access to resources shared on a filesystem.

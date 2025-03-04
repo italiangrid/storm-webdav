@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
 *** Keywords ***
 
 Default Setup

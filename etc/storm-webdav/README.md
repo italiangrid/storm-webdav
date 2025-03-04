@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # This is the StoRM WebDAV service configuration directory
 
 The logback.xml file is used to configure the logging verbosity of the StoRM

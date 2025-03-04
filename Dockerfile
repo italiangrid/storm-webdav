@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # https://spring.io/guides/topicals/spring-boot-docker#_multi_stage_build
 FROM eclipse-temurin:17-jdk-alpine as build
 WORKDIR /workspace/app

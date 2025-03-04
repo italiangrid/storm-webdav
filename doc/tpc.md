@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # StoRM WebDAV support for Third Party Copy transfers
 
 Starting with version 1.1.0, StoRM WebDAV supports third party

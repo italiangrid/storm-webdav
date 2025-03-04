@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -87,45 +93,6 @@
             <configuration>
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.mycila.maven-license-plugin</groupId>
-        <artifactId>maven-license-plugin</artifactId>
-        <version>${plugin.license.version}</version>
-        <configuration>
-          <header>copyright.txt</header>
-          <excludes>
-            <exclude>etc/**</exclude>
-            <exclude>**/.factorypath</exclude>
-            <exclude>**/*.md</exclude>
-            <exclude>**/*.yml</exclude>
-            <exclude>Makefile</exclude>
-            <exclude>.gitignore</exclude>
-            <exclude>spec/**</exclude>
-            <exclude>**/*.template</exclude>
-            <exclude>src/main/resources/templates/**</exclude>
-            <exclude>robot/**</exclude>
-            <exclude>compose/**</exclude>
-            <exclude>src/test/resources/**</exclude>
-            <exclude>Jenkinsfile</exclude>
-            <exclude>src/main/resources/static/**</exclude>
-            <exclude>src/main/resources/META-INF/spring.factories</exclude>
-            <exclude>maven/**</exclude>
-            <exclude>sonar-project.properties</exclude>
-          </excludes>
-          <useDefaultExcludes>true</useDefaultExcludes>
-          <strictCheck>true</strictCheck>
-        </configuration>
-        <executions>
-          <execution>
-            <id>check-headers</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

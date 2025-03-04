@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version = 1
+
+[[annotations]]
+path = ["compose/assets/oidc-agent/*", "compose/docker/x509/proxies.d/*", "src/main/resources/templates/*", "src/test/resources/hostcert/*", "src/test/resources/jwk/*", "src/test/resources/storage/**", "src/test/resources/vomsmap/*", "src/test/resources/well-known/*"]
+SPDX-FileCopyrightText = "2014 Istituto Nazionale di Fisica Nucleare"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["src/main/resources/static/css/bootstrap-table.min.css", "src/main/resources/static/js/bootstrap-table.min.js"]
+SPDX-FileCopyrightText = "2012-2019 Zhixin Wen <wenzhixin2010@gmail.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["src/main/resources/static/css/bootstrap.*", "src/main/resources/static/js/bootstrap.*"]
+SPDX-FileCopyrightText = "2011-2024 The Bootstrap Authors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["src/main/resources/static/js/jquery-3.7.1.slim.min.js"]
+SPDX-FileCopyrightText = "OpenJS Foundation and other contributors"
+SPDX-License-Identifier = "MIT"

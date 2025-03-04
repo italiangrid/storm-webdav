@@ -1,1 +1,5 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
 org.springframework.boot.diagnostics.FailureAnalyzer=org.italiangrid.storm.webdav.server.util.StormFailureAnalyzer

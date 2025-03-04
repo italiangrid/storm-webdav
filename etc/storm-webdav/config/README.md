@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Custom StoRM WebDAV configuration
 
 The `application.yml` file can be used to override settings embedded in the

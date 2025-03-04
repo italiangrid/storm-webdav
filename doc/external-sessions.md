@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Externalized session support
 
 Starting with version 1.4.0, StoRM WebDAV supports storing HTTP session 

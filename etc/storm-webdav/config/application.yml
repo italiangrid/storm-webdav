@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Trusted OAuth/OIDC token issuers
 # Note that this list only define the issuers recognized by this storm-webdav
 # instance. 
