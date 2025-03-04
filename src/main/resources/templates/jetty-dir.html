@@ -6,11 +6,11 @@
 </head>
 <body>
   <section layout:fragment="page-content">
-    <h3 th:text="${title}" class="font-weight-normal">Directory</h3>
+    <h3 th:text="${title}">Directory</h3>
     <div>
       <a href="parent" th:href="${parentDir}">Go to parent directory</a>
     </div>
-    <table id="jetty-dir-table" class="table jetty-dir-table" data-toggle="table" data-search="true"
+    <table id="jetty-dir-table" class="table small" data-toggle="table" data-search="true"
       data-pagination="true" data-pagination-loop="false" data-page-size="10" th:if="${!resources.empty}">
       <thead>
         <tr th:if="${!resources.empty}">
