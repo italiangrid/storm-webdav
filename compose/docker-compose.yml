@@ -89,7 +89,7 @@ services:
 
     depends_on:
       webdav:
-        condition: service_started
+        condition: service_healthy
       trust:
         condition: service_completed_successfully
 
