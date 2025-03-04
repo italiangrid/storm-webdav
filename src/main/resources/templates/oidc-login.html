@@ -11,16 +11,15 @@
 			<p
 				th:text="${#session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION').message}">error</p>
 		</div>
-		
-		<form class="form-login">
-			<p class="please-login">Please login with one of the configured
+		<div class="mx-auto p-3" style="max-width: 25rem">
+			<p class="my-3">Please login with one of the configured
 				providers:</p>
-			<div class="login-buttons">
-				<a class="btn btn-lg btn-outline-primary btn-block" href="login"
+			<div class="d-flex flex-column gap-2">
+				<a class="btn btn-lg btn-outline-primary" href="login"
 					th:title="${c.issuer}" th:each="c: ${clients}" th:href="${c.url}"
 					th:text="${c.name}">IAM</a>
 			</div>
-		</form>
+		</div>
 		<a href="/">Go back to the storage area index page</a>
 	</section>
 </body>
