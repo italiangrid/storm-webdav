@@ -5,23 +5,23 @@ Resource   common/credentials.robot
 
 *** Variables ***
 
-${curl.opts.default}  -s -L -i -f --show-error
+${curl.opts.default}  --location --include --fail-with-body --no-progress-meter
 ${x509.trustdir}  /etc/grid-security/certificates
 
 *** Keywords ***
-Curl   [Arguments]  ${url}  ${opts}=${curl.opts.default}
-    ${cmd}   Set Variable  curl ${url} ${opts}
+Curl   [Arguments]  ${url}  ${opts}=${EMPTY}
+    ${cmd}   Set Variable  curl ${url} ${curl.opts.default} ${opts}
     Log   ${cmd}   level=debug
     ${rc}   ${out}    Run and Return RC And Output   ${cmd}
     Log   ${out}   level=debug
     [Return]  ${rc}  ${out}
 
-Curl Success  [Arguments]  ${url}  ${opts}=${curl.opts.default}
-    ${rc}  ${out}   Execute and Check Success  curl ${url} ${opts}
+Curl Success  [Arguments]  ${url}  ${opts}=${EMPTY}
+    ${rc}  ${out}   Execute and Check Success  curl ${url} ${curl.opts.default} ${opts}
     [Return]  ${rc}  ${out}
 
-Curl Error   [Arguments]  ${url}  ${opts}=${curl.opts.default}
-    ${rc}  ${out}   Execute and Check Failure  curl ${url} ${opts}
+Curl Error   [Arguments]  ${url}  ${opts}=${EMPTY}
+    ${rc}  ${out}   Execute and Check Failure  curl ${url} ${curl.opts.default} ${opts}
     [Return]  ${rc}  ${out}
 
 Get Curl Voms Proxy Options
