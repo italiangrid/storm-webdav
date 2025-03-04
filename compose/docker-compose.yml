@@ -1,17 +1,21 @@
 volumes:
   trustanchors:
   cabundle:
+  vomsdir:
+  certs:
   storage:
 
 
 services:
   trust:
-    image: ${TRUST_IMAGE}:${TRUST_IMAGE_TAG}
+    build:
+      context: docker
+      dockerfile: Dockerfile.trust
     volumes:
-      - trustanchors:/etc/grid-security/certificates
+      - trustanchors:/trust-anchors
       - cabundle:/etc/pki
-    environment:
-      FORCE_TRUST_ANCHORS_UPDATE: 1
+      - vomsdir:/vomsdir
+      - certs:/certs
 
   storage-setup:
     image: ${WEBDAV_IMAGE}:${WEBDAV_IMAGE_TAG}
@@ -42,6 +46,8 @@ services:
 
     environment:
       TZ: UTC
+      STORM_WEBDAV_CERTIFICATE_PATH: /etc/grid-security/storm-webdav/storm_test_example.cert.pem
+      STORM_WEBDAV_PRIVATE_KEY_PATH: /etc/grid-security/storm-webdav/storm_test_example.key.pem
       STORM_WEBDAV_REQUIRE_CLIENT_CERT: "false"
       STORM_WEBDAV_HOSTNAME_0: storm.test.example
       STORM_WEBDAV_AUTHZ_SERVER_ENABLE: true
@@ -52,8 +58,8 @@ services:
       - storage:/storage
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./assets/certs/:/etc/grid-security/storm-webdav/:ro 
-      - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
+      - certs:/etc/grid-security/storm-webdav/:ro 
+      - vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts:ro
       - ./assets/etc/storm/webdav/sa.d/:/etc/storm/webdav/sa.d/:ro
       - ./assets/etc/storm/webdav/config/application-policies.yml:/app/application-policies.yml:ro
@@ -83,7 +89,7 @@ services:
 
     depends_on:
       webdav:
-        condition: service_healthy
+        condition: service_started
       trust:
         condition: service_completed_successfully
 
@@ -91,10 +97,9 @@ services:
       - storage:/storage
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./assets/vomses:/etc/vomses:ro
-      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - vomsdir:/etc/grid-security/vomsdir
+      - certs:/usercerts
       - ./assets/scripts:/scripts:ro
-      - ./assets/usercerts/:/usercerts:ro
       - ./assets/oidc-agent:/home/test/.config/oidc-agent
       - ../:/code:ro
 
@@ -117,12 +122,13 @@ services:
 
     environment:
       TZ: UTC
+      X509_VOMS_DIR: /vomsdir
 
     volumes:
       - cabundle:/etc/pki
       - trustanchors:/etc/grid-security/certificates
-      - ./assets/certs:/certs
-      - ./assets/vomsdir:/vomsdir
+      - certs:/certs
+      - vomsdir:/vomsdir
       - ./assets/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./assets/nginx/srm.conf:/etc/nginx/conf.d/srm.conf:ro
 

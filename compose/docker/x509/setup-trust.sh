@@ -34,9 +34,11 @@ cp igi_test_ca/certs/test0.* "${certs_dir}"
 
 make_cert.sh storm_test_example
 cp igi_test_ca/certs/storm_test_example.* "${certs_dir}"
+chown 1000:1000 "${certs_dir}"/storm_test_example.*
 
 make_cert.sh storm-alias_test_example
 cp igi_test_ca/certs/storm-alias_test_example.* "${certs_dir}"
+chown 1000:1000 "${certs_dir}"/storm-alias_test_example.*
 
 make_cert.sh voms_test_example
 cp igi_test_ca/certs/voms_test_example.* "${certs_dir}"

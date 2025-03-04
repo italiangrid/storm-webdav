@@ -18,19 +18,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Provide trustanchors
-        working-directory: compose
-        run: docker compose up trust
-
       - name: Start services
         working-directory: compose
-        run: docker compose up --build -d storage-setup webdav nginx
+        run: docker compose up --build -d
 
       - name: Run testsuite
         if: ${{ always() }}
         working-directory: compose
         run: |
-          docker compose up -d ts
           docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
 
       - name: Create artifacts directory
