@@ -122,7 +122,6 @@ services:
 
     environment:
       TZ: UTC
-      X509_VOMS_DIR: /vomsdir
 
     volumes:
       - cabundle:/etc/pki

@@ -20,12 +20,13 @@ jobs:
 
       - name: Start services
         working-directory: compose
-        run: docker compose up --build -d
+        run: docker compose up --build -d trust storage-setup webdav nginx
 
       - name: Run testsuite
         if: ${{ always() }}
         working-directory: compose
         run: |
+          docker compose up -d ts
           docker compose exec -T ts bash -c '/scripts/ci-run-testsuite.sh'
 
       - name: Create artifacts directory
