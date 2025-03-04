@@ -25,6 +25,7 @@ ARG USERNAME=storm
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
 
+RUN apk add --no-cache curl
 RUN addgroup --gid ${USER_GID} ${USERNAME}
 RUN adduser --uid ${USER_UID} --ingroup ${USERNAME} ${USERNAME} --disabled-password
 RUN echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers

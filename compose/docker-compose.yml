@@ -67,11 +67,11 @@ services:
       - ../:/code:ro
 
     healthcheck:
-      test: curl https://storm.test.example:8443/actuator/health --fail || exit 1
+      test: curl http://localhost:8085/actuator/health --fail || exit 1
       interval: 5s
       timeout: 3s
       retries: 10
-      start_period: 5s
+      start_period: 10s
 
     networks:
       default:
