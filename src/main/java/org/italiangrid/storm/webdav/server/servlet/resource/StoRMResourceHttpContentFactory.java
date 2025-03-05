@@ -62,7 +62,6 @@ public class StoRMResourceHttpContentFactory extends ResourceHttpContentFactory 
     File f = new File(resolvedPath);
 
     if (!f.exists()) {
-      LOG.warn("File {} do not exist", resolvedPath);
       return null;
     }
 
