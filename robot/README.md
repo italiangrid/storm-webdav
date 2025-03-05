@@ -29,11 +29,11 @@ export OIDC_AGENT_ALIAS=<your-client-alias>
 export OIDC_AGENT_SECRET=<your-client-secret>
 ```
 
-Set the minimum arguments required by the testsuite to run against the two StoRM WebDAV
-servers deployed into the compose:
+You may want to customize the testsuite run to set some variable or some argument for the robot
+command, such as
 
 ```
-export ROBOT_ARGS="--variable dav.host:storm.test.example --variable remote.dav.host:storm-alias.test.example --variable remote.davs.port:443"
+export ROBOT_ARGS="-L DEBUG --exclude known-issue"
 ```
 
 Now you can run the test suite with
@@ -53,12 +53,12 @@ docker cp storm-webdav-ts-1:/home/test/robot/reports .
 
 | Parameter name | Description                        | Default value                                                                                                    |
 | -------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `dav.host`     | Hostname of the WebDAV server considered as running locally  | localhost                                                                                             |
+| `dav.host`     | Hostname of the WebDAV server considered as running locally  | storm.test.example                                                                                             |
 | `dav.port`     | Schema of the WebDAV server considered as running locally | 8085                                                                                             |
 | `davs.port`     | Schema of the WebDAV server considered as running locally with HTTPS | 8443                                                                                             |
-| `remote.dav.host`     | Hostname of the WebDAV server considered as running remotely  | localhost                                                                                             |
-| `remote.dav.port`     | Schema of the WebDAV server considered as running remotely | 8085                                                                                             |
-| `remote.davs.port`     | Schema of the WebDAV server considered as running remotely with HTTPS | 8443                                                                                             |
+| `remote.dav.host`     | Hostname of the WebDAV server considered as running remotely  | storm-alias.test.example                                                                                             |
+| `remote.dav.port`     | Schema of the WebDAV server considered as running remotely | 80                                                                                             |
+| `remote.davs.port`     | Schema of the WebDAV server considered as running remotely with HTTPS | 443                                                                                             |
 | `token.endpoint`     | WebDAV endpoint for the locally issued tokens | https://localhost:8443/oauth/token                                                                                             |
 | `cred.oauth.env_var_name`     | Environment variable for an OAuth access token | IAM_ACCESS_TOKEN                                                                                             |
 | `cred.voms.use_os`     | Use `/tmp/x509up_u<user-id>` as proxy path | True                                                                                             |
