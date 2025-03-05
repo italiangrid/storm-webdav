@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,7 +31,9 @@ import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.MethodNotAllowedException;
 
 @Component
 public class DefaultFSStrategy implements FilesystemAccess {
@@ -126,6 +129,11 @@ public class DefaultFSStrategy implements FilesystemAccess {
   public File create(File file, InputStream in) {
 
     LOG.debug("create: file={}", file.getAbsolutePath());
+
+    if (file.isDirectory()) {
+      throw new MethodNotAllowedException(HttpMethod.PUT,
+          Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.valueOf("PROPFIND")));
+    }
 
     try (FileOutputStream fos = new FileOutputStream(file)) {
 
