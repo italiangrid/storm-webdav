@@ -23,6 +23,7 @@ import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.SameFileError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import io.milton.http.Filter;
 import io.milton.http.FilterChain;
@@ -67,6 +68,10 @@ public class StoRMMiltonBehaviour implements Filter {
       responseHandler.respondNotFound(response, request);
     } catch (SameFileError e) {
       responseHandler.respondForbidden(null, response, request);
+    } catch (MethodNotAllowedException e) {
+      response.setAllowHeader(e.getSupportedMethods().stream().map(Object::toString).toList());
+      responseHandler.respondMethodNotAllowed(new PhantomResource(request.getAbsolutePath()),
+          response, request);
     } catch (ConflictException e) {
       responseHandler.respondConflict(e.getResource(), response, request, e.getMessage());
     } catch (BadRequestException e) {

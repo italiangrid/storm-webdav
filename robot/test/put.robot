@@ -58,10 +58,10 @@ Put with missing parent works
     ...         AND           Remove Test Directory  put-directory
 
 Put over directory not allowed
-    [Tags]  voms  known-issue
+    [Tags]  voms
     [Setup]  Run Keywords  Setup directory  put_works
     ...      AND           Put Setup  put_works
     ${url}  DAVS URL  put_works
     ${rc}  ${out}  Curl Voms PUT Failure  ${TEMPDIR}/put_works  ${url}
-    Should Contain  ${out}  405 Method not allowed
+    Should Contain  ${out}  405 Method Not Allowed
     [Teardown]  Put directory Teardown  put_works
