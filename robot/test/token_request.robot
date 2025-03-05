@@ -17,7 +17,7 @@ Get access token
     ${rc}  ${out}  Curl Voms POST Success  ${token.endpoint}  ${opts}
     ${response}   Get Line  ${out}  -1
     ${rc}  ${out}  Execute and Check Success  echo '${response}' | jq -r .access_token 
-    [Return]  ${out}
+    RETURN  ${out}
 
 
 Default Setup

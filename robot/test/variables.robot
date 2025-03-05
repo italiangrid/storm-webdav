@@ -22,16 +22,16 @@ ${remote.dav.endpoint}         http://${remote.dav.host}:${remote.dav.port}
 
 DAVS URL  [Arguments]  ${path}  ${sa}=${sa.default}
     ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${davs.endpoint}${sa_path}
+    RETURN  ${davs.endpoint}${sa_path}
 
 DAV URL  [Arguments]  ${path}  ${sa}=${sa.noauth}
     ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${dav.endpoint}${sa_path}
+    RETURN  ${dav.endpoint}${sa_path}
 
 Remote DAVS URL  [Arguments]  ${path}  ${sa}=${sa.default}
     ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${remote.davs.endpoint}${sa_path}
+    RETURN  ${remote.davs.endpoint}${sa_path}
 
 Remote DAV URL  [Arguments]  ${path}  ${sa}=${sa.noauth}
     ${sa_path}  Normalize Path  /${sa}/${path}
-    [Return]  ${remote.dav.endpoint}${sa_path}
+    RETURN  ${remote.dav.endpoint}${sa_path}

@@ -16,7 +16,7 @@ ${cred.voms.default}   assets/certs/voms.1
 *** Keywords ***
 Default Proxy Path
     ${user_id}  Run  id -u
-    [Return]  /tmp/x509up_u${user_id}
+    RETURN  /tmp/x509up_u${user_id}
 
 Set VOMS Credential   [Arguments]   ${proxy_path}=${cred.voms.default}
     Set Environment Variable  X509_USER_PROXY  ${proxy_path}
