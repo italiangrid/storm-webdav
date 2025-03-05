@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.1 (2025-03-05)
+
+### Fixed
+
+* Remove warning in case a non-existent file is requested
+* Fix put over directory not allowed
+
 ## 1.7.0 (2025-03-03)
 
 ### Changed
