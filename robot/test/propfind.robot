@@ -15,15 +15,15 @@ Default Tags   propfind
 
 Get PROPFIND ALLPROP body
   ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:allprop/></D:propfind>"
-  [Return]  ${output}
+  RETURN  ${output}
 
 Get PROPFIND PROPNAME body
   ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:propname/></D:propfind>"
-  [Return]  ${output}
+  RETURN  ${output}
 
 Get PROPFIND PROP body  [Arguments]  ${propname}
   ${output}  Set variable  "<?xml version='1.0' encoding='utf-8' ?><D:propfind xmlns:D='DAV:'><D:prop><D:${propname}/></D:prop></D:propfind>"
-  [Return]  ${output}
+  RETURN  ${output}
 
 
 *** Test cases ***
