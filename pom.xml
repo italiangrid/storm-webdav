@@ -37,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/fs/Stat.java,src/main/java/org/italiangrid/storm/webdav/fs/Timespec.java</sonar.exclusions>
 
     <voms-api-java.version>3.3.5</voms-api-java.version>
-    <milton.version>4.0.4.2305</milton.version>
+    <milton.version>4.0.5.2421</milton.version>
 
     <commons-csv.version>1.14.0</commons-csv.version>
 

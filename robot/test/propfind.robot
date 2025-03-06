@@ -65,7 +65,11 @@ Propfind propname works
     ${url}  DAVS URL  propfind_works
     ${body}  Get PROPFIND PROPNAME body
     ${rc}  ${out}  Curl Voms PROPFIND  ${url}  ${body}
+    Should Contain  ${out}  <ns1:Checksum/>
+    Should Contain  ${out}  <d:iscollection/>
+    Should Contain  ${out}  <d:displayname/>
     Should Contain  ${out}  <d:status>HTTP/1.1 200 OK</d:status>
+    Should Contain  ${out}  <d:getcontentlength/>
     [Teardown]   Teardown file  propfind_works
 
 Propfind displayname property works
