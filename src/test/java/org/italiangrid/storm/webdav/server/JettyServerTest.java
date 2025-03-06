@@ -26,8 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @WithAnonymousUser
 class JettyServerTest {
 
-  @Autowired
-  private JettyServletWebServerFactory factory;
+  @Autowired private JettyServletWebServerFactory factory;
 
   @Test
   void startJettyServer() throws Exception {
@@ -39,6 +38,5 @@ class JettyServerTest {
     ServerConnector c2 = (ServerConnector) jettyServer.getServer().getConnectors()[1];
     assertThat(c2.getPort(), is(9443));
     jettyServer.stop();
-    
   }
 }

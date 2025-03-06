@@ -9,7 +9,6 @@ import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.PUT;
 
 import java.net.MalformedURLException;
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
@@ -30,8 +29,11 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(WlcgScopeAuthzCopyMoveManager.class);
 
-  public WlcgScopeAuthzCopyMoveManager(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+  public WlcgScopeAuthzCopyMoveManager(
+      ServiceConfigurationProperties config,
+      PathResolver resolver,
+      PathAuthorizationPdp pdp,
+      LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
   }
 
@@ -40,17 +42,19 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication,
-        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+    if (authorize(authentication, requestAuthorizationContext)
+        instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
     return null;
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
 
     if (!(authentication.get() instanceof JwtAuthenticationToken)) {
@@ -69,8 +73,8 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
     }
 
     if (COPY.name().equals(requestAuthorizationContext.getRequest().getMethod())
-        && requestHasRemoteDestinationHeader(requestAuthorizationContext.getRequest(),
-            localUrlService)) {
+        && requestHasRemoteDestinationHeader(
+            requestAuthorizationContext.getRequest(), localUrlService)) {
       return null;
     }
 
@@ -88,13 +92,12 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
       }
 
       return renderDecision(
-          PathAuthorizationRequest.newAuthorizationRequest(requestAuthorizationContext.getRequest(),
-              authentication.get(), destinationPath, PUT),
+          PathAuthorizationRequest.newAuthorizationRequest(
+              requestAuthorizationContext.getRequest(), authentication.get(), destinationPath, PUT),
           LOG);
 
     } catch (MalformedURLException e) {
       return renderDecision(PathAuthorizationResult.deny(e.getMessage()));
     }
   }
-
 }

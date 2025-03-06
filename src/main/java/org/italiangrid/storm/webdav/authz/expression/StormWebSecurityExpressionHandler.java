@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 public class StormWebSecurityExpressionHandler extends DefaultWebSecurityExpressionHandler {
 
   @Override
-  protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication,
-      FilterInvocation invocation) {
+  protected StandardEvaluationContext createEvaluationContextInternal(
+      Authentication authentication, FilterInvocation invocation) {
 
     StandardEvaluationContext ec =
         super.createEvaluationContextInternal(authentication, invocation);
@@ -23,5 +23,4 @@ public class StormWebSecurityExpressionHandler extends DefaultWebSecurityExpress
 
     return ec;
   }
-
 }

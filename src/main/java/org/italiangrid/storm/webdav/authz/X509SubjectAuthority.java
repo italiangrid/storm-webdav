@@ -33,5 +33,4 @@ public class X509SubjectAuthority implements GrantedAuthority, Comparable<X509Su
   public String toString() {
     return authority;
   }
-
 }

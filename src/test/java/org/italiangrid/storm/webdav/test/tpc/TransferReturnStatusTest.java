@@ -4,20 +4,18 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static java.util.Collections.emptyEnumeration;
 import static jakarta.servlet.http.HttpServletResponse.SC_ACCEPTED;
 import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static java.util.Collections.emptyEnumeration;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
@@ -56,8 +54,8 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
   @Test
   void filterAnswers412ForClientProtocolException() throws IOException, ServletException {
     Mockito.doThrow(new ClientProtocolException("Connection error"))
-      .when(client)
-      .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
+        .when(client)
+        .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
@@ -68,21 +66,22 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
   @Test
   void filterAnswers412ForHttpExceptionError() throws IOException, ServletException {
     Mockito.doThrow(new HttpResponseException(HttpServletResponse.SC_FORBIDDEN, "Access denied"))
-      .when(client)
-      .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
+        .when(client)
+        .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(),
+    assertThat(
+        error.getValue(),
         is("Third party transfer error: 403 status code: 403, reason phrase: Access denied"));
   }
 
   @Test
   void filterAnswers412ForChecksumVerificationError() throws IOException, ServletException {
     Mockito.doThrow(new ChecksumVerificationError("Checksum verification error"))
-      .when(client)
-      .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
+        .when(client)
+        .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
@@ -93,13 +92,12 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
   @Test
   void filterAnswers412ForGenericTransferError() throws IOException, ServletException {
     Mockito.doThrow(new TransferError("Error"))
-      .when(client)
-      .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
+        .when(client)
+        .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(SC_PRECONDITION_FAILED));
     assertThat(error.getValue(), is("Error"));
   }
-
 }

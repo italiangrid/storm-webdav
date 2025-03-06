@@ -12,7 +12,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,34 +24,35 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @ExtendWith(MockitoExtension.class)
 class AudienceValidatorTests {
 
-  @Mock
-  AuthorizationServer server;
+  @Mock AuthorizationServer server;
 
   AudienceValidator validator;
 
-  @Mock
-  Jwt jwt;
+  @Mock Jwt jwt;
 
   @BeforeEach
   void setup() {
     lenient().when(server.getAudiences()).thenReturn(List.of("https://storm.example:8443", "any"));
-
   }
 
   @Test
   void testNullAudiences() {
     when(server.getAudiences()).thenReturn(null);
-    assertThrows(NullPointerException.class, () -> {
-      validator = new AudienceValidator(server);
-    });
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          validator = new AudienceValidator(server);
+        });
   }
 
   @Test
   void testEmptyAudiences() {
     when(server.getAudiences()).thenReturn(emptyList());
-    assertThrows(IllegalArgumentException.class, () -> {
-      validator = new AudienceValidator(server);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          validator = new AudienceValidator(server);
+        });
   }
 
   @Test
@@ -82,5 +82,4 @@ class AudienceValidatorTests {
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(false));
   }
-
 }

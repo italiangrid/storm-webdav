@@ -16,5 +16,4 @@ public class AuthnInfoController {
   String getAuthenticationInfo(Authentication authentication, Model model) {
     return "authn-info";
   }
-
 }

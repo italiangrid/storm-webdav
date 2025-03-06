@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.tpc.utils;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.MDC;
 import org.springframework.util.Assert;
 
@@ -45,22 +44,27 @@ public class ClientInfo {
 
   public static ClientInfo fromHeaderString(String headerString) {
     Assert.hasText(headerString, String.format(INVALID_CLIENTINFO_HEADER_MESSAGE, headerString));
-    Map<String, String> splitResult = Arrays.stream(headerString.split(";"))
-      .map(entry -> entry.split("="))
-      .collect(Collectors.toMap(pair -> pair[0].trim(), pair -> pair[1].trim()));
-    Assert.isTrue(splitResult.containsKey(JOB_ID_KEY),
+    Map<String, String> splitResult =
+        Arrays.stream(headerString.split(";"))
+            .map(entry -> entry.split("="))
+            .collect(Collectors.toMap(pair -> pair[0].trim(), pair -> pair[1].trim()));
+    Assert.isTrue(
+        splitResult.containsKey(JOB_ID_KEY),
         String.format(INVALID_CLIENTINFO_HEADER_MESSAGE, headerString));
-    Assert.isTrue(splitResult.containsKey(FILE_ID_KEY),
+    Assert.isTrue(
+        splitResult.containsKey(FILE_ID_KEY),
         String.format(INVALID_CLIENTINFO_HEADER_MESSAGE, headerString));
-    Assert.isTrue(splitResult.containsKey(RETRY_COUNT_KEY),
+    Assert.isTrue(
+        splitResult.containsKey(RETRY_COUNT_KEY),
         String.format(INVALID_CLIENTINFO_HEADER_MESSAGE, headerString));
-    return new ClientInfo(splitResult.get(JOB_ID_KEY), splitResult.get(FILE_ID_KEY),
+    return new ClientInfo(
+        splitResult.get(JOB_ID_KEY),
+        splitResult.get(FILE_ID_KEY),
         Integer.parseInt(splitResult.get(RETRY_COUNT_KEY)));
   }
 
   public void addToMDC() {
     final String ciStr = String.format("job-id:%s,file-id:%s,retry:%d", jobId, fileId, retryCount);
     MDC.put(CLIENT_INFO_MDC_KEY, ciStr);
-
   }
 }

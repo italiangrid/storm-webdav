@@ -19,17 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
 import org.italiangrid.storm.webdav.authn.ErrorPageAuthenticationEntryPoint;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
-import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
-import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
-import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
 import org.italiangrid.storm.webdav.authz.managers.ConsensusBasedManager;
 import org.italiangrid.storm.webdav.authz.managers.FineGrainedAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.FineGrainedCopyMoveAuthzManager;
@@ -38,6 +32,11 @@ import org.italiangrid.storm.webdav.authz.managers.MacaroonAuthzManager;
 import org.italiangrid.storm.webdav.authz.managers.UnanimousDelegatedManager;
 import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzCopyMoveManager;
 import org.italiangrid.storm.webdav.authz.managers.WlcgScopeAuthzManager;
+import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
+import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
+import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -97,30 +96,23 @@ public class SecurityConfig {
     ALLOWED_METHODS.add(WebDAVMethod.UNLOCK.name());
   }
 
-  @Autowired
-  OAuthProperties oauthProperties;
+  @Autowired OAuthProperties oauthProperties;
 
-  @Autowired
-  StorageAreaConfiguration saConfiguration;
+  @Autowired StorageAreaConfiguration saConfiguration;
 
-  @Autowired
-  ServiceConfigurationProperties serviceConfigurationProperties;
+  @Autowired ServiceConfigurationProperties serviceConfigurationProperties;
 
-  @Autowired
-  PathResolver pathResolver;
+  @Autowired PathResolver pathResolver;
 
   @Autowired
   @Qualifier("vomsAuthenticationFilter")
   VOMSAuthenticationFilter vomsFilter;
 
-  @Autowired
-  LocalURLService localURLService;
+  @Autowired LocalURLService localURLService;
 
-  @Autowired
-  PathAuthorizationPdp fineGrainedAuthzPdp;
+  @Autowired PathAuthorizationPdp fineGrainedAuthzPdp;
 
-  @Autowired
-  PrincipalHelper principalHelper;
+  @Autowired PrincipalHelper principalHelper;
 
   @Bean
   HttpFirewall allowWebDAVMethodsFirewall() {
@@ -131,8 +123,11 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity http, VOMSAuthenticationProvider vomsProvider,
-      StormJwtAuthenticationConverter authConverter) throws Exception {
+  SecurityFilterChain filterChain(
+      HttpSecurity http,
+      VOMSAuthenticationProvider vomsProvider,
+      StormJwtAuthenticationConverter authConverter)
+      throws Exception {
 
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 
@@ -152,23 +147,25 @@ public class SecurityConfig {
         oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authConverter)));
 
     http.authorizeHttpRequests(
-        authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/errors/**"))
-          .permitAll());
+        authorize ->
+            authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/errors/**")).permitAll());
 
     http.authorizeHttpRequests(
-        authorize -> authorize
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/"),
-              AntPathRequestMatcher.antMatcher("/robots.txt"),
-              AntPathRequestMatcher.antMatcher("/assets/css/*"),
-              AntPathRequestMatcher.antMatcher("/assets/js/*"),
-              AntPathRequestMatcher.antMatcher("/authn-info"),
-              AntPathRequestMatcher.antMatcher("/actuator/*"),
-              AntPathRequestMatcher.antMatcher("/status/metrics"),
-              AntPathRequestMatcher.antMatcher("/oauth/token"),
-              AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
-              AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
-              AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
-          .permitAll());
+        authorize ->
+            authorize
+                .requestMatchers(
+                    AntPathRequestMatcher.antMatcher("/"),
+                    AntPathRequestMatcher.antMatcher("/robots.txt"),
+                    AntPathRequestMatcher.antMatcher("/assets/css/*"),
+                    AntPathRequestMatcher.antMatcher("/assets/js/*"),
+                    AntPathRequestMatcher.antMatcher("/authn-info"),
+                    AntPathRequestMatcher.antMatcher("/actuator/*"),
+                    AntPathRequestMatcher.antMatcher("/status/metrics"),
+                    AntPathRequestMatcher.antMatcher("/oauth/token"),
+                    AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
+                    AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
+                    AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
+                .permitAll());
 
     configureOidcAuthn(http);
 
@@ -179,13 +176,18 @@ public class SecurityConfig {
 
     AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
     handler.setErrorPage("/errors/403");
-    http.exceptionHandling(exception -> exception
-      .accessDeniedHandler(new SaveAuthnAccessDeniedHandler(principalHelper, handler)));
+    http.exceptionHandling(
+        exception ->
+            exception.accessDeniedHandler(
+                new SaveAuthnAccessDeniedHandler(principalHelper, handler)));
 
-    http.logout(logout -> logout.logoutUrl("/logout")
-      .clearAuthentication(true)
-      .invalidateHttpSession(true)
-      .logoutSuccessUrl("/"));
+    http.logout(
+        logout ->
+            logout
+                .logoutUrl("/logout")
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .logoutSuccessUrl("/"));
 
     if (!oauthProperties.isEnableOidc()) {
       http.exceptionHandling(
@@ -233,8 +235,10 @@ public class SecurityConfig {
   protected void configureOidcAuthn(HttpSecurity http) throws Exception {
     if (oauthProperties.isEnableOidc()) {
       http.authorizeHttpRequests(
-          authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/oidc-login"))
-            .permitAll());
+          authorize ->
+              authorize
+                  .requestMatchers(AntPathRequestMatcher.antMatcher("/oidc-login"))
+                  .permitAll());
       http.oauth2Login(oauth2Login -> oauth2Login.loginPage("/oidc-login"));
     }
   }
@@ -242,27 +246,36 @@ public class SecurityConfig {
   protected void addAccessRules(HttpSecurity http) throws Exception {
 
     Map<String, String> accessPoints = new TreeMap<>(Comparator.reverseOrder());
-    saConfiguration.getStorageAreaInfo()
-      .forEach(sa -> sa.accessPoints().forEach(ap -> accessPoints.put(ap, sa.name())));
+    saConfiguration
+        .getStorageAreaInfo()
+        .forEach(sa -> sa.accessPoints().forEach(ap -> accessPoints.put(ap, sa.name())));
     for (Entry<String, String> e : accessPoints.entrySet()) {
       String ap = e.getKey();
       String sa = e.getValue();
       LOG.debug("Evaluating access rules for access-point '{}' and storage area '{}'", ap, sa);
-      String writeAccessRule = String.format("hasAuthority('%s') and hasAuthority('%s')",
-          SAPermission.canRead(sa).getAuthority(), SAPermission.canWrite(sa).getAuthority());
+      String writeAccessRule =
+          String.format(
+              "hasAuthority('%s') and hasAuthority('%s')",
+              SAPermission.canRead(sa).getAuthority(), SAPermission.canWrite(sa).getAuthority());
       LOG.debug("Write access rule: {}", writeAccessRule);
       String readAccessRule =
           String.format("hasAuthority('%s')", SAPermission.canRead(sa).getAuthority());
       LOG.debug("Read access rule: {}", readAccessRule);
       http.authorizeHttpRequests(
-          authorize -> authorize.requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
-            .access(fineGrainedAuthorizationManager(
-                new WebExpressionAuthorizationManager(readAccessRule))));
+          authorize ->
+              authorize
+                  .requestMatchers(new ReadonlyHttpMethodMatcher(ap + "/**"))
+                  .access(
+                      fineGrainedAuthorizationManager(
+                          new WebExpressionAuthorizationManager(readAccessRule))));
 
       http.authorizeHttpRequests(
-          authorize -> authorize.requestMatchers(AntPathRequestMatcher.antMatcher(ap + "/**"))
-            .access(fineGrainedAuthorizationManager(
-                new WebExpressionAuthorizationManager(writeAccessRule))));
+          authorize ->
+              authorize
+                  .requestMatchers(AntPathRequestMatcher.antMatcher(ap + "/**"))
+                  .access(
+                      fineGrainedAuthorizationManager(
+                          new WebExpressionAuthorizationManager(writeAccessRule))));
     }
   }
 
@@ -270,27 +283,42 @@ public class SecurityConfig {
       WebExpressionAuthorizationManager webExpressionAuthorizationManager) {
     List<AuthorizationManager<RequestAuthorizationContext>> voters = new ArrayList<>();
 
-    UnanimousDelegatedManager fineGrainedVoters = forVoters("FineGrainedAuthz",
-        asList(
-            new FineGrainedAuthzManager(serviceConfigurationProperties, pathResolver,
-                fineGrainedAuthzPdp, localURLService),
-            new FineGrainedCopyMoveAuthzManager(serviceConfigurationProperties, pathResolver,
-                fineGrainedAuthzPdp, localURLService)));
+    UnanimousDelegatedManager fineGrainedVoters =
+        forVoters(
+            "FineGrainedAuthz",
+            asList(
+                new FineGrainedAuthzManager(
+                    serviceConfigurationProperties,
+                    pathResolver,
+                    fineGrainedAuthzPdp,
+                    localURLService),
+                new FineGrainedCopyMoveAuthzManager(
+                    serviceConfigurationProperties,
+                    pathResolver,
+                    fineGrainedAuthzPdp,
+                    localURLService)));
 
-    WlcgStructuredPathAuthorizationPdp wlcgPdp = new WlcgStructuredPathAuthorizationPdp(
-        serviceConfigurationProperties, pathResolver, localURLService);
+    WlcgStructuredPathAuthorizationPdp wlcgPdp =
+        new WlcgStructuredPathAuthorizationPdp(
+            serviceConfigurationProperties, pathResolver, localURLService);
 
-    UnanimousDelegatedManager wlcgVoters = forVoters("WLCGScopeBasedAuthz",
-        asList(
-            new WlcgScopeAuthzManager(serviceConfigurationProperties, pathResolver, wlcgPdp,
-                localURLService),
-            new WlcgScopeAuthzCopyMoveManager(serviceConfigurationProperties, pathResolver, wlcgPdp,
-                localURLService)));
+    UnanimousDelegatedManager wlcgVoters =
+        forVoters(
+            "WLCGScopeBasedAuthz",
+            asList(
+                new WlcgScopeAuthzManager(
+                    serviceConfigurationProperties, pathResolver, wlcgPdp, localURLService),
+                new WlcgScopeAuthzCopyMoveManager(
+                    serviceConfigurationProperties, pathResolver, wlcgPdp, localURLService)));
 
     if (serviceConfigurationProperties.getRedirector().isEnabled()) {
       try {
-        voters.add(new LocalAuthzManager(serviceConfigurationProperties, pathResolver,
-            new LocalAuthorizationPdp(serviceConfigurationProperties), localURLService));
+        voters.add(
+            new LocalAuthzManager(
+                serviceConfigurationProperties,
+                pathResolver,
+                new LocalAuthorizationPdp(serviceConfigurationProperties),
+                localURLService));
       } catch (MalformedURLException e) {
         LOG.error(e.getMessage(), e);
       }

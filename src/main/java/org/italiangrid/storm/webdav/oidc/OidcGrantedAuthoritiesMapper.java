@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.oauth.GrantedAuthoritiesMapperSupport;
@@ -26,8 +25,8 @@ import org.springframework.stereotype.Component;
 public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSupport
     implements GrantedAuthoritiesMapper {
 
-  public OidcGrantedAuthoritiesMapper(StorageAreaConfiguration conf,
-      ServiceConfigurationProperties props) {
+  public OidcGrantedAuthoritiesMapper(
+      StorageAreaConfiguration conf, ServiceConfigurationProperties props) {
     super(conf, props);
   }
 
@@ -39,8 +38,8 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
       List<String> groups = userAuthority.getIdToken().getClaimAsStringList(groupClaimName);
       if (groups != null) {
         groups.stream()
-          .map(g -> new JwtGroupAuthority(idTokenIssuer, g))
-          .forEach(groupAuthorities::add);
+            .map(g -> new JwtGroupAuthority(idTokenIssuer, g))
+            .forEach(groupAuthorities::add);
         break;
       }
     }
@@ -55,7 +54,8 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
     authorities.addAll(authzMap.get(idTokenIssuer));
     authorities.addAll(grantGroupAuthorities(userAuthority));
     authorities.add(new JwtIssuerAuthority(idTokenIssuer));
-    authorities.add(new JwtSubjectAuthority(idTokenIssuer, userAuthority.getIdToken().getSubject()));
+    authorities.add(
+        new JwtSubjectAuthority(idTokenIssuer, userAuthority.getIdToken().getSubject()));
     Optional<String> clientIdClaim =
         Optional.ofNullable(userAuthority.getIdToken().getClaim("client_id"));
     if (clientIdClaim.isPresent()) {
@@ -72,14 +72,13 @@ public class OidcGrantedAuthoritiesMapper extends GrantedAuthoritiesMapperSuppor
     Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
     authorities.stream()
-      .filter(OidcUserAuthority.class::isInstance)
-      .map(OidcUserAuthority.class::cast)
-      .map(this::mapAuthorities)
-      .forEach(grantedAuthorities::addAll);
+        .filter(OidcUserAuthority.class::isInstance)
+        .map(OidcUserAuthority.class::cast)
+        .map(this::mapAuthorities)
+        .forEach(grantedAuthorities::addAll);
 
     grantedAuthorities.addAll(anonymousGrantedAuthorities);
 
     return grantedAuthorities;
   }
-
 }

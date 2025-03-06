@@ -6,8 +6,7 @@ package org.italiangrid.storm.webdav.metrics;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-import java.io.IOException;
-
+import com.codahale.metrics.MetricRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,12 +14,10 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
-
-import com.codahale.metrics.MetricRegistry;
 
 public class StorageAreaStatsFilter implements Filter, TpcUtils {
 
@@ -62,5 +59,4 @@ public class StorageAreaStatsFilter implements Filter, TpcUtils {
       updateStats((HttpServletRequest) request, (HttpServletResponse) response);
     }
   }
-
 }

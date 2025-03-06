@@ -4,11 +4,10 @@
 
 package org.italiangrid.storm.webdav.metrics;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.codahale.metrics.health.HealthCheckRegistry;
 import io.dropwizard.metrics.servlets.HealthCheckServlet.ContextListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class HealthContextListener extends ContextListener {
@@ -18,12 +17,10 @@ public class HealthContextListener extends ContextListener {
   @Autowired
   public HealthContextListener(HealthCheckRegistry r) {
     this.registry = r;
-
   }
 
   @Override
   protected HealthCheckRegistry getHealthCheckRegistry() {
     return registry;
   }
-
 }

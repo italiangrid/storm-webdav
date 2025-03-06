@@ -12,7 +12,6 @@ import static org.mockito.Mockito.lenient;
 
 import java.util.EnumSet;
 import java.util.List;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyParser;
@@ -33,11 +32,9 @@ class PolicyParserTests {
 
   ServiceConfigurationProperties properties = new ServiceConfigurationProperties();
 
-  @Mock
-  StorageAreaConfiguration saConfig;
+  @Mock StorageAreaConfiguration saConfig;
 
-  @Mock
-  StorageAreaInfo saInfo;
+  @Mock StorageAreaInfo saInfo;
 
   FineGrainedAuthzPolicyParser parser;
 
@@ -54,7 +51,6 @@ class PolicyParserTests {
   void testNoPolicyParsing() {
     assertThat(parser.parsePolicies(), empty());
   }
-
 
   @Test
   void testSimplePolicyParsing() {
@@ -81,5 +77,4 @@ class PolicyParserTests {
     assertThat(parsedPolicy.getPrincipalMatchers(), hasSize(1));
     assertThat(parsedPolicy.getRequestMatchers(), hasSize(5));
   }
-
 }

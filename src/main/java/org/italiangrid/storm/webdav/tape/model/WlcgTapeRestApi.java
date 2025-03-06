@@ -36,5 +36,4 @@ public class WlcgTapeRestApi {
   public void setEndpoints(List<WlcgTapeRestApiEndpoint> endpoints) {
     this.endpoints = endpoints;
   }
-
 }

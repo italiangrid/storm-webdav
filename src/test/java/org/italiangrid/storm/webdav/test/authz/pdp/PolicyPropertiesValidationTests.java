@@ -10,16 +10,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties;
@@ -39,7 +37,6 @@ class PolicyPropertiesValidationTests {
     Locale.setDefault(Locale.ENGLISH);
     ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
     this.validator = vf.getValidator();
-
   }
 
   public FineGrainedAuthzPolicyProperties minimalValidPolicy() {
@@ -65,7 +62,6 @@ class PolicyPropertiesValidationTests {
         validator.validate(props);
 
     assertThat(violations, empty());
-
   }
 
   @Test
@@ -80,7 +76,6 @@ class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("description"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-
   }
 
   @Test
@@ -95,7 +90,6 @@ class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("sa"));
     assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
-
   }
 
   @Test
@@ -110,7 +104,5 @@ class PolicyPropertiesValidationTests {
     assertThat(violations, hasSize(1));
     assertThat(violations.iterator().next().getPropertyPath().toString(), is("principals"));
     assertThat(violations.iterator().next().getMessage(), is("must not be empty"));
-
   }
-
 }

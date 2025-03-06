@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.springframework.util.StringUtils;
@@ -41,5 +40,4 @@ public class Adler32DigestHeaderHelper {
     }
     return Optional.empty();
   }
-
 }

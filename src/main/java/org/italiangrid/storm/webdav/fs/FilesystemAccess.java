@@ -21,5 +21,4 @@ public interface FilesystemAccess {
   public File[] ls(File dir, int limit);
 
   public File create(File file, InputStream in);
-
 }

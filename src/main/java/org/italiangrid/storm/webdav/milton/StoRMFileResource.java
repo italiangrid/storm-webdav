@@ -6,30 +6,6 @@ package org.italiangrid.storm.webdav.milton;
 
 import static io.milton.property.PropertySource.PropertyAccessibility.READ_ONLY;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.FileNameMap;
-import java.net.URLConnection;
-import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
-import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
-import org.italiangrid.storm.webdav.error.ResourceNotFound;
-import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
-import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.milton.http.Auth;
 import io.milton.http.Range;
 import io.milton.http.exceptions.BadRequestException;
@@ -44,9 +20,34 @@ import io.milton.resource.CopyableResource;
 import io.milton.resource.DeletableResource;
 import io.milton.resource.GetableResource;
 import io.milton.resource.MultiNamespaceCustomPropertyResource;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
+import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.namespace.QName;
+import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
+import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
+import org.italiangrid.storm.webdav.error.ResourceNotFound;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class StoRMFileResource extends StoRMResource implements DeletableResource, CopyableResource,
-    MultiNamespaceCustomPropertyResource, GetableResource, PartialllyUpdateableResource {
+public class StoRMFileResource extends StoRMResource
+    implements DeletableResource,
+        CopyableResource,
+        MultiNamespaceCustomPropertyResource,
+        GetableResource,
+        PartialllyUpdateableResource {
 
   private static final FileNameMap MIME_TYPE_MAP = URLConnection.getFileNameMap();
 
@@ -56,7 +57,8 @@ public class StoRMFileResource extends StoRMResource implements DeletableResourc
   public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
 
   private static final Map<QName, PropertyMetaData> PROPERTY_METADATA =
-      Map.of(new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
+      Map.of(
+          new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
           new PropertyMetaData(READ_ONLY, String.class));
 
   private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
@@ -94,7 +96,6 @@ public class StoRMFileResource extends StoRMResource implements DeletableResourc
     StoRMDirectoryResource dir = (StoRMDirectoryResource) toCollection;
     File destFile = dir.childrenFile(name);
     getFilesystemAccess().cp(getFile(), destFile);
-
   }
 
   @Override
@@ -157,7 +158,6 @@ public class StoRMFileResource extends StoRMResource implements DeletableResourc
     calculateChecksum();
   }
 
-
   protected void calculateChecksum() {
     try (Adler32ChecksumInputStream cis =
         new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(getFile())))) {
@@ -212,13 +212,12 @@ public class StoRMFileResource extends StoRMResource implements DeletableResourc
   }
 
   @Override
-  public void sendContent(OutputStream out, Range range, Map<String, String> params,
-      String contentType)
+  public void sendContent(
+      OutputStream out, Range range, Map<String, String> params, String contentType)
       throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 
     // Not implemented
     throw new UnsupportedOperationException();
-
   }
 
   @Override
@@ -244,5 +243,4 @@ public class StoRMFileResource extends StoRMResource implements DeletableResourc
 
     return "StoRMFileResource [resourceFactory=" + resourceFactory + ", file=" + file + "]";
   }
-
 }

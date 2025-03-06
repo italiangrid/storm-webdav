@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,12 +42,11 @@ public class PrincipalHelper {
           && localAuthzServerIssuer.get().equals(jwtToken.getToken().getIssuer())) {
         return jwtToken.getToken().getSubject();
       } else {
-        return String.format("%s@%s", jwtToken.getToken().getSubject(),
-            jwtToken.getToken().getIssuer());
+        return String.format(
+            "%s@%s", jwtToken.getToken().getSubject(), jwtToken.getToken().getIssuer());
       }
     } else {
       return authn.getName();
     }
   }
-
 }

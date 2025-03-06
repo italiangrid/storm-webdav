@@ -6,6 +6,19 @@ package org.italiangrid.storm.webdav.spring;
 
 import static org.italiangrid.storm.webdav.server.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
+import eu.emi.security.authn.x509.CrlCheckingMode;
+import eu.emi.security.authn.x509.NamespaceCheckingMode;
+import eu.emi.security.authn.x509.OCSPCheckingMode;
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
+import eu.emi.security.authn.x509.impl.PEMCredential;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyManagementException;
@@ -22,22 +35,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.UnaryOperator;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-
-import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.config.ConnectionConfig;
-import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.io.HttpConnectionFactory;
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.client5.http.io.ManagedHttpClientConnection;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.ChainElement;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.io.ManagedHttpClientConnection;
+import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.conscrypt.OpenSSLProvider;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
@@ -103,21 +114,6 @@ import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
-
-import eu.emi.security.authn.x509.CrlCheckingMode;
-import eu.emi.security.authn.x509.NamespaceCheckingMode;
-import eu.emi.security.authn.x509.OCSPCheckingMode;
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
-import eu.emi.security.authn.x509.impl.PEMCredential;
-
 @Configuration
 public class AppConfig {
 
@@ -129,14 +125,20 @@ public class AppConfig {
   }
 
   @Bean
-  SignedJwtTokenIssuer tokenIssuer(ServiceConfigurationProperties props,
-      AuthorizationPolicyService policyService, PrincipalHelper helper, Clock clock) {
+  SignedJwtTokenIssuer tokenIssuer(
+      ServiceConfigurationProperties props,
+      AuthorizationPolicyService policyService,
+      PrincipalHelper helper,
+      Clock clock) {
     return new DefaultJwtTokenIssuer(clock, props.getAuthzServer(), policyService, helper);
   }
 
   @Bean
-  TokenIssuerService tokenIssuerService(ServiceConfigurationProperties props,
-      SignedJwtTokenIssuer tokenIssuer, Clock clock, MetricRegistry registry) {
+  TokenIssuerService tokenIssuerService(
+      ServiceConfigurationProperties props,
+      SignedJwtTokenIssuer tokenIssuer,
+      Clock clock,
+      MetricRegistry registry) {
 
     TokenIssuerService service =
         new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
@@ -151,12 +153,10 @@ public class AppConfig {
     return new PEMCredential(conf.getPrivateKeyPath(), conf.getCertificatePath(), null);
   }
 
-
   @Bean
   StorageAreaConfiguration storageAreaConfiguration(ServiceConfiguration conf) {
     return new SAConfigurationParser(conf);
   }
-
 
   @Bean
   ExtendedAttributesHelper extendedAttributesHelper() {
@@ -168,9 +168,8 @@ public class AppConfig {
   @Primary
   FilesystemAccess filesystemAccess() {
 
-    return new MetricsFSStrategyWrapper(new DefaultFSStrategy(extendedAttributesHelper()),
-        metricRegistry());
-
+    return new MetricsFSStrategyWrapper(
+        new DefaultFSStrategy(extendedAttributesHelper()), metricRegistry());
   }
 
   @Bean
@@ -190,15 +189,14 @@ public class AppConfig {
     return new HealthCheckRegistry();
   }
 
-
-
   @Bean
   X509CertChainValidatorExt canlCertChainValidator(ServiceConfiguration configuration) {
-    return canlCertChainCustomValidator(configuration,
-            b -> b.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE));
+    return canlCertChainCustomValidator(
+        configuration, b -> b.namespaceChecks(NamespaceCheckingMode.EUGRIDPMA_AND_GLOBUS_REQUIRE));
   }
 
-  private X509CertChainValidatorExt canlCertChainCustomValidator(ServiceConfiguration configuration,
+  private X509CertChainValidatorExt canlCertChainCustomValidator(
+      ServiceConfiguration configuration,
       UnaryOperator<CertificateValidatorBuilder> customiseValidatorBuilder) {
 
     CANLListener l = new org.italiangrid.storm.webdav.server.util.CANLListener();
@@ -206,24 +204,23 @@ public class AppConfig {
     long refreshInterval =
         TimeUnit.SECONDS.toMillis(configuration.getTrustAnchorsRefreshIntervalInSeconds());
 
-    CertificateValidatorBuilder builder = new CertificateValidatorBuilder()
-      .crlChecks(CrlCheckingMode.IF_VALID)
-      .ocspChecks(OCSPCheckingMode.IGNORE)
-      .lazyAnchorsLoading(false)
-      .storeUpdateListener(l)
-      .validationErrorListener(l)
-      .trustAnchorsDir(configuration.getTrustAnchorsDir())
-      .trustAnchorsUpdateInterval(refreshInterval);
+    CertificateValidatorBuilder builder =
+        new CertificateValidatorBuilder()
+            .crlChecks(CrlCheckingMode.IF_VALID)
+            .ocspChecks(OCSPCheckingMode.IGNORE)
+            .lazyAnchorsLoading(false)
+            .storeUpdateListener(l)
+            .validationErrorListener(l)
+            .trustAnchorsDir(configuration.getTrustAnchorsDir())
+            .trustAnchorsUpdateInterval(refreshInterval);
 
     return customiseValidatorBuilder.apply(builder).build();
   }
-
 
   @Bean
   PathResolver pathResolver(ServiceConfiguration conf) {
     return new DefaultPathResolver(storageAreaConfiguration(conf));
   }
-
 
   @Bean
   ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
@@ -236,24 +233,30 @@ public class AppConfig {
   }
 
   @Bean("tpcConnectionManager")
-  HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
-      ServiceConfiguration conf) throws KeyStoreException, CertificateException, IOException,
-      NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
+  HttpClientConnectionManager tpcClientConnectionManager(
+      ThirdPartyCopyProperties props, ServiceConfiguration conf)
+      throws KeyStoreException,
+          CertificateException,
+          IOException,
+          NoSuchAlgorithmException,
+          NoSuchProviderException,
+          KeyManagementException {
 
     Http1Config customHttpConfig =
         Http1Config.custom().setBufferSize(props.getHttpClientSocketBufferSize()).build();
     HttpConnectionFactory<ManagedHttpClientConnection> connectionFactory =
         ManagedHttpClientConnectionFactory.builder().http1Config(customHttpConfig).build();
 
-    ConnectionConfig connectionConfig = ConnectionConfig.custom()
-      .setSocketTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
-      .setConnectTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
-      .build();
+    ConnectionConfig connectionConfig =
+        ConnectionConfig.custom()
+            .setSocketTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
+            .setConnectTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
+            .build();
 
     PEMCredential serviceCredential = serviceCredential(conf);
 
-    X509CertChainValidatorExt validator = canlCertChainCustomValidator(conf,
-            b -> b.namespaceChecks(NamespaceCheckingMode.IGNORE));
+    X509CertChainValidatorExt validator =
+        canlCertChainCustomValidator(conf, b -> b.namespaceChecks(NamespaceCheckingMode.IGNORE));
     SSLTrustManager tm = new SSLTrustManager(validator);
 
     SSLContext ctx;
@@ -276,60 +279,66 @@ public class AppConfig {
     }
 
     return PoolingHttpClientConnectionManagerBuilder.create()
-      .setConnectionFactory(connectionFactory)
-      .setDefaultConnectionConfig(connectionConfig)
-      .setMaxConnPerRoute(props.getMaxConnectionsPerRoute())
-      .setSchemePortResolver(new TpcSchemePortResolver())
-      .setTlsSocketStrategy(new TpcTlsSocketStrategy(ctx))
-      .build();
+        .setConnectionFactory(connectionFactory)
+        .setDefaultConnectionConfig(connectionConfig)
+        .setMaxConnPerRoute(props.getMaxConnectionsPerRoute())
+        .setSchemePortResolver(new TpcSchemePortResolver())
+        .setTlsSocketStrategy(new TpcTlsSocketStrategy(ctx))
+        .build();
   }
 
   @Bean
-  CloseableHttpClient transferClient(ThirdPartyCopyProperties props,
+  CloseableHttpClient transferClient(
+      ThirdPartyCopyProperties props,
       @Qualifier("tpcConnectionManager") HttpClientConnectionManager cm) {
 
-    RequestConfig config = RequestConfig.custom()
-      .setExpectContinueEnabled(false)
-      .setConnectionRequestTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
-      .build();
+    RequestConfig config =
+        RequestConfig.custom()
+            .setExpectContinueEnabled(false)
+            .setConnectionRequestTimeout(props.getTimeoutInSecs(), TimeUnit.SECONDS)
+            .build();
 
     return HttpClients.custom()
-      .setConnectionManager(cm)
-      .setDefaultRequestConfig(config)
-      .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
-      .addExecInterceptorAfter(ChainElement.REDIRECT.name(), "DropAuthorizationHeader",
-          new DropAuthorizationHeaderExec(SuperLaxRedirectStrategy.INSTANCE))
-      .build();
+        .setConnectionManager(cm)
+        .setDefaultRequestConfig(config)
+        .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
+        .addExecInterceptorAfter(
+            ChainElement.REDIRECT.name(),
+            "DropAuthorizationHeader",
+            new DropAuthorizationHeaderExec(SuperLaxRedirectStrategy.INSTANCE))
+        .build();
   }
 
   @Bean
   @ConditionalOnProperty(name = "oauth.enable-oidc", havingValue = "true")
-  ClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties clientProperties,
-      OAuthProperties props, ExecutorService executor) {
-
+  ClientRegistrationRepository clientRegistrationRepository(
+      OAuth2ClientProperties clientProperties, OAuthProperties props, ExecutorService executor) {
 
     ClientRegistrationCacheLoader loader =
         new ClientRegistrationCacheLoader(clientProperties, props, executor);
 
+    LoadingCache<String, ClientRegistration> clients =
+        CacheBuilder.newBuilder()
+            .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+            .build(loader);
 
-    LoadingCache<String, ClientRegistration> clients = CacheBuilder.newBuilder()
-      .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
-      .build(loader);
+    clientProperties
+        .getRegistration()
+        .forEach(
+            (k, v) -> {
+              LOG.info("Initializing OIDC provider: {}", k);
+              try {
+                clients.put(k, loader.load(k));
+              } catch (Exception e) {
+                LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage());
+                if (LOG.isDebugEnabled()) {
+                  LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage(), e);
+                }
+              }
+            });
 
-
-    clientProperties.getRegistration().forEach((k, v) -> {
-      LOG.info("Initializing OIDC provider: {}", k);
-      try {
-        clients.put(k, loader.load(k));
-      } catch (Exception e) {
-        LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage());
-        if (LOG.isDebugEnabled()) {
-          LOG.warn("Error initializing OIDC provider {}: {}", k, e.getMessage(), e);
-        }
-      }
-    });
-
-    LOG.info("OpenID providers configuration will be refreshed every {} minutes",
+    LOG.info(
+        "OpenID providers configuration will be refreshed every {} minutes",
         props.getRefreshPeriodMinutes());
 
     return k -> {
@@ -343,16 +352,20 @@ public class AppConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder(OAuthProperties props, ServiceConfigurationProperties sProps,
-      RestTemplateBuilder builder, OidcConfigurationFetcher fetcher, ExecutorService executor) {
-
+  JwtDecoder jwtDecoder(
+      OAuthProperties props,
+      ServiceConfigurationProperties sProps,
+      RestTemplateBuilder builder,
+      OidcConfigurationFetcher fetcher,
+      ExecutorService executor) {
 
     TrustedJwtDecoderCacheLoader loader =
         new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
 
-    LoadingCache<String, JwtDecoder> decoders = CacheBuilder.newBuilder()
-      .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
-      .build(loader);
+    LoadingCache<String, JwtDecoder> decoders =
+        CacheBuilder.newBuilder()
+            .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+            .build(loader);
 
     for (AuthorizationServer as : props.getIssuers()) {
       LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
@@ -367,13 +380,15 @@ public class AppConfig {
     }
 
     if (sProps.getAuthzServer().isEnabled()) {
-      LOG.info("Initializing local JWT token issuer with issuer: {}",
+      LOG.info(
+          "Initializing local JWT token issuer with issuer: {}",
           sProps.getAuthzServer().getIssuer());
       LocallyIssuedJwtDecoder d = new LocallyIssuedJwtDecoder(sProps.getAuthzServer());
       decoders.put(sProps.getAuthzServer().getIssuer(), d);
     }
 
-    LOG.info("OAuth trusted issuer configuration will be refreshed every {} minutes",
+    LOG.info(
+        "OAuth trusted issuer configuration will be refreshed every {} minutes",
         props.getRefreshPeriodMinutes());
     return new CompositeJwtDecoder(decoders);
   }
@@ -395,16 +410,16 @@ public class AppConfig {
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "EARLY")
-  ReplaceContentStrategy earlyChecksumStrategy(MetricRegistry registry,
-      ExtendedAttributesHelper ah) {
+  ReplaceContentStrategy earlyChecksumStrategy(
+      MetricRegistry registry, ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: early");
     return new MetricsReplaceContentStrategy(registry, new EarlyChecksumStrategy(ah));
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "LATE")
-  ReplaceContentStrategy lateChecksumStrategy(MetricRegistry registry,
-      ExtendedAttributesHelper ah) {
+  ReplaceContentStrategy lateChecksumStrategy(
+      MetricRegistry registry, ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: late");
     return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
   }
@@ -432,7 +447,6 @@ public class AppConfig {
     return id -> null;
   }
 
-
   @Bean
   @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
   BearerTokenResolver bearerTokenResolver(ServiceConfigurationProperties config) {
@@ -450,7 +464,4 @@ public class AppConfig {
   public SessionRepository<MapSession> sessionRepository() {
     return new MapSessionRepository(new HashMap<>());
   }
-
 }
-
-

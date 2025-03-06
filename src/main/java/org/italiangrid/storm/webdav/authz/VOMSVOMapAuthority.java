@@ -6,12 +6,9 @@ package org.italiangrid.storm.webdav.authz;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class VOMSVOMapAuthority implements GrantedAuthority,
-  Comparable<VOMSVOMapAuthority> {
+public class VOMSVOMapAuthority implements GrantedAuthority, Comparable<VOMSVOMapAuthority> {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = -455904635960596363L;
 
   private final String voName;

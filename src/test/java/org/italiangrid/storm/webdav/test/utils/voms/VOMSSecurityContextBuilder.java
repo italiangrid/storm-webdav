@@ -12,7 +12,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
@@ -98,6 +97,5 @@ public class VOMSSecurityContextBuilder {
     token.setDetails(details);
     context.setAuthentication(token);
     return context;
-
   }
 }

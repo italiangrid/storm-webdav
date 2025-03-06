@@ -4,16 +4,6 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.io.IOException;
-
-import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
-import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
-import org.italiangrid.storm.webdav.error.ResourceNotFound;
-import org.italiangrid.storm.webdav.error.SameFileError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.server.MethodNotAllowedException;
-
 import io.milton.http.Filter;
 import io.milton.http.FilterChain;
 import io.milton.http.Handler;
@@ -24,6 +14,14 @@ import io.milton.http.Response.Status;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.ConflictException;
 import io.milton.http.http11.Http11ResponseHandler;
+import java.io.IOException;
+import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
+import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
+import org.italiangrid.storm.webdav.error.ResourceNotFound;
+import org.italiangrid.storm.webdav.error.SameFileError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.server.MethodNotAllowedException;
 
 public class StoRMMiltonBehaviour implements Filter {
 
@@ -41,8 +39,8 @@ public class StoRMMiltonBehaviour implements Filter {
       Handler handler = manager.getMethodHandler(method);
 
       if (handler == null) {
-        responseHandler.respondMethodNotImplemented(new PhantomResource(request.getAbsolutePath()),
-            response, request);
+        responseHandler.respondMethodNotImplemented(
+            new PhantomResource(request.getAbsolutePath()), response, request);
         return;
       }
 
@@ -59,8 +57,8 @@ public class StoRMMiltonBehaviour implements Filter {
       responseHandler.respondForbidden(null, response, request);
     } catch (MethodNotAllowedException e) {
       response.setAllowHeader(e.getSupportedMethods().stream().map(Object::toString).toList());
-      responseHandler.respondMethodNotAllowed(new PhantomResource(request.getAbsolutePath()),
-          response, request);
+      responseHandler.respondMethodNotAllowed(
+          new PhantomResource(request.getAbsolutePath()), response, request);
     } catch (ConflictException e) {
       responseHandler.respondConflict(e.getResource(), response, request, e.getMessage());
     } catch (BadRequestException e) {

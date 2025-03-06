@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.test.utils.voms;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
-
 import org.springframework.security.test.context.support.WithSecurityContext;
 
 @Retention(RUNTIME)
@@ -15,6 +14,7 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 public @interface WithMockVOMSUser {
 
   String subject() default "/CN=test";
+
   String[] vos() default {"test.vo"};
 
   String[] saReadPermissions() default {};
@@ -22,5 +22,4 @@ public @interface WithMockVOMSUser {
   String[] saWritePermissions() default {};
 
   int acExpirationSecs() default 100;
-  
 }

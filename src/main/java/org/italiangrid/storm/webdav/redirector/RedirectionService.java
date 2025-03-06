@@ -6,12 +6,10 @@ package org.italiangrid.storm.webdav.redirector;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 
 public interface RedirectionService {
 
-  String buildRedirect(Authentication authentication, HttpServletRequest request,
-      HttpServletResponse response);
-
+  String buildRedirect(
+      Authentication authentication, HttpServletRequest request, HttpServletResponse response);
 }

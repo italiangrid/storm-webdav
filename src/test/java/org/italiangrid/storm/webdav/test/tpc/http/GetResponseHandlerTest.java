@@ -10,9 +10,8 @@ import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,14 +24,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GetResponseHandlerTest extends ClientTestSupport {
 
-  @Mock
-  HttpEntity entity;
+  @Mock HttpEntity entity;
 
-  @Mock
-  ClassicHttpResponse response;
+  @Mock ClassicHttpResponse response;
 
-  @Mock
-  StormCountingOutputStream os;
+  @Mock StormCountingOutputStream os;
 
   GetResponseHandler handler;
 

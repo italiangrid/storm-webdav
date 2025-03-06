@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.authz.managers;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -20,13 +19,15 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-
 public class FineGrainedAuthzManager extends PathAuthzPdpManagerSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(FineGrainedAuthzManager.class);
 
-  public FineGrainedAuthzManager(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+  public FineGrainedAuthzManager(
+      ServiceConfigurationProperties config,
+      PathResolver resolver,
+      PathAuthorizationPdp pdp,
+      LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
   }
 
@@ -35,17 +36,19 @@ public class FineGrainedAuthzManager extends PathAuthzPdpManagerSupport {
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication,
-        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+    if (authorize(authentication, requestAuthorizationContext)
+        instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
     return null;
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
 
     final String requestPath = getRequestPath(requestAuthorizationContext.getRequest());
@@ -58,7 +61,5 @@ public class FineGrainedAuthzManager extends PathAuthzPdpManagerSupport {
     return renderDecision(
         newAuthorizationRequest(requestAuthorizationContext.getRequest(), authentication.get()),
         LOG);
-
   }
-
 }

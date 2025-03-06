@@ -4,12 +4,11 @@
 
 package org.italiangrid.storm.webdav.redirector;
 
-import java.net.URI;
-import java.util.function.Supplier;
-
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.net.URI;
+import java.util.function.Supplier;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
@@ -23,8 +22,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.nimbusds.jwt.SignedJWT;
 
 @Service
 @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
@@ -40,8 +37,10 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
   private final ReplicaSelector selector;
 
   @Autowired
-  public DefaultRedirectionService(ServiceConfigurationProperties config,
-      SignedJwtTokenIssuer tokenIssuer, ReplicaSelector selector) {
+  public DefaultRedirectionService(
+      ServiceConfigurationProperties config,
+      SignedJwtTokenIssuer tokenIssuer,
+      ReplicaSelector selector) {
     this.config = config;
     this.tokenIssuer = tokenIssuer;
     this.selector = selector;
@@ -52,8 +51,8 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
   }
 
   @Override
-  public String buildRedirect(Authentication authentication, HttpServletRequest request,
-      HttpServletResponse response) {
+  public String buildRedirect(
+      Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
     ReplicaEndpointProperties replica = selector.selectReplica().orElseThrow(noReplicaFound());
     URI endpointUri = replica.getEndpoint();
     LOG.debug("Selected endpoint: {}", endpointUri);
@@ -67,9 +66,14 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
       perm = Permission.rw;
     }
 
-    SignedJWT token = tokenIssuer.createResourceAccessToken(ResourceAccessTokenRequest.forPath(path,
-        perm, config.getRedirector().getMaxTokenLifetimeSecs(), request.getRemoteAddr()),
-        authentication);
+    SignedJWT token =
+        tokenIssuer.createResourceAccessToken(
+            ResourceAccessTokenRequest.forPath(
+                path,
+                perm,
+                config.getRedirector().getMaxTokenLifetimeSecs(),
+                request.getRemoteAddr()),
+            authentication);
 
     uriBuilder.path(path);
     uriBuilder.queryParam(ACCESS_TOKEN_QUERY_PARAM, token.serialize());
@@ -80,5 +84,4 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
 
     return url;
   }
-
 }

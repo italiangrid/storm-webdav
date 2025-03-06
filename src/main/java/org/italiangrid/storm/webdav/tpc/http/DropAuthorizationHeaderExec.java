@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import java.io.IOException;
-
 import org.apache.hc.client5.http.classic.ExecChain;
 import org.apache.hc.client5.http.classic.ExecChainHandler;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -26,8 +25,9 @@ public final class DropAuthorizationHeaderExec implements ExecChainHandler {
   }
 
   @Override
-  public ClassicHttpResponse execute(final ClassicHttpRequest request, final ExecChain.Scope scope,
-      final ExecChain chain) throws IOException, HttpException {
+  public ClassicHttpResponse execute(
+      final ClassicHttpRequest request, final ExecChain.Scope scope, final ExecChain chain)
+      throws IOException, HttpException {
     final ClassicHttpResponse response = chain.proceed(request, scope);
     final HttpClientContext context = scope.clientContext;
     final RequestConfig config = context.getRequestConfigOrDefault();
@@ -37,5 +37,4 @@ public final class DropAuthorizationHeaderExec implements ExecChainHandler {
     }
     return response;
   }
-
 }

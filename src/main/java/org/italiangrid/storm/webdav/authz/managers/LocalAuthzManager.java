@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.authz.managers;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -30,8 +29,11 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
 
   final URI localTokenIssuer;
 
-  public LocalAuthzManager(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp, LocalURLService localUrlService) {
+  public LocalAuthzManager(
+      ServiceConfigurationProperties config,
+      PathResolver resolver,
+      PathAuthorizationPdp pdp,
+      LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
     try {
       localTokenIssuer = new URI(config.getAuthzServer().getIssuer());
@@ -43,7 +45,8 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
   private boolean isLocalAuthzToken(JwtAuthenticationToken token) {
     try {
       return localTokenIssuer.equals(token.getToken().getIssuer().toURI())
-        && StringUtils.hasText(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
+          && StringUtils.hasText(
+              token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
     } catch (URISyntaxException e) {
       LOG.warn("{}", e.getMessage());
       return false;
@@ -55,17 +58,19 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication,
-        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+    if (authorize(authentication, requestAuthorizationContext)
+        instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
     return null;
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
 
     if (!(authentication.get() instanceof JwtAuthenticationToken)) {
@@ -77,8 +82,9 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
       return null;
     }
 
-    return renderDecision(PathAuthorizationRequest.newAuthorizationRequest(
-        requestAuthorizationContext.getRequest(), authentication.get()), LOG);
+    return renderDecision(
+        PathAuthorizationRequest.newAuthorizationRequest(
+            requestAuthorizationContext.getRequest(), authentication.get()),
+        LOG);
   }
-
 }

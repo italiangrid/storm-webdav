@@ -4,10 +4,14 @@
 
 package org.italiangrid.storm.webdav.tpc;
 
-import static java.lang.String.format;
 import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
+import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,10 +20,6 @@ import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Enumeration;
 import java.util.Optional;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.core5.http.HeaderElements;
@@ -34,9 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 public class TransferFilterSupport implements TpcUtils {
 
   public static final Logger LOG = LoggerFactory.getLogger(TransferFilterSupport.class);
@@ -48,9 +45,12 @@ public class TransferFilterSupport implements TpcUtils {
   protected final TransferStatus.Builder status;
   protected long enableExpectContinueThreshold;
 
-
-  protected TransferFilterSupport(Clock clock, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum, long enableExpectContinueThreshold) {
+  protected TransferFilterSupport(
+      Clock clock,
+      PathResolver resolver,
+      LocalURLService lus,
+      boolean verifyChecksum,
+      long enableExpectContinueThreshold) {
     this.clock = clock;
     this.resolver = resolver;
     this.localURLService = lus;
@@ -63,8 +63,8 @@ public class TransferFilterSupport implements TpcUtils {
     return Paths.get(request.getServletPath(), request.getPathInfo()).toString();
   }
 
-  protected Multimap<String, String> getTransferHeaders(HttpServletRequest request,
-      HttpServletResponse response) {
+  protected Multimap<String, String> getTransferHeaders(
+      HttpServletRequest request, HttpServletResponse response) {
 
     Multimap<String, String> xferHeaders = ArrayListMultimap.create();
     Enumeration<String> headerNames = request.getHeaderNames();
@@ -120,7 +120,6 @@ public class TransferFilterSupport implements TpcUtils {
     return true;
   }
 
-
   protected boolean isSupportedTransferURI(URI uri) {
     return TransferConstants.SUPPORTED_PROTOCOLS.contains(uri.getScheme()) && uri.getPath() != null;
   }
@@ -139,15 +138,12 @@ public class TransferFilterSupport implements TpcUtils {
         result = true;
       }
 
-
-
     } catch (URISyntaxException e) {
       LOG.warn("Error parsing transfer URI: {}", e.getMessage());
       result = false;
     }
 
     return result;
-
   }
 
   protected void conflict(HttpServletResponse response, String msg) throws IOException {
@@ -167,7 +163,6 @@ public class TransferFilterSupport implements TpcUtils {
     LOG.info("Invalid request: {}", msg);
     response.sendError(BAD_REQUEST.value(), msg);
   }
-
 
   protected boolean validLocalSourcePath(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
@@ -195,10 +190,8 @@ public class TransferFilterSupport implements TpcUtils {
     return true;
   }
 
-
-
-  protected boolean validLocalDestinationPath(HttpServletRequest request,
-      HttpServletResponse response) throws IOException {
+  protected boolean validLocalDestinationPath(
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     String servletPath = request.getServletPath();
 
@@ -252,15 +245,22 @@ public class TransferFilterSupport implements TpcUtils {
 
     if (source.isPresent()
         && !validTransferURI(request.getHeader(TransferConstants.SOURCE_HEADER))) {
-      invalidRequest(response, format("Invalid %s header: %s", TransferConstants.SOURCE_HEADER,
-          request.getHeader(TransferConstants.SOURCE_HEADER)));
+      invalidRequest(
+          response,
+          format(
+              "Invalid %s header: %s",
+              TransferConstants.SOURCE_HEADER, request.getHeader(TransferConstants.SOURCE_HEADER)));
       return false;
     }
 
     if (dest.isPresent()
         && !validTransferURI(request.getHeader(TransferConstants.DESTINATION_HEADER))) {
-      invalidRequest(response, format("Invalid %s header: %s", TransferConstants.DESTINATION_HEADER,
-          request.getHeader(TransferConstants.DESTINATION_HEADER)));
+      invalidRequest(
+          response,
+          format(
+              "Invalid %s header: %s",
+              TransferConstants.DESTINATION_HEADER,
+              request.getHeader(TransferConstants.DESTINATION_HEADER)));
       return false;
     }
 
@@ -277,13 +277,15 @@ public class TransferFilterSupport implements TpcUtils {
 
       String val = overwrite.get();
 
-      if (val.isBlank() || val.trim().length() > 1
+      if (val.isBlank()
+          || val.trim().length() > 1
           || (!"T".equalsIgnoreCase(val) && !"F".equalsIgnoreCase(val))) {
         invalidOverwrite = true;
       }
 
       if (invalidOverwrite) {
-        invalidRequest(response,
+        invalidRequest(
+            response,
             format("Invalid %s header value: %s", TransferConstants.OVERWRITE_HEADER, val));
         return false;
       }
@@ -300,7 +302,8 @@ public class TransferFilterSupport implements TpcUtils {
       }
 
       if (invalidChecksum) {
-        invalidRequest(response,
+        invalidRequest(
+            response,
             format("Invalid %s header value: %s", TransferConstants.REQUIRE_CHECKSUM_HEADER, val));
         return false;
       }
@@ -315,33 +318,33 @@ public class TransferFilterSupport implements TpcUtils {
     return true;
   }
 
-  public void handleChecksumVerificationError(TransferRequest req, ChecksumVerificationError e,
-      HttpServletResponse response) throws IOException {
+  public void handleChecksumVerificationError(
+      TransferRequest req, ChecksumVerificationError e, HttpServletResponse response)
+      throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
-
   }
 
-  public void handleTransferError(TransferRequest req, TransferError e,
-      HttpServletResponse response) throws IOException {
+  public void handleTransferError(
+      TransferRequest req, TransferError e, HttpServletResponse response) throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
-
   }
 
-  public void handleClientProtocolException(TransferRequest req, ClientProtocolException e,
-      HttpServletResponse response) throws IOException {
+  public void handleClientProtocolException(
+      TransferRequest req, ClientProtocolException e, HttpServletResponse response)
+      throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
-    response.sendError(SC_PRECONDITION_FAILED,
-        format("Third party transfer error: %s", e.getMessage()));
-
+    response.sendError(
+        SC_PRECONDITION_FAILED, format("Third party transfer error: %s", e.getMessage()));
   }
 
-  public void handleHttpResponseException(TransferRequest req, HttpResponseException e,
-      HttpServletResponse response) throws IOException {
+  public void handleHttpResponseException(
+      TransferRequest req, HttpResponseException e, HttpServletResponse response)
+      throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
-    response.sendError(SC_PRECONDITION_FAILED,
+    response.sendError(
+        SC_PRECONDITION_FAILED,
         format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
-
   }
 }

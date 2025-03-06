@@ -8,11 +8,9 @@ public class InvalidTokenRequestError extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public InvalidTokenRequestError() {
-  }
-  
+  public InvalidTokenRequestError() {}
+
   public InvalidTokenRequestError(String message) {
     super(message);
   }
-
 }

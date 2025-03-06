@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.oauth.authzserver;
 
 public class TokenCreationError extends RuntimeException {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public TokenCreationError(String message) {

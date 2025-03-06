@@ -11,5 +11,4 @@ public interface VOMembershipSource {
   public String getVOName();
 
   public Set<String> getVOMembers();
-
 }

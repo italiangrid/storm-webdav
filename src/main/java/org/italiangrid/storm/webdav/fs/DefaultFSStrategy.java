@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
@@ -27,8 +26,7 @@ import org.springframework.web.server.MethodNotAllowedException;
 @Component
 public class DefaultFSStrategy implements FilesystemAccess {
 
-  public static final Logger LOG = LoggerFactory
-    .getLogger(DefaultFSStrategy.class);
+  public static final Logger LOG = LoggerFactory.getLogger(DefaultFSStrategy.class);
 
   final ExtendedAttributesHelper attrsHelper;
 
@@ -40,8 +38,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
   @Override
   public File mkdir(File parentDirectory, String dirName) {
 
-    LOG.debug("mkdir: parent={}, dir={}", parentDirectory.getAbsolutePath(),
-      dirName);
+    LOG.debug("mkdir: parent={}, dir={}", parentDirectory.getAbsolutePath(), dirName);
 
     File nd = new File(parentDirectory, dirName);
 
@@ -61,8 +58,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
   @Override
   public void mv(File source, File dest) {
 
-    LOG.debug("mv: source={}, dest={}", source.getAbsolutePath(),
-      dest.getAbsolutePath());
+    LOG.debug("mv: source={}, dest={}", source.getAbsolutePath(), dest.getAbsolutePath());
 
     try {
 
@@ -76,7 +72,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
     } catch (IOException e) {
       throw new StoRMWebDAVError(e.getMessage(), e);
     }
-
   }
 
   @Override
@@ -89,8 +84,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
   @Override
   public void cp(File source, File dest) {
 
-    LOG.debug("cp: source={} target={}", source.getAbsolutePath(),
-      dest.getAbsolutePath());
+    LOG.debug("cp: source={} target={}", source.getAbsolutePath(), dest.getAbsolutePath());
 
     try {
 
@@ -105,7 +99,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
       } else {
 
         Files.copy(source.toPath(), dest.toPath());
-
       }
 
     } catch (IOException e) {
@@ -120,8 +113,8 @@ public class DefaultFSStrategy implements FilesystemAccess {
     LOG.debug("create: file={}", file.getAbsolutePath());
 
     if (file.isDirectory()) {
-      throw new MethodNotAllowedException(HttpMethod.PUT,
-          Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.valueOf("PROPFIND")));
+      throw new MethodNotAllowedException(
+          HttpMethod.PUT, Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.valueOf("PROPFIND")));
     }
 
     try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -137,8 +130,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
       LOG.error(e.getMessage(), e);
       throw new StoRMWebDAVError(e.getMessage(), e);
-
     }
-
   }
 }

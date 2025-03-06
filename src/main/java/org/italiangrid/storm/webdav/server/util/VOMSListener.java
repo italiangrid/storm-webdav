@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.server.util;
 
 import java.io.File;
 import java.security.cert.X509Certificate;
-
 import org.italiangrid.voms.ac.VOMSValidationResult;
 import org.italiangrid.voms.ac.ValidationResultListener;
 import org.italiangrid.voms.store.LSCInfo;
@@ -14,8 +13,7 @@ import org.italiangrid.voms.store.VOMSTrustStoreStatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VOMSListener
-    implements ValidationResultListener, VOMSTrustStoreStatusListener {
+public class VOMSListener implements ValidationResultListener, VOMSTrustStoreStatusListener {
 
   public static final Logger LOG = LoggerFactory.getLogger(VOMSListener.class);
 
@@ -36,7 +34,6 @@ public class VOMSListener
   @Override
   public void notifyLSCLookupEvent(String dir) {
     LOG.debug("Looking for LSC files in {}", dir);
-
   }
 
   @Override

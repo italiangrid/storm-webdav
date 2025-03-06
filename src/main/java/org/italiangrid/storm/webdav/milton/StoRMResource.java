@@ -4,12 +4,6 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.io.File;
-import java.util.Date;
-
-import org.italiangrid.storm.webdav.fs.FilesystemAccess;
-import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
-
 import io.milton.http.Auth;
 import io.milton.http.Request;
 import io.milton.http.Request.Method;
@@ -19,6 +13,10 @@ import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.CollectionResource;
 import io.milton.resource.MoveableResource;
 import io.milton.resource.PropFindableResource;
+import java.io.File;
+import java.util.Date;
+import org.italiangrid.storm.webdav.fs.FilesystemAccess;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 
 public abstract class StoRMResource implements PropFindableResource, MoveableResource {
 
@@ -105,7 +103,5 @@ public abstract class StoRMResource implements PropFindableResource, MoveableRes
 
     StoRMDirectoryResource dir = (StoRMDirectoryResource) rDest;
     getFilesystemAccess().mv(getFile(), dir.childrenFile(name));
-
   }
-
 }

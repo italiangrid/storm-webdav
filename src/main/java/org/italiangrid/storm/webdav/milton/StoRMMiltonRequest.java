@@ -4,16 +4,13 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.eclipse.jetty.util.URIUtil;
-
 import io.milton.http.Auth;
 import io.milton.servlet.ServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.eclipse.jetty.util.URIUtil;
 
 public class StoRMMiltonRequest extends ServletRequest {
 
@@ -50,5 +47,4 @@ public class StoRMMiltonRequest extends ServletRequest {
     // Always return null as milton is confused by the OAuth2 Bearer scheme
     return null;
   }
-
 }

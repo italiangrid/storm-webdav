@@ -4,13 +4,11 @@
 
 package org.italiangrid.storm.webdav.tpc.transfer;
 
+import com.google.common.collect.Multimap;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-
-import com.google.common.collect.Multimap;
-
 import org.italiangrid.storm.webdav.scitag.SciTag;
 
 public interface TransferRequest {
@@ -48,5 +46,4 @@ public interface TransferRequest {
   boolean endedSuccesfully();
 
   boolean endedInError();
-
 }

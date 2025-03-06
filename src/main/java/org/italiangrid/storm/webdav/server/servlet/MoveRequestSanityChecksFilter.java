@@ -4,9 +4,6 @@
 
 package org.italiangrid.storm.webdav.server.servlet;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +11,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.net.MalformedURLException;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -31,7 +29,8 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
   }
 
   private void moveSanityChecks(HttpServletRequest req) throws MalformedURLException {
-    if (WebDAVMethod.MOVE.name().equals(req.getMethod()) && requestHasDestinationHeader(req)
+    if (WebDAVMethod.MOVE.name().equals(req.getMethod())
+        && requestHasDestinationHeader(req)
         && !requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
       throw new BadRequest("Move across storage areas is not supported");
     }
@@ -55,7 +54,5 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
     }
 
     chain.doFilter(request, response);
-
   }
-
 }

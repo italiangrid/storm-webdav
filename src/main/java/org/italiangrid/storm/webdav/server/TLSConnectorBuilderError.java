@@ -19,5 +19,4 @@ public class TLSConnectorBuilderError extends RuntimeException {
   public TLSConnectorBuilderError(String message) {
     super(message);
   }
-
 }

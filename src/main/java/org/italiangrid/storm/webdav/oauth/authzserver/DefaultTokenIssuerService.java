@@ -4,16 +4,14 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver;
 
+import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.springframework.security.core.Authentication;
-
-import com.nimbusds.jwt.SignedJWT;
 
 public class DefaultTokenIssuerService implements TokenIssuerService {
 
@@ -23,8 +21,8 @@ public class DefaultTokenIssuerService implements TokenIssuerService {
   final AuthorizationServerProperties props;
   final Clock clock;
 
-  public DefaultTokenIssuerService(AuthorizationServerProperties props,
-      SignedJwtTokenIssuer tokenIssuer, Clock clock) {
+  public DefaultTokenIssuerService(
+      AuthorizationServerProperties props, SignedJwtTokenIssuer tokenIssuer, Clock clock) {
     this.props = props;
     this.tokenIssuer = tokenIssuer;
     this.clock = clock;
@@ -44,8 +42,8 @@ public class DefaultTokenIssuerService implements TokenIssuerService {
   }
 
   @Override
-  public TokenResponseDTO createAccessToken(AccessTokenRequest tokenRequest,
-      Authentication authentication) {
+  public TokenResponseDTO createAccessToken(
+      AccessTokenRequest tokenRequest, Authentication authentication) {
 
     SignedJWT jwt = tokenIssuer.createAccessToken(tokenRequest, authentication);
 
@@ -57,5 +55,4 @@ public class DefaultTokenIssuerService implements TokenIssuerService {
 
     return response;
   }
-
 }

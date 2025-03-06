@@ -17,18 +17,25 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
-// Adapted from https://github.com/apache/httpcomponents-client/blob/master/httpclient5/src/main/java/org/apache/hc/client5/http/impl/LaxRedirectStrategy.java
+// Adapted from
+// https://github.com/apache/httpcomponents-client/blob/master/httpclient5/src/main/java/org/apache/hc/client5/http/impl/LaxRedirectStrategy.java
 // Added the PUT method in REDIRECT_METHODS
 public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
 
   public static final SuperLaxRedirectStrategy INSTANCE = new SuperLaxRedirectStrategy();
 
-  private static final String[] REDIRECT_METHODS = new String[] {HttpGet.METHOD_NAME,
-      HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpHead.METHOD_NAME, HttpDelete.METHOD_NAME};
+  private static final String[] REDIRECT_METHODS =
+      new String[] {
+        HttpGet.METHOD_NAME,
+        HttpPost.METHOD_NAME,
+        HttpPut.METHOD_NAME,
+        HttpHead.METHOD_NAME,
+        HttpDelete.METHOD_NAME
+      };
 
   @Override
-  public boolean isRedirected(final HttpRequest request, final HttpResponse response,
-      final HttpContext context) {
+  public boolean isRedirected(
+      final HttpRequest request, final HttpResponse response, final HttpContext context) {
     if (!response.containsHeader(HttpHeaders.LOCATION)) {
       return false;
     }
@@ -57,4 +64,3 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
     return false;
   }
 }
-

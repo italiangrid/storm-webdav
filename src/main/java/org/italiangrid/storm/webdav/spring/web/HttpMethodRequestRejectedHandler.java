@@ -4,14 +4,12 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
@@ -31,8 +29,11 @@ public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler 
   }
 
   @Override
-  public void handle(HttpServletRequest request, HttpServletResponse response,
-      RequestRejectedException requestRejectedException) throws IOException, ServletException {
+  public void handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      RequestRejectedException requestRejectedException)
+      throws IOException, ServletException {
 
     logger.debug(
         LogMessage.format("Rejecting request due to: %s", requestRejectedException.getMessage()),
@@ -44,5 +45,4 @@ public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler 
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
   }
-
 }

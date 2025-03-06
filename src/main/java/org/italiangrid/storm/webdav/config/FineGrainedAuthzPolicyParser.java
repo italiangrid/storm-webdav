@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.authz.PathAuthzPolicyParser;
 import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
@@ -45,8 +44,8 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   final StorageAreaConfiguration saConfig;
 
   @Autowired
-  public FineGrainedAuthzPolicyParser(ServiceConfigurationProperties properties,
-      StorageAreaConfiguration saConfig) {
+  public FineGrainedAuthzPolicyParser(
+      ServiceConfigurationProperties properties, StorageAreaConfiguration saConfig) {
     this.properties = properties;
     this.saConfig = saConfig;
   }
@@ -56,18 +55,16 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   }
 
   StorageAreaInfo getStorageAreaInfo(String saName) {
-    return saConfig.getStorageAreaInfo()
-      .stream()
-      .filter(sa -> sa.name().equals(saName))
-      .findAny()
-      .orElseThrow(unknownStorageArea(saName));
+    return saConfig.getStorageAreaInfo().stream()
+        .filter(sa -> sa.name().equals(saName))
+        .findAny()
+        .orElseThrow(unknownStorageArea(saName));
   }
 
   String matcherPath(String accessPoint, String path) {
     String jointPath = String.format("%s/%s", accessPoint, path);
     return jointPath.replaceAll("\\/+", "/");
   }
-
 
   Supplier<RequestMatcher> matcherByActionSupplier(Action a, String pattern) {
     return () -> {
@@ -80,15 +77,17 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
       } else if (Action.DELETE.equals(a)) {
         return new AntPathRequestMatcher(pattern, "DELETE");
       } else if (Action.LIST.equals(a)) {
-        return new AndRequestMatcher(new CustomHttpMethodMatcher(Set.of("PROPFIND")),
-            new AntPathRequestMatcher(pattern));
+        return new AndRequestMatcher(
+            new CustomHttpMethodMatcher(Set.of("PROPFIND")), new AntPathRequestMatcher(pattern));
       } else {
         throw new IllegalArgumentException("Unknown action: " + a);
       }
     };
   }
 
-  void parseAction(Action a, FineGrainedAuthzPolicyProperties policyProperties,
+  void parseAction(
+      Action a,
+      FineGrainedAuthzPolicyProperties policyProperties,
       PathAuthorizationPolicy.Builder builder) {
 
     List<String> paths = policyProperties.getPaths();
@@ -115,19 +114,23 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
     } else if (PrincipalType.FQAN.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSFQANAuthority(p.getParams().get("fqan")));
     } else if (PrincipalType.JWT_GROUP.equals(p.getType())) {
-      matcher = AuthorityHolder.fromAuthority(
-          new JwtGroupAuthority(p.getParams().get("iss"), p.getParams().get("group")));
+      matcher =
+          AuthorityHolder.fromAuthority(
+              new JwtGroupAuthority(p.getParams().get("iss"), p.getParams().get("group")));
     } else if (PrincipalType.JWT_SCOPE.equals(p.getType())) {
-      matcher = AuthorityHolder.fromAuthority(
-          new JwtScopeAuthority(p.getParams().get("iss"), p.getParams().get("scope")));
+      matcher =
+          AuthorityHolder.fromAuthority(
+              new JwtScopeAuthority(p.getParams().get("iss"), p.getParams().get("scope")));
     } else if (PrincipalType.JWT_ISSUER.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new JwtIssuerAuthority(p.getParams().get("iss")));
     } else if (PrincipalType.JWT_SUBJECT.equals(p.getType())) {
-      matcher = AuthorityHolder.fromAuthority(
-          new JwtSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
+      matcher =
+          AuthorityHolder.fromAuthority(
+              new JwtSubjectAuthority(p.getParams().get("iss"), p.getParams().get("sub")));
     } else if (PrincipalType.JWT_CLIENT.equals(p.getType())) {
-        matcher = AuthorityHolder.fromAuthority(
-          new JwtClientAuthority(p.getParams().get("iss"), p.getParams().get("id")));
+      matcher =
+          AuthorityHolder.fromAuthority(
+              new JwtClientAuthority(p.getParams().get("iss"), p.getParams().get("id")));
     } else if (PrincipalType.VO.equals(p.getType())) {
       matcher = AuthorityHolder.fromAuthority(new VOMSVOAuthority(p.getParams().get("vo")));
     } else if (PrincipalType.VO_MAP.equals(p.getType())) {
@@ -143,17 +146,17 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
 
     PathAuthorizationPolicy.Builder builder = PathAuthorizationPolicy.builder();
 
-    builder.withId(UUID.randomUUID().toString())
-      .withSa(policy.getSa())
-      .withEffect(policy.getEffect())
-      .withDescription(policy.getDescription());
+    builder
+        .withId(UUID.randomUUID().toString())
+        .withSa(policy.getSa())
+        .withEffect(policy.getEffect())
+        .withDescription(policy.getDescription());
 
     policy.getActions().forEach(a -> parseAction(a, policy, builder));
 
-    policy.getPrincipals()
-      .stream()
-      .map(this::parsePrincipal)
-      .forEach(builder::withPrincipalMatcher);
+    policy.getPrincipals().stream()
+        .map(this::parsePrincipal)
+        .forEach(builder::withPrincipalMatcher);
 
     return builder.build();
   }
@@ -162,7 +165,5 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   public List<PathAuthorizationPolicy> parsePolicies() {
 
     return properties.getAuthz().getPolicies().stream().map(this::parsePolicy).toList();
-
   }
-
 }

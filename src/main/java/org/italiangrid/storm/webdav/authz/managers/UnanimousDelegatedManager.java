@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.authz.managers;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -24,8 +23,8 @@ public class UnanimousDelegatedManager
 
   private final String name;
 
-  private UnanimousDelegatedManager(String name,
-      List<AuthorizationManager<RequestAuthorizationContext>> managers) {
+  private UnanimousDelegatedManager(
+      String name, List<AuthorizationManager<RequestAuthorizationContext>> managers) {
     this.name = name;
     this.managers = managers;
   }
@@ -35,8 +34,8 @@ public class UnanimousDelegatedManager
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
-      RequestAuthorizationContext filter) {
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication, RequestAuthorizationContext filter) {
     if (authorize(authentication, filter) instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
@@ -44,8 +43,8 @@ public class UnanimousDelegatedManager
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
-      RequestAuthorizationContext filter) {
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication, RequestAuthorizationContext filter) {
     int grant = 0;
 
     for (AuthorizationManager<RequestAuthorizationContext> manager : managers) {
@@ -72,8 +71,8 @@ public class UnanimousDelegatedManager
     return null;
   }
 
-  public static UnanimousDelegatedManager forVoters(String name,
-      List<AuthorizationManager<RequestAuthorizationContext>> accessDecisionManagers) {
+  public static UnanimousDelegatedManager forVoters(
+      String name, List<AuthorizationManager<RequestAuthorizationContext>> accessDecisionManagers) {
     return new UnanimousDelegatedManager(name, accessDecisionManagers);
   }
 

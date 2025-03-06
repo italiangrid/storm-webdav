@@ -4,13 +4,16 @@
 
 package org.italiangrid.storm.webdav.oauth.utils;
 
+import com.google.common.cache.CacheLoader;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -28,11 +31,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-import com.google.common.cache.CacheLoader;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListenableFutureTask;
-
 public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder> {
 
   public static final Logger LOG = LoggerFactory.getLogger(TrustedJwtDecoderCacheLoader.class);
@@ -43,9 +41,12 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
   private final ExecutorService executor;
   private final OAuthProperties oauthProperties;
 
-  public TrustedJwtDecoderCacheLoader(ServiceConfigurationProperties properties,
-      OAuthProperties oauthProperties, RestTemplateBuilder builder,
-      OidcConfigurationFetcher fetcher, ExecutorService executor) {
+  public TrustedJwtDecoderCacheLoader(
+      ServiceConfigurationProperties properties,
+      OAuthProperties oauthProperties,
+      RestTemplateBuilder builder,
+      OidcConfigurationFetcher fetcher,
+      ExecutorService executor) {
     this.properties = properties;
     this.oauthProperties = oauthProperties;
     this.fetcher = fetcher;
@@ -58,21 +59,20 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
 
   @Override
   public JwtDecoder load(String issuer) throws Exception {
-    AuthorizationServer as = oauthProperties.getIssuers()
-      .stream()
-      .filter(i -> issuer.equals(i.getIssuer()))
-      .findAny()
-      .orElseThrow(unknownTokenIssuer(issuer));
+    AuthorizationServer as =
+        oauthProperties.getIssuers().stream()
+            .filter(i -> issuer.equals(i.getIssuer()))
+            .findAny()
+            .orElseThrow(unknownTokenIssuer(issuer));
 
     Map<String, Object> oidcConfiguration = fetcher.loadConfigurationForIssuer(issuer);
     URI jwksUri = URI.create(oidcConfiguration.get("jwks_uri").toString());
-    Cache noExpirationCache =
-        new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri));
+    Cache noExpirationCache = new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri));
 
     NimbusJwtDecoder decoder =
         NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString()))
-          .cache(noExpirationCache)
-          .build();
+            .cache(noExpirationCache)
+            .build();
 
     OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
     OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();

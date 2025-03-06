@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.authz.managers;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
@@ -25,7 +24,8 @@ public abstract class PathAuthzPdpManagerSupport
     implements MatcherUtils, TpcUtils, AuthorizationManager<RequestAuthorizationContext> {
 
   protected static final Set<PathAuthorizationResult.Decision> ABSTAIN_DECISIONS =
-      EnumSet.of(PathAuthorizationResult.Decision.INDETERMINATE,
+      EnumSet.of(
+          PathAuthorizationResult.Decision.INDETERMINATE,
           PathAuthorizationResult.Decision.NOT_APPLICABLE);
 
   protected final ServiceConfigurationProperties config;
@@ -34,8 +34,12 @@ public abstract class PathAuthzPdpManagerSupport
   protected final LocalURLService localUrlService;
   protected final boolean permissive;
 
-  protected PathAuthzPdpManagerSupport(ServiceConfigurationProperties config, PathResolver resolver,
-      PathAuthorizationPdp pdp, LocalURLService localUrlService, boolean permissive) {
+  protected PathAuthzPdpManagerSupport(
+      ServiceConfigurationProperties config,
+      PathResolver resolver,
+      PathAuthorizationPdp pdp,
+      LocalURLService localUrlService,
+      boolean permissive) {
     this.config = config;
     this.resolver = resolver;
     this.pdp = pdp;
@@ -43,11 +47,15 @@ public abstract class PathAuthzPdpManagerSupport
     this.permissive = permissive;
   }
 
-  protected void logPdpDecision(PathAuthorizationRequest request, PathAuthorizationResult result,
-      Logger logger) {
+  protected void logPdpDecision(
+      PathAuthorizationRequest request, PathAuthorizationResult result, Logger logger) {
     String requestString = requestToString(request);
-    logger.debug("Request: {}. Path: {}. Decision: {}. message: {}. Policy: {}", requestString,
-        Optional.ofNullable(request.getPath()), result.getDecision(), result.getMessage(),
+    logger.debug(
+        "Request: {}. Path: {}. Decision: {}. message: {}. Policy: {}",
+        requestString,
+        Optional.ofNullable(request.getPath()),
+        result.getDecision(),
+        result.getMessage(),
         result.getPolicy());
   }
 

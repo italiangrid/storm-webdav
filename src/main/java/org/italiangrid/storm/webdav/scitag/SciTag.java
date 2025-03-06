@@ -34,5 +34,4 @@ public class SciTag {
   public boolean remoteAddressIsSource() {
     return remoteAddressIsSource;
   }
-
 }

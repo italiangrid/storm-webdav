@@ -4,9 +4,6 @@
 
 package org.italiangrid.storm.webdav.redirector;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +11,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.nio.file.Path;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
@@ -54,7 +52,6 @@ public class RedirectFilter implements Filter, TpcUtils {
     } else {
       chain.doFilter(request, response);
     }
-
   }
 
   private SecurityContext resolveSecurityContext() {
@@ -79,12 +76,10 @@ public class RedirectFilter implements Filter, TpcUtils {
     return "GET".equals(req.getMethod()) || "PUT".equals(req.getMethod());
   }
 
-
   private boolean requestDoesNotHaveAccessToken(HttpServletRequest req) {
     String accessToken = req.getParameter(RedirectConstants.ACCESS_TOKEN_PARAMETER);
     return !StringUtils.hasText(accessToken);
   }
-
 
   private boolean requestedResourceExistsAndIsAFile(HttpServletRequest req) {
     String path = getSerlvetRequestPath(req);
@@ -99,8 +94,10 @@ public class RedirectFilter implements Filter, TpcUtils {
 
   private boolean isRedirectable(HttpServletRequest req) {
 
-    return isSecureRequest(req) && !isNoRedirectRequest(req) && isGetOrPutRequest(req)
-        && requestDoesNotHaveAccessToken(req) && requestedResourceExistsAndIsAFile(req);
+    return isSecureRequest(req)
+        && !isNoRedirectRequest(req)
+        && isGetOrPutRequest(req)
+        && requestDoesNotHaveAccessToken(req)
+        && requestedResourceExistsAndIsAFile(req);
   }
-
 }

@@ -11,7 +11,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequestBuilder;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
@@ -42,7 +41,6 @@ public class TransferStatsTest {
     assertThat(req.bytesTransferred(), is(1000L));
     assertThat(req.duration().getSeconds(), is(2L));
     assertThat(req.transferThroughputBytesPerSec().get(), is(500.0));
-
   }
 
   @Test
@@ -57,7 +55,6 @@ public class TransferStatsTest {
     assertThat(req.duration().toMillis(), is(1L));
 
     assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
-
   }
 
   @Test
@@ -72,9 +69,5 @@ public class TransferStatsTest {
     assertThat(req.duration().toMillis(), is(0L));
 
     assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
-
   }
-
-
-
 }

@@ -6,12 +6,9 @@ package org.italiangrid.storm.webdav.authz;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class VOMSVOAuthority implements GrantedAuthority,
-  Comparable<VOMSVOAuthority> {
+public class VOMSVOAuthority implements GrantedAuthority, Comparable<VOMSVOAuthority> {
 
-  /**
-	 * 
-	 */
+  /** */
   private static final long serialVersionUID = 1L;
 
   private final String voAuthority;
@@ -46,8 +43,7 @@ public class VOMSVOAuthority implements GrantedAuthority,
 
     final int prime = 31;
     int result = 1;
-    result = prime * result
-      + ((voAuthority == null) ? 0 : voAuthority.hashCode());
+    result = prime * result + ((voAuthority == null) ? 0 : voAuthority.hashCode());
     return result;
   }
 

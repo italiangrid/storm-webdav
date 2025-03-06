@@ -4,8 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static java.util.Collections.emptyEnumeration;
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static java.util.Collections.emptyEnumeration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -16,16 +16,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-import java.io.IOException;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
 
 @ExtendWith(MockitoExtension.class)
 class TransferRequestValidationTest extends TransferFilterTestSupport {
@@ -70,7 +68,6 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       reset(response);
     }
   }
-
 
   @Test
   void invalidSourceURIs() throws IOException, ServletException {
@@ -131,7 +128,6 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
       assertThat(error.getValue(), containsString(expectedErrorMsgs[i]));
       reset(response);
-
     }
   }
 

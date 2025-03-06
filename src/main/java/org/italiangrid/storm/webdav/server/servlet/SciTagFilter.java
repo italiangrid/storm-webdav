@@ -4,16 +4,14 @@
 
 package org.italiangrid.storm.webdav.server.servlet;
 
-import java.io.IOException;
-import java.util.Optional;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-
+import java.io.IOException;
+import java.util.Optional;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
@@ -39,7 +37,8 @@ public class SciTagFilter implements Filter {
       // Valid value is a single positive integer > 64 and <65536 (16bit). Any other value is
       // considered invalid.
       if (scitagValue > 64 && scitagValue < 65536) {
-        request.setAttribute(SciTag.SCITAG_ATTRIBUTE,
+        request.setAttribute(
+            SciTag.SCITAG_ATTRIBUTE,
             new SciTag(scitagValue >> 6, scitagValue & ((1 << 6) - 1), remoteAddressIsSource));
       } else {
         // If the active party receives an HTTP-TPC COPY request with a SciTag request header

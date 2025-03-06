@@ -4,21 +4,17 @@
 
 package org.italiangrid.storm.webdav.tpc.utils;
 
+import com.google.common.io.CountingOutputStream;
 import java.io.FilterOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.google.common.io.CountingOutputStream;
-
-/**
- * 
- *
- */
-public class StormCountingOutputStream extends FilterOutputStream implements Countable{
+/** */
+public class StormCountingOutputStream extends FilterOutputStream implements Countable {
 
   final CountingOutputStream delegate;
-  
+
   final Path path;
 
   private StormCountingOutputStream(CountingOutputStream out, String p) {
@@ -30,7 +26,7 @@ public class StormCountingOutputStream extends FilterOutputStream implements Cou
   public long getCount() {
     return delegate.getCount();
   }
-  
+
   public Path getPath() {
     return path;
   }

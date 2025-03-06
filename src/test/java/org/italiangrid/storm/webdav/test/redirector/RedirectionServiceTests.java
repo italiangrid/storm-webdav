@@ -12,12 +12,11 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
-import java.util.Optional;
-
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.net.URI;
+import java.util.Optional;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest.Permission;
@@ -35,34 +34,24 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
-import com.nimbusds.jwt.SignedJWT;
-
 @ExtendWith(MockitoExtension.class)
 class RedirectionServiceTests extends RedirectorTestSupport {
 
+  @Mock Authentication authentication;
 
-  @Mock
-  Authentication authentication;
+  @Mock HttpServletRequest request;
 
-  @Mock
-  HttpServletRequest request;
+  @Mock HttpServletResponse response;
 
-  @Mock
-  HttpServletResponse response;
+  @Mock SignedJwtTokenIssuer tokenIssuer;
 
-  @Mock
-  SignedJwtTokenIssuer tokenIssuer;
+  @Mock SignedJWT token;
 
-  @Mock
-  SignedJWT token;
-
-  @Mock
-  ReplicaSelector selector;
+  @Mock ReplicaSelector selector;
 
   @Captor
   ArgumentCaptor<ResourceAccessTokenRequest> tokenRequest =
       ArgumentCaptor.forClass(ResourceAccessTokenRequest.class);
-
 
   ServiceConfigurationProperties config;
   DefaultRedirectionService service;
@@ -70,8 +59,9 @@ class RedirectionServiceTests extends RedirectorTestSupport {
   @BeforeEach
   void setup() {
     config = buildConfigurationProperties();
-    lenient().when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any()))
-      .thenReturn(token);
+    lenient()
+        .when(tokenIssuer.createResourceAccessToken(Mockito.any(), Mockito.any()))
+        .thenReturn(token);
     lenient().when(token.serialize()).thenReturn(RANDOM_TOKEN_STRING);
     lenient().when(selector.selectReplica()).thenReturn(Optional.empty());
     lenient().when(request.getServletPath()).thenReturn(PATH);
@@ -79,13 +69,15 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     service = new DefaultRedirectionService(config, tokenIssuer, selector);
   }
 
-
   @Test
   void testRedirectFailureOnEmptyReplica() {
 
-    Exception e = assertThrows(RedirectError.class, () -> {
-      service.buildRedirect(authentication, request, response);
-    });
+    Exception e =
+        assertThrows(
+            RedirectError.class,
+            () -> {
+              service.buildRedirect(authentication, request, response);
+            });
     assertThat(e.getMessage(), containsString("No replica found"));
   }
 
@@ -96,7 +88,6 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     String uriString = service.buildRedirect(authentication, request, response);
     verify(tokenIssuer).createResourceAccessToken(tokenRequest.capture(), Mockito.any());
 
-
     URI uri = URI.create(uriString);
 
     assertThat(uri.getHost(), is(URI_0_HOST));
@@ -105,9 +96,9 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
     assertThat(tokenRequest.getValue().getPath(), is(PATH));
     assertThat(tokenRequest.getValue().getPermission(), is(Permission.r));
-    assertThat(tokenRequest.getValue().getLifetimeSecs(),
+    assertThat(
+        tokenRequest.getValue().getLifetimeSecs(),
         is(config.getRedirector().getMaxTokenLifetimeSecs()));
-
   }
 
   @Test
@@ -118,7 +109,6 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     String uriString = service.buildRedirect(authentication, request, response);
     verify(tokenIssuer).createResourceAccessToken(tokenRequest.capture(), Mockito.any());
 
-
     URI uri = URI.create(uriString);
 
     assertThat(uri.getHost(), is(URI_0_HOST));
@@ -127,9 +117,9 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
     assertThat(tokenRequest.getValue().getPath(), is(PATH));
     assertThat(tokenRequest.getValue().getPermission(), is(Permission.rw));
-    assertThat(tokenRequest.getValue().getLifetimeSecs(),
+    assertThat(
+        tokenRequest.getValue().getLifetimeSecs(),
         is(config.getRedirector().getMaxTokenLifetimeSecs()));
-
   }
 
   @Test
@@ -144,8 +134,5 @@ class RedirectionServiceTests extends RedirectorTestSupport {
     assertThat(uri.getScheme(), is(URI_WITH_PREFIX_SCHEME));
     assertThat(uri.getPath(), is(PATH_WITH_PREFIX));
     assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
-
   }
-
-
 }

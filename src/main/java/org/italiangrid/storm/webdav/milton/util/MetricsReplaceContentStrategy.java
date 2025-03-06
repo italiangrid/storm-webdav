@@ -6,12 +6,11 @@ package org.italiangrid.storm.webdav.milton.util;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 public class MetricsReplaceContentStrategy implements ReplaceContentStrategy {
 
@@ -32,7 +31,5 @@ public class MetricsReplaceContentStrategy implements ReplaceContentStrategy {
     } finally {
       context.stop();
     }
-
   }
-
 }

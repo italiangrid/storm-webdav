@@ -4,16 +4,14 @@
 
 package org.italiangrid.storm.webdav.server;
 
+import com.codahale.metrics.MetricRegistry;
+import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 import java.util.concurrent.ArrayBlockingQueue;
-
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
@@ -23,8 +21,10 @@ public class DefaultWebServerFactory
   final MetricRegistry metricRegistry;
   final JettyServerCustomizer serverCustomizer;
 
-  public DefaultWebServerFactory(ServiceConfiguration configuration,
-      ServerProperties serverProperties, JettyServerCustomizer serverCustomizer,
+  public DefaultWebServerFactory(
+      ServiceConfiguration configuration,
+      ServerProperties serverProperties,
+      JettyServerCustomizer serverCustomizer,
       MetricRegistry registry) {
 
     this.configuration = configuration;
@@ -34,10 +34,14 @@ public class DefaultWebServerFactory
   }
 
   private InstrumentedQueuedThreadPool getInstrumentedThreadPool() {
-    InstrumentedQueuedThreadPool tPool = new InstrumentedQueuedThreadPool(metricRegistry,
-        configuration.getMaxConnections(), configuration.getMinConnections(),
-        configuration.getThreadPoolMaxIdleTimeInMsec(),
-        new ArrayBlockingQueue<>(configuration.getMaxQueueSize()), new ThreadGroup("storm.http"));
+    InstrumentedQueuedThreadPool tPool =
+        new InstrumentedQueuedThreadPool(
+            metricRegistry,
+            configuration.getMaxConnections(),
+            configuration.getMinConnections(),
+            configuration.getThreadPoolMaxIdleTimeInMsec(),
+            new ArrayBlockingQueue<>(configuration.getMaxQueueSize()),
+            new ThreadGroup("storm.http"));
     tPool.setName("thread-pool");
     return tPool;
   }
@@ -48,5 +52,4 @@ public class DefaultWebServerFactory
     factory.setThreadPool(getInstrumentedThreadPool());
     factory.addServerCustomizers(serverCustomizer);
   }
-
 }

@@ -57,5 +57,4 @@ public class JwtScopeAuthority extends JwtAuthority implements Comparable<JwtSco
   public String getScope() {
     return scope;
   }
-
 }

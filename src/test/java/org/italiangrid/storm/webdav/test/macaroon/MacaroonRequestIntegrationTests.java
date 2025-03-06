@@ -11,12 +11,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.SignedJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
-
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestDTO;
@@ -36,9 +37,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jwt.SignedJWT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,17 +60,13 @@ public class MacaroonRequestIntegrationTests {
     }
   }
 
-  @Autowired
-  MockMvc mvc;
+  @Autowired MockMvc mvc;
 
-  @Autowired
-  VOMSAuthenticationFilter filter;
+  @Autowired VOMSAuthenticationFilter filter;
 
-  @Autowired
-  ServiceConfigurationProperties props;
+  @Autowired ServiceConfigurationProperties props;
 
-  @Autowired
-  ObjectMapper mapper;
+  @Autowired ObjectMapper mapper;
 
   @BeforeEach
   void setup() {
@@ -86,33 +80,34 @@ public class MacaroonRequestIntegrationTests {
   @Test
   void getNotSupported() throws Exception {
     mvc.perform(get("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void emptyRequestFails() throws Exception {
     mvc.perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE))
-      .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
   void vomsRequired() throws Exception {
-    mvc
-      .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
-        .content(EMPTY_JSON_OBJECT))
-      .andExpect(status().isForbidden());
+    mvc.perform(
+            post("/whatever")
+                .contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
+                .content(EMPTY_JSON_OBJECT))
+        .andExpect(status().isForbidden());
   }
 
   @Test
   @WithMockVOMSUser
   void macaroonIssued() throws Exception {
-    mvc
-      .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
-        .content(EMPTY_JSON_OBJECT))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.macaroon").exists());
+    mvc.perform(
+            post("/whatever")
+                .contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
+                .content(EMPTY_JSON_OBJECT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.macaroon").exists());
   }
-
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 43200)
@@ -121,20 +116,21 @@ public class MacaroonRequestIntegrationTests {
     MacaroonRequestDTO dto = new MacaroonRequestDTO();
     dto.setValidity("PT2H");
 
-    String response = mvc
-      .perform(post("/whatever").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
-        .content(mapper.writeValueAsString(dto)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.macaroon").exists())
-      .andReturn()
-      .getResponse()
-      .getContentAsString();
+    String response =
+        mvc.perform(
+                post("/whatever")
+                    .contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
+                    .content(mapper.writeValueAsString(dto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.macaroon").exists())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
     MacaroonResponseDTO res = mapper.readValue(response, MacaroonResponseDTO.class);
 
     SignedJWT signedJwt = SignedJWT.parse(res.getMacaroon());
 
     assertThat(signedJwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(NOW_PLUS_2H));
-
   }
 }

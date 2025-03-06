@@ -9,7 +9,6 @@ import static java.util.Collections.emptySet;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.io.FilenameUtils;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.slf4j.Logger;
@@ -51,7 +50,6 @@ public class VOMapDetailServiceBuilder {
       throw new VOMapFilesConfigurationError(
           "VOMS map files configuration directory is not traversable: "
               + directory.getAbsolutePath());
-
   }
 
   public VOMapDetailsService build() {
@@ -67,12 +65,12 @@ public class VOMapDetailServiceBuilder {
     File[] files = configDir.listFiles((dir, name) -> name.endsWith(VOMAPFILE_SUFFIX));
 
     if (files.length == 0) {
-      logger.warn("No mapfiles found in {}. Was looking for files ending in {}", configDir,
+      logger.warn(
+          "No mapfiles found in {}. Was looking for files ending in {}",
+          configDir,
           VOMAPFILE_SUFFIX);
       return new DefaultVOMapDetailsService(emptySet(), 0);
     }
-
-
 
     Set<VOMembershipProvider> providers = new HashSet<>();
     for (File f : files) {
@@ -89,8 +87,7 @@ public class VOMapDetailServiceBuilder {
       }
     }
 
-    return new DefaultVOMapDetailsService(providers,
-        serviceConf.getVOMapFilesRefreshIntervalInSeconds());
+    return new DefaultVOMapDetailsService(
+        providers, serviceConf.getVOMapFilesRefreshIntervalInSeconds());
   }
-
 }

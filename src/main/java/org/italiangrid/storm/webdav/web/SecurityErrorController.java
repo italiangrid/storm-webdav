@@ -26,7 +26,7 @@ public class SecurityErrorController {
   String badRequestError(RequestRejectedException e) {
     return "400";
   }
-  
+
   @ResponseStatus(UNAUTHORIZED)
   @RequestMapping("/401")
   String unauthorized() {
@@ -38,13 +38,13 @@ public class SecurityErrorController {
   String forbidden(Authentication auth, Model model) {
     return "403";
   }
-  
+
   @ResponseStatus(NOT_FOUND)
   @RequestMapping("/404")
   String notFound() {
     return "404";
   }
-  
+
   @ResponseStatus(METHOD_NOT_ALLOWED)
   @RequestMapping("/405")
   String methodNotAllowed() {

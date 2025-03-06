@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.redirector;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.slf4j.Logger;
@@ -48,5 +47,4 @@ public class RandomReplicaSelector implements ReplicaSelector {
     }
     return Optional.ofNullable(selected);
   }
-
 }

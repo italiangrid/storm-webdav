@@ -4,15 +4,19 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.google.common.jimfs.PathType;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.BufferProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -24,12 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.google.common.jimfs.PathType;
 
 public class ClientTestSupport {
 
@@ -43,23 +41,18 @@ public class ClientTestSupport {
 
   public static final Multimap<String, String> HEADER_MAP =
       new ImmutableMultimap.Builder<String, String>()
-        .put(AUTHORIZATION_HEADER, AUTHORIZATION_HEADER_VALUE)
-        .build();
+          .put(AUTHORIZATION_HEADER, AUTHORIZATION_HEADER_VALUE)
+          .build();
 
-  @Mock
-  PathResolver resolver;
+  @Mock PathResolver resolver;
 
-  @Mock
-  ExtendedAttributesHelper eah;
+  @Mock ExtendedAttributesHelper eah;
 
-  @Mock
-  CloseableHttpClient httpClient;
+  @Mock CloseableHttpClient httpClient;
 
-  @Mock
-  GetTransferRequest req;
+  @Mock GetTransferRequest req;
 
-  @Mock
-  ScheduledExecutorService es;
+  @Mock ScheduledExecutorService es;
 
   @SuppressWarnings("rawtypes")
   @Mock
@@ -67,17 +60,17 @@ public class ClientTestSupport {
 
   HttpTransferClient client;
 
-  @Captor
-  ArgumentCaptor<BasicClassicHttpRequest> getRequest;
+  @Captor ArgumentCaptor<BasicClassicHttpRequest> getRequest;
 
   public static final String MOCKFS_WORKDIR = "/mockfs";
 
   public FileSystem initMockFs() {
-    Configuration fsConfig = Configuration.builder(PathType.unix())
-      .setRoots("/")
-      .setWorkingDirectory(MOCKFS_WORKDIR)
-      .setAttributeViews("basic", "owner", "posix", "unix", "user")
-      .build();
+    Configuration fsConfig =
+        Configuration.builder(PathType.unix())
+            .setRoots("/")
+            .setWorkingDirectory(MOCKFS_WORKDIR)
+            .setAttributeViews("basic", "owner", "posix", "unix", "user")
+            .build();
 
     return Jimfs.newFileSystem(fsConfig);
   }
@@ -89,8 +82,8 @@ public class ClientTestSupport {
     BufferProperties buffer = new BufferProperties();
     config.setBuffer(buffer);
 
-    client = new HttpTransferClient(Clock.systemDefaultZone(), httpClient, resolver, eah, es, props,
-        config);
+    client =
+        new HttpTransferClient(
+            Clock.systemDefaultZone(), httpClient, resolver, eah, es, props, config);
   }
-
 }

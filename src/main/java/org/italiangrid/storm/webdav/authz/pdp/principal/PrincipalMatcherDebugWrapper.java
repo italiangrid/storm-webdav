@@ -29,8 +29,7 @@ public class PrincipalMatcherDebugWrapper implements PrincipalMatcher {
 
   @Override
   public String toString() {
-   
+
     return delegate.toString();
   }
-
 }

@@ -7,7 +7,8 @@ package org.italiangrid.storm.webdav.oidc;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR,
+@ResponseStatus(
+    code = HttpStatus.INTERNAL_SERVER_ERROR,
     reason = "OpenID provider initialization error")
 public class OidcProviderError extends RuntimeException {
 
@@ -16,5 +17,4 @@ public class OidcProviderError extends RuntimeException {
   public OidcProviderError(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

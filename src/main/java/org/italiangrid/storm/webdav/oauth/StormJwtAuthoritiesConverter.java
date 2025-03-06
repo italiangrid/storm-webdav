@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -29,8 +28,8 @@ import org.springframework.stereotype.Component;
 public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSupport
     implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-  public StormJwtAuthoritiesConverter(StorageAreaConfiguration conf,
-      ServiceConfigurationProperties props) {
+  public StormJwtAuthoritiesConverter(
+      StorageAreaConfiguration conf, ServiceConfigurationProperties props) {
     super(conf, props);
   }
 
@@ -41,9 +40,8 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
   protected Set<GrantedAuthority> extractAuthoritiesLocalAuthzServer(Jwt jwt) {
     Set<GrantedAuthority> authorities = new HashSet<>();
 
-    Optional.ofNullable(
-        jwt.getClaimAsStringList(CLAIM_AUTHORITIES))
-      .ifPresent(a -> a.forEach(at -> authorities.add(SAPermission.fromString(at))));
+    Optional.ofNullable(jwt.getClaimAsStringList(CLAIM_AUTHORITIES))
+        .ifPresent(a -> a.forEach(at -> authorities.add(SAPermission.fromString(at))));
 
     return authorities;
   }
@@ -74,7 +72,7 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
     for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
       if (jwt.hasClaim(groupClaim)) {
         jwt.getClaimAsStringList(groupClaim)
-          .forEach(gc -> groupAuthorities.add(new JwtGroupAuthority(tokenIssuer, gc)));
+            .forEach(gc -> groupAuthorities.add(new JwtGroupAuthority(tokenIssuer, gc)));
         break;
       }
     }
@@ -108,5 +106,4 @@ public class StormJwtAuthoritiesConverter extends GrantedAuthoritiesMapperSuppor
   public Collection<GrantedAuthority> convert(Jwt source) {
     return extractAuthorities(source);
   }
-
 }

@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
@@ -21,8 +20,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 class IOUtilsTest {
 
-  @TempDir
-  public File testFolder;
+  @TempDir public File testFolder;
 
   public File tempFileOfChar(String name, int b, int size) throws IOException {
     File f = new File(testFolder, name);
@@ -131,5 +129,4 @@ class IOUtilsTest {
       }
     }
   }
-
 }

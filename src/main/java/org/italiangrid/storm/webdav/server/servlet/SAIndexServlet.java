@@ -6,15 +6,13 @@ package org.italiangrid.storm.webdav.server.servlet;
 
 import static org.italiangrid.storm.webdav.authn.AuthenticationUtils.getPalatableSubject;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -28,9 +26,7 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 public class SAIndexServlet extends HttpServlet {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -8193945050086639692L;
 
   private static final String CONTENT_TYPE = "text/html;charset=UTF-8";
@@ -53,8 +49,11 @@ public class SAIndexServlet extends HttpServlet {
 
   private final Map<String, String> saIndexMap;
 
-  public SAIndexServlet(OAuthProperties oauthP, ServiceConfigurationProperties serviceConfig,
-      StorageAreaConfiguration config, TemplateEngine engine) {
+  public SAIndexServlet(
+      OAuthProperties oauthP,
+      ServiceConfigurationProperties serviceConfig,
+      StorageAreaConfiguration config,
+      TemplateEngine engine) {
 
     this.oauthProperties = oauthP;
     this.serviceConfig = serviceConfig;
@@ -85,11 +84,10 @@ public class SAIndexServlet extends HttpServlet {
 
     final IWebExchange webExchange =
         JakartaServletWebApplication.buildApplication(this.getServletContext())
-          .buildExchange(req, resp);
+            .buildExchange(req, resp);
 
     WebContext ctxt = new WebContext(webExchange, req.getLocale());
 
     engine.process(SA_INDEX_PAGE_NAME, ctxt, resp.getWriter());
   }
-
 }

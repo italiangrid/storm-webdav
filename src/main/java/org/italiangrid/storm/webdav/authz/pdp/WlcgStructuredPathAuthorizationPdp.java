@@ -9,15 +9,13 @@ import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.den
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.indeterminate;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.permit;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.util.MatcherUtils;
 import org.italiangrid.storm.webdav.authz.util.StructuredPathScopeMatcher;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -71,8 +69,10 @@ public class WlcgStructuredPathAuthorizationPdp
   protected final PathResolver pathResolver;
   protected final LocalURLService localUrlService;
 
-  public WlcgStructuredPathAuthorizationPdp(ServiceConfigurationProperties props,
-      PathResolver resolver, LocalURLService localUrlService) {
+  public WlcgStructuredPathAuthorizationPdp(
+      ServiceConfigurationProperties props,
+      PathResolver resolver,
+      LocalURLService localUrlService) {
     this.properties = props;
     this.pathResolver = resolver;
     this.localUrlService = localUrlService;
@@ -88,31 +88,35 @@ public class WlcgStructuredPathAuthorizationPdp
 
   public String getStorageAreaPath(String requestPath, StorageAreaInfo sa) {
 
-    return sa.accessPoints()
-      .stream()
-      .filter(requestPath::startsWith)
-      .findFirst()
-      .map(s -> requestPath.substring(s.length()))
-      .filter(s -> !s.isEmpty())
-      .orElse("/");
+    return sa.accessPoints().stream()
+        .filter(requestPath::startsWith)
+        .findFirst()
+        .map(s -> requestPath.substring(s.length()))
+        .filter(s -> !s.isEmpty())
+        .orElse("/");
   }
 
   public static Set<String> resolveWlcgScopes(JwtAuthenticationToken token) {
-    Set<String> wlcgScopes = Stream.of(token.getToken().getClaimAsString(SCOPE_CLAIM).split(" "))
-      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
-      .collect(Collectors.toSet());
+    Set<String> wlcgScopes =
+        Stream.of(token.getToken().getClaimAsString(SCOPE_CLAIM).split(" "))
+            .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
+            .collect(Collectors.toSet());
 
-    Set<String> implicitWlcgScopes = wlcgScopes.stream()
-      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageModifyScope)
-      .map(s -> s.replace(STORAGE_MODIFY, STORAGE_CREATE))
-      .collect(Collectors.toSet());
+    Set<String> implicitWlcgScopes =
+        wlcgScopes.stream()
+            .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageModifyScope)
+            .map(s -> s.replace(STORAGE_MODIFY, STORAGE_CREATE))
+            .collect(Collectors.toSet());
 
     wlcgScopes.addAll(implicitWlcgScopes);
     return wlcgScopes;
   }
 
-  boolean filterMatcherByRequest(HttpServletRequest request, String method,
-      StructuredPathScopeMatcher m, boolean requestedResourceExists) {
+  boolean filterMatcherByRequest(
+      HttpServletRequest request,
+      String method,
+      StructuredPathScopeMatcher m,
+      boolean requestedResourceExists) {
 
     if (CATCHALL_METHODS.contains(method)) {
       return ALL_STORAGE_SCOPES.stream().anyMatch(prefix -> prefix.equals(m.getPrefix()));
@@ -139,7 +143,6 @@ public class WlcgStructuredPathAuthorizationPdp
         return WRITE_SCOPES.contains(m.getPrefix());
       }
       return READ_SCOPES.contains(m.getPrefix());
-
     }
 
     if (MOVE_METHOD.equals(method)) {
@@ -148,7 +151,6 @@ public class WlcgStructuredPathAuthorizationPdp
 
     throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
   }
-
 
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
@@ -184,10 +186,11 @@ public class WlcgStructuredPathAuthorizationPdp
 
     Set<String> wlcgScopes = resolveWlcgScopes(jwtAuth);
 
-    List<StructuredPathScopeMatcher> scopeMatchers = wlcgScopes.stream()
-      .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
-      .map(StructuredPathScopeMatcher::fromString)
-      .toList();
+    List<StructuredPathScopeMatcher> scopeMatchers =
+        wlcgScopes.stream()
+            .filter(WlcgStructuredPathAuthorizationPdp::isWlcgStorageScope)
+            .map(StructuredPathScopeMatcher::fromString)
+            .toList();
 
     // Here we return indeterminate when no WLCG storage access scopes
     // are found in the token, so that other authz mechanism can be used to
@@ -200,15 +203,17 @@ public class WlcgStructuredPathAuthorizationPdp
     final String saPath = getStorageAreaPath(requestPath, sa);
 
     if ("MKCOL".equals(method)) {
-      scopeMatchers = scopeMatchers.stream()
-        .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
-        .filter(m -> m.matchesPathIncludingParents(saPath))
-        .toList();
+      scopeMatchers =
+          scopeMatchers.stream()
+              .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+              .filter(m -> m.matchesPathIncludingParents(saPath))
+              .toList();
     } else {
-      scopeMatchers = scopeMatchers.stream()
-        .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
-        .filter(m -> m.matchesPath(saPath))
-        .toList();
+      scopeMatchers =
+          scopeMatchers.stream()
+              .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
+              .filter(m -> m.matchesPath(saPath))
+              .toList();
     }
 
     if (scopeMatchers.isEmpty()) {
@@ -217,5 +222,4 @@ public class WlcgStructuredPathAuthorizationPdp
 
     return permit();
   }
-
 }

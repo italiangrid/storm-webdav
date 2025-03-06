@@ -7,21 +7,19 @@ package org.italiangrid.storm.webdav.authz;
 import static org.italiangrid.storm.webdav.authz.SAPermission.canRead;
 import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
 @Service
 public class VOMSPolicyService implements AuthorizationPolicyService {
@@ -53,7 +51,6 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
       if (sa.authenticatedReadEnabled() || sa.anonymousReadEnabled()) {
         authenticatedPerms.add(SAPermission.canRead(sa.name()));
       }
-
     }
   }
 
@@ -64,14 +61,14 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
     Set<GrantedAuthority> saPermissions = new HashSet<>();
 
     authorities.stream()
-      .filter(VOMSVOAuthority.class::isInstance)
-      .map(VOMSVOAuthority.class::cast)
-      .forEach(a -> saPermissions.addAll(voPerms.get(a.getVoName())));
+        .filter(VOMSVOAuthority.class::isInstance)
+        .map(VOMSVOAuthority.class::cast)
+        .forEach(a -> saPermissions.addAll(voPerms.get(a.getVoName())));
 
     authorities.stream()
-      .filter(VOMSVOMapAuthority.class::isInstance)
-      .map(VOMSVOMapAuthority.class::cast)
-      .forEach(a -> saPermissions.addAll(voMapPerms.get(a.getVoName())));
+        .filter(VOMSVOMapAuthority.class::isInstance)
+        .map(VOMSVOMapAuthority.class::cast)
+        .forEach(a -> saPermissions.addAll(voMapPerms.get(a.getVoName())));
 
     saPermissions.addAll(authenticatedPerms);
     return saPermissions;
@@ -82,5 +79,4 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
     Objects.requireNonNull(authn);
     return getSAPermissions(authn.getAuthorities());
   }
-
 }

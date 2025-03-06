@@ -13,8 +13,7 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
   final ServiceConfiguration serviceConfiguration;
   final StorageAreaConfiguration saConfiguration;
 
-  public DefaultConfigurationLogger(ServiceConfiguration sc,
-    StorageAreaConfiguration saConf) {
+  public DefaultConfigurationLogger(ServiceConfiguration sc, StorageAreaConfiguration saConf) {
 
     serviceConfiguration = sc;
     saConfiguration = saConf;
@@ -23,39 +22,34 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
   private void logServiceConfiguration(Logger logger) {
 
     logger.info("## WebDAV service configuration");
-    logger.info("Storage area configuration dir: {}",
-      serviceConfiguration.getSAConfigDir());
+    logger.info("Storage area configuration dir: {}", serviceConfiguration.getSAConfigDir());
     logger.info("### Connector configuration");
     logger.info("HTTP port: {}", serviceConfiguration.getHTTPPort());
     logger.info("HTTPS port: {}", serviceConfiguration.getHTTPSPort());
-    logger
-      .info("Max connections: {}", serviceConfiguration.getMaxConnections());
-    logger.info("Max connection queue size: {}",
-      serviceConfiguration.getMaxQueueSize());
+    logger.info("Max connections: {}", serviceConfiguration.getMaxConnections());
+    logger.info("Max connection queue size: {}", serviceConfiguration.getMaxQueueSize());
     logger.info("### TLS configuration");
-    logger.info("Service certificate path: {}",
-      serviceConfiguration.getCertificatePath());
-    logger.info("Service private key path: {}",
-      serviceConfiguration.getPrivateKeyPath());
-    logger.info("Trust anchors directory: {}",
-      serviceConfiguration.getTrustAnchorsDir());
-    logger.info("Trust anchors refresh intervals (seconds): {}",
-      serviceConfiguration.getTrustAnchorsRefreshIntervalInSeconds());
-    
-    logger.info("Client certificate authentication required: {}", 
+    logger.info("Service certificate path: {}", serviceConfiguration.getCertificatePath());
+    logger.info("Service private key path: {}", serviceConfiguration.getPrivateKeyPath());
+    logger.info("Trust anchors directory: {}", serviceConfiguration.getTrustAnchorsDir());
+    logger.info(
+        "Trust anchors refresh intervals (seconds): {}",
+        serviceConfiguration.getTrustAnchorsRefreshIntervalInSeconds());
+
+    logger.info(
+        "Client certificate authentication required: {}",
         serviceConfiguration.requireClientCertificateAuthentication());
     logger.info("### VOMS Map files configuration");
-    logger.info("VOMS Map files enabled: {}",
-      serviceConfiguration.enableVOMapFiles());
-    logger.info("VOMS Map files configuration directory: {}",
-      serviceConfiguration.getVOMapFilesConfigDir());
-    logger.info("VOMS Map files refresh interval (seconds): {}",
-      serviceConfiguration.getVOMapFilesRefreshIntervalInSeconds());
-    
+    logger.info("VOMS Map files enabled: {}", serviceConfiguration.enableVOMapFiles());
+    logger.info(
+        "VOMS Map files configuration directory: {}",
+        serviceConfiguration.getVOMapFilesConfigDir());
+    logger.info(
+        "VOMS Map files refresh interval (seconds): {}",
+        serviceConfiguration.getVOMapFilesRefreshIntervalInSeconds());
+
     if (serviceConfiguration.isAuthorizationDisabled()) {
-      logger
-        .warn("\n\n\nAuthorization is DISABLED! "
-          + "Do not use this in production!\n\n\n");
+      logger.warn("\n\n\nAuthorization is DISABLED! " + "Do not use this in production!\n\n\n");
     }
   }
 
@@ -73,5 +67,4 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
     logServiceConfiguration(logger);
     logSAConfiguration(logger);
   }
-
 }

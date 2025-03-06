@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 
 import java.io.File;
 import java.net.URI;
-
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.content.HttpContent;
 import org.eclipse.jetty.http.content.ResourceHttpContent;
@@ -28,8 +27,12 @@ public class StoRMResourceHttpContentFactory extends ResourceHttpContentFactory 
   final OAuthProperties oauthProperties;
   MimeTypes mimeTypes;
 
-  public StoRMResourceHttpContentFactory(Resource baseResource, MimeTypes mimeTypes,
-      OAuthProperties oauthP, ServiceConfigurationProperties serviceConfig, PathResolver resolver,
+  public StoRMResourceHttpContentFactory(
+      Resource baseResource,
+      MimeTypes mimeTypes,
+      OAuthProperties oauthP,
+      ServiceConfigurationProperties serviceConfig,
+      PathResolver resolver,
       TemplateEngine engine) {
     super(baseResource, mimeTypes);
     this.mimeTypes = mimeTypes;
@@ -58,8 +61,12 @@ public class StoRMResourceHttpContentFactory extends ResourceHttpContentFactory 
     try {
       if (f.isDirectory()) {
         StormDirectoryResourceWrapper resource =
-            new StormDirectoryResourceWrapper(oauthProperties, serviceConfig, templateEngine,
-                pathResourceFactory.newResource(new URI("file:" + resolvedPath)), pathInContext);
+            new StormDirectoryResourceWrapper(
+                oauthProperties,
+                serviceConfig,
+                templateEngine,
+                pathResourceFactory.newResource(new URI("file:" + resolvedPath)),
+                pathInContext);
         return new ResourceHttpContent(resource, "text/html");
       } else {
         return new ResourceHttpContent(

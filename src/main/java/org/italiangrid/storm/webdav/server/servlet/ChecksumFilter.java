@@ -6,9 +6,6 @@ package org.italiangrid.storm.webdav.server.servlet;
 
 import static java.lang.String.format;
 
-import java.io.File;
-import java.io.IOException;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -17,7 +14,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.File;
+import java.io.IOException;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
@@ -43,7 +41,6 @@ public class ChecksumFilter implements Filter {
   public void init(FilterConfig filterConfig) throws ServletException {
 
     logger.debug("Initializing checksum filter.");
-
   }
 
   @Override
@@ -53,14 +50,12 @@ public class ChecksumFilter implements Filter {
     addChecksumHeader((HttpServletRequest) request, (HttpServletResponse) response);
 
     chain.doFilter(request, response);
-
   }
 
   @Override
   public void destroy() {
 
     logger.debug("Destroying checksum filter.");
-
   }
 
   private void addChecksumHeader(HttpServletRequest request, HttpServletResponse response) {
@@ -88,7 +83,6 @@ public class ChecksumFilter implements Filter {
     if (!f.exists()) {
       logger.debug("File {} doesn't exist", f);
       return;
-
     }
 
     if (f.isDirectory()) {
@@ -104,8 +98,8 @@ public class ChecksumFilter implements Filter {
 
     } catch (IOException e) {
 
-      logger.error("Error retrieving checksum value for path '{}': {}", pathResolved,
-          e.getMessage());
+      logger.error(
+          "Error retrieving checksum value for path '{}': {}", pathResolved, e.getMessage());
 
       if (logger.isDebugEnabled()) {
         logger.error(e.getMessage(), e);
@@ -121,5 +115,4 @@ public class ChecksumFilter implements Filter {
     final String checksumHeaderContent = "adler32=" + checksumValue;
     response.setHeader("Digest", checksumHeaderContent);
   }
-
 }

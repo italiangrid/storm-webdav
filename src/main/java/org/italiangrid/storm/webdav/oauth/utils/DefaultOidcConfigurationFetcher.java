@@ -6,11 +6,12 @@ package org.italiangrid.storm.webdav.oauth.utils;
 
 import static java.lang.String.format;
 
+import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.RemoteKeySourceException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
-
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.nimbusds.jose.KeySourceException;
-import com.nimbusds.jose.RemoteKeySourceException;
 
 @Service
 public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher {
@@ -43,8 +41,8 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
 
   final RestTemplate restTemplate;
 
-  public DefaultOidcConfigurationFetcher(RestTemplateBuilder restBuilder,
-      OAuthProperties oAuthProperties) {
+  public DefaultOidcConfigurationFetcher(
+      RestTemplateBuilder restBuilder, OAuthProperties oAuthProperties) {
     final Duration timeout = Duration.ofSeconds(oAuthProperties.getRefreshTimeoutSeconds());
     this.restTemplate = restBuilder.connectTimeout(timeout).readTimeout(timeout).build();
   }
@@ -115,8 +113,10 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
       throw new RemoteKeySourceException(errorMsg, e);
     }
     if (response.getStatusCode().value() != 200) {
-      throw new KeySourceException(format("Unable to get JWK from '%s': received status code %s",
-          uri, response.getStatusCode().value()));
+      throw new KeySourceException(
+          format(
+              "Unable to get JWK from '%s': received status code %s",
+              uri, response.getStatusCode().value()));
     }
     return response.getBody();
   }

@@ -6,11 +6,10 @@ package org.italiangrid.storm.webdav.oauth.authzserver;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-import org.springframework.security.core.Authentication;
-
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import org.springframework.security.core.Authentication;
 
 public class TokenIssuerServiceMetricsWrapper implements TokenIssuerService {
 
@@ -27,8 +26,8 @@ public class TokenIssuerServiceMetricsWrapper implements TokenIssuerService {
   }
 
   @Override
-  public TokenResponseDTO createAccessToken(AccessTokenRequest tokenRequest,
-      Authentication authentication) {
+  public TokenResponseDTO createAccessToken(
+      AccessTokenRequest tokenRequest, Authentication authentication) {
 
     final Timer.Context context = timer.time();
 
@@ -39,5 +38,4 @@ public class TokenIssuerServiceMetricsWrapper implements TokenIssuerService {
       context.stop();
     }
   }
-
 }

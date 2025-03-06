@@ -10,7 +10,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.italiangrid.storm.webdav.redirector.RandomReplicaSelector;
@@ -35,7 +34,6 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
   void testEmptyOptionalOnEmptyEndpointList() {
 
     assertThat(selector.selectReplica().isPresent(), is(false));
-
   }
 
   @Test
@@ -48,9 +46,7 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
     assertThat(selector.selectReplica().isPresent(), is(true));
     assertThat(selector.selectReplica().get().getEndpoint(), is(ENDPOINT_URI_0));
-
   }
-
 
   @Test
   void testDoubleEndpointList() {
@@ -60,7 +56,6 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
     ReplicaEndpointProperties replica1 = new ReplicaEndpointProperties();
     replica1.setEndpoint(ENDPOINT_URI_1);
-
 
     config.getRedirector().getPool().getEndpoints().add(replica0);
     config.getRedirector().getPool().getEndpoints().add(replica1);
@@ -75,6 +70,4 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
     assertThat(results, hasItem(replica0));
     assertThat(results, hasItem(replica1));
   }
-
-
 }

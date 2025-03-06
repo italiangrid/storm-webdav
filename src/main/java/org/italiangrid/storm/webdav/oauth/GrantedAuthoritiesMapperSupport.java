@@ -4,10 +4,11 @@
 
 package org.italiangrid.storm.webdav.oauth;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.authz.SAPermission;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
@@ -15,22 +16,20 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.springframework.security.core.GrantedAuthority;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 public class GrantedAuthoritiesMapperSupport {
 
   protected final Multimap<String, GrantedAuthority> authzMap = ArrayListMultimap.create();
   protected final AuthorizationServerProperties authzServerProperties;
 
-  protected static final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
+  protected static final String[] OAUTH_GROUP_CLAIM_NAMES = {
+    "groups", "wlcg.groups", "entitlements"
+  };
   protected static final String SCOPE_CLAIM_NAME = "scope";
 
   protected final Set<GrantedAuthority> anonymousGrantedAuthorities = new HashSet<>();
 
-
-  public GrantedAuthoritiesMapperSupport(StorageAreaConfiguration conf,
-      ServiceConfigurationProperties props) {
+  public GrantedAuthoritiesMapperSupport(
+      StorageAreaConfiguration conf, ServiceConfigurationProperties props) {
 
     authzServerProperties = props.getAuthzServer();
 
@@ -55,11 +54,9 @@ public class GrantedAuthoritiesMapperSupport {
     if (sa.orgsGrantWritePermission()) {
       authzMap.put(issuer, SAPermission.canWrite(sa.name()));
     }
-
   }
 
   protected Collection<GrantedAuthority> extractAuthoritiesExternalAuthzServer(String issuer) {
     return authzMap.get(issuer);
   }
-
 }

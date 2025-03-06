@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.oauth.utils;
 
 import java.util.concurrent.Callable;
-
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 import org.springframework.lang.Nullable;
 

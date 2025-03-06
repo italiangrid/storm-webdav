@@ -9,5 +9,4 @@ public interface Refreshable {
   public void refresh();
 
   public long getLastRefreshTime();
-
 }

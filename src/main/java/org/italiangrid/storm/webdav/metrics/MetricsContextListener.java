@@ -4,17 +4,15 @@
 
 package org.italiangrid.storm.webdav.metrics;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.metrics.servlets.MetricsServlet.ContextListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MetricsContextListener extends ContextListener {
 
   private MetricRegistry registry;
-
 
   @Autowired
   public MetricsContextListener(MetricRegistry r) {
@@ -26,5 +24,4 @@ public class MetricsContextListener extends ContextListener {
   protected MetricRegistry getMetricRegistry() {
     return registry;
   }
-
 }

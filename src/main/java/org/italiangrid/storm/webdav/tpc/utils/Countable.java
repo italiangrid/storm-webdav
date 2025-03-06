@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.tpc.utils;
 
 public interface Countable {
-  
-  long getCount();
 
+  long getCount();
 }

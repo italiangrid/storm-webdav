@@ -5,11 +5,9 @@
 package org.italiangrid.storm.webdav.test.authz.vomap;
 
 import java.io.File;
-
 import org.italiangrid.storm.webdav.authz.vomap.MapfileVOMembershipSource;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-
 
 public class VOMSMapTests {
 
@@ -25,8 +23,9 @@ public class VOMSMapTests {
   @Test
   void VOMapParserTest() {
 
-    MapfileVOMembershipSource m = new MapfileVOMembershipSource("testers",
-        new File("src/test/resources/vomsmap/testers.map"));
+    MapfileVOMembershipSource m =
+        new MapfileVOMembershipSource(
+            "testers", new File("src/test/resources/vomsmap/testers.map"));
 
     Assert.assertEquals("testers", m.getVOName());
     Assert.assertTrue(m.getVOMembers().contains(AC_SUBJECT));
@@ -34,7 +33,5 @@ public class VOMSMapTests {
     Assert.assertFalse(m.getVOMembers().contains(COMMA_SUBJECT));
     Assert.assertTrue(m.getVOMembers().contains(RM_SUBJECT));
     Assert.assertFalse(m.getVOMembers().contains("CN=I am not Real, L=CNAF"));
-
   }
-
 }

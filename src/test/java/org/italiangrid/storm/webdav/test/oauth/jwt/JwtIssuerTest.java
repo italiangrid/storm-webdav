@@ -16,6 +16,10 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtToken
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Clock;
 import java.time.Instant;
@@ -25,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
@@ -48,11 +51,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.SignedJWT;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtIssuerTest {
@@ -85,36 +83,29 @@ public class JwtIssuerTest {
 
   Clock fixedClock = Clock.fixed(NOW, ZoneId.systemDefault());
 
-  @Mock
-  AuthorizationServerProperties props;
+  @Mock AuthorizationServerProperties props;
 
-  @Mock
-  AuthorizationPolicyService ps;
+  @Mock AuthorizationPolicyService ps;
 
   @Spy
-  Authentication authn = new PreAuthenticatedAuthenticationToken(AUTHN_SUBJECT, null,
-      List.of(VO_TEST_AUTHORITY, FQAN_TEST_AUTHORITY));
+  Authentication authn =
+      new PreAuthenticatedAuthenticationToken(
+          AUTHN_SUBJECT, null, List.of(VO_TEST_AUTHORITY, FQAN_TEST_AUTHORITY));
 
-  @Mock
-  AccessTokenRequest req;
+  @Mock AccessTokenRequest req;
 
-  @Mock
-  ResourceAccessTokenRequest resourceAtRequest;
+  @Mock ResourceAccessTokenRequest resourceAtRequest;
 
-  @Mock
-  VOMSAuthenticationDetails details;
+  @Mock VOMSAuthenticationDetails details;
 
-  @Mock
-  VOMSAttribute vomsAttribute;
+  @Mock VOMSAttribute vomsAttribute;
 
-  @Mock
-  PrincipalHelper helper;
+  @Mock PrincipalHelper helper;
 
   DefaultJwtTokenIssuer issuer;
 
   @BeforeEach
   void setup() {
-
 
     lenient().when(vomsAttribute.getNotAfter()).thenReturn(Date.from(VOMS_EXPIRATION_INSTANT_LATE));
     lenient().when(details.getVomsAttributes()).thenReturn(List.of(vomsAttribute));
@@ -139,7 +130,8 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getAudience().get(0), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
     assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
-    assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
+    assertThat(
+        jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
         hasItems(VO_TEST_AUTHORITY.toString(), FQAN_TEST_AUTHORITY.toString()));
 
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
@@ -147,7 +139,6 @@ public class JwtIssuerTest {
     JWSVerifier verifier = new MACVerifier(SECRET);
     assertThat(jwt.verify(verifier), is(true));
   }
-
 
   @Test
   void returnsAuthoritiesAsExpected() throws ParseException {
@@ -165,10 +156,13 @@ public class JwtIssuerTest {
     assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
     assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
     assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES), not(empty()));
-    assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
-        hasItems(canReadTest.toString(), canWriteTest.toString(), VO_TEST_AUTHORITY.toString(),
+    assertThat(
+        jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
+        hasItems(
+            canReadTest.toString(),
+            canWriteTest.toString(),
+            VO_TEST_AUTHORITY.toString(),
             FQAN_TEST_AUTHORITY.toString()));
-
   }
 
   @Test
@@ -184,8 +178,8 @@ public class JwtIssuerTest {
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
-        is(VOMS_EXPIRATION_INSTANT_EARLY));
+    assertThat(
+        jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));
   }
 
   @Test
@@ -200,10 +194,10 @@ public class JwtIssuerTest {
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+    assertThat(
+        jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
         is(REQUESTED_EXPIRATION_INSTANT_EARLY));
   }
-
 
   @Test
   void tokenIssuerIgnoresRequestedLifetimeWhenExceedsInternalLimit() throws ParseException {
@@ -217,8 +211,8 @@ public class JwtIssuerTest {
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
-        is(VOMS_EXPIRATION_INSTANT_EARLY));
+    assertThat(
+        jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));
   }
 
   @Test
@@ -233,13 +227,14 @@ public class JwtIssuerTest {
     assertThat(jwt, notNullValue());
     assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
     assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM),
+    assertThat(
+        jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM),
         is("192.168.1.1"));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
+    assertThat(
+        jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
         is(NOW.plusSeconds(TimeUnit.MINUTES.toSeconds(10)).truncatedTo(ChronoUnit.SECONDS)));
-    assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM),
-        is("/example/resource"));
+    assertThat(
+        jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM), is("/example/resource"));
     assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PERMS_CLAIM), is("r"));
-
   }
 }

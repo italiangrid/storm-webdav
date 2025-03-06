@@ -4,13 +4,11 @@
 
 package org.italiangrid.storm.webdav.authz.util;
 
+import jakarta.annotation.Generated;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jakarta.annotation.Generated;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -135,5 +133,4 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
   public String getPath() {
     return path.toString();
   }
-
 }

@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.web;
 
 import java.util.List;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,22 +21,25 @@ public class OidcLoginController {
   final List<OidcClientModel> clients;
   final ServiceConfigurationProperties serviceProperties;
 
-
   @Autowired
-  public OidcLoginController(OAuth2ClientProperties clientProperties,
-      ServiceConfigurationProperties serviceProperties) {
+  public OidcLoginController(
+      OAuth2ClientProperties clientProperties, ServiceConfigurationProperties serviceProperties) {
     this.serviceProperties = serviceProperties;
 
-    clients = clientProperties.getRegistration().entrySet().stream().map(e -> {
-      Provider provider = clientProperties.getProvider().get(e.getValue().getProvider());
-      OidcClientModel m = new OidcClientModel();
-      m.setName(e.getValue().getClientName());
-      m.setIssuer(provider.getIssuerUri());
-      m.setUrl(String.format("/oauth2/authorization/%s", e.getKey()));
-      return m;
-    }).toList();
+    clients =
+        clientProperties.getRegistration().entrySet().stream()
+            .map(
+                e -> {
+                  Provider provider =
+                      clientProperties.getProvider().get(e.getValue().getProvider());
+                  OidcClientModel m = new OidcClientModel();
+                  m.setName(e.getValue().getClientName());
+                  m.setIssuer(provider.getIssuerUri());
+                  m.setUrl(String.format("/oauth2/authorization/%s", e.getKey()));
+                  return m;
+                })
+            .toList();
   }
-
 
   @GetMapping("/oidc-login")
   String oidcLoginController(Model model) {
@@ -78,6 +80,5 @@ public class OidcLoginController {
     public String toString() {
       return "OidcClientModel [name=" + name + ", issuer=" + issuer + ", url=" + url + "]";
     }
-
   }
 }

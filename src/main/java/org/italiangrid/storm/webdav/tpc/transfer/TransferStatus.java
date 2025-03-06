@@ -15,14 +15,15 @@ import java.util.Optional;
 public class TransferStatus {
 
   public enum Status {
-    STARTED, ERROR, DONE
+    STARTED,
+    ERROR,
+    DONE
   }
 
   final Status status;
   final long transferByteCount;
   final Optional<String> errorMessage;
   final Instant instant;
-
 
   private TransferStatus(Instant now, Status s, long bc) {
     this.status = s;
@@ -38,16 +39,13 @@ public class TransferStatus {
     this.instant = now;
   }
 
-
   public Status getStatus() {
     return status;
   }
 
-
   public long getTransferByteCount() {
     return transferByteCount;
   }
-
 
   public Optional<String> getErrorMessage() {
     return errorMessage;
@@ -118,7 +116,6 @@ public class TransferStatus {
     public TransferStatus error(String errorMessage) {
       return new TransferStatus(clock.instant(), errorMessage);
     }
-
   }
 
   public static Builder builder(Clock clock) {

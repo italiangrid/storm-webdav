@@ -68,7 +68,7 @@ public class PathAuthorizationResult {
   public static PathAuthorizationResult indeterminate() {
     return new PathAuthorizationResult(Decision.INDETERMINATE, null);
   }
-  
+
   public static PathAuthorizationResult indeterminate(String message) {
     return new PathAuthorizationResult(Decision.INDETERMINATE, null, message);
   }

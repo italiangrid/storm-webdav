@@ -4,12 +4,10 @@
 
 package org.italiangrid.storm.webdav.authz.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -43,5 +41,4 @@ public class ReadonlyHttpMethodMatcher implements RequestMatcher {
   public String toString() {
     return "ReadonlyHttpMethodMatcher [delegate=" + delegate + "]";
   }
-
 }

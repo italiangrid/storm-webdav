@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.milton.http.HttpManager;
 import java.net.URI;
-
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthoritiesConverter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
@@ -31,8 +31,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import io.milton.http.HttpManager;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,17 +51,13 @@ public class AuthorizationIntegrationTests {
   public static final HttpMethod COPY_HTTP_METHOD = HttpMethod.valueOf("COPY");
   public static final HttpMethod MOVE_HTTP_METHOD = HttpMethod.valueOf("MOVE");
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-  @Autowired
-  private VOMSAuthenticationFilter filter;
+  @Autowired private VOMSAuthenticationFilter filter;
 
-  @Autowired
-  private FilterRegistrationBean<MiltonFilter> miltonFilter;
+  @Autowired private FilterRegistrationBean<MiltonFilter> miltonFilter;
 
-  @Autowired
-  private StormJwtAuthoritiesConverter authConverter;
+  @Autowired private StormJwtAuthoritiesConverter authConverter;
 
   @BeforeEach
   void setup() {
@@ -88,36 +82,43 @@ public class AuthorizationIntegrationTests {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isUnauthorized());
   }
 
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   @Test
   void getAccessAsVomsUserLeads404() throws Exception {
     mvc.perform(get(SLASH_WLCG_SLASH_FILE)).andExpect(status().isNotFound());
   }
 
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   @Test
   void putAccessAsVomsUserIsForbidden() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isForbidden());
   }
 
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"}, saWritePermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"},
+      saWritePermissions = {"wlcg"})
   @Test
   void putAccessAsVomsUserIsOk() throws Exception {
     mvc.perform(put(SLASH_WLCG_SLASH_FILE)).andExpect(status().isOk());
   }
 
-
   @Test
   void issuerChecksAreEnforcedForWlcgScopeBasedAuthz() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/")
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -126,147 +127,150 @@ public class AuthorizationIntegrationTests {
         Jwt.withTokenValue("test").header("kid", "rsa1").issuer(WLCG_ISSUER).subject("123").build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
-      .andExpect(status().isForbidden());
-
+        .andExpect(status().isForbidden());
   }
 
   @Test
   void getAccessAsJwtUserWithTheRightScopeGrantsAccess() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/")
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token))).andExpect(status().isNotFound());
-
   }
-
 
   @Test
   void getAccessAsJwtWithReadCapabilityForWrongPathResultsInAccessDenied() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/other")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/other")
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
-      .andExpect(status().isForbidden());
-
+        .andExpect(status().isForbidden());
   }
 
   @Test
   void getAccessAsJwtWithWriteCapabilityResultsInAccessDenied() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/")
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token)))
-      .andExpect(status().isForbidden());
-
+        .andExpect(status().isForbidden());
   }
 
   @Test
   void readAccessAsJwtWithAllowedClient() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isNotFound());
-
+        .andExpect(status().isNotFound());
   }
 
   @Test
   void readAccessWithoutMatchedJWTIsDenied() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
-      .build();
-
-    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
-
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
+
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+            .build();
+
+    mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isForbidden());
 
     token = Jwt.withTokenValue("test").header("kid", "rsa1").issuer(UNKNOWN_ISSUER).build();
 
     mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
-
+        .andExpect(status().isForbidden());
   }
 
   @Test
   void writeAccessAsJwtWithAllowedClient() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isOk());
-
+        .andExpect(status().isOk());
   }
 
   @Test
   void writeAccessWithoutMatchedJWTIsDenied() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
-      .build();
-
-    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
-
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .claim("client_id", AUTHORIZED_JWT_CLIENT_ID)
+            .build();
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
+
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .claim("client_id", UNAUTHORIZED_JWT_CLIENT_ID)
+            .build();
+
+    mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isForbidden());
 
     token = Jwt.withTokenValue("test").header("kid", "rsa1").issuer(UNKNOWN_ISSUER).build();
 
     mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -275,252 +279,307 @@ public class AuthorizationIntegrationTests {
     final String[] OAUTH_GROUP_CLAIM_NAMES = {"groups", "wlcg.groups", "entitlements"};
 
     for (String groupClaim : OAUTH_GROUP_CLAIM_NAMES) {
-      Jwt token = Jwt.withTokenValue("test")
-        .header("kid", "rsa1")
-        .issuer(EXAMPLE_ISSUER)
-        .claim(groupClaim, "/example/admins")
-        .build();
+      Jwt token =
+          Jwt.withTokenValue("test")
+              .header("kid", "rsa1")
+              .issuer(EXAMPLE_ISSUER)
+              .claim(groupClaim, "/example/admins")
+              .build();
 
       mvc.perform(get(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-        .andExpect(status().isNotFound());
+          .andExpect(status().isNotFound());
 
       mvc.perform(put(SLASH_WLCG_SLASH_FILE).with(jwt().jwt(token).authorities(authConverter)))
-        .andExpect(status().isOk());
+          .andExpect(status().isOk());
     }
   }
 
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   @Test
   void localVomsCopyRequiresWithReadPermissionsGetsAccessDenied() throws Exception {
-    mvc
-      .perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-        .header("Destination", "http://localhost/wlcg/destination"))
-      .andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination"))
+        .andExpect(status().isForbidden());
   }
 
-  @WithMockVOMSUser(vos = "wlcg", saWritePermissions = {"wlcg"}, saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saWritePermissions = {"wlcg"},
+      saReadPermissions = {"wlcg"})
   @Test
   void localVomsCopyRequiresReadAndWritePermissions() throws Exception {
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")).andExpect(status().isOk());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination"))
+        .andExpect(status().isOk());
   }
 
   @Test
   void tpcJwtPullCopyBlockedWithStorageReadScope() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Source", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Source", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
   }
 
   @Test
   void tpcJwtPullCopyRequiresStorageModifyScope() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Source", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isAccepted());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Source", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isAccepted());
   }
 
   @Test
   void tpcJwtPullCopyRequiresStorageModifyScopeWithRightPath() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/subdir storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/subdir storage.read:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Source", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Source", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
   }
-
 
   @Test
   void tpcJwtLocalCopyRequiresAppropriatePermissions() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/ storage.modify:/")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/ storage.modify:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isOk());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isOk());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/subdir storage.modify:/")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/subdir storage.modify:/")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/ storage.modify:/subdir")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/ storage.modify:/subdir")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/source storage.modify:/destination")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/source storage.modify:/destination")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isOk());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isOk());
   }
 
   @Test
   void tpcJwtLocalMoveRequiresAppropriatePermissions() throws Exception {
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.read:/")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.read:/")
+            .build();
 
-    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/")
-      .build();
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/")
+            .build();
 
-    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isOk());
+    mvc.perform(
+            request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isOk());
 
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "storage.modify:/subdir")
+            .build();
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "storage.modify:/subdir")
-      .build();
+    mvc.perform(
+            request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isForbidden());
 
-    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isForbidden());
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(WLCG_ISSUER)
+            .subject("123")
+            .claim("scope", "openid storage.modify:/source storage.modify:/destination")
+            .build();
 
-
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(WLCG_ISSUER)
-      .subject("123")
-      .claim("scope", "openid storage.modify:/source storage.modify:/destination")
-      .build();
-
-    mvc.perform(request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token))).andExpect(status().isOk());
+    mvc.perform(
+            request(MOVE_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isOk());
   }
 
   @Test
   void tpcJwtFineGrainedAuthzCopyTests() throws Exception {
 
-    Jwt token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .claim("scope", "openid")
-      .subject("123")
-      .build();
+    Jwt token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .claim("scope", "openid")
+            .subject("123")
+            .build();
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isForbidden());
 
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .subject("123")
+            .claim("groups", "/example/admins")
+            .build();
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .subject("123")
-      .claim("groups", "/example/admins")
-      .build();
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isOk());
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isOk());
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(EXAMPLE_ISSUER)
+            .subject("123")
+            .claim("groups", "/example")
+            .build();
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(EXAMPLE_ISSUER)
-      .subject("123")
-      .claim("groups", "/example")
-      .build();
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isForbidden());
 
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
+    token =
+        Jwt.withTokenValue("test")
+            .header("kid", "rsa1")
+            .issuer(UNKNOWN_ISSUER)
+            .subject("123")
+            .claim("groups", "/example/admins")
+            .build();
 
-    token = Jwt.withTokenValue("test")
-      .header("kid", "rsa1")
-      .issuer(UNKNOWN_ISSUER)
-      .subject("123")
-      .claim("groups", "/example/admins")
-      .build();
-
-    mvc.perform(request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
-      .header("Destination", "http://localhost/wlcg/destination")
-      .with(jwt().jwt(token).authorities(authConverter))).andExpect(status().isForbidden());
-
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Destination", "http://localhost/wlcg/destination")
+                .with(jwt().jwt(token).authorities(authConverter)))
+        .andExpect(status().isForbidden());
   }
 
-
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"}, saWritePermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"},
+      saWritePermissions = {"wlcg"})
   @Test
   void deleteOnStorageAreaRootIsForbidden() throws Exception {
     mvc.perform(delete("/wlcg")).andExpect(status().isForbidden());
   }
-
 }

@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -37,8 +37,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -64,17 +62,13 @@ public class OAuthAuthzServerIntegrationTests {
     }
   }
 
-  @Autowired
-  MockMvc mvc;
+  @Autowired MockMvc mvc;
 
-  @Autowired
-  VOMSAuthenticationFilter filter;
+  @Autowired VOMSAuthenticationFilter filter;
 
-  @Autowired
-  ServiceConfigurationProperties props;
+  @Autowired ServiceConfigurationProperties props;
 
-  @Autowired
-  ObjectMapper mapper;
+  @Autowired ObjectMapper mapper;
 
   @BeforeEach
   void setup() {
@@ -84,66 +78,67 @@ public class OAuthAuthzServerIntegrationTests {
   @Test
   void getNotSupported() throws Exception {
     mvc.perform(get("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void postNotSupportedForAnonymous() throws Exception {
     mvc.perform(post("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isUnauthorized());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   @WithMockUser(username = "test")
   void postNotSupportedForAuthenticatedNonVomsUsers() throws Exception {
     mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden());
   }
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
   void postSupportedForAuthenticatedVomsUsers() throws Exception {
     mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.access_token").exists())
-      .andExpect(jsonPath("$.expires_in", is(200)))
-      .andExpect(jsonPath("$.token_type", is("Bearer")));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.access_token").exists())
+        .andExpect(jsonPath("$.expires_in", is(200)))
+        .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
 
   @Test
   @WithMockVOMSUser
   void invalidGrantTypeRejected() throws Exception {
-    mvc
-      .perform(
-          post("/oauth/token").content(CONTENT_CUSTOM).contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.error", is(UNSUPPORTED_GRANT_TYPE)))
-      .andExpect(jsonPath("$.error_description", is("Invalid grant type: " + CUSTOM_GRANT_TYPE)))
-      .andDo(print());
+    mvc.perform(
+            post("/oauth/token").content(CONTENT_CUSTOM).contentType(APPLICATION_FORM_URLENCODED))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error", is(UNSUPPORTED_GRANT_TYPE)))
+        .andExpect(jsonPath("$.error_description", is("Invalid grant type: " + CUSTOM_GRANT_TYPE)))
+        .andDo(print());
   }
 
   @Test
   @WithMockVOMSUser
   void requestedLifetimeHonoured() throws Exception {
-    mvc
-      .perform(post("/oauth/token").content(format("%s&lifetime=50", CONTENT))
-        .contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.access_token").exists())
-      .andExpect(jsonPath("$.expires_in", is(50)))
-      .andExpect(jsonPath("$.token_type", is("Bearer")));
+    mvc.perform(
+            post("/oauth/token")
+                .content(format("%s&lifetime=50", CONTENT))
+                .contentType(APPLICATION_FORM_URLENCODED))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.access_token").exists())
+        .andExpect(jsonPath("$.expires_in", is(50)))
+        .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
   void requestedLifetimeLimited() throws Exception {
-    mvc
-      .perform(post("/oauth/token").content(format("%s&lifetime=200000", CONTENT))
-        .contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.access_token").exists())
-      .andExpect(jsonPath("$.expires_in", is(200)))
-      .andExpect(jsonPath("$.token_type", is("Bearer")));
+    mvc.perform(
+            post("/oauth/token")
+                .content(format("%s&lifetime=200000", CONTENT))
+                .contentType(APPLICATION_FORM_URLENCODED))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.access_token").exists())
+        .andExpect(jsonPath("$.expires_in", is(200)))
+        .andExpect(jsonPath("$.token_type", is("Bearer")));
   }
 
   @Test
@@ -154,20 +149,21 @@ public class OAuthAuthzServerIntegrationTests {
 
     String randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
 
-    mvc
-      .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))
-        .contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.access_token").exists());
+    mvc.perform(
+            post("/oauth/token")
+                .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .contentType(APPLICATION_FORM_URLENCODED))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.access_token").exists());
 
     randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH + 1);
 
-    mvc
-      .perform(post("/oauth/token").content(format("%s&scope=%s", CONTENT, randomAlphabetic))
-        .contentType(APPLICATION_FORM_URLENCODED))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.error", is("invalid_scope")))
-      .andExpect(jsonPath("$.error_description", is(AccessTokenRequest.SCOPE_TOO_LONG)));
+    mvc.perform(
+            post("/oauth/token")
+                .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .contentType(APPLICATION_FORM_URLENCODED))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error", is("invalid_scope")))
+        .andExpect(jsonPath("$.error_description", is(AccessTokenRequest.SCOPE_TOO_LONG)));
   }
-
 }

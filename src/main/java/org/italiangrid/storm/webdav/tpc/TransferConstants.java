@@ -35,5 +35,4 @@ public final class TransferConstants {
   public static final Pattern WEBDAV_PATH_PATTERN = Pattern.compile(WEBDAV_PATH_REGEX);
 
   private TransferConstants() {}
-
 }

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
 import org.aeonbits.owner.ConfigFactory;
 import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.slf4j.Logger;
@@ -40,17 +39,21 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
     File dir = new File(saConfDir);
     directorySanityChecks(dir);
 
-    File[] saFiles = dir.listFiles((file, name) -> {
-      if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
-        log.warn("Skipping {} as it is a reserved storage area name", name);
-      }
-      return (!RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
-    });
+    File[] saFiles =
+        dir.listFiles(
+            (file, name) -> {
+              if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
+                log.warn("Skipping {} as it is a reserved storage area name", name);
+              }
+              return (!RESERVED_SA_NAMES.contains(name)
+                  && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
+            });
 
     if (saFiles.length == 0) {
-      String msg = String.format(
-          "No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
-          dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
+      String msg =
+          String.format(
+              "No storage area configuration files found in directory '%s'. Was looking for files ending in '%s'",
+              dir.getAbsolutePath(), PROPERTIES_FILENAME_SUFFIX);
       throw new StoRMIntializationError(msg);
     }
 
@@ -79,17 +82,18 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
           "Storage area configuration directory does not exist: " + directory.getAbsolutePath());
 
     if (!directory.isDirectory())
-      throw new StoRMIntializationError("Storage area configuration directory is not a directory: "
-          + directory.getAbsolutePath());
+      throw new StoRMIntializationError(
+          "Storage area configuration directory is not a directory: "
+              + directory.getAbsolutePath());
 
     if (!directory.canRead())
       throw new StoRMIntializationError(
           "Storage area configuration directory is not readable: " + directory.getAbsolutePath());
 
     if (!directory.canExecute())
-      throw new StoRMIntializationError("Storage area configuration directory is not traversable: "
-          + directory.getAbsolutePath());
-
+      throw new StoRMIntializationError(
+          "Storage area configuration directory is not traversable: "
+              + directory.getAbsolutePath());
   }
 
   @Override
@@ -97,5 +101,4 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
 
     return saInfos;
   }
-
 }

@@ -4,21 +4,6 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
-import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.milton.http.Request;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.ConflictException;
@@ -29,9 +14,25 @@ import io.milton.resource.DeletableCollectionResource;
 import io.milton.resource.MakeCollectionableResource;
 import io.milton.resource.PutableResource;
 import io.milton.resource.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class StoRMDirectoryResource extends StoRMResource implements PutableResource,
-    MakeCollectionableResource, DeletableCollectionResource, CopyableResource {
+public class StoRMDirectoryResource extends StoRMResource
+    implements PutableResource,
+        MakeCollectionableResource,
+        DeletableCollectionResource,
+        CopyableResource {
 
   private static final Logger logger = LoggerFactory.getLogger(StoRMDirectoryResource.class);
 
@@ -115,8 +116,8 @@ public class StoRMDirectoryResource extends StoRMResource implements PutableReso
   }
 
   @Override
-  public Resource createNew(String fileName, InputStream inputStream, Long length,
-      String contentType)
+  public Resource createNew(
+      String fileName, InputStream inputStream, Long length, String contentType)
       throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
 
     File targetFile = new File(getFile(), fileName);
@@ -145,5 +146,4 @@ public class StoRMDirectoryResource extends StoRMResource implements PutableReso
   public boolean isLockedOutRecursive(Request request) {
     return false;
   }
-
 }

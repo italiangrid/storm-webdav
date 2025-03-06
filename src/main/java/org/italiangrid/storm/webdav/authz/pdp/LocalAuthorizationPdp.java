@@ -10,15 +10,13 @@ import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.per
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.PATH_CLAIM;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.PERMS_CLAIM;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest.Permission;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
@@ -42,8 +40,9 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
   }
 
   private Supplier<IllegalArgumentException> claimNotFound(String claimName) {
-    return () -> new IllegalArgumentException(
-        String.format("Invalid token: '%s' claim not found", claimName));
+    return () ->
+        new IllegalArgumentException(
+            String.format("Invalid token: '%s' claim not found", claimName));
   }
 
   @Override
@@ -61,16 +60,19 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
       return indeterminate();
     }
 
-    final String tokenPath = Optional.ofNullable(token.getToken().getClaimAsString(PATH_CLAIM))
-      .orElseThrow(claimNotFound(PATH_CLAIM));
+    final String tokenPath =
+        Optional.ofNullable(token.getToken().getClaimAsString(PATH_CLAIM))
+            .orElseThrow(claimNotFound(PATH_CLAIM));
 
     final Permission perm =
-        Permission.valueOf(Optional.ofNullable(token.getToken().getClaimAsString(PERMS_CLAIM))
-          .orElseThrow(claimNotFound(PERMS_CLAIM)));
+        Permission.valueOf(
+            Optional.ofNullable(token.getToken().getClaimAsString(PERMS_CLAIM))
+                .orElseThrow(claimNotFound(PERMS_CLAIM)));
 
     final boolean pathMatches = path.equals(tokenPath);
-    final boolean permMatches = ("GET".equals(method) && READ_PERMS.contains(perm))
-        || ("PUT".equals(method) && WRITE_PERMS.contains(perm));
+    final boolean permMatches =
+        ("GET".equals(method) && READ_PERMS.contains(perm))
+            || ("PUT".equals(method) && WRITE_PERMS.contains(perm));
 
     final Optional<String> originIp =
         Optional.ofNullable(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.ORIGIN_CLAIM));
@@ -85,8 +87,12 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
 
     if (LOG.isDebugEnabled()) {
       if (originIp.isPresent()) {
-        LOG.debug("Ok: {}, pathMatches: {}, permMatches: {}, originMatches: {}", ok, pathMatches,
-            permMatches, originMatches);
+        LOG.debug(
+            "Ok: {}, pathMatches: {}, permMatches: {}, originMatches: {}",
+            ok,
+            pathMatches,
+            permMatches,
+            originMatches);
       } else {
         LOG.debug("Ok: {}, pathMatches: {}, permMatches: {}", ok, pathMatches, permMatches);
       }
@@ -98,5 +104,4 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
 
     return permit();
   }
-
 }

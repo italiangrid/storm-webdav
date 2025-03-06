@@ -4,11 +4,10 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.util.List;
-
 import io.milton.http.AuthenticationHandler;
 import io.milton.http.Request;
 import io.milton.resource.Resource;
+import java.util.List;
 
 public class NullAuthenticationHandler implements AuthenticationHandler {
 
@@ -27,10 +26,7 @@ public class NullAuthenticationHandler implements AuthenticationHandler {
   }
 
   @Override
-  public void appendChallenges(Resource resource, Request request,
-    List<String> challenges) {
-
-  }
+  public void appendChallenges(Resource resource, Request request, List<String> challenges) {}
 
   @Override
   public boolean isCompatible(Resource resource, Request request) {
@@ -43,5 +39,4 @@ public class NullAuthenticationHandler implements AuthenticationHandler {
 
     return true;
   }
-
 }

@@ -6,17 +6,15 @@ package org.italiangrid.storm.webdav.config;
 
 import static org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaPoolProperties.ReplicaSelectionPolicy.RANDOM;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
-
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -32,8 +30,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Validated
     public static class TapeWellKnownProperties {
 
-      @NotEmpty
-      String source;
+      @NotEmpty String source;
 
       public String getSource() {
         return source;
@@ -56,7 +53,9 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   public enum ChecksumStrategy {
-    NO_CHECKSUM, EARLY, LATE
+    NO_CHECKSUM,
+    EARLY,
+    LATE
   }
 
   @Validated
@@ -107,7 +106,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
         }
         return true;
       }
-
     }
 
     @Validated
@@ -117,8 +115,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
         RANDOM
       }
 
-      @NotEmpty
-      List<ReplicaEndpointProperties> endpoints = new ArrayList<>();
+      @NotEmpty List<ReplicaEndpointProperties> endpoints = new ArrayList<>();
 
       ReplicaSelectionPolicy policy = RANDOM;
 
@@ -141,8 +138,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     boolean enabled = false;
 
-    @Positive
-    int maxTokenLifetimeSecs = 1200;
+    @Positive int maxTokenLifetimeSecs = 1200;
 
     ReplicaPoolProperties pool = new ReplicaPoolProperties();
 
@@ -169,7 +165,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setPool(ReplicaPoolProperties pool) {
       this.pool = pool;
     }
-
   }
 
   @Validated
@@ -185,7 +180,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setFileBufferSizeBytes(int fileBufferSizeBytes) {
       this.fileBufferSizeBytes = fileBufferSizeBytes;
     }
-
   }
 
   public static class MacaroonFilterProperties {
@@ -212,7 +206,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setEnabled(boolean enabled) {
       this.enabled = enabled;
     }
-
   }
 
   @Validated
@@ -220,8 +213,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     boolean disabled = false;
 
-    @Valid
-    List<FineGrainedAuthzPolicyProperties> policies = new ArrayList<>();
+    @Valid List<FineGrainedAuthzPolicyProperties> policies = new ArrayList<>();
 
     public boolean isDisabled() {
       return disabled;
@@ -242,8 +234,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public static class ServerProperties {
 
-    @Positive
-    int maxIdleTimeMsec = 3600000;
+    @Positive int maxIdleTimeMsec = 3600000;
 
     public int getMaxIdleTimeMsec() {
       return maxIdleTimeMsec;
@@ -264,17 +255,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Max(65536)
     int securePort = 8443;
 
-    @Positive
-    int minConnections = 50;
+    @Positive int minConnections = 50;
 
-    @Positive
-    int maxConnections = 300;
+    @Positive int maxConnections = 300;
 
-    @Positive
-    int maxQueueSize = 900;
+    @Positive int maxQueueSize = 900;
 
-    @Positive
-    int maxIdleTimeMsec = 30000;
+    @Positive int maxIdleTimeMsec = 30000;
 
     int jettyAcceptors = -1;
 
@@ -358,17 +345,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   public static class TLSProperties {
-    @NotBlank
-    String certificatePath;
+    @NotBlank String certificatePath;
 
-    @NotBlank
-    String privateKeyPath;
+    @NotBlank String privateKeyPath;
 
-    @NotBlank
-    String trustAnchorsDir;
+    @NotBlank String trustAnchorsDir;
 
-    @Positive
-    long trustAnchorsRefreshIntervalSecs = 86400;
+    @Positive long trustAnchorsRefreshIntervalSecs = 86400;
 
     boolean requireClientCert = true;
 
@@ -376,8 +359,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     boolean enableHttp2 = false;
 
-    @NotBlank
-    String protocol = "TLS";
+    @NotBlank String protocol = "TLS";
 
     public String getCertificatePath() {
       return certificatePath;
@@ -456,7 +438,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setConfigDir(String configDir) {
       this.configDir = configDir;
     }
-
   }
 
   public static class VoMapFilesProperties {
@@ -499,8 +480,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @NotBlank(message = "Authorization server secret must not be blank")
     String secret;
 
-    @Positive
-    int maxTokenLifetimeSec = 43200;
+    @Positive int maxTokenLifetimeSec = 43200;
 
     public boolean isEnabled() {
       return enabled;
@@ -533,12 +513,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     public void setMaxTokenLifetimeSec(int maxTokenLifetimeSec) {
       this.maxTokenLifetimeSec = maxTokenLifetimeSec;
     }
-
   }
 
   @Valid
   public static class VOMSProperties {
-
 
     public static class VOMSTrustStoreProperties {
 
@@ -562,6 +540,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
         this.refreshIntervalSec = refreshIntervalSec;
       }
     }
+
     @Valid
     public static class VOMSCacheProperties {
 
@@ -639,23 +618,19 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private TapeProperties tape;
 
-  @NotEmpty
-  private List<String> hostnames;
+  @NotEmpty private List<String> hostnames;
 
   public AuthorizationProperties getAuthz() {
     return authz;
   }
 
-
   public void setAuthz(AuthorizationProperties authz) {
     this.authz = authz;
   }
 
-
   public TLSProperties getTls() {
     return tls;
   }
-
 
   public void setTls(TLSProperties tls) {
     this.tls = tls;
@@ -677,26 +652,21 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.connector = connector;
   }
 
-
   public SaProperties getSa() {
     return sa;
   }
-
 
   public void setSa(SaProperties sa) {
     this.sa = sa;
   }
 
-
   public VoMapFilesProperties getVoMapFiles() {
     return voMapFiles;
   }
 
-
   public void setVoMapFiles(VoMapFilesProperties voMapFiles) {
     this.voMapFiles = voMapFiles;
   }
-
 
   @Override
   public int getHTTPSPort() {
@@ -704,13 +674,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return getConnector().getSecurePort();
   }
 
-
   @Override
   public int getHTTPPort() {
 
     return getConnector().getPort();
   }
-
 
   @Override
   public String getCertificatePath() {
@@ -718,20 +686,17 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return getTls().getCertificatePath();
   }
 
-
   @Override
   public String getPrivateKeyPath() {
 
     return getTls().getPrivateKeyPath();
   }
 
-
   @Override
   public String getTrustAnchorsDir() {
 
     return getTls().getTrustAnchorsDir();
   }
-
 
   @Override
   public String getLogConfigurationPath() {
@@ -811,16 +776,13 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     return getTls().isRequireClientCert();
   }
 
-
   public AuthorizationServerProperties getAuthzServer() {
     return authzServer;
   }
 
-
   public void setAuthzServer(AuthorizationServerProperties authzServer) {
     this.authzServer = authzServer;
   }
-
 
   public VOMSProperties getVoms() {
     return voms;
@@ -830,31 +792,25 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.voms = voms;
   }
 
-
   public List<String> getHostnames() {
     return hostnames;
   }
-
 
   public void setHostnames(List<String> hostnames) {
     this.hostnames = hostnames;
   }
 
-
   public ChecksumFilterProperties getChecksumFilter() {
     return checksumFilter;
   }
-
 
   public void setChecksumFilter(ChecksumFilterProperties checksumFilter) {
     this.checksumFilter = checksumFilter;
   }
 
-
   public MacaroonFilterProperties getMacaroonFilter() {
     return macaroonFilter;
   }
-
 
   public void setMacaroonFilter(MacaroonFilterProperties macaroonFilter) {
     this.macaroonFilter = macaroonFilter;
@@ -868,12 +824,10 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.checksumStrategy = checksumStrategy;
   }
 
-
   @Override
   public boolean useConscrypt() {
     return getTls().isUseConscrypt();
   }
-
 
   @Override
   public boolean enableHttp2() {
@@ -888,7 +842,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.buffer = buffer;
   }
 
-
   public RedirectorProperties getRedirector() {
     return redirector;
   }
@@ -897,20 +850,16 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.redirector = redirector;
   }
 
-
   @Override
   public String getTlsProtocol() {
     return getTls().getProtocol();
   }
 
-
   public TapeProperties getTape() {
     return tape;
   }
 
-
   public void setTape(TapeProperties tape) {
     this.tape = tape;
   }
-
 }

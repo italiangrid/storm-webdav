@@ -12,16 +12,17 @@ public abstract class JwtAuthority implements GrantedAuthority {
 
   protected final String authority;
   protected final String issuer;
-  
+
   protected JwtAuthority(String issuer, String authority) {
     this.issuer = issuer;
     this.authority = authority;
   }
-  
+
   @Override
   public String getAuthority() {
     return authority;
   }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -50,12 +51,10 @@ public abstract class JwtAuthority implements GrantedAuthority {
     return true;
   }
 
-  
-
   public String getIssuer() {
     return issuer;
   }
-  
+
   @Override
   public String toString() {
     return getAuthority();

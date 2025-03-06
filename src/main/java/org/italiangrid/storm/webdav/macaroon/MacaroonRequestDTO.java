@@ -5,7 +5,7 @@
 package org.italiangrid.storm.webdav.macaroon;
 
 public class MacaroonRequestDTO {
-  
+
   String validity;
 
   public String getValidity() {

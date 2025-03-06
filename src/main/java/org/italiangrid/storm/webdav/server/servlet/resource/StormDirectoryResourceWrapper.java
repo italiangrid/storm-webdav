@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
@@ -39,8 +38,11 @@ public class StormDirectoryResourceWrapper extends Resource {
   final ServiceConfigurationProperties serviceConfig;
   final String pathInContext;
 
-  public StormDirectoryResourceWrapper(OAuthProperties oauth,
-      ServiceConfigurationProperties serviceConfig, TemplateEngine engine, Resource delegate,
+  public StormDirectoryResourceWrapper(
+      OAuthProperties oauth,
+      ServiceConfigurationProperties serviceConfig,
+      TemplateEngine engine,
+      Resource delegate,
       String pathInContext) {
 
     this.oauthProperties = oauth;
@@ -48,23 +50,18 @@ public class StormDirectoryResourceWrapper extends Resource {
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
     this.pathInContext = pathInContext;
-
   }
 
   // Adapted from
   // https://github.com/jetty/jetty.project/blob/jetty-12.0.x/jetty-core/jetty-server/src/main/java/org/eclipse/jetty/server/ResourceListing.java
   /**
-   * <p>
    * Encode any characters that could break the URI string in an HREF.
-   * </p>
    *
-   * <p>
-   * Such as: {@code <a href="/path/to;<script>Window.alert('XSS'+'%20'+'here');</script>">Link</a>}
-   * </p>
-   * <p>
-   * The above example would parse incorrectly on various browsers as the "<" or '"' characters
+   * <p>Such as: {@code <a
+   * href="/path/to;<script>Window.alert('XSS'+'%20'+'here');</script>">Link</a>}
+   *
+   * <p>The above example would parse incorrectly on various browsers as the "<" or '"' characters
    * would end the href attribute value string prematurely.
-   * </p>
    *
    * @param raw the raw text to encode.
    * @return the defanged text.
@@ -79,8 +76,7 @@ public class StormDirectoryResourceWrapper extends Resource {
         break;
       }
     }
-    if (buf == null)
-      return raw;
+    if (buf == null) return raw;
 
     for (int i = 0; i < raw.length(); i++) {
       char c = raw.charAt(i);
@@ -110,8 +106,10 @@ public class StormDirectoryResourceWrapper extends Resource {
     context.setVariable("title", title);
     context.setVariable("storm", serviceConfig.getHostnames().get(0));
     context.setVariable("authn", SecurityContextHolder.getContext().getAuthentication());
-    context.setVariable("authnSubject", AuthenticationUtils
-      .getPalatableSubject(SecurityContextHolder.getContext().getAuthentication()));
+    context.setVariable(
+        "authnSubject",
+        AuthenticationUtils.getPalatableSubject(
+            SecurityContextHolder.getContext().getAuthentication()));
 
     context.setVariable("oidcEnabled", oauthProperties.isEnableOidc());
 
@@ -124,15 +122,15 @@ public class StormDirectoryResourceWrapper extends Resource {
     List<StormFsResourceView> resources = new ArrayList<>();
 
     for (Resource r : rawListing) {
-      resources.add(StormFsResourceView.builder()
-        .withName(r.getFileName())
-        .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
-        .withIsDirectory(r.isDirectory())
-        .withLastModificationTime(Date.from(r.lastModified()))
-        .withSizeInBytes(r.length())
-        .build());
+      resources.add(
+          StormFsResourceView.builder()
+              .withName(r.getFileName())
+              .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
+              .withIsDirectory(r.isDirectory())
+              .withLastModificationTime(Date.from(r.lastModified()))
+              .withSizeInBytes(r.length())
+              .build());
     }
-
 
     context.setVariable("parentDir", parentDir);
     context.setVariable("resources", resources);

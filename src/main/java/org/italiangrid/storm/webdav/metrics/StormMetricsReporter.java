@@ -4,13 +4,6 @@
 
 package org.italiangrid.storm.webdav.metrics;
 
-import java.util.SortedMap;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
@@ -20,6 +13,11 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
+import java.util.SortedMap;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StormMetricsReporter extends ScheduledReporter {
 
@@ -29,8 +27,8 @@ public class StormMetricsReporter extends ScheduledReporter {
 
   private Long lastCountValue = null;
 
-  private StormMetricsReporter(MetricRegistry registry, MetricFilter filter, TimeUnit rateUnit,
-      TimeUnit durationUnit) {
+  private StormMetricsReporter(
+      MetricRegistry registry, MetricFilter filter, TimeUnit rateUnit, TimeUnit durationUnit) {
 
     super(registry, "storm", filter, rateUnit, durationUnit);
   }
@@ -76,21 +74,26 @@ public class StormMetricsReporter extends ScheduledReporter {
     public StormMetricsReporter build() {
 
       return new StormMetricsReporter(registry, filter, rateUnit, durationUnit);
-
     }
   }
 
-  public StormMetricsReporter(MetricRegistry registry, String name, MetricFilter filter,
-      TimeUnit rateUnit, TimeUnit durationUnit) {
+  public StormMetricsReporter(
+      MetricRegistry registry,
+      String name,
+      MetricFilter filter,
+      TimeUnit rateUnit,
+      TimeUnit durationUnit) {
 
     super(registry, name, filter, rateUnit, durationUnit);
-
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters,
-      SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
+  public void report(
+      SortedMap<String, Gauge> gauges,
+      SortedMap<String, Counter> counters,
+      SortedMap<String, Histogram> histograms,
+      SortedMap<String, Meter> meters,
       SortedMap<String, Timer> timers) {
 
     Gauge<Double> heapUsage = gauges.get("jvm.memory.heap.usage");
@@ -110,18 +113,23 @@ public class StormMetricsReporter extends ScheduledReporter {
 
     logger.info(
         "Heap[usage={}, used={}] Requests[m1_count={}, count={}, max={}, min={}, mean={}, mean_rate={}, m1_rate={}, m5_rate={}, m15_rate={}] Duration_units={}, Rate_units={}",
-        heapUsage.getValue(), heapUsedBytesString, lastMinuteCount, handlerDispatches.getCount(),
-        convertDuration(snapshot.getMax()), convertDuration(snapshot.getMin()),
-        convertDuration(snapshot.getMean()), convertRate(handlerDispatches.getMeanRate()),
+        heapUsage.getValue(),
+        heapUsedBytesString,
+        lastMinuteCount,
+        handlerDispatches.getCount(),
+        convertDuration(snapshot.getMax()),
+        convertDuration(snapshot.getMin()),
+        convertDuration(snapshot.getMean()),
+        convertRate(handlerDispatches.getMeanRate()),
         convertRate(handlerDispatches.getOneMinuteRate()),
         convertRate(handlerDispatches.getFiveMinuteRate()),
-        convertRate(handlerDispatches.getFifteenMinuteRate()), getDurationUnit(), getRateUnit());
-
+        convertRate(handlerDispatches.getFifteenMinuteRate()),
+        getDurationUnit(),
+        getRateUnit());
   }
 
   @Override
   public String getRateUnit() {
     return "events/" + super.getRateUnit();
   }
-
 }

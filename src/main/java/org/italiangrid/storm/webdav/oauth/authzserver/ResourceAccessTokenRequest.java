@@ -17,8 +17,8 @@ public class ResourceAccessTokenRequest {
   final String origin;
   final Integer lifetimeSecs;
 
-  private ResourceAccessTokenRequest(String path, Permission permission, Integer lifetimeSecs,
-      String origin) {
+  private ResourceAccessTokenRequest(
+      String path, Permission permission, Integer lifetimeSecs, String origin) {
     this.path = path;
     this.permission = permission;
     this.lifetimeSecs = lifetimeSecs;
@@ -41,8 +41,8 @@ public class ResourceAccessTokenRequest {
     return origin;
   }
 
-  public static ResourceAccessTokenRequest forPath(String path, Permission permission,
-      Integer lifetime, String origin) {
+  public static ResourceAccessTokenRequest forPath(
+      String path, Permission permission, Integer lifetime, String origin) {
     return new ResourceAccessTokenRequest(path, permission, lifetime, origin);
   }
 }

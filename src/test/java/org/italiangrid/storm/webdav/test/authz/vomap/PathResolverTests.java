@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
@@ -87,13 +86,11 @@ class PathResolverTests {
     for (String name : input.keySet()) {
 
       String pathToTest = "/".concat(name).concat("/testdir");
-      String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
-        .concat("/testdir");
+      String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name)).concat("/testdir");
 
       String rootPath = pathResolver.resolvePath(pathToTest);
       Assert.assertEquals(expectedRootPath, rootPath);
     }
-
   }
 
   @Test
@@ -102,12 +99,10 @@ class PathResolverTests {
     for (String name : input.keySet()) {
 
       String pathToTest = "/".concat(name).concat("/testdir");
-      String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name))
-        .concat("/testdir");
+      String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name)).concat("/testdir");
 
       StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
       Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
     }
   }
-
 }

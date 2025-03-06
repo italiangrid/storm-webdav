@@ -20,5 +20,4 @@ public class AuthzServerMetadataController {
   public AuthzServerMetadata getMetadata() {
     return metadata;
   }
-
 }

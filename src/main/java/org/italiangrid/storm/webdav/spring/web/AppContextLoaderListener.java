@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.spring.web;
 
 import jakarta.servlet.ServletContext;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 
@@ -23,5 +22,4 @@ public class AppContextLoaderListener extends ContextLoaderListener {
 
     return parentContext;
   }
-
 }

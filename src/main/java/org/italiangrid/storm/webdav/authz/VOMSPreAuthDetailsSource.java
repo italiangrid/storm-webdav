@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.authz;
 
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,17 +13,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import javax.security.auth.x500.X500Principal;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.vomap.VOMapDetailsService;
 import org.italiangrid.voms.VOMSAttribute;
 import org.italiangrid.voms.ac.VOMSACValidator;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
-
-import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class VOMSPreAuthDetailsSource
     implements AuthenticationDetailsSource<HttpServletRequest, VOMSAuthenticationDetails> {
@@ -30,8 +27,10 @@ public class VOMSPreAuthDetailsSource
   private final VOMSACValidator validator;
   private final VOMapDetailsService voMapDetailsService;
 
-  public VOMSPreAuthDetailsSource(VOMSACValidator vomsValidator,
-      AuthorizationPolicyService policyService, VOMapDetailsService voMapDetailsService) {
+  public VOMSPreAuthDetailsSource(
+      VOMSACValidator vomsValidator,
+      AuthorizationPolicyService policyService,
+      VOMapDetailsService voMapDetailsService) {
     this.policyService = policyService;
     this.validator = vomsValidator;
     this.voMapDetailsService = voMapDetailsService;
@@ -55,9 +54,7 @@ public class VOMSPreAuthDetailsSource
     authorities.addAll(policyService.getSAPermissions(authorities));
 
     return new VOMSAuthenticationDetails(request, authorities, attributes);
-
   }
-
 
   protected Set<GrantedAuthority> getAuthoritiesFromVoMapFiles(HttpServletRequest request) {
 
@@ -96,8 +93,9 @@ public class VOMSPreAuthDetailsSource
   protected Optional<X509SubjectAuthority> getSubjectAuthority(HttpServletRequest request) {
     Optional<X509Certificate[]> chain = Utils.getCertificateChainFromRequest(request);
     if (chain.isPresent()) {
-      return Optional.of(new X509SubjectAuthority(
-          ProxyUtils.getEndUserCertificate(chain.get()).getSubjectX500Principal().getName()));
+      return Optional.of(
+          new X509SubjectAuthority(
+              ProxyUtils.getEndUserCertificate(chain.get()).getSubjectX500Principal().getName()));
     }
 
     return Optional.empty();
@@ -113,5 +111,4 @@ public class VOMSPreAuthDetailsSource
 
     return Collections.emptyList();
   }
-
 }

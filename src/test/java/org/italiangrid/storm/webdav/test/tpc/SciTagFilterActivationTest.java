@@ -13,35 +13,30 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
-
-import jakarta.servlet.ServletException;
-
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.scitag.SciTag;
+import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
+import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
-import org.italiangrid.storm.webdav.scitag.SciTag;
-import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
 
 @ExtendWith(MockitoExtension.class)
 class SciTagFilterActivationTest extends TransferFilterTestSupport {
-  @TempDir
-  File tempDir;
+  @TempDir File tempDir;
 
   SciTagFilter sciTagFilter;
 
-  @Mock
-  StorageAreaInfo testSa;
+  @Mock StorageAreaInfo testSa;
 
-  @Mock
-  StorageAreaInfo otherSa;
+  @Mock StorageAreaInfo otherSa;
 
   @Override
   @BeforeEach
@@ -86,5 +81,4 @@ class SciTagFilterActivationTest extends TransferFilterTestSupport {
     scitagTransfer.writeStart();
     scitagTransfer.writeEnd();
   }
-
 }

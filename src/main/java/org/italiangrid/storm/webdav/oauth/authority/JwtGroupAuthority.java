@@ -21,7 +21,6 @@ public class JwtGroupAuthority extends JwtAuthority implements Comparable<JwtGro
     return group;
   }
 
-
   @Override
   public int compareTo(JwtGroupAuthority o) {
     if (o.getIssuer().equals(getIssuer())) {
@@ -58,5 +57,4 @@ public class JwtGroupAuthority extends JwtAuthority implements Comparable<JwtGro
     }
     return true;
   }
-
 }

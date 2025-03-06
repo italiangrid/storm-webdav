@@ -10,7 +10,6 @@ import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.URLResolutionError;
 import org.junit.jupiter.api.Test;
@@ -20,23 +19,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class URLServiceTest {
 
-  public static final String[] SERVICE_ALIASES =
-      {"storm.example", "alias.storm.example", "localhost"};
+  public static final String[] SERVICE_ALIASES = {
+    "storm.example", "alias.storm.example", "localhost"
+  };
 
   @Test
   void testEmptyList() {
 
-    assertThrows(IllegalArgumentException.class, () -> {
-      new StaticHostListLocalURLService(Collections.emptyList());
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          new StaticHostListLocalURLService(Collections.emptyList());
+        });
   }
 
   @Test
   void testNullList() {
 
-    assertThrows(NullPointerException.class, () -> {
-      new StaticHostListLocalURLService(null);
-    });
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          new StaticHostListLocalURLService(null);
+        });
   }
 
   @Test
@@ -51,7 +55,6 @@ class URLServiceTest {
     assertThat(service.isLocalURL("file://alias.storm.example"), is(true));
     assertThat(service.isLocalURL("https://localhost"), is(true));
     assertThat(service.isLocalURL("/storage/f"), is(true));
-
   }
 
   @Test
@@ -60,9 +63,10 @@ class URLServiceTest {
     StaticHostListLocalURLService service =
         new StaticHostListLocalURLService(Arrays.asList(SERVICE_ALIASES));
 
-    assertThrows(URLResolutionError.class, () -> {
-      service.isLocalURL("http://example.invalid/sososo[/]");
-    });
-
+    assertThrows(
+        URLResolutionError.class,
+        () -> {
+          service.isLocalURL("http://example.invalid/sososo[/]");
+        });
   }
 }

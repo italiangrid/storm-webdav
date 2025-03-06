@@ -4,17 +4,15 @@
 
 package org.italiangrid.storm.webdav.config;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-
 import org.italiangrid.storm.webdav.authz.pdp.PolicyEffect;
 import org.italiangrid.storm.webdav.config.validation.Principal;
 import org.springframework.validation.annotation.Validated;
@@ -63,26 +61,24 @@ public class FineGrainedAuthzPolicyProperties {
   }
 
   public enum Action {
-    READ, WRITE, DELETE, LIST, ALL
+    READ,
+    WRITE,
+    DELETE,
+    LIST,
+    ALL
   }
 
-  @NotBlank
-  String description;
+  @NotBlank String description;
 
   PolicyEffect effect = PolicyEffect.DENY;
 
-  @NotBlank
-  String sa;
+  @NotBlank String sa;
 
   List<String> paths = new ArrayList<>();
 
-  @NotEmpty
-  @Valid
-  List<PrincipalProperties> principals;
+  @NotEmpty @Valid List<PrincipalProperties> principals;
 
-  @NotEmpty
-  EnumSet<Action> actions;
-
+  @NotEmpty EnumSet<Action> actions;
 
   public String getDescription() {
     return description;

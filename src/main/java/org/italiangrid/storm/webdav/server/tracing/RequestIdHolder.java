@@ -23,7 +23,7 @@ public class RequestIdHolder {
   public static void setRandomId() {
     requestId.set(UUID.randomUUID().toString());
   }
-  
+
   public static void cleanup() {
     requestId.remove();
   }

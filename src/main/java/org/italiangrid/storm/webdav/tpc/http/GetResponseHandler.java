@@ -9,9 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 public class GetResponseHandler extends ResponseHandlerSupport
     implements HttpClientResponseHandler<Boolean> {
 
-
   public static final int DEFAULT_BUFFER_SIZE = 4096;
 
   public static final Logger LOG = LoggerFactory.getLogger(GetResponseHandler.class);
@@ -35,8 +33,12 @@ public class GetResponseHandler extends ResponseHandlerSupport
   final int bufferSize;
   final boolean computeChecksum;
 
-  public GetResponseHandler(GetTransferRequest req, StormCountingOutputStream fs,
-      ExtendedAttributesHelper ah, Map<String, String> mdcContextMap, int bufSiz,
+  public GetResponseHandler(
+      GetTransferRequest req,
+      StormCountingOutputStream fs,
+      ExtendedAttributesHelper ah,
+      Map<String, String> mdcContextMap,
+      int bufSiz,
       boolean computeChecksum) {
 
     super(mdcContextMap);
@@ -47,8 +49,8 @@ public class GetResponseHandler extends ResponseHandlerSupport
     this.computeChecksum = computeChecksum;
   }
 
-  public GetResponseHandler(GetTransferRequest req, StormCountingOutputStream fs,
-      ExtendedAttributesHelper ah) {
+  public GetResponseHandler(
+      GetTransferRequest req, StormCountingOutputStream fs, ExtendedAttributesHelper ah) {
     this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true);
   }
 
@@ -69,7 +71,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
       }
     }
   }
-
 
   @Override
   public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
@@ -96,8 +97,8 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
         writeEntityToStream(entity, os);
         if (computeChecksum) {
-          attributesHelper.setChecksumAttribute(fileStream.getPath(),
-              checkedStream.getChecksumValue());
+          attributesHelper.setChecksumAttribute(
+              fileStream.getPath(), checkedStream.getChecksumValue());
         }
       }
 
@@ -106,9 +107,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
     } finally {
       fileStream.close();
       EntityUtils.consumeQuietly(entity);
-
     }
-
   }
-
 }

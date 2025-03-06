@@ -4,12 +4,10 @@
 
 package org.italiangrid.storm.webdav.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +20,11 @@ public class OAuthProperties {
 
   public static class AuthorizationServer {
 
-    @NotBlank
-    String name;
+    @NotBlank String name;
 
-    @URL
-    String issuer;
+    @URL String issuer;
 
-    @URL
-    String jwkUri;
+    @URL String jwkUri;
 
     boolean enforceAudienceChecks = false;
 
@@ -66,7 +61,6 @@ public class OAuthProperties {
     public List<String> getAudiences() {
       return audiences;
     }
-
 
     public void setEnforceAudienceChecks(boolean enforceAudienceChecks) {
       this.enforceAudienceChecks = enforceAudienceChecks;

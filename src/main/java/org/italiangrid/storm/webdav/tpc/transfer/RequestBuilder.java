@@ -4,11 +4,9 @@
 
 package org.italiangrid.storm.webdav.tpc.transfer;
 
-import java.net.URI;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
+import java.net.URI;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 
 public abstract class RequestBuilder<T> {

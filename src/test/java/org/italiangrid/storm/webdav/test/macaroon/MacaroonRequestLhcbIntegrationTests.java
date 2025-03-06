@@ -8,12 +8,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
-
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
@@ -31,8 +31,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -56,17 +54,13 @@ public class MacaroonRequestLhcbIntegrationTests {
     }
   }
 
-  @Autowired
-  MockMvc mvc;
+  @Autowired MockMvc mvc;
 
-  @Autowired
-  VOMSAuthenticationFilter filter;
+  @Autowired VOMSAuthenticationFilter filter;
 
-  @Autowired
-  ServiceConfigurationProperties props;
+  @Autowired ServiceConfigurationProperties props;
 
-  @Autowired
-  ObjectMapper mapper;
+  @Autowired ObjectMapper mapper;
 
   @BeforeEach
   void setup() {
@@ -74,13 +68,15 @@ public class MacaroonRequestLhcbIntegrationTests {
   }
 
   @Test
-  @WithMockVOMSUser(saReadPermissions = {"lhcb_disk"}, vos = {"lhcb"})
+  @WithMockVOMSUser(
+      saReadPermissions = {"lhcb_disk"},
+      vos = {"lhcb"})
   void macaroonIssuedWithNoWritePermissions() throws Exception {
-    mvc
-      .perform(post("/disk/lhcb/source").contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
-        .content(EMPTY_JSON_OBJECT))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.macaroon").exists());
+    mvc.perform(
+            post("/disk/lhcb/source")
+                .contentType(MacaroonRequestFilter.MACAROON_REQUEST_CONTENT_TYPE)
+                .content(EMPTY_JSON_OBJECT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.macaroon").exists());
   }
-
 }

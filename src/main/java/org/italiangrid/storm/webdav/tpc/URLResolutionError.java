@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.tpc;
 
 public class URLResolutionError extends RuntimeException {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public URLResolutionError(String message) {
@@ -18,5 +16,4 @@ public class URLResolutionError extends RuntimeException {
   public URLResolutionError(Throwable cause) {
     super(cause);
   }
-
 }

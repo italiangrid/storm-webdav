@@ -11,5 +11,4 @@ public interface TestUtils {
   default Supplier<AssertionError> assertionError(String msg) {
     return () -> new AssertionError(msg);
   }
-
 }

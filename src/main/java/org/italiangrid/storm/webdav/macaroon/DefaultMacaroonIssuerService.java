@@ -4,10 +4,10 @@
 
 package org.italiangrid.storm.webdav.macaroon;
 
+import com.nimbusds.jwt.SignedJWT;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
-
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
 import org.slf4j.Logger;
@@ -18,10 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.nimbusds.jwt.SignedJWT;
-
 @Component
-@ConditionalOnExpression("${storm.macaroon-filter.enabled:false} && ${storm.authz-server.enabled:false}")
+@ConditionalOnExpression(
+    "${storm.macaroon-filter.enabled:false} && ${storm.authz-server.enabled:false}")
 public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
 
   public static final Logger LOG = LoggerFactory.getLogger(DefaultMacaroonIssuerService.class);
@@ -59,5 +58,4 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
 
     return response;
   }
-
 }

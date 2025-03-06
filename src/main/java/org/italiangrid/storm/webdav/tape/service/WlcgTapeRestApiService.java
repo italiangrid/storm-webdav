@@ -4,25 +4,26 @@
 
 package org.italiangrid.storm.webdav.tape.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.tape.model.WlcgTapeRestApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Component
 public class WlcgTapeRestApiService {
 
   public static final Logger LOG = LoggerFactory.getLogger(WlcgTapeRestApiService.class);
 
-  private static final String LOG_INFO_LOADING = "Loading WLCG Tape REST API well-known endpoint from file '{}' ...";
-  private static final String LOG_ERROR_PREFIX = "Error loading WLCG Tape REST API well-known endpoint from file: {}";
-  private static final String LOG_INFO_NOFILEFOUND = "No WLCG Tape REST API well-known file found at '{}'";
+  private static final String LOG_INFO_LOADING =
+      "Loading WLCG Tape REST API well-known endpoint from file '{}' ...";
+  private static final String LOG_ERROR_PREFIX =
+      "Error loading WLCG Tape REST API well-known endpoint from file: {}";
+  private static final String LOG_INFO_NOFILEFOUND =
+      "No WLCG Tape REST API well-known file found at '{}'";
 
   private WlcgTapeRestApi metadata;
 
@@ -45,5 +46,4 @@ public class WlcgTapeRestApiService {
   public WlcgTapeRestApi getMetadata() {
     return metadata;
   }
-
 }

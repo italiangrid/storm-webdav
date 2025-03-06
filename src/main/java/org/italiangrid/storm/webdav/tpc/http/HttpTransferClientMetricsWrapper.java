@@ -6,16 +6,15 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatusCallback;
-
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 public class HttpTransferClientMetricsWrapper implements TransferClient {
 
@@ -50,7 +49,6 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
 
     pushSuccesses = registry.meter(name(METRIC_NAME, "push.ok-count"));
     pushErrors = registry.meter(name(METRIC_NAME, "push.error-count"));
-
   }
 
   private void updateRequestOutcome(GetTransferRequest request) {
@@ -72,17 +70,21 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
 
   private void updateThroughput(GetTransferRequest request) {
     if (request.endedSuccesfully()) {
-      request.transferThroughputBytesPerSec()
-        .ifPresent(transferThroughputBytesPerSec -> pullThroughput
-          .update(transferThroughputBytesPerSec.longValue()));
+      request
+          .transferThroughputBytesPerSec()
+          .ifPresent(
+              transferThroughputBytesPerSec ->
+                  pullThroughput.update(transferThroughputBytesPerSec.longValue()));
     }
   }
 
   private void updateThroughput(PutTransferRequest request) {
     if (request.endedSuccesfully()) {
-      request.transferThroughputBytesPerSec()
-        .ifPresent(transferThroughputBytesPerSec -> pushThroughput
-          .update(transferThroughputBytesPerSec.longValue()));
+      request
+          .transferThroughputBytesPerSec()
+          .ifPresent(
+              transferThroughputBytesPerSec ->
+                  pushThroughput.update(transferThroughputBytesPerSec.longValue()));
     }
   }
 
@@ -108,7 +110,6 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
       context.stop();
       updateStats(request, status);
     }
-
   }
 
   @Override
@@ -124,5 +125,4 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
       updateStats(request, status);
     }
   }
-
 }

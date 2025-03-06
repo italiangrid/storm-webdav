@@ -6,11 +6,9 @@ package org.italiangrid.storm.webdav.authz.util;
 
 import static java.util.Arrays.asList;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
 import java.util.TreeSet;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -46,5 +44,4 @@ public class WriteHttpMethodMatcher implements RequestMatcher {
   public String toString() {
     return "WriteHttpMethodMatcher [delegate=" + delegate + "]";
   }
-
 }

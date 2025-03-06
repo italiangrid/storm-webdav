@@ -8,7 +8,6 @@ public class MacaroonResponseDTO {
 
   private String macaroon;
 
-
   public String getMacaroon() {
     return macaroon;
   }
@@ -16,5 +15,4 @@ public class MacaroonResponseDTO {
   public void setMacaroon(String macaroon) {
     this.macaroon = macaroon;
   }
-  
 }

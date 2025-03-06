@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.authz.managers;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -23,8 +22,8 @@ public class ConsensusBasedManager implements AuthorizationManager<RequestAuthor
 
   private final String name;
 
-  public ConsensusBasedManager(String name,
-      List<AuthorizationManager<RequestAuthorizationContext>> managers) {
+  public ConsensusBasedManager(
+      String name, List<AuthorizationManager<RequestAuthorizationContext>> managers) {
     this.name = name;
     this.managers = managers;
   }
@@ -34,17 +33,19 @@ public class ConsensusBasedManager implements AuthorizationManager<RequestAuthor
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication,
-        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+    if (authorize(authentication, requestAuthorizationContext)
+        instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
     return null;
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
     int grant = 0;
     int notGrant = 0;

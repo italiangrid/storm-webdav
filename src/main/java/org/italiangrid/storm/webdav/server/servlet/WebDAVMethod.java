@@ -5,5 +5,14 @@
 package org.italiangrid.storm.webdav.server.servlet;
 
 public enum WebDAVMethod {
-  OPTIONS, PUT, DELETE, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK
+  OPTIONS,
+  PUT,
+  DELETE,
+  PROPFIND,
+  PROPPATCH,
+  MKCOL,
+  MOVE,
+  COPY,
+  LOCK,
+  UNLOCK
 }

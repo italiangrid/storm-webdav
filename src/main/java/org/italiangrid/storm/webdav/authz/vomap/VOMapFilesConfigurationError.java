@@ -8,9 +8,7 @@ import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 
 public class VOMapFilesConfigurationError extends StoRMIntializationError {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public VOMapFilesConfigurationError(String message) {
@@ -20,5 +18,4 @@ public class VOMapFilesConfigurationError extends StoRMIntializationError {
   public VOMapFilesConfigurationError(Throwable cause) {
     super(cause);
   }
-
 }

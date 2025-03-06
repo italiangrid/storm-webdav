@@ -4,13 +4,20 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver.jwt;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
@@ -20,15 +27,6 @@ import org.italiangrid.storm.webdav.oauth.authzserver.ResourceAccessTokenRequest
 import org.italiangrid.storm.webdav.oauth.authzserver.TokenCreationError;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.KeyLengthException;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 
 public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
 
@@ -45,9 +43,11 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
   final JWSSigner signer;
   final PrincipalHelper helper;
 
-
-  public DefaultJwtTokenIssuer(Clock clock, AuthorizationServerProperties props,
-      AuthorizationPolicyService ps, PrincipalHelper principalHelper) {
+  public DefaultJwtTokenIssuer(
+      Clock clock,
+      AuthorizationServerProperties props,
+      AuthorizationPolicyService ps,
+      PrincipalHelper principalHelper) {
 
     this.clock = clock;
     this.properties = props;
@@ -72,8 +72,8 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     return Optional.empty();
   }
 
-  protected Date computeTokenExpirationTimestamp(AccessTokenRequest request,
-      Authentication authentication) {
+  protected Date computeTokenExpirationTimestamp(
+      AccessTokenRequest request, Authentication authentication) {
 
     Optional<Instant> requestedExpiration = Optional.empty();
 
@@ -97,7 +97,6 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
 
     return Date.from(expiration);
   }
-
 
   protected Date computeResourceTokenExpiration(ResourceAccessTokenRequest request) {
     Instant now = clock.instant();
@@ -135,8 +134,8 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
   }
 
   @Override
-  public SignedJWT createResourceAccessToken(ResourceAccessTokenRequest request,
-      Authentication authentication) {
+  public SignedJWT createResourceAccessToken(
+      ResourceAccessTokenRequest request, Authentication authentication) {
 
     JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
     claimsSet.issuer(properties.getIssuer());
@@ -158,5 +157,4 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     }
     return signedJWT;
   }
-
 }

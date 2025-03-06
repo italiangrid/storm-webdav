@@ -12,17 +12,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.italiangrid.storm.webdav.redirector.RedirectFilter;
 import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -41,29 +39,21 @@ public class RedirectFilterTests extends RedirectorTestSupport {
   public static final String REDIRECTED_URL =
       "http://redirected.org/example/file?access_token=123456";
 
-  @Mock
-  HttpServletRequest request;
+  @Mock HttpServletRequest request;
 
-  @Mock
-  HttpServletResponse response;
+  @Mock HttpServletResponse response;
 
-  @Mock
-  FilterChain filterChain;
+  @Mock FilterChain filterChain;
 
-  @Mock
-  PathResolver pathResolver;
+  @Mock PathResolver pathResolver;
 
-  @Mock
-  RedirectionService redirectionService;
+  @Mock RedirectionService redirectionService;
 
-  @Mock
-  Path path;
+  @Mock Path path;
 
-  @Mock
-  File file;
+  @Mock File file;
 
-  @Captor
-  ArgumentCaptor<String> redirectUrl;
+  @Captor ArgumentCaptor<String> redirectUrl;
 
   RedirectFilter filter;
 
@@ -77,8 +67,9 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     lenient().when(pathResolver.getPath("/example/file")).thenReturn(path);
     lenient().when(path.toFile()).thenReturn(file);
     lenient().when(file.isFile()).thenReturn(true);
-    lenient().when(redirectionService.buildRedirect(Mockito.any(), Mockito.any(), Mockito.any()))
-      .thenReturn("http://redirected.org/example/file?access_token=123456");
+    lenient()
+        .when(redirectionService.buildRedirect(Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn("http://redirected.org/example/file?access_token=123456");
   }
 
   @Test
@@ -88,7 +79,6 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
@@ -98,7 +88,6 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
@@ -108,7 +97,6 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
@@ -121,7 +109,6 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
@@ -132,7 +119,6 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
@@ -143,26 +129,18 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verifyNoInteractions(redirectionService);
     verify(filterChain).doFilter(request, response);
-
   }
 
   @Test
   void filterSendsRedirect() throws IOException, ServletException {
 
-
     filter.doFilter(request, response, filterChain);
-    verify(redirectionService).buildRedirect(Mockito.any(), Mockito.eq(request),
-        Mockito.eq(response));
+    verify(redirectionService)
+        .buildRedirect(Mockito.any(), Mockito.eq(request), Mockito.eq(response));
     verify(response).setStatus(SC_TEMPORARY_REDIRECT);
     verify(response).setHeader(Mockito.eq("Location"), redirectUrl.capture());
 
     assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));
     verifyNoInteractions(filterChain);
-
-
-
   }
-
-
-
 }

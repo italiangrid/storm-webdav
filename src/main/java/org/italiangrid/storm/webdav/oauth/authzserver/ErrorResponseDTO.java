@@ -42,9 +42,7 @@ public class ErrorResponseDTO {
     this.errorDescription = errorDescription;
   }
 
-
   public static ErrorResponseDTO from(String error, String errorDescription) {
     return new ErrorResponseDTO(error, errorDescription);
   }
-
 }

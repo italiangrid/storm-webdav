@@ -4,10 +4,10 @@
 
 package org.italiangrid.storm.webdav.server.servlet;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
+import io.milton.http.HttpManager;
+import io.milton.http.Request;
+import io.milton.http.Response;
+import io.milton.servlet.MiltonServlet;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -17,23 +17,20 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
 import org.italiangrid.storm.webdav.milton.StoRMMiltonRequest;
 import org.italiangrid.storm.webdav.milton.StoRMResourceFactory;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
-import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.milton.http.HttpManager;
-import io.milton.http.Request;
-import io.milton.http.Response;
-import io.milton.servlet.MiltonServlet;
 
 public class MiltonFilter implements Filter {
 
@@ -60,8 +57,11 @@ public class MiltonFilter implements Filter {
 
   private final ReplaceContentStrategy rcs;
 
-  public MiltonFilter(FilesystemAccess fsAccess, ExtendedAttributesHelper attrsHelper,
-      PathResolver resolver, ReplaceContentStrategy rcs) {
+  public MiltonFilter(
+      FilesystemAccess fsAccess,
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      ReplaceContentStrategy rcs) {
 
     this.filesystemAccess = fsAccess;
     this.attrsHelper = attrsHelper;
@@ -79,7 +79,6 @@ public class MiltonFilter implements Filter {
     builder.setResourceFactory(resourceFactory);
 
     miltonHTTPManager = builder.buildHttpManager();
-
   }
 
   @Override
@@ -90,7 +89,6 @@ public class MiltonFilter implements Filter {
     if (miltonHTTPManager == null) {
       initMiltonHTTPManager(servletContext);
     }
-
   }
 
   private boolean isWebDAVMethod(ServletRequest request) {
@@ -122,8 +120,13 @@ public class MiltonFilter implements Filter {
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
       SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
       if (scitag != null) {
-        SciTagTransfer scitagTransfer = new SciTagTransfer(scitag, request.getLocalAddr(),
-            request.getLocalPort(), request.getRemoteAddr(), request.getRemotePort());
+        SciTagTransfer scitagTransfer =
+            new SciTagTransfer(
+                scitag,
+                request.getLocalAddr(),
+                request.getLocalPort(),
+                request.getRemoteAddr(),
+                request.getRemotePort());
         scitagTransfer.writeStart();
         request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
       }
@@ -147,9 +150,7 @@ public class MiltonFilter implements Filter {
         LOG.error(e.getMessage(), e);
         throw new RuntimeException(e.getMessage(), e);
       }
-
     }
-
   }
 
   public void setMiltonHTTPManager(HttpManager miltonHTTPManager) {
@@ -157,8 +158,5 @@ public class MiltonFilter implements Filter {
   }
 
   @Override
-  public void destroy() {
-
-  }
-
+  public void destroy() {}
 }

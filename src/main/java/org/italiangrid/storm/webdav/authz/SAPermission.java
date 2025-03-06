@@ -10,9 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 public class SAPermission implements GrantedAuthority, Comparable<SAPermission> {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   private static final String READ_PERM = "SA_READ(%s)";
@@ -51,7 +49,6 @@ public class SAPermission implements GrantedAuthority, Comparable<SAPermission> 
   public int compareTo(SAPermission that) {
 
     return authority.compareTo(that.authority);
-
   }
 
   @Override

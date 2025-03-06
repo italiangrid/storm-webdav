@@ -13,5 +13,4 @@ public interface TransferClient {
 
   void handle(PutTransferRequest request, TransferStatusCallback status)
       throws ClientProtocolException;
-
 }

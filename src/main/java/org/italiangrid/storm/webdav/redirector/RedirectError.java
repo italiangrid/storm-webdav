@@ -8,9 +8,7 @@ import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 
 public class RedirectError extends StoRMWebDAVError {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public RedirectError() {
@@ -22,5 +20,4 @@ public class RedirectError extends StoRMWebDAVError {
     super(message);
     // TODO Auto-generated constructor stub
   }
-
 }

@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.tpc;
 
 public interface LocalURLService {
-  
-  public boolean isLocalURL(String url);
 
+  public boolean isLocalURL(String url);
 }

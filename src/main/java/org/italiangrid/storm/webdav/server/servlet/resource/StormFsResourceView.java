@@ -37,31 +37,25 @@ public class StormFsResourceView {
     return name;
   }
 
-
   public boolean isDirectory() {
     return isDirectory;
   }
-
 
   public String getPath() {
     return path;
   }
 
-
   public long getSizeInBytes() {
     return sizeInBytes;
   }
-
 
   public Date getLastModificationTime() {
     return lastModificationTime;
   }
 
-
   public Date getCreationTime() {
     return creationTime;
   }
-
 
   public static Builder builder() {
     return new Builder();
@@ -81,7 +75,6 @@ public class StormFsResourceView {
       this.name = name;
       return this;
     }
-
 
     public Builder withIsDirectory(boolean isDirectory) {
       this.isDirectory = isDirectory;
@@ -111,8 +104,5 @@ public class StormFsResourceView {
     public StormFsResourceView build() {
       return new StormFsResourceView(this);
     }
-
-
   }
-
 }

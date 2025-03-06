@@ -8,9 +8,7 @@ import java.io.File;
 
 public class Utils {
 
-  private Utils() {
-
-  }
+  private Utils() {}
 
   public static String joinPaths(String p1, String p2) {
 

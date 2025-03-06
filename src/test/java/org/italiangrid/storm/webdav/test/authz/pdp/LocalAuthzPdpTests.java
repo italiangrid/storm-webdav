@@ -13,12 +13,10 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision;
@@ -43,27 +41,19 @@ public class LocalAuthzPdpTests {
   public static final String REMOTE_ADDR = "192.168.1.1";
   public static final String ANOTHER_REMOTE_ADDR = "192.168.1.2";
 
-  @Mock
-  PathResolver pathResolver;
+  @Mock PathResolver pathResolver;
 
-  @Mock
-  LocalURLService localUrlService;
+  @Mock LocalURLService localUrlService;
 
-  @Mock
-  Enumeration<String> requestHeaderNames;
+  @Mock Enumeration<String> requestHeaderNames;
 
-  @Spy
-  ServiceConfigurationProperties config = new ServiceConfigurationProperties();
+  @Spy ServiceConfigurationProperties config = new ServiceConfigurationProperties();
 
+  @Mock HttpServletRequest request;
 
-  @Mock
-  HttpServletRequest request;
+  @Mock Jwt jwt;
 
-  @Mock
-  Jwt jwt;
-
-  @Mock
-  StorageAreaInfo sa;
+  @Mock StorageAreaInfo sa;
 
   JwtAuthenticationToken jwtAuth;
 
@@ -85,16 +75,18 @@ public class LocalAuthzPdpTests {
     lenient().when(request.getPathInfo()).thenReturn("test/example");
     lenient().when(request.getMethod()).thenReturn("GET");
     pdp = new LocalAuthorizationPdp(config);
-
   }
 
   @Test
   void noPathRaisesException() {
 
     when(jwt.getClaimAsString("path")).thenReturn(null);
-    Exception e = assertThrows(IllegalArgumentException.class, () -> {
-      pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
-    });
+    Exception e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+            });
     assertThat(e.getMessage(), containsString("'path' claim not found"));
   }
 
@@ -102,9 +94,12 @@ public class LocalAuthzPdpTests {
   void noPermsRaisesException() {
 
     when(jwt.getClaimAsString("perms")).thenReturn(null);
-    Exception e = assertThrows(IllegalArgumentException.class, () -> {
-      pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
-    });
+    Exception e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+            });
     assertThat(e.getMessage(), containsString("'perms' claim not found"));
   }
 
@@ -146,5 +141,4 @@ public class LocalAuthzPdpTests {
 
     assertThat(result.getDecision(), is(Decision.PERMIT));
   }
-
 }

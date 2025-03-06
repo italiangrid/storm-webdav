@@ -6,17 +6,14 @@ package org.italiangrid.storm.webdav.oauth.utils;
 
 public class OidcConfigurationResolutionError extends RuntimeException {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public OidcConfigurationResolutionError(String message) {
     super(message);
   }
-  
+
   public OidcConfigurationResolutionError(String message, Throwable cause) {
     super(message, cause);
-
   }
 }

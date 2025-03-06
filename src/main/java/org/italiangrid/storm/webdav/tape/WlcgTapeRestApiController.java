@@ -30,5 +30,4 @@ public class WlcgTapeRestApiController {
     }
     return metadata;
   }
-  
 }

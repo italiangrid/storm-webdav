@@ -6,13 +6,11 @@ package org.italiangrid.storm.webdav.tpc.utils;
 
 import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 
+import com.google.common.io.CountingOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import org.apache.hc.core5.http.io.entity.FileEntity;
-
-import com.google.common.io.CountingOutputStream;
 
 public class CountingFileEntity extends FileEntity implements Countable {
 
@@ -31,7 +29,6 @@ public class CountingFileEntity extends FileEntity implements Countable {
     return os.getCount();
   }
 
-
   @Override
   public void writeTo(OutputStream outstream) throws IOException {
     os = new CountingOutputStream(outstream);
@@ -41,5 +38,4 @@ public class CountingFileEntity extends FileEntity implements Countable {
   public static CountingFileEntity create(File f) {
     return new CountingFileEntity(f);
   }
-
 }

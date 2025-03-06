@@ -6,12 +6,6 @@ package org.italiangrid.storm.webdav.tpc;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_ACCEPTED;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.time.Clock;
-import java.util.Optional;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +13,11 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.time.Clock;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
@@ -51,8 +49,13 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   final TransferClient client;
 
-  public TransferFilter(Clock clock, TransferClient c, PathResolver resolver, LocalURLService lus,
-      boolean verifyChecksum, long enableExpectContinueThreshold) {
+  public TransferFilter(
+      Clock clock,
+      TransferClient c,
+      PathResolver resolver,
+      LocalURLService lus,
+      boolean verifyChecksum,
+      long enableExpectContinueThreshold) {
     super(clock, resolver, lus, verifyChecksum, enableExpectContinueThreshold);
     client = c;
   }
@@ -86,7 +89,6 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     } else {
       chain.doFilter(request, response);
     }
-
   }
 
   protected void handleTpc(HttpServletRequest request, HttpServletResponse response)
@@ -139,8 +141,10 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     if (LOG.isInfoEnabled()) {
       LOG.info(
           "Pull third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
-          req.remoteURI(), req.path(),
-          req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER), req.uuid());
+          req.remoteURI(),
+          req.path(),
+          req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER),
+          req.uuid());
     }
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
@@ -151,8 +155,10 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     if (LOG.isInfoEnabled()) {
       LOG.info(
           "Push third-party transfer requested: Source: {}, Destination: {}, hasAuthorizationHeader: {}, id: {}",
-          req.path(), req.remoteURI(),
-          req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER), req.uuid());
+          req.path(),
+          req.remoteURI(),
+          req.transferHeaders().containsKey(TransferConstants.AUTHORIZATION_HEADER),
+          req.uuid());
     }
     if (LOG.isDebugEnabled()) {
       LOG.debug("{}", req);
@@ -172,54 +178,75 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
   }
 
   protected void logTransferDone(GetTransferRequest req) {
-    req.lastTransferStatus().ifPresent(lastStatus -> {
-      if (TransferStatus.Status.DONE.equals(lastStatus.getStatus())) {
-        if (LOG.isInfoEnabled()) {
-          LOG.info(
-              "Pull third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
-              lastStatus, req.remoteURI(), req.path(), req.bytesTransferred(),
-              req.duration().toMillis(), getUserFriendlyThroughputString(req), req.uuid());
-        }
-      } else {
-        LOG.warn("Pull third-party transfer completed: {}. Source: {}, Destination: {}", lastStatus,
-            req.remoteURI(), req.path());
-      }
-    });
+    req.lastTransferStatus()
+        .ifPresent(
+            lastStatus -> {
+              if (TransferStatus.Status.DONE.equals(lastStatus.getStatus())) {
+                if (LOG.isInfoEnabled()) {
+                  LOG.info(
+                      "Pull third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
+                      lastStatus,
+                      req.remoteURI(),
+                      req.path(),
+                      req.bytesTransferred(),
+                      req.duration().toMillis(),
+                      getUserFriendlyThroughputString(req),
+                      req.uuid());
+                }
+              } else {
+                LOG.warn(
+                    "Pull third-party transfer completed: {}. Source: {}, Destination: {}",
+                    lastStatus,
+                    req.remoteURI(),
+                    req.path());
+              }
+            });
   }
 
   protected void logTransferDone(PutTransferRequest req) {
     if (LOG.isInfoEnabled()) {
       req.lastTransferStatus()
-        .ifPresent(lastTransferStatus -> LOG.info(
-            "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
-            lastTransferStatus, req.path(), req.remoteURI(), req.bytesTransferred(),
-            req.duration().toMillis(), getUserFriendlyThroughputString(req), req.uuid()));
+          .ifPresent(
+              lastTransferStatus ->
+                  LOG.info(
+                      "Push third-party transfer completed: {}. Source: {}, Destination: {}, Bytes transferred: {}, Duration (msec): {}, Throughput: {}/sec, id: {}",
+                      lastTransferStatus,
+                      req.path(),
+                      req.remoteURI(),
+                      req.bytesTransferred(),
+                      req.duration().toMillis(),
+                      getUserFriendlyThroughputString(req),
+                      req.uuid()));
     }
   }
 
   protected void logTransferException(TransferRequest request, Exception e) {
-    LOG.warn("Third-party transfer {} terminated with an error: {} - {}", request.uuid(),
-        e.getClass().getName(), e.getMessage());
+    LOG.warn(
+        "Third-party transfer {} terminated with an error: {} - {}",
+        request.uuid(),
+        e.getClass().getName(),
+        e.getMessage());
     if (LOG.isDebugEnabled()) {
       LOG.warn(e.getMessage(), e);
     }
   }
 
-  protected void handlePullCopy(HttpServletRequest request, HttpServletResponse response,
-      SciTag scitag) throws IOException {
+  protected void handlePullCopy(
+      HttpServletRequest request, HttpServletResponse response, SciTag scitag) throws IOException {
 
     URI uri = URI.create(request.getHeader(TransferConstants.SOURCE_HEADER));
     String path = getScopedPathInfo(request);
 
-    GetTransferRequest xferRequest = GetTransferRequestBuilder.create()
-      .uuid(RequestIdHolder.getRequestId())
-      .uri(uri)
-      .path(path)
-      .headers(getTransferHeaders(request, response))
-      .scitag(scitag)
-      .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
-      .overwrite(overwriteRequested(request))
-      .build();
+    GetTransferRequest xferRequest =
+        GetTransferRequestBuilder.create()
+            .uuid(RequestIdHolder.getRequestId())
+            .uri(uri)
+            .path(path)
+            .headers(getTransferHeaders(request, response))
+            .scitag(scitag)
+            .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
+            .overwrite(overwriteRequested(request))
+            .build();
 
     logTransferStart(xferRequest);
 
@@ -245,20 +272,21 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
-  protected void handlePushCopy(HttpServletRequest request, HttpServletResponse response,
-      SciTag scitag) throws IOException {
+  protected void handlePushCopy(
+      HttpServletRequest request, HttpServletResponse response, SciTag scitag) throws IOException {
     URI uri = URI.create(request.getHeader(TransferConstants.DESTINATION_HEADER));
     String path = getScopedPathInfo(request);
 
-    PutTransferRequest xferRequest = PutTransferRequestBuilder.create()
-      .uuid(RequestIdHolder.getRequestId())
-      .uri(uri)
-      .path(path)
-      .headers(getTransferHeaders(request, response))
-      .scitag(scitag)
-      .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
-      .overwrite(overwriteRequested(request))
-      .build();
+    PutTransferRequest xferRequest =
+        PutTransferRequestBuilder.create()
+            .uuid(RequestIdHolder.getRequestId())
+            .uri(uri)
+            .path(path)
+            .headers(getTransferHeaders(request, response))
+            .scitag(scitag)
+            .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
+            .overwrite(overwriteRequested(request))
+            .build();
 
     logTransferStart(xferRequest);
 
@@ -283,5 +311,4 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       logTransferDone(xferRequest);
     }
   }
-
 }

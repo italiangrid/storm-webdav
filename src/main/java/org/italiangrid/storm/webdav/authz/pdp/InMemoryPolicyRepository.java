@@ -9,6 +9,7 @@ import java.util.List;
 public class InMemoryPolicyRepository implements PathAuthorizationPolicyRepository {
 
   private final List<PathAuthorizationPolicy> policies;
+
   public InMemoryPolicyRepository(List<PathAuthorizationPolicy> policies) {
     this.policies = policies;
   }
@@ -17,5 +18,4 @@ public class InMemoryPolicyRepository implements PathAuthorizationPolicyReposito
   public List<PathAuthorizationPolicy> getPolicies() {
     return policies;
   }
-
 }

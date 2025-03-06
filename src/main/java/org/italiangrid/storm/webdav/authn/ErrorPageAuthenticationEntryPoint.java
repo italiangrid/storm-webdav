@@ -4,15 +4,13 @@
 
 package org.italiangrid.storm.webdav.authn;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -27,8 +25,11 @@ public class ErrorPageAuthenticationEntryPoint implements AuthenticationEntryPoi
   static final String ERROR_PAGE = "/errors/401";
 
   @Override
-  public void commence(HttpServletRequest request, HttpServletResponse response,
-      AuthenticationException authException) throws IOException, ServletException {
+  public void commence(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AuthenticationException authException)
+      throws IOException, ServletException {
 
     HttpStatus status = HttpStatus.UNAUTHORIZED;
     Map<String, String> parameters = new LinkedHashMap<>();
@@ -64,5 +65,4 @@ public class ErrorPageAuthenticationEntryPoint implements AuthenticationEntryPoi
       dispatcher.forward(request, response);
     }
   }
-
 }

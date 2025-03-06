@@ -8,8 +8,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,15 +16,13 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MacaroonRequestFilter implements Filter {
 
@@ -59,11 +56,12 @@ public class MacaroonRequestFilter implements Filter {
     }
   }
 
-  private void processMacaroonRequest(HttpServletRequest httpRequest,
-      HttpServletResponse httpResponse) throws IOException {
+  private void processMacaroonRequest(
+      HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
 
     if (!httpRequest.getMethod().equals(HttpMethod.POST.name())) {
-      httpResponse.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+      httpResponse.sendError(
+          HttpServletResponse.SC_METHOD_NOT_ALLOWED,
           "Invalid macaroon request method: " + httpRequest.getMethod());
       return;
     }

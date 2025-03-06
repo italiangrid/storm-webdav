@@ -7,6 +7,8 @@ package org.italiangrid.storm.webdav.test.oauth.jwk;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.lenient;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.nimbusds.jose.KeySourceException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -15,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.apache.commons.io.FileUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
@@ -32,23 +33,16 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.nimbusds.jose.KeySourceException;
-
 @ExtendWith(MockitoExtension.class)
 class TrustedJwtDecoderCacheLoaderTest {
 
   private static final String ISSUER = "https://wlcg.cloud.cnaf.infn.it/";
   private static final String JWK_URI = "https://wlcg.cloud.cnaf.infn.it/jwks";
 
-  @Mock
-  ServiceConfigurationProperties properties;
-  @Mock
-  OAuthProperties oauthProperties;
-  @Mock
-  RestTemplateBuilder builder;
-  @Mock
-  OidcConfigurationFetcher fetcher;
+  @Mock ServiceConfigurationProperties properties;
+  @Mock OAuthProperties oauthProperties;
+  @Mock RestTemplateBuilder builder;
+  @Mock OidcConfigurationFetcher fetcher;
 
   private ExecutorService executor;
   private TrustedJwtDecoderCacheLoader jwtLoader;
@@ -82,7 +76,6 @@ class TrustedJwtDecoderCacheLoaderTest {
 
     jwtLoader =
         new TrustedJwtDecoderCacheLoader(properties, oauthProperties, builder, fetcher, executor);
-
   }
 
   @Test

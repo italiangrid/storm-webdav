@@ -20,22 +20,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class DigestTest {
 
-  @Mock
-  HttpResponse response;
+  @Mock HttpResponse response;
 
-  @Mock
-  Header header;
+  @Mock Header header;
 
-  public static final String[] INVALID_HEADERS =
-      {"", "adler54=1233456", "adler32=8a23d4f889", "sha256:437648", null};
+  public static final String[] INVALID_HEADERS = {
+    "", "adler54=1233456", "adler32=8a23d4f889", "sha256:437648", null
+  };
 
-  public static final String[] VALID_HEADERS =
-      {"adler32=8a23d4f8", "adler32 =8a23d4f8", "adler32 =   8a23d4f8", "  adler32=8a23d4f8  "};
-
+  public static final String[] VALID_HEADERS = {
+    "adler32=8a23d4f8", "adler32 =8a23d4f8", "adler32 =   8a23d4f8", "  adler32=8a23d4f8  "
+  };
 
   protected void instrumentResponse(String headerValue) {
-    lenient().when(response.getFirstHeader(Adler32DigestHeaderHelper.DIGEST_HEADER))
-      .thenReturn(header);
+    lenient()
+        .when(response.getFirstHeader(Adler32DigestHeaderHelper.DIGEST_HEADER))
+        .thenReturn(header);
     lenient().when(header.getName()).thenReturn(Adler32DigestHeaderHelper.DIGEST_HEADER);
     lenient().when(header.getValue()).thenReturn(headerValue);
   }

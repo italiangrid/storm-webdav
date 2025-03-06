@@ -4,11 +4,9 @@
 
 package org.italiangrid.storm.webdav.oauth.utils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -18,16 +16,13 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.util.StringUtils;
 
 /**
- *
  * Does not raise error when a bearer token is found both as parameter and in the Authorization
  * header. Request parameter takes precedence
- *
  */
 public class PermissiveBearerTokenResolver implements BearerTokenResolver {
 
   private static final Pattern authorizationPattern =
       Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$", Pattern.CASE_INSENSITIVE);
-
 
   private static String resolveFromRequestParameters(HttpServletRequest request) {
     String[] values = request.getParameterValues("access_token");
@@ -39,9 +34,12 @@ public class PermissiveBearerTokenResolver implements BearerTokenResolver {
       return values[0];
     }
 
-    BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST,
-        HttpStatus.BAD_REQUEST, "Found multiple bearer tokens in the request",
-        "https://tools.ietf.org/html/rfc6750#section-3.1");
+    BearerTokenError error =
+        new BearerTokenError(
+            BearerTokenErrorCodes.INVALID_REQUEST,
+            HttpStatus.BAD_REQUEST,
+            "Found multiple bearer tokens in the request",
+            "https://tools.ietf.org/html/rfc6750#section-3.1");
     throw new OAuth2AuthenticationException(error);
   }
 
@@ -52,8 +50,11 @@ public class PermissiveBearerTokenResolver implements BearerTokenResolver {
 
       if (!matcher.matches()) {
         BearerTokenError error =
-            new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED,
-                "Bearer token is malformed", "https://tools.ietf.org/html/rfc6750#section-3.1");
+            new BearerTokenError(
+                BearerTokenErrorCodes.INVALID_TOKEN,
+                HttpStatus.UNAUTHORIZED,
+                "Bearer token is malformed",
+                "https://tools.ietf.org/html/rfc6750#section-3.1");
         throw new OAuth2AuthenticationException(error);
       }
 
@@ -73,5 +74,4 @@ public class PermissiveBearerTokenResolver implements BearerTokenResolver {
 
     return authorizationHeaderToken;
   }
-
 }

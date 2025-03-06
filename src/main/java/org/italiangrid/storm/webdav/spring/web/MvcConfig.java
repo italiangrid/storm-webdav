@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.spring.web;
 
 import java.util.concurrent.TimeUnit;
-
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -16,19 +15,14 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
+  @Autowired ServiceConfigurationProperties properties;
 
-  @Autowired
-  ServiceConfigurationProperties properties;
+  @Autowired OAuthProperties oauthProperties;
 
-  @Autowired
-  OAuthProperties oauthProperties;
-
-  @Autowired
-  StorageAreaConfiguration saConfig;
+  @Autowired StorageAreaConfiguration saConfig;
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
@@ -37,8 +31,9 @@ public class MvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/assets/**")
-      .addResourceLocations("classpath:/static/")
-      .setCachePeriod((int)TimeUnit.HOURS.toSeconds(24));
+    registry
+        .addResourceHandler("/assets/**")
+        .addResourceLocations("classpath:/static/")
+        .setCachePeriod((int) TimeUnit.HOURS.toSeconds(24));
   }
 }

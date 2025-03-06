@@ -4,6 +4,11 @@
 
 package org.italiangrid.storm.webdav.server;
 
+import com.codahale.metrics.MetricRegistry;
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
+import eu.emi.security.authn.x509.impl.PEMCredential;
+import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -12,12 +17,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CertificateException;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -33,149 +36,88 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
-
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
-import eu.emi.security.authn.x509.impl.PEMCredential;
-
 /**
- * A builder that configures a Jetty server TLS connector integrated with CANL
- * {@link X509CertChainValidatorExt} certificate validation services.
- *
+ * A builder that configures a Jetty server TLS connector integrated with CANL {@link
+ * X509CertChainValidatorExt} certificate validation services.
  */
 public class TLSServerConnectorBuilder {
 
-  /**
-   * Conscrypt provider name.
-   */
+  /** Conscrypt provider name. */
   public static final String CONSCRYPT_PROVIDER = "Conscrypt";
 
-  /**
-   * Default service certificate file.
-   */
+  /** Default service certificate file. */
   public static final String DEFAULT_CERTIFICATE_FILE = "/etc/grid-security/hostcert.pem";
 
-  /**
-   * Default service certificate private key file.
-   */
+  /** Default service certificate private key file. */
   public static final String DEFAULT_CERTIFICATE_KEY_FILE = "/etc/grid-security/hostcert.pem";
 
-  /**
-   * The port for this connector.
-   */
+  /** The port for this connector. */
   private int port;
 
-  /**
-   * The certificate file location.
-   */
+  /** The certificate file location. */
   private String certificateFile = DEFAULT_CERTIFICATE_FILE;
 
-  /**
-   * The certificate private key file location.
-   */
+  /** The certificate private key file location. */
   private String certificateKeyFile = DEFAULT_CERTIFICATE_KEY_FILE;
 
-  /**
-   * The password to decrypt the certificate private key file.
-   */
+  /** The password to decrypt the certificate private key file. */
   private char[] certicateKeyPassword = null;
 
-  /**
-   * The certificate validator used by this connector builder.
-   */
+  /** The certificate validator used by this connector builder. */
   private final X509CertChainValidatorExt certificateValidator;
 
-  /**
-   * Whether client auth will be required for this connector.
-   */
+  /** Whether client auth will be required for this connector. */
   private boolean tlsNeedClientAuth = false;
 
-  /**
-   * Whether cluent auth is supported for this connector.
-   */
+  /** Whether cluent auth is supported for this connector. */
   private boolean tlsWantClientAuth = true;
 
-  /**
-   * Supported SSL protocols.
-   */
+  /** Supported SSL protocols. */
   private String[] includeProtocols;
 
-  /**
-   * Disabled SSL protocols.
-   */
+  /** Disabled SSL protocols. */
   private String[] excludeProtocols;
 
-  /**
-   * Supported cipher suites.
-   */
+  /** Supported cipher suites. */
   private String[] includeCipherSuites;
 
-  /**
-   * Disabled cipher suites.
-   */
+  /** Disabled cipher suites. */
   private String[] excludeCipherSuites;
 
-  /**
-   * The HTTP configuration for the connector being created.
-   */
+  /** The HTTP configuration for the connector being created. */
   private HttpConfiguration httpConfiguration;
 
-  /**
-   * The key manager to use for the connector being created.
-   */
+  /** The key manager to use for the connector being created. */
   private KeyManager keyManager;
 
-  /**
-   * The server for which the connector is being created.
-   */
+  /** The server for which the connector is being created. */
   private final Server server;
 
-  /**
-   * The metric name to associate to the connector being built.
-   */
+  /** The metric name to associate to the connector being built. */
   private String metricName;
 
-  /**
-   * The metric registry.
-   */
+  /** The metric registry. */
   private MetricRegistry registry;
 
-  /**
-   * Whether the Conscrypt provider should be used instead of the default JSSE implementation
-   */
+  /** Whether the Conscrypt provider should be used instead of the default JSSE implementation */
   private boolean useConscrypt = false;
 
-
-  /**
-   * Whether HTTP/2 should be configured
-   */
+  /** Whether HTTP/2 should be configured */
   private boolean enableHttp2 = false;
 
-  /**
-   * Which TLS protocol string should be used
-   */
+  /** Which TLS protocol string should be used */
   private String tlsProtocol = "TLSv1.2";
 
-  /**
-   * Custom TLS hostname verifier
-   */
+  /** Custom TLS hostname verifier */
   private HostnameVerifier hostnameVerifier = null;
 
-  /**
-   * Disable JSSE hostname verification
-   */
+  /** Disable JSSE hostname verification */
   private boolean disableJsseHostnameVerification = false;
 
-  /**
-   * Number of acceptors threads for the connector
-   */
+  /** Number of acceptors threads for the connector */
   private int acceptors = -1;
 
-  /**
-   * Number of selector threads for the connector
-   */
+  /** Number of selector threads for the connector */
   private int selectors = -1;
 
   /**
@@ -185,8 +127,8 @@ public class TLSServerConnectorBuilder {
    * @param certificateValidator a {@link X509CertChainValidatorExt} used to validate certificates
    * @return an instance of the {@link TLSServerConnectorBuilder}
    */
-  public static TLSServerConnectorBuilder instance(Server s,
-      X509CertChainValidatorExt certificateValidator) {
+  public static TLSServerConnectorBuilder instance(
+      Server s, X509CertChainValidatorExt certificateValidator) {
 
     return new TLSServerConnectorBuilder(s, certificateValidator);
   }
@@ -215,9 +157,8 @@ public class TLSServerConnectorBuilder {
 
     checkFileExistsAndIsReadable(new File(certificateFile), "Error accessing certificate file");
 
-    checkFileExistsAndIsReadable(new File(certificateKeyFile),
-        "Error accessing certificate key file");
-
+    checkFileExistsAndIsReadable(
+        new File(certificateKeyFile), "Error accessing certificate key file");
   }
 
   private void loadCredentials() {
@@ -278,7 +219,6 @@ public class TLSServerConnectorBuilder {
     if (disableJsseHostnameVerification) {
       contextFactory.setEndpointIdentificationAlgorithm(null);
     }
-
   }
 
   /**
@@ -304,7 +244,6 @@ public class TLSServerConnectorBuilder {
     httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
     return httpsConfig;
-
   }
 
   /**
@@ -320,7 +259,6 @@ public class TLSServerConnectorBuilder {
     }
 
     return httpConfiguration;
-
   }
 
   /**
@@ -565,13 +503,11 @@ public class TLSServerConnectorBuilder {
 
     cf.setSslContext(sslContext);
 
-
     configureContextFactory(cf);
 
     if (httpConfiguration == null) {
       httpConfiguration = defaultHttpConfiguration();
     }
-
 
     HttpConnectionFactory httpConnFactory = new HttpConnectionFactory(httpConfiguration);
     ConnectionFactory connFactory = null;
@@ -581,7 +517,6 @@ public class TLSServerConnectorBuilder {
     } else {
       connFactory = httpConnFactory;
     }
-
 
     ConnectionFactory h2ConnFactory = null;
     ServerConnector connector = null;
@@ -601,13 +536,19 @@ public class TLSServerConnectorBuilder {
 
       SslConnectionFactory sslCf = new SslConnectionFactory(cf, alpn.getProtocol());
 
-      connector = new ServerConnector(server, acceptors, selectors, sslCf, alpn, h2ConnFactory,
-          httpConnFactory);
+      connector =
+          new ServerConnector(
+              server, acceptors, selectors, sslCf, alpn, h2ConnFactory, httpConnFactory);
 
     } else {
 
-      connector = new ServerConnector(server, acceptors, selectors,
-          new SslConnectionFactory(cf, HttpVersion.HTTP_1_1.asString()), connFactory);
+      connector =
+          new ServerConnector(
+              server,
+              acceptors,
+              selectors,
+              new SslConnectionFactory(cf, HttpVersion.HTTP_1_1.asString()),
+              connFactory);
     }
 
     connector.setPort(port);
@@ -621,13 +562,12 @@ public class TLSServerConnectorBuilder {
     return alpn;
   }
 
-
   /**
    * Checks that file exists and is readable.
    *
    * @param f the {@link File} to be checked
    * @param prefix A prefix string for the error message, in case the file does not exist and is not
-   *        readable
+   *     readable
    * @throws RuntimeException if the file does not exist or is not readable
    */
   private void checkFileExistsAndIsReadable(File f, String prefix) {
@@ -646,6 +586,5 @@ public class TLSServerConnectorBuilder {
       String msg = String.format("%s: %s [%s]", prefix, errorMessage, f.getAbsolutePath());
       throw new TLSConnectorBuilderError(msg);
     }
-
   }
 }

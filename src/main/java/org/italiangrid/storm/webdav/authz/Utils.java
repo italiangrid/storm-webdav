@@ -4,22 +4,16 @@
 
 package org.italiangrid.storm.webdav.authz;
 
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class Utils {
 
-  private Utils() {
-
-  }
+  private Utils() {}
 
   public static Optional<X509Certificate[]> getCertificateChainFromRequest(
       HttpServletRequest request) {

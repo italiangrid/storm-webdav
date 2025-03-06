@@ -12,13 +12,10 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 public class DefaultPathResolver implements PathResolver {
 
@@ -41,7 +38,6 @@ public class DefaultPathResolver implements PathResolver {
         contextMap.put(ap, sa);
       }
     }
-
   }
 
   protected String stripContextPath(String context, String path) {
@@ -52,7 +48,6 @@ public class DefaultPathResolver implements PathResolver {
       return path;
     }
   }
-
 
   @Override
   public String resolvePath(String pathInContext) {
@@ -78,8 +73,11 @@ public class DefaultPathResolver implements PathResolver {
       if (pathInContext.startsWith(e.getKey())) {
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("{} matches with access point {}. Resolved storage area name: {}",
-              pathInContext, e.getKey(), e.getValue().name());
+          LOG.debug(
+              "{} matches with access point {}. Resolved storage area name: {}",
+              pathInContext,
+              e.getKey(),
+              e.getValue().name());
         }
 
         return e.getValue();
@@ -114,7 +112,10 @@ public class DefaultPathResolver implements PathResolver {
             Paths.get(e.getValue().rootPath(), stripContextPath(e.getKey(), pathInContext));
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("{} matches with access point {}. Resolved path: {}", pathInContext, e.getKey(),
+          LOG.debug(
+              "{} matches with access point {}. Resolved path: {}",
+              pathInContext,
+              e.getKey(),
               resolvedPath);
         }
 
@@ -124,5 +125,4 @@ public class DefaultPathResolver implements PathResolver {
 
     return null;
   }
-
 }

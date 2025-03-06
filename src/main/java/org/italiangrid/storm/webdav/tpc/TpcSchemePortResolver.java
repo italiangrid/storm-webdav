@@ -19,5 +19,4 @@ public class TpcSchemePortResolver extends DefaultSchemePortResolver {
     }
     return super.resolve(scheme, endpoint);
   }
-
 }

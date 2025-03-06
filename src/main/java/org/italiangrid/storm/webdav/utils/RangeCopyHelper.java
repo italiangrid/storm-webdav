@@ -12,14 +12,14 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
-
 import org.springframework.util.Assert;
 
 public class RangeCopyHelper {
 
   private RangeCopyHelper() {}
 
-  public static long rangeCopy(InputStream is, File f, long rangeStart, long rangeCount) throws IOException {
+  public static long rangeCopy(InputStream is, File f, long rangeStart, long rangeCount)
+      throws IOException {
 
     Objects.requireNonNull(is);
     Objects.requireNonNull(f);
@@ -42,5 +42,4 @@ public class RangeCopyHelper {
       return bytesTransferred;
     }
   }
-
 }

@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.authz.pdp;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
@@ -31,12 +30,10 @@ public class DefaultPathAuthorizationPdp implements PathAuthorizationPdp {
     final HttpServletRequest request = authzRequest.getRequest();
     final Authentication authentication = authzRequest.getAuthentication();
 
-    return repo.getPolicies()
-      .stream()
-      .filter(p -> p.appliesToRequest(request, authentication))
-      .findFirst()
-      .map(PathAuthorizationResult::fromPolicy)
-      .orElse(NOT_APPLICABLE);
+    return repo.getPolicies().stream()
+        .filter(p -> p.appliesToRequest(request, authentication))
+        .findFirst()
+        .map(PathAuthorizationResult::fromPolicy)
+        .orElse(NOT_APPLICABLE);
   }
-
 }

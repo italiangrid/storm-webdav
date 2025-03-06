@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.authz.util;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 
@@ -31,5 +30,4 @@ public class EmptyPathRequestMatcher implements RequestMatcher {
   public String toString() {
     return "EmptyPathRequestMatcher";
   }
-
 }

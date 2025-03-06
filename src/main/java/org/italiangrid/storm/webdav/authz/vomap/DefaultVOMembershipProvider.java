@@ -6,11 +6,9 @@ package org.italiangrid.storm.webdav.authz.vomap;
 
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.springframework.util.Assert;
 
-public class DefaultVOMembershipProvider implements VOMembershipProvider,
-  Refreshable {
+public class DefaultVOMembershipProvider implements VOMembershipProvider, Refreshable {
 
   private final String voName;
   private final VOMembershipSource membershipSource;
@@ -20,8 +18,7 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider,
 
   protected Set<String> members = null;
 
-  public DefaultVOMembershipProvider(String voName,
-    VOMembershipSource membershipSource) {
+  public DefaultVOMembershipProvider(String voName, VOMembershipSource membershipSource) {
 
     Assert.hasText(voName, "voName cannot be null or empty!");
     Assert.notNull(membershipSource, "membershipSource cannot be null!");
@@ -72,5 +69,4 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider,
 
     return lastRefreshTimestamp;
   }
-
 }

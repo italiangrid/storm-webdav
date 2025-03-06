@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 
 public interface TokenIssuerService {
 
- TokenResponseDTO createAccessToken(AccessTokenRequest tokenRequest,
-      Authentication authentication);
-
+  TokenResponseDTO createAccessToken(
+      AccessTokenRequest tokenRequest, Authentication authentication);
 }

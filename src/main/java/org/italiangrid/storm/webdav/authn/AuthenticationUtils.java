@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.authn;
 
 import java.util.Map;
-
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -35,11 +34,10 @@ public class AuthenticationUtils {
     } else if (authn instanceof PreAuthenticatedAuthenticationToken) {
       return authn.getName();
     } else if (authn instanceof JwtAuthenticationToken jwtToken) {
-      return String.format("%s @ %s", jwtToken.getToken().getSubject(),
-          jwtToken.getToken().getIssuer());
+      return String.format(
+          "%s @ %s", jwtToken.getToken().getSubject(), jwtToken.getToken().getIssuer());
     } else {
       return authn.getName();
     }
   }
-
 }

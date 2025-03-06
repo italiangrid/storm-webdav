@@ -6,12 +6,11 @@ package org.italiangrid.storm.webdav.fs;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 public class MetricsFSStrategyWrapper implements FilesystemAccess {
   public static final String METRIC_NAME = "fs";
@@ -26,8 +25,7 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
   final Timer lsTimer;
   final Timer createTimer;
 
-  public MetricsFSStrategyWrapper(FilesystemAccess delegate,
-    MetricRegistry registry) {
+  public MetricsFSStrategyWrapper(FilesystemAccess delegate, MetricRegistry registry) {
 
     this.delegate = delegate;
     this.registry = registry;
@@ -38,7 +36,6 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
     lsTimer = registry.timer(name(METRIC_NAME, "ls"));
     mvTimer = registry.timer(name(METRIC_NAME, "mv"));
     createTimer = registry.timer(name(METRIC_NAME, "create"));
-
   }
 
   @Override
@@ -54,7 +51,6 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
 
       context.stop();
     }
-
   }
 
   @Override
@@ -68,7 +64,6 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
     } finally {
       context.stop();
     }
-
   }
 
   @Override
@@ -82,7 +77,6 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
     } finally {
       context.stop();
     }
-
   }
 
   @Override
@@ -96,7 +90,6 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
     } finally {
       context.stop();
     }
-
   }
 
   @Override
@@ -121,7 +114,5 @@ public class MetricsFSStrategyWrapper implements FilesystemAccess {
 
       context.stop();
     }
-
   }
-
 }

@@ -13,7 +13,6 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UN
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidScopeError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidTokenRequestError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.UnsupportedGrantTypeError;
@@ -53,12 +52,15 @@ public class AuthzServerController {
     throw new InvalidScopeError(e.getDefaultMessage() != null ? e.getDefaultMessage() : "");
   }
 
-
   @PreAuthorize("#storm.isVOMSAuthenticated()")
-  @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+  @PostMapping(
+      value = "/token",
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public TokenResponseDTO getAccessToken(@Valid AccessTokenRequest tokenRequest,
-      BindingResult bindingResult, Authentication authentication) {
+  public TokenResponseDTO getAccessToken(
+      @Valid AccessTokenRequest tokenRequest,
+      BindingResult bindingResult,
+      Authentication authentication) {
 
     if (bindingResult.hasErrors()) {
       handleValidationError(bindingResult.getFieldError());
@@ -66,7 +68,6 @@ public class AuthzServerController {
 
     return tokenService.createAccessToken(tokenRequest, authentication);
   }
-
 
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @ExceptionHandler(UnsupportedGrantTypeError.class)

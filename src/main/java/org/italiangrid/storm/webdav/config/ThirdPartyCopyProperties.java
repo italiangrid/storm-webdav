@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.config;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +43,8 @@ public class ThirdPartyCopyProperties {
   @Positive(message = "tpc.progressReportThreadPoolSize must be a positive integer (i.e. > 0)")
   int progressReportThreadPoolSize;
 
-  @Min(value = 0,
+  @Min(
+      value = 0,
       message = "Threshold of content size to reach before sending 'Expect: 100-continue' header.")
   long enableExpectContinueThreshold;
 
@@ -135,5 +135,4 @@ public class ThirdPartyCopyProperties {
   public void setEnableExpectContinueThreshold(long enableExpectContinueThreshold) {
     this.enableExpectContinueThreshold = enableExpectContinueThreshold;
   }
-
 }

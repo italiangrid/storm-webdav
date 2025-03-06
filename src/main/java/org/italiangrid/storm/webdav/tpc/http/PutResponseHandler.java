@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import java.io.IOException;
 import java.util.Map;
-
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;

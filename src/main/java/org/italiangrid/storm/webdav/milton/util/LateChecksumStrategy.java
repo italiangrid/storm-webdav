@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
@@ -29,7 +28,7 @@ public class LateChecksumStrategy implements ReplaceContentStrategy {
     if (RangeCopyHelper.rangeCopy(in, targetFile, 0, length) != length) {
       throw new StoRMWebDAVError("Incomplete copy error!");
     }
-    
+
     calculateChecksum(targetFile);
   }
 
@@ -50,5 +49,4 @@ public class LateChecksumStrategy implements ReplaceContentStrategy {
       throw new StoRMWebDAVError(e);
     }
   }
-
 }

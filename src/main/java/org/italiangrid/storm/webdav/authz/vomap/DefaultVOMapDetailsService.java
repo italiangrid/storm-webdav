@@ -10,30 +10,24 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(DefaultVOMapDetailsService.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultVOMapDetailsService.class);
 
-  private final ScheduledExecutorService scheduler = Executors
-    .newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   private final long refreshPeriodInSeconds;
 
   Set<VOMembershipProvider> providers;
 
-  public DefaultVOMapDetailsService(Set<VOMembershipProvider> providers,
-    long refreshPeriod) {
+  public DefaultVOMapDetailsService(Set<VOMembershipProvider> providers, long refreshPeriod) {
 
-    Assert.notNull(providers,
-      "Please provide a non-null (but possibly empty) set of providers");
+    Assert.notNull(providers, "Please provide a non-null (but possibly empty) set of providers");
     this.providers = providers;
     this.refreshPeriodInSeconds = refreshPeriod;
     if (refreshPeriodInSeconds > 0) {
@@ -45,11 +39,8 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
     Runnable refreshTask = this::refresh;
 
-    scheduler.scheduleWithFixedDelay(refreshTask,
-      refreshPeriodInSeconds,
-      refreshPeriodInSeconds,
-      TimeUnit.SECONDS);
-
+    scheduler.scheduleWithFixedDelay(
+        refreshTask, refreshPeriodInSeconds, refreshPeriodInSeconds, TimeUnit.SECONDS);
   }
 
   @Override
@@ -78,8 +69,10 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
           refreshable.refresh();
         } catch (Throwable t) {
           logger.warn(
-            "Exception caught refreshing VOMembership provider for VO: {}. {}",
-            p.getVOName(), t.getMessage(), t);
+              "Exception caught refreshing VOMembership provider for VO: {}. {}",
+              p.getVOName(),
+              t.getMessage(),
+              t);
         }
       }
     }

@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.authz.vomap;
 
+import eu.emi.security.authn.x509.impl.OpensslNameUtils;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -19,12 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import eu.emi.security.authn.x509.impl.OpensslNameUtils;
-
 public class MapfileVOMembershipSource implements VOMembershipSource {
 
-  private static final Logger logger = LoggerFactory
-    .getLogger(MapfileVOMembershipSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(MapfileVOMembershipSource.class);
 
   private final String voName;
   private final File mapFile;
@@ -36,7 +33,6 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     this.voName = voName;
     this.mapFile = mapFile;
-
   }
 
   private CSVParser getParser() {
@@ -56,8 +52,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
     }
 
     if (!r.get(0).startsWith("/")) {
-      logger.warn("Invalid CSVRecord: {}. Subject does not start with / : {}",
-        r, r.get(0));
+      logger.warn("Invalid CSVRecord: {}. Subject does not start with / : {}", r, r.get(0));
       return false;
     }
 
@@ -98,8 +93,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
         String rfcSubject = OpensslNameUtils.opensslToRfc2253(subject);
 
         if (logger.isDebugEnabled()) {
-          logger.debug("Converted subject {} to rfc format {}", subject,
-            rfcSubject);
+          logger.debug("Converted subject {} to rfc format {}", subject, rfcSubject);
         }
 
         subjects.add(rfcSubject);
@@ -111,8 +105,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     long totalTime = System.currentTimeMillis() - startTime;
 
-    logger.debug("Parsing VO {} members from {} took {} msecs.", voName,
-      mapFile, totalTime);
+    logger.debug("Parsing VO {} members from {} took {} msecs.", voName, mapFile, totalTime);
 
     return subjects;
   }
@@ -122,5 +115,4 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     return voName;
   }
-
 }

@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.server.servlet;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.net.URI;
-
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -30,59 +29,65 @@ class AvoidTraceMethodFilterTest {
 
   static final HttpMethod TRACK_HTTP_METHOD = HttpMethod.valueOf("TRACK");
 
-  @Autowired
-  MockMvc mvc;
+  @Autowired MockMvc mvc;
 
   @Test
   void traceAsAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/test/file"))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   void traceAsNonAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/wlcg/file"))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void traceAsAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/"))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   void traceAsNonAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(HttpMethod.TRACE, "/"))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void trackAsAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(TRACK_HTTP_METHOD, new URI("/test/file")))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   void trackAsNonAnonymousLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(TRACK_HTTP_METHOD, new URI("/wlcg/file")))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void trackAsAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(TRACK_HTTP_METHOD, new URI("/")))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
-  @WithMockVOMSUser(vos = "wlcg", saReadPermissions = {"wlcg"})
+  @WithMockVOMSUser(
+      vos = "wlcg",
+      saReadPermissions = {"wlcg"})
   void trackAsNonAnonymousOnRootLeadsTo405() throws Exception {
     mvc.perform(MockMvcRequestBuilders.request(TRACK_HTTP_METHOD, new URI("/")))
-      .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
   }
-
 }

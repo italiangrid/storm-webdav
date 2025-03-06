@@ -39,15 +39,14 @@ public interface ServiceConfiguration {
   public String getVOMapFilesConfigDir();
 
   public long getVOMapFilesRefreshIntervalInSeconds();
-  
+
   public boolean isAuthorizationDisabled();
-  
+
   public boolean requireClientCertificateAuthentication();
-  
+
   public boolean useConscrypt();
-  
+
   public boolean enableHttp2();
 
   public String getTlsProtocol();
-
 }

@@ -11,13 +11,13 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.NottableString.not;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.net.URI;
 import java.util.UUID;
-
 import javax.net.ssl.HttpsURLConnection;
-
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.italiangrid.storm.webdav.WebdavService;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -46,11 +46,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {WebdavService.class, TestConfig.class},
+@SpringBootTest(
+    classes = {WebdavService.class, TestConfig.class},
     properties = {"spring.main.allow-bean-definition-overriding=true"})
 @ActiveProfiles("dev")
 public class TpcClientRedirectionTest {
@@ -62,19 +60,18 @@ public class TpcClientRedirectionTest {
 
   private static ClientAndServer mockServer;
 
-  @Autowired
-  HttpTransferClient client;
+  @Autowired HttpTransferClient client;
 
   @Configuration
   public static class TestConfig {
 
     @Bean("tpcConnectionManager")
     @Primary
-    public HttpClientConnectionManager tpcClientConnectionManager(ThirdPartyCopyProperties props,
-        ServiceConfiguration conf) {
+    public HttpClientConnectionManager tpcClientConnectionManager(
+        ThirdPartyCopyProperties props, ServiceConfiguration conf) {
       return PoolingHttpClientConnectionManagerBuilder.create()
-        .setMaxConnTotal(props.getMaxConnections())
-        .build();
+          .setMaxConnTotal(props.getMaxConnections())
+          .build();
     }
   }
 
@@ -83,8 +80,9 @@ public class TpcClientRedirectionTest {
     // Ensure all connection using HTTPS will use the SSL context defined by
     // MockServer to allow dynamically generated certificates to be accepted
     HttpsURLConnection.setDefaultSSLSocketFactory(
-        new KeyStoreFactory(configuration(), new MockServerLogger()).sslContext()
-          .getSocketFactory());
+        new KeyStoreFactory(configuration(), new MockServerLogger())
+            .sslContext()
+            .getSocketFactory());
     httpPort = PortFactory.findFreePort();
     httpsPort = httpPort + 1;
     mockServer = startClientAndServer(httpPort, httpsPort);
@@ -98,7 +96,6 @@ public class TpcClientRedirectionTest {
   @BeforeEach
   void before() {
     mockServer.reset();
-
   }
 
   private String mockHttpsUrl(String path) {
@@ -114,32 +111,46 @@ public class TpcClientRedirectionTest {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer this-is-a-fake-token");
 
-
-    GetTransferRequest getRequest = new GetTransferRequestImpl(UUID.randomUUID().toString(),
-        "/test/example", URI.create(mockHttpsUrl("/test/example")), headers, null, false, false);
+    GetTransferRequest getRequest =
+        new GetTransferRequestImpl(
+            UUID.randomUUID().toString(),
+            "/test/example",
+            URI.create(mockHttpsUrl("/test/example")),
+            headers,
+            null,
+            false,
+            false);
 
     mockServer
-      .when(request().withMethod("GET").withPath("/test/example").withSecure(true),
-          Times.exactly(1))
-      .respond(HttpResponse.response()
-        .withStatusCode(307)
-        .withHeader("Location", mockHttpUrl("/redirected/test/example")));
+        .when(
+            request().withMethod("GET").withPath("/test/example").withSecure(true),
+            Times.exactly(1))
+        .respond(
+            HttpResponse.response()
+                .withStatusCode(307)
+                .withHeader("Location", mockHttpUrl("/redirected/test/example")));
 
     mockServer
-      .when(request().withMethod("GET").withPath("/redirected/test/example").withSecure(false),
-          Times.exactly(1))
-      .respond(HttpResponse.response().withStatusCode(200).withBody("example"));
+        .when(
+            request().withMethod("GET").withPath("/redirected/test/example").withSecure(false),
+            Times.exactly(1))
+        .respond(HttpResponse.response().withStatusCode(200).withBody("example"));
 
-    client.handle(getRequest, (r, s) -> {
-      // do nothing here
-    });
+    client.handle(
+        getRequest,
+        (r, s) -> {
+          // do nothing here
+        });
 
     mockServer.verify(
         request().withMethod("GET").withPath("/test/example").withHeaders(header("Authorization")),
         exactly(1));
 
-    mockServer.verify(request().withMethod("GET")
-      .withPath("/redirected/test/example")
-      .withHeaders(header(not("Authorization"))), exactly(1));
+    mockServer.verify(
+        request()
+            .withMethod("GET")
+            .withPath("/redirected/test/example")
+            .withHeaders(header(not("Authorization"))),
+        exactly(1));
   }
 }

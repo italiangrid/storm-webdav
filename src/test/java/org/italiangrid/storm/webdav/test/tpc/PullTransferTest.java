@@ -15,22 +15,18 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-
+import com.google.common.collect.Multimap;
 import jakarta.servlet.ServletException;
-
+import java.io.IOException;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.italiangrid.storm.webdav.tpc.TransferConstants;
-
-import com.google.common.collect.Multimap;
 
 @ExtendWith(MockitoExtension.class)
 class PullTransferTest extends TransferFilterTestSupport {
-
 
   @Override
   @BeforeEach
@@ -58,8 +54,8 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
-    assertTrue("Expected empty xfer headers",
-        getXferRequest.getValue().transferHeaders().isEmpty());
+    assertTrue(
+        "Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
@@ -71,8 +67,8 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat("Overwrite header not recognized", getXferRequest.getValue().overwrite(), is(false));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
-    assertTrue("Expected empty xfer headers",
-        getXferRequest.getValue().transferHeaders().isEmpty());
+    assertTrue(
+        "Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
@@ -83,23 +79,30 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat("RequireChecksumVerification header not recognized",
-        getXferRequest.getValue().verifyChecksum(), is(false));
-    assertTrue("Expected empty xfer headers",
-        getXferRequest.getValue().transferHeaders().isEmpty());
+    assertThat(
+        "RequireChecksumVerification header not recognized",
+        getXferRequest.getValue().verifyChecksum(),
+        is(false));
+    assertTrue(
+        "Expected empty xfer headers", getXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
   void checkTransferHeaderPassing() throws IOException, ServletException {
     when(request.getHeader(TRANSFER_HEADER_AUTHORIZATION_KEY))
-      .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
+        .thenReturn(TRANSFER_HEADER_AUTHORIZATION_VALUE);
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
-      .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
+        .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
     when(request.getHeader(TRANSFER_HEADER_SCITAG)).thenReturn(SCITAG_HEADER_VALUE);
     when(request.getHeader(SCITAG_HEADER)).thenReturn(null);
 
-    when(request.getHeaderNames()).thenReturn(enumeration(asList(TRANSFER_HEADER_AUTHORIZATION_KEY,
-        TRANSFER_HEADER_WHATEVER_KEY, TRANSFER_HEADER_SCITAG)));
+    when(request.getHeaderNames())
+        .thenReturn(
+            enumeration(
+                asList(
+                    TRANSFER_HEADER_AUTHORIZATION_KEY,
+                    TRANSFER_HEADER_WHATEVER_KEY,
+                    TRANSFER_HEADER_SCITAG)));
 
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -109,11 +112,11 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
 
-
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(3));
     assertThat(xferHeaders.containsKey("Authorization"), is(true));
-    assertThat(xferHeaders.get("Authorization").iterator().next(),
+    assertThat(
+        xferHeaders.get("Authorization").iterator().next(),
         is(TRANSFER_HEADER_AUTHORIZATION_VALUE));
     assertThat(xferHeaders.containsKey("Whatever"), is(true));
     assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
@@ -124,10 +127,10 @@ class PullTransferTest extends TransferFilterTestSupport {
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
     when(request.getHeaderNames())
-      .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+        .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
-      .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
+        .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
 
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
@@ -136,7 +139,6 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
-
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(1));
@@ -148,7 +150,7 @@ class PullTransferTest extends TransferFilterTestSupport {
   @Test
   void bothSciTagAndTransferHeaderSciTag() throws IOException, ServletException {
     when(request.getHeaderNames())
-      .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
+        .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
 
     when(request.getHeader(SCITAG_HEADER)).thenReturn(SCITAG_HEADER_VALUE);
 
@@ -160,11 +162,9 @@ class PullTransferTest extends TransferFilterTestSupport {
     assertThat(getXferRequest.getValue().overwrite(), is(true));
     assertThat(getXferRequest.getValue().verifyChecksum(), is(true));
 
-
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(0));
 
     assertThat(xferHeaders.containsKey("SciTag"), is(false));
   }
-
 }

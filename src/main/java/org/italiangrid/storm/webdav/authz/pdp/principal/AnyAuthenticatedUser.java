@@ -11,7 +11,8 @@ public class AnyAuthenticatedUser implements PrincipalMatcher {
 
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
-    return authentication != null && !(authentication instanceof AnonymousAuthenticationToken)
+    return authentication != null
+        && !(authentication instanceof AnonymousAuthenticationToken)
         && authentication.isAuthenticated();
   }
 

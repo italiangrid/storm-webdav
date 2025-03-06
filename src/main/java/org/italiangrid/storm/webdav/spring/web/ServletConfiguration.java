@@ -6,8 +6,10 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
 
+import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dropwizard.metrics.servlets.MetricsServlet;
 import java.time.Clock;
-
 import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -46,12 +48,6 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.TemplateEngine;
-
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.metrics.servlets.MetricsServlet;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-
 
 @Configuration
 public class ServletConfiguration {
@@ -94,7 +90,6 @@ public class ServletConfiguration {
     return filter;
   }
 
-
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
     FilterRegistrationBean<LogRequestFilter> logRequestFilter =
@@ -107,8 +102,8 @@ public class ServletConfiguration {
 
   @Bean
   @ConditionalOnProperty(name = "storm.redirector.enabled", havingValue = "true")
-  FilterRegistrationBean<RedirectFilter> redirectFilter(PathResolver pathResolver,
-      RedirectionService redirectionService) {
+  FilterRegistrationBean<RedirectFilter> redirectFilter(
+      PathResolver pathResolver, RedirectionService redirectionService) {
     LOG.info("Redirector filter enabled");
 
     FilterRegistrationBean<RedirectFilter> filter =
@@ -121,8 +116,8 @@ public class ServletConfiguration {
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-filter.enabled", havingValue = "true")
-  FilterRegistrationBean<ChecksumFilter> checksumFilter(ExtendedAttributesHelper helper,
-      PathResolver resolver) {
+  FilterRegistrationBean<ChecksumFilter> checksumFilter(
+      ExtendedAttributesHelper helper, PathResolver resolver) {
     LOG.info("Checksum filter enabled");
     FilterRegistrationBean<ChecksumFilter> filter =
         new FilterRegistrationBean<>(new ChecksumFilter(helper, resolver));
@@ -134,8 +129,8 @@ public class ServletConfiguration {
 
   @Bean
   @ConditionalOnExpression("${storm.macaroon-filter.enabled} && ${storm.authz-server.enabled}")
-  FilterRegistrationBean<MacaroonRequestFilter> macaroonRequestFilter(ObjectMapper mapper,
-      MacaroonIssuerService service) {
+  FilterRegistrationBean<MacaroonRequestFilter> macaroonRequestFilter(
+      ObjectMapper mapper, MacaroonIssuerService service) {
     LOG.info("Macaroon request filter enabled");
     FilterRegistrationBean<MacaroonRequestFilter> filter =
         new FilterRegistrationBean<>(new MacaroonRequestFilter(mapper, service));
@@ -153,15 +148,17 @@ public class ServletConfiguration {
   }
 
   @Bean
-  FilterRegistrationBean<MiltonFilter> miltonFilter(FilesystemAccess fsAccess,
-      ExtendedAttributesHelper attrsHelper, PathResolver resolver, ReplaceContentStrategy rcs) {
+  FilterRegistrationBean<MiltonFilter> miltonFilter(
+      FilesystemAccess fsAccess,
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      ReplaceContentStrategy rcs) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
         new FilterRegistrationBean<>(new MiltonFilter(fsAccess, attrsHelper, resolver, rcs));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;
   }
-
 
   @Bean
   FilterRegistrationBean<MoveRequestSanityChecksFilter> moveFilter(PathResolver resolver) {
@@ -184,23 +181,35 @@ public class ServletConfiguration {
   }
 
   @Bean
-  FilterRegistrationBean<TransferFilter> tpcFilter(Clock clock, FilesystemAccess fs,
-      ExtendedAttributesHelper attrsHelper, PathResolver resolver, TransferClient client,
-      ThirdPartyCopyProperties props, LocalURLService lus, MetricRegistry registry) {
+  FilterRegistrationBean<TransferFilter> tpcFilter(
+      Clock clock,
+      FilesystemAccess fs,
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      TransferClient client,
+      ThirdPartyCopyProperties props,
+      LocalURLService lus,
+      MetricRegistry registry) {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter =
-        new FilterRegistrationBean<>(new TransferFilter(clock, metricsClient, resolver, lus,
-            props.isVerifyChecksum(), props.getEnableExpectContinueThreshold()));
+        new FilterRegistrationBean<>(
+            new TransferFilter(
+                clock,
+                metricsClient,
+                resolver,
+                lus,
+                props.isVerifyChecksum(),
+                props.getEnableExpectContinueThreshold()));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
   }
 
   @Bean
-  FilterRegistrationBean<StorageAreaStatsFilter> statsFilter(MetricRegistry registry,
-      PathResolver resolver) {
+  FilterRegistrationBean<StorageAreaStatsFilter> statsFilter(
+      MetricRegistry registry, PathResolver resolver) {
 
     FilterRegistrationBean<StorageAreaStatsFilter> filter =
         new FilterRegistrationBean<>(new StorageAreaStatsFilter(registry, resolver));
@@ -227,30 +236,35 @@ public class ServletConfiguration {
   }
 
   @Bean
-  ServletRegistrationBean<StoRMServlet> stormServlet(OAuthProperties oauthProperties,
-      ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration saConfig,
-      PathResolver pathResolver, TemplateEngine templateEngine) {
+  ServletRegistrationBean<StoRMServlet> stormServlet(
+      OAuthProperties oauthProperties,
+      ServiceConfigurationProperties serviceConfig,
+      StorageAreaConfiguration saConfig,
+      PathResolver pathResolver,
+      TemplateEngine templateEngine) {
 
-    ServletRegistrationBean<StoRMServlet> stormServlet = new ServletRegistrationBean<>(
-        new StoRMServlet(oauthProperties, serviceConfig, pathResolver, templateEngine));
+    ServletRegistrationBean<StoRMServlet> stormServlet =
+        new ServletRegistrationBean<>(
+            new StoRMServlet(oauthProperties, serviceConfig, pathResolver, templateEngine));
 
     stormServlet.addInitParameter("acceptRanges", "true");
     stormServlet.addInitParameter("dirAllowed", "true");
     stormServlet.addInitParameter("precompressed", "false");
 
-
-    saConfig.getStorageAreaInfo()
-      .forEach(i -> i.accessPoints().forEach(m -> stormServlet.addUrlMappings(m + "/*", m)));
+    saConfig
+        .getStorageAreaInfo()
+        .forEach(i -> i.accessPoints().forEach(m -> stormServlet.addUrlMappings(m + "/*", m)));
 
     return stormServlet;
   }
 
   @Bean
-  ServletRegistrationBean<SAIndexServlet> saIndexServlet(OAuthProperties oauthProperties,
-      ServiceConfigurationProperties serviceConfig, StorageAreaConfiguration config,
+  ServletRegistrationBean<SAIndexServlet> saIndexServlet(
+      OAuthProperties oauthProperties,
+      ServiceConfigurationProperties serviceConfig,
+      StorageAreaConfiguration config,
       TemplateEngine engine) {
     return new ServletRegistrationBean<>(
         new SAIndexServlet(oauthProperties, serviceConfig, config, engine), "");
   }
-
 }

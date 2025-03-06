@@ -4,9 +4,9 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-
 import org.italiangrid.storm.webdav.authz.AuthorizationPolicyService;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.authz.VOMSAuthenticationProvider;
@@ -24,33 +24,35 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-
 @Configuration
 public class VOMSBeans {
 
   @Bean
-  VOMSACValidator vomsValidator(X509CertChainValidatorExt certificateValidator,
-      ServiceConfigurationProperties props) {
+  VOMSACValidator vomsValidator(
+      X509CertChainValidatorExt certificateValidator, ServiceConfigurationProperties props) {
 
     X509CertChainValidatorExt certVal = certificateValidator;
 
     if (props.getVoms().getCache().isEnabled()) {
-      certVal = new CachingCertificateValidator(certificateValidator,
-          TimeUnit.SECONDS.toMillis(props.getVoms().getCache().getEntryLifetimeSec()));
+      certVal =
+          new CachingCertificateValidator(
+              certificateValidator,
+              TimeUnit.SECONDS.toMillis(props.getVoms().getCache().getEntryLifetimeSec()));
     }
 
     VOMSListener listener = new VOMSListener();
 
     VOMSTrustStore trustStore =
-        VOMSTrustStores.newTrustStore(Arrays.asList(props.getVoms().getTrustStore().getDir()),
+        VOMSTrustStores.newTrustStore(
+            Arrays.asList(props.getVoms().getTrustStore().getDir()),
             TimeUnit.SECONDS.toMillis(props.getVoms().getTrustStore().getRefreshIntervalSec()),
             listener);
 
-    return new DefaultVOMSValidator.Builder().certChainValidator(certVal)
-      .validationListener(listener)
-      .trustStore(trustStore)
-      .build();
+    return new DefaultVOMSValidator.Builder()
+        .certChainValidator(certVal)
+        .validationListener(listener)
+        .trustStore(trustStore)
+        .build();
   }
 
   @Bean
@@ -59,8 +61,8 @@ public class VOMSBeans {
   }
 
   @Bean
-  VOMSPreAuthDetailsSource vomsDetailsSource(VOMSACValidator validator,
-      AuthorizationPolicyService ps, VOMapDetailServiceBuilder builder) {
+  VOMSPreAuthDetailsSource vomsDetailsSource(
+      VOMSACValidator validator, AuthorizationPolicyService ps, VOMapDetailServiceBuilder builder) {
     return new VOMSPreAuthDetailsSource(validator, ps, builder.build());
   }
 
@@ -70,7 +72,6 @@ public class VOMSBeans {
     filter.setAuthenticationDetailsSource(ds);
     return filter;
   }
-
 
   @Bean
   FilterRegistrationBean<VOMSAuthenticationFilter> doNotRegisterVomsAuthenticationFilter(

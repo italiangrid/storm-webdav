@@ -9,9 +9,7 @@ import org.springframework.util.Assert;
 
 public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANAuthority> {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -68,5 +66,4 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
 
     return getAuthority();
   }
-
 }

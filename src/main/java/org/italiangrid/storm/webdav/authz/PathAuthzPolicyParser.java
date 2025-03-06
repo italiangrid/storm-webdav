@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.authz;
 
 import java.util.List;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPolicy;
 
 @FunctionalInterface

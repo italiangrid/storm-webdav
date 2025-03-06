@@ -9,12 +9,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService.BEARER_TOKEN_TYPE;
 import static org.mockito.Mockito.lenient;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationServerProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
@@ -27,9 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-
 @ExtendWith(MockitoExtension.class)
 public class TokenServiceTest {
 
@@ -38,24 +36,19 @@ public class TokenServiceTest {
 
   public static final String JWT_SERIALIZED_FORM = "shagdfhdgj.dsadhgjagsdjad.dasdgdhadjsagdh";
 
-  @Mock
-  AuthorizationServerProperties props;
+  @Mock AuthorizationServerProperties props;
 
-  @Mock
-  SignedJwtTokenIssuer tokenIssuer;
+  @Mock SignedJwtTokenIssuer tokenIssuer;
 
   Clock mockClock = Clock.fixed(NOW, ZoneId.systemDefault());
 
   DefaultTokenIssuerService issuerService;
 
-  @Mock
-  SignedJWT jwt;
+  @Mock SignedJWT jwt;
 
-  @Mock
-  AccessTokenRequest request;
+  @Mock AccessTokenRequest request;
 
-  @Mock
-  Authentication auth;
+  @Mock Authentication auth;
 
   JWTClaimsSet claimsSet =
       new JWTClaimsSet.Builder().expirationTime(Date.from(NOW_PLUS_100_SECS)).build();

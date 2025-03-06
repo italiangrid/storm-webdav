@@ -26,8 +26,8 @@ public class AuthorityHolder implements PrincipalMatcher {
   @Override
   public boolean matchesPrincipal(Authentication authentication) {
 
-    return authentication != null && authentication.getAuthorities()
-      .stream()
-      .anyMatch(a -> a.getAuthority().equals(authority.getAuthority()));
+    return authentication != null
+        && authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals(authority.getAuthority()));
   }
 }

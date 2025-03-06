@@ -7,7 +7,6 @@ package org.italiangrid.storm.webdav.oauth.validator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +22,11 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
   private final Set<String> requiredAudiences = new HashSet<>();
 
-  private static final OAuth2Error INVALID_AUDIENCE_ERROR = new OAuth2Error("invalid_audience",
-      "The token audience does not match audience requirements defined for this server", null);
+  private static final OAuth2Error INVALID_AUDIENCE_ERROR =
+      new OAuth2Error(
+          "invalid_audience",
+          "The token audience does not match audience requirements defined for this server",
+          null);
 
   private static final OAuth2TokenValidatorResult SUCCESS = OAuth2TokenValidatorResult.success();
 
@@ -50,10 +52,11 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
       }
     }
 
-    LOG.debug("Audience check failed. Token audience: {}, local audience: {}", jwt.getAudience(),
+    LOG.debug(
+        "Audience check failed. Token audience: {}, local audience: {}",
+        jwt.getAudience(),
         requiredAudiences);
 
     return INVALID_AUDIENCE;
   }
-
 }

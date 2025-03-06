@@ -13,11 +13,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.EnumSet;
-
-import jakarta.servlet.ServletException;
-
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
@@ -31,11 +29,9 @@ import org.springframework.http.HttpMethod;
 @ExtendWith(MockitoExtension.class)
 class TransferFilterActivationTest extends TransferFilterTestSupport {
 
-  @Mock
-  StorageAreaInfo testSa;
+  @Mock StorageAreaInfo testSa;
 
-  @Mock
-  StorageAreaInfo otherSa;
+  @Mock StorageAreaInfo otherSa;
 
   @Override
   @BeforeEach
@@ -86,7 +82,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
   void filterBlocksLocalCopyAcrossStorageAreas() throws IOException, ServletException {
     when(request.getMethod()).thenReturn(COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
-      .thenReturn("https://localhost/other/file");
+        .thenReturn("https://localhost/other/file");
     filter.doFilter(request, response, chain);
     verify(responseWriter).print(error.capture());
     assertThat(error.getValue(), is("Local copy across storage areas is not supported"));
@@ -97,7 +93,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
   void filterIgnoresLocalCopyInSameStorageArea() throws IOException, ServletException {
     when(request.getMethod()).thenReturn(COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
-      .thenReturn("https://localhost/test/otherfile");
+        .thenReturn("https://localhost/test/otherfile");
     filter.doFilter(request, response, chain);
     verify(chain).doFilter(request, response);
   }
@@ -106,10 +102,10 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
   void filterHandlesLocalCopyWithTransferHeader() throws IOException, ServletException {
     when(request.getMethod()).thenReturn(COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
-      .thenReturn("https://localhost/test/otherfile");
+        .thenReturn("https://localhost/test/otherfile");
     when(requestHeaderNames.hasMoreElements()).thenReturn(true, true, false);
-    when(requestHeaderNames.nextElement()).thenReturn(TransferConstants.DESTINATION_HEADER,
-        TRANSFER_HEADER_AUTHORIZATION_KEY);
+    when(requestHeaderNames.nextElement())
+        .thenReturn(TransferConstants.DESTINATION_HEADER, TRANSFER_HEADER_AUTHORIZATION_KEY);
 
     filter.doFilter(request, response, chain);
     verifyNoInteractions(chain);
@@ -130,5 +126,4 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verifyNoInteractions(chain);
   }
-
 }

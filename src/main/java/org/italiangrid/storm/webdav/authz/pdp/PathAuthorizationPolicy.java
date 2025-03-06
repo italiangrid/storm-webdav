@@ -4,12 +4,10 @@
 
 package org.italiangrid.storm.webdav.authz.pdp;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +49,7 @@ public class PathAuthorizationPolicy {
 
     LOG.debug("Policy {} ({}) matches principal: {}", getId(), getDecription(), principalMatched);
 
-
     return principalMatched;
-
   }
 
   public String getSa() {
@@ -71,7 +67,6 @@ public class PathAuthorizationPolicy {
   public String getDecription() {
     return decription;
   }
-
 
   public List<PrincipalMatcher> getPrincipalMatchers() {
     return principalMatchers;
@@ -154,9 +149,18 @@ public class PathAuthorizationPolicy {
 
   @Override
   public String toString() {
-    return "PathAuthorizationPolicy [id=" + id + ", sa=" + sa + ", decription=" + decription
-        + ", effect=" + effect + ", requestMatchers=" + requestMatchers + ", principalMatchers="
-        + principalMatchers + "]";
+    return "PathAuthorizationPolicy [id="
+        + id
+        + ", sa="
+        + sa
+        + ", decription="
+        + decription
+        + ", effect="
+        + effect
+        + ", requestMatchers="
+        + requestMatchers
+        + ", principalMatchers="
+        + principalMatchers
+        + "]";
   }
-
 }

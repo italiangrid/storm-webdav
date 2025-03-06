@@ -4,19 +4,17 @@
 
 package org.italiangrid.storm.webdav.milton;
 
+import io.milton.http.ResourceFactory;
+import io.milton.http.exceptions.BadRequestException;
+import io.milton.http.exceptions.NotAuthorizedException;
+import io.milton.resource.Resource;
 import java.io.File;
-
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.milton.http.ResourceFactory;
-import io.milton.http.exceptions.BadRequestException;
-import io.milton.http.exceptions.NotAuthorizedException;
-import io.milton.resource.Resource;
 
 public class StoRMResourceFactory implements ResourceFactory {
 
@@ -30,15 +28,17 @@ public class StoRMResourceFactory implements ResourceFactory {
 
   private final ReplaceContentStrategy rcs;
 
-  public StoRMResourceFactory(FilesystemAccess fs, ExtendedAttributesHelper attrsHelper,
-      PathResolver resolver, ReplaceContentStrategy rcs) {
+  public StoRMResourceFactory(
+      FilesystemAccess fs,
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      ReplaceContentStrategy rcs) {
 
     this.fs = fs;
     this.resolver = resolver;
     this.attrsHelper = attrsHelper;
     this.rcs = rcs;
   }
-
 
   @Override
   public Resource getResource(String host, String path)
@@ -58,7 +58,8 @@ public class StoRMResourceFactory implements ResourceFactory {
       if (LOG.isDebugEnabled()) {
         LOG.debug(
             "Requested file '{}' does not exists or user {} does not have the rights to read it.",
-            requestedFile, System.getProperty("user.name"));
+            requestedFile,
+            System.getProperty("user.name"));
       }
       return null;
     }
@@ -83,5 +84,4 @@ public class StoRMResourceFactory implements ResourceFactory {
   public ReplaceContentStrategy getReplaceContentStrategy() {
     return rcs;
   }
-
 }

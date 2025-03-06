@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.server.util;
 
 public class Version {
 
-  private Version() {
-
-  }
+  private Version() {}
 
   public static String version() {
 
@@ -18,5 +16,4 @@ public class Version {
     }
     return version;
   }
-
 }

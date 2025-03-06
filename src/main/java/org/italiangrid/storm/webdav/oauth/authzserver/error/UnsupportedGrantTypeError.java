@@ -4,16 +4,12 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver.error;
 
-public class UnsupportedGrantTypeError extends RuntimeException{
+public class UnsupportedGrantTypeError extends RuntimeException {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
-
 
   public UnsupportedGrantTypeError(String message) {
     super(message);
   }
-
 }

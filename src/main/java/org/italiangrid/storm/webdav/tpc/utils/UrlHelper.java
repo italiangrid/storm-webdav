@@ -23,9 +23,5 @@ public class UrlHelper {
     } catch (URISyntaxException e) {
       return false;
     }
-
   }
-
-
-
 }

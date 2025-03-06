@@ -11,5 +11,4 @@ import java.io.InputStream;
 public interface ReplaceContentStrategy {
 
   void replaceContent(InputStream in, Long length, File targetFile) throws IOException;
-
 }

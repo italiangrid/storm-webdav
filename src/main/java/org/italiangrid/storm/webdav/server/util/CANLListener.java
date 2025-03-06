@@ -4,14 +4,13 @@
 
 package org.italiangrid.storm.webdav.server.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import eu.emi.security.authn.x509.StoreUpdateListener;
 import eu.emi.security.authn.x509.ValidationError;
 import eu.emi.security.authn.x509.ValidationErrorListener;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.FormatMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CANLListener implements StoreUpdateListener, ValidationErrorListener {
 
@@ -39,10 +38,8 @@ public class CANLListener implements StoreUpdateListener, ValidationErrorListene
   public boolean onValidationError(ValidationError error) {
 
     String certChainInfo = CertificateUtils.format(error.getChain(), FormatMode.COMPACT_ONE_LINE);
-    LOG.warn("Certificate validation error for chain: {}. Error: {}", certChainInfo,
-        error.getMessage());
+    LOG.warn(
+        "Certificate validation error for chain: {}. Error: {}", certChainInfo, error.getMessage());
     return false;
-
   }
-
 }

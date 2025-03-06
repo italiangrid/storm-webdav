@@ -9,7 +9,6 @@ import io.milton.http.AuthenticationHandler;
 import io.milton.http.Handler;
 import io.milton.http.http11.DefaultHttp11ResponseHandler.BUFFERING;
 import io.milton.http.webdav.MoveHandler;
-
 import java.util.List;
 
 public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
@@ -32,7 +31,6 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
     setEnableFormAuth(false);
     setEnableCookieAuth(false);
     setEnableDigestAuth(false);
-
   }
 
   @Override
@@ -41,7 +39,6 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
     super.afterInit();
     disableDeleteExistingBeforeMoveInMoveHandler();
   }
-
 
   private void disableDeleteExistingBeforeMoveInMoveHandler() {
 

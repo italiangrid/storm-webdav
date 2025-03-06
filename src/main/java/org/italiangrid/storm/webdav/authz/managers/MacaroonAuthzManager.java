@@ -5,7 +5,6 @@
 package org.italiangrid.storm.webdav.authz.managers;
 
 import java.util.function.Supplier;
-
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -21,17 +20,19 @@ public class MacaroonAuthzManager implements AuthorizationManager<RequestAuthori
    */
   @Deprecated(forRemoval = true)
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication,
-        requestAuthorizationContext) instanceof AuthorizationDecision authorizationDecision) {
+    if (authorize(authentication, requestAuthorizationContext)
+        instanceof AuthorizationDecision authorizationDecision) {
       return authorizationDecision;
     }
     return null;
   }
 
   @Override
-  public AuthorizationResult authorize(Supplier<Authentication> authentication,
+  public AuthorizationResult authorize(
+      Supplier<Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
     Assert.notNull(authentication.get(), "authentication must not be null");
     Assert.notNull(requestAuthorizationContext, "requestAuthorizationContext must not be null");
@@ -41,5 +42,4 @@ public class MacaroonAuthzManager implements AuthorizationManager<RequestAuthori
     }
     return null;
   }
-
 }

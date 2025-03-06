@@ -12,11 +12,11 @@ public class StormFailureAnalyzer extends AbstractFailureAnalyzer<StoRMIntializa
 
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, StoRMIntializationError cause) {
-    return new FailureAnalysis(getFailureDescription(cause), "Check the WebDAV service configuration!", cause);
+    return new FailureAnalysis(
+        getFailureDescription(cause), "Check the WebDAV service configuration!", cause);
   }
 
   protected String getFailureDescription(StoRMIntializationError cause) {
     return String.format("Storm WebDAV could not start due to an error: %s", cause.getMessage());
   }
-
 }

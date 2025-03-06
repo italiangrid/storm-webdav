@@ -6,6 +6,9 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.mockito.Mockito.lenient;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -14,11 +17,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Enumeration;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -64,53 +62,41 @@ public class TransferFilterTestSupport {
   public static final URI HTTP_URL_URI = URI.create(HTTP_URL);
   public static final URI HTTPS_URL_URI = URI.create(HTTPS_URL);
 
-  public static final String[] INVALID_URLs =
-      {"http:whatever", "httpg://storm.example/test", "gsiftp://whatever/test"};
+  public static final String[] INVALID_URLs = {
+    "http:whatever", "httpg://storm.example/test", "gsiftp://whatever/test"
+  };
 
   public static final String EXPECTED_HEADER = HttpHeaders.EXPECT;
   public static final String EXPECTED_VALUE = HeaderElements.CONTINUE;
 
-  @Mock
-  FilterChain chain;
+  @Mock FilterChain chain;
 
-  @Mock
-  HttpServletRequest request;
+  @Mock HttpServletRequest request;
 
-  @Mock
-  HttpServletResponse response;
+  @Mock HttpServletResponse response;
 
-  @Mock
-  PrintWriter responseWriter;
+  @Mock PrintWriter responseWriter;
 
-  @Mock
-  TransferClient client;
+  @Mock TransferClient client;
 
-  @Mock
-  PathResolver resolver;
+  @Mock PathResolver resolver;
 
-  @Mock
-  Enumeration<String> requestHeaderNames;
+  @Mock Enumeration<String> requestHeaderNames;
 
   TransferFilter filter;
 
-  @Captor
-  ArgumentCaptor<String> error;
+  @Captor ArgumentCaptor<String> error;
 
-  @Captor
-  ArgumentCaptor<Integer> httpStatus;
+  @Captor ArgumentCaptor<Integer> httpStatus;
 
-  @Captor
-  ArgumentCaptor<GetTransferRequest> getXferRequest;
+  @Captor ArgumentCaptor<GetTransferRequest> getXferRequest;
 
-  @Captor
-  ArgumentCaptor<PutTransferRequest> putXferRequest;
+  @Captor ArgumentCaptor<PutTransferRequest> putXferRequest;
 
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
   protected void setup() throws IOException {
     filter = new TransferFilter(clock, client, resolver, lus, true, 1024L * 1024L);
     lenient().when(request.getHeaderNames()).thenReturn(requestHeaderNames);
-
   }
-
 }

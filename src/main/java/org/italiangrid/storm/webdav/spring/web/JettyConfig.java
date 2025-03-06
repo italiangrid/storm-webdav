@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
+import com.codahale.metrics.MetricRegistry;
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -18,28 +20,35 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.codahale.metrics.MetricRegistry;
-
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-
 @Configuration
 public class JettyConfig {
 
   @Bean
-  JettyServerCustomizer defaultJettyServerCustomizer(ServiceConfigurationProperties serviceConfig,
-      ServiceConfiguration configuration, StorageAreaConfiguration saConf,
-      ServerProperties serverProperties, MetricRegistry registry, ConfigurationLogger confLogger,
+  JettyServerCustomizer defaultJettyServerCustomizer(
+      ServiceConfigurationProperties serviceConfig,
+      ServiceConfiguration configuration,
+      StorageAreaConfiguration saConf,
+      ServerProperties serverProperties,
+      MetricRegistry registry,
+      ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
 
-    return new DefaultJettyServerCustomizer(serviceConfig, configuration, saConf, serverProperties,
-        registry, confLogger, certChainValidator);
-
+    return new DefaultJettyServerCustomizer(
+        serviceConfig,
+        configuration,
+        saConf,
+        serverProperties,
+        registry,
+        confLogger,
+        certChainValidator);
   }
 
   @Bean
   WebServerFactoryCustomizer<JettyServletWebServerFactory> defaultWebServerFactory(
-      ServiceConfiguration configuration, ServerProperties serverProperties,
-      JettyServerCustomizer serverCustomizer, MetricRegistry registry) {
+      ServiceConfiguration configuration,
+      ServerProperties serverProperties,
+      JettyServerCustomizer serverCustomizer,
+      MetricRegistry registry) {
 
     return new DefaultWebServerFactory(configuration, serverProperties, serverCustomizer, registry);
   }

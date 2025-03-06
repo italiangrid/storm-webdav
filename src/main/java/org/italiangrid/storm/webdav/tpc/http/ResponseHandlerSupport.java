@@ -5,9 +5,8 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import java.util.Map;
-
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.core5.http.HttpResponse;
 import org.slf4j.MDC;
 
 public abstract class ResponseHandlerSupport {
@@ -29,5 +28,4 @@ public abstract class ResponseHandlerSupport {
       throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
     }
   }
-
 }

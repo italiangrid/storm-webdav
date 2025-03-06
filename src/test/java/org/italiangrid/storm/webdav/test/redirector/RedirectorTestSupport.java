@@ -5,14 +5,12 @@
 package org.italiangrid.storm.webdav.test.redirector;
 
 import java.net.URI;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 import org.italiangrid.storm.webdav.test.utils.TestUtils;
 
 public class RedirectorTestSupport implements TestUtils {
-
 
   public static final String PATH = "/example/file";
   public static final String PATH_WITH_PREFIX = "/prefix" + PATH;
@@ -59,5 +57,4 @@ public class RedirectorTestSupport implements TestUtils {
 
     return config;
   }
-
 }

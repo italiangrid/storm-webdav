@@ -9,5 +9,4 @@ import org.springframework.security.core.Authentication;
 public interface MacaroonIssuerService {
 
   MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth);
-  
 }

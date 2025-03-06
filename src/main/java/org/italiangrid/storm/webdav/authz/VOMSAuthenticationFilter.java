@@ -4,16 +4,13 @@
 
 package org.italiangrid.storm.webdav.authz;
 
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
-
-import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 
@@ -36,16 +33,14 @@ public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
     return null;
   }
 
-
   public Object extractPrincipal(X509Certificate cert) {
 
     return cert.getSubjectX500Principal().getName();
   }
 
   @Override
-  public boolean principalChanged(HttpServletRequest request,
-      Authentication currentAuthentication) {
+  public boolean principalChanged(
+      HttpServletRequest request, Authentication currentAuthentication) {
     return super.principalChanged(request, currentAuthentication);
   }
-
 }

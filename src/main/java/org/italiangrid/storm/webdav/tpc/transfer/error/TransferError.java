@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.tpc.transfer.error;
 
 public class TransferError extends RuntimeException {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public TransferError(String message) {
@@ -18,5 +16,4 @@ public class TransferError extends RuntimeException {
   public TransferError(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

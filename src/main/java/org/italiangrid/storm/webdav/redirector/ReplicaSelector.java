@@ -5,11 +5,9 @@
 package org.italiangrid.storm.webdav.redirector;
 
 import java.util.Optional;
-
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.RedirectorProperties.ReplicaEndpointProperties;
 
 public interface ReplicaSelector {
 
   Optional<ReplicaEndpointProperties> selectReplica();
-
 }

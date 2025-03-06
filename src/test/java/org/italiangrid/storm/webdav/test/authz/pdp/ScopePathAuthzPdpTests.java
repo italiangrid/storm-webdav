@@ -15,14 +15,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
@@ -51,31 +49,23 @@ public class ScopePathAuthzPdpTests {
   public static final String COPY_METHOD = "COPY";
   public static final String MOVE_METHOD = "MOVE";
 
-  @Mock
-  PathResolver pathResolver;
+  @Mock PathResolver pathResolver;
 
-  @Mock
-  LocalURLService localUrlService;
+  @Mock LocalURLService localUrlService;
 
-  @Mock
-  Enumeration<String> requestHeaderNames;
+  @Mock Enumeration<String> requestHeaderNames;
 
-  @Spy
-  ServiceConfigurationProperties config = new ServiceConfigurationProperties();
+  @Spy ServiceConfigurationProperties config = new ServiceConfigurationProperties();
 
-  @Mock
-  HttpServletRequest request;
+  @Mock HttpServletRequest request;
 
-  @Mock
-  Jwt jwt;
+  @Mock Jwt jwt;
 
-  @Mock
-  StorageAreaInfo sa;
+  @Mock StorageAreaInfo sa;
 
   JwtAuthenticationToken jwtAuth;
 
-  @InjectMocks
-  WlcgStructuredPathAuthorizationPdp pdp;
+  @InjectMocks WlcgStructuredPathAuthorizationPdp pdp;
 
   @BeforeEach
   void setup() throws MalformedURLException {
@@ -94,9 +84,11 @@ public class ScopePathAuthzPdpTests {
   void invalidAuthentication() {
 
     Authentication auth = mock(Authentication.class);
-    assertThrows(IllegalArgumentException.class, () -> {
-      pdp.authorizeRequest(newAuthorizationRequest(request, auth));
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          pdp.authorizeRequest(newAuthorizationRequest(request, auth));
+        });
   }
 
   @Test
@@ -231,8 +223,9 @@ public class ScopePathAuthzPdpTests {
       assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
     }
 
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.create:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.create:/");
     lenient().when(pathResolver.pathExists("/test/example")).thenReturn(true);
 
     for (String m : REPLACE_METHODS) {
@@ -265,8 +258,9 @@ public class ScopePathAuthzPdpTests {
 
   @Test
   void modifyMethodsRequestsRequireStorageModifyOrCreate() {
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.create:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.create:/");
 
     for (String m : MODIFY_METHODS) {
       lenient().when(request.getMethod()).thenReturn(m);
@@ -277,8 +271,9 @@ public class ScopePathAuthzPdpTests {
       assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
     }
 
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.modify:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.modify:/");
 
     for (String m : MODIFY_METHODS) {
       lenient().when(request.getMethod()).thenReturn(m);
@@ -300,8 +295,9 @@ public class ScopePathAuthzPdpTests {
     assertThat(result.getMessage().isPresent(), is(true));
     assertThat(result.getMessage().get(), containsString("Insufficient token scope"));
 
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.write:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.write:/");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
   }
@@ -337,8 +333,9 @@ public class ScopePathAuthzPdpTests {
   @Test
   void testPushTpcRequiresRead() {
     lenient().when(request.getMethod()).thenReturn(COPY_METHOD);
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.create:/ storage.modify:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.create:/ storage.modify:/");
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
@@ -354,8 +351,9 @@ public class ScopePathAuthzPdpTests {
   @Test
   void testMoveRequiresModify() {
     lenient().when(request.getMethod()).thenReturn(MOVE_METHOD);
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.create:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.create:/");
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
@@ -370,8 +368,9 @@ public class ScopePathAuthzPdpTests {
 
   @Test
   void testModifyImpliesCreate() {
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.read:/ storage.modify:/");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.read:/ storage.modify:/");
     lenient().when(pathResolver.pathExists("/test/example")).thenReturn(false);
 
     for (String m : REPLACE_METHODS) {
@@ -385,9 +384,11 @@ public class ScopePathAuthzPdpTests {
   @Test
   void testUnsupportedMethod() {
     lenient().when(request.getMethod()).thenReturn("TRACE");
-    assertThrows(IllegalArgumentException.class, () -> {
-      pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+        });
   }
 
   @Test
@@ -403,7 +404,6 @@ public class ScopePathAuthzPdpTests {
     lenient().when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
-
   }
 
   @Test
@@ -422,8 +422,9 @@ public class ScopePathAuthzPdpTests {
 
     lenient().when(pathResolver.resolveStorageArea(anyString())).thenReturn(sa);
     lenient().when(request.getPathInfo()).thenReturn("test/dir/subdir");
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.create:/dir/subdir");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.create:/dir/subdir");
     lenient().when(request.getMethod()).thenReturn("MKCOL");
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
@@ -433,8 +434,9 @@ public class ScopePathAuthzPdpTests {
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
 
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.modify:/dir/subdir");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.modify:/dir/subdir");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.PERMIT));
 
@@ -458,8 +460,9 @@ public class ScopePathAuthzPdpTests {
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.DENY));
 
-    lenient().when(jwt.getClaimAsString(SCOPE_CLAIM))
-      .thenReturn("openid storage.stage:/dir/subdir");
+    lenient()
+        .when(jwt.getClaimAsString(SCOPE_CLAIM))
+        .thenReturn("openid storage.stage:/dir/subdir");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertThat(result.getDecision(), is(Decision.DENY));
 

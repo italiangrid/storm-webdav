@@ -4,14 +4,13 @@
 
 package org.italiangrid.storm.webdav.milton;
 
-import java.util.Date;
-
 import io.milton.http.Auth;
 import io.milton.http.Request;
 import io.milton.http.Request.Method;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.Resource;
+import java.util.Date;
 
 public class PhantomResource implements Resource {
 
@@ -59,10 +58,8 @@ public class PhantomResource implements Resource {
   }
 
   @Override
-  public String checkRedirect(Request request) throws NotAuthorizedException,
-    BadRequestException {
+  public String checkRedirect(Request request) throws NotAuthorizedException, BadRequestException {
 
     return null;
   }
-
 }

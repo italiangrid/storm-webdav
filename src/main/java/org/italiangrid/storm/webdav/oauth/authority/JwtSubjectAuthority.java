@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.oauth.authority;
 
 public class JwtSubjectAuthority extends JwtAuthority {
 
-  /**
-   * 
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   public static final String AUTH_TEMPLATE = "O_sub(%s,%s)";

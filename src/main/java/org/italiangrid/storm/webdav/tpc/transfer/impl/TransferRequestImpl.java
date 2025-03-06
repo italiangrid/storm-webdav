@@ -4,19 +4,17 @@
 
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
+import com.google.common.collect.Multimap;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Multimap;
 
 public abstract class TransferRequestImpl implements TransferRequest {
   public static final Logger LOG = LoggerFactory.getLogger(TransferRequestImpl.class);
@@ -41,8 +39,14 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   private Optional<TransferStatus> lastTransferStatus = Optional.empty();
 
-  TransferRequestImpl(String uuid, String path, URI uri, Multimap<String, String> xferHeaders,
-      SciTag scitag, boolean verifyChecksum, boolean overwrite) {
+  TransferRequestImpl(
+      String uuid,
+      String path,
+      URI uri,
+      Multimap<String, String> xferHeaders,
+      SciTag scitag,
+      boolean verifyChecksum,
+      boolean overwrite) {
 
     this.uuid = uuid;
     this.path = path;
@@ -149,7 +153,6 @@ public abstract class TransferRequestImpl implements TransferRequest {
     return lastTransferStatus.get().getTransferByteCount();
   }
 
-
   @Override
   public Duration duration() {
 
@@ -176,7 +179,6 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
     return lastTransferStatus.isPresent()
         && lastTransferStatus.get().getStatus().equals(Status.DONE);
-
   }
 
   @Override
