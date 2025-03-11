@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 set -ex
 
 STORAGE_DIR=${STORAGE_DIR:-/storage}
