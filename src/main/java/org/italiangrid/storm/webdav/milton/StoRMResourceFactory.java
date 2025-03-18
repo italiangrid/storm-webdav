@@ -9,6 +9,7 @@ import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.Resource;
 import java.io.File;
+import java.nio.file.Path;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
@@ -63,12 +64,19 @@ public class StoRMResourceFactory implements ResourceFactory {
       }
       return null;
     }
+    return resourceOf(requestedFile);
+  }
 
-    if (requestedFile.isDirectory()) {
-      return new StoRMDirectoryResource(this, requestedFile);
+  StoRMResource resourceOf(File target) {
+    if (target.isDirectory()) {
+      return new StoRMDirectoryResource(this, target);
     }
 
-    return new StoRMFileResource(this, requestedFile);
+    return new StoRMFileResource(this, target);
+  }
+
+  StoRMResource resourceOf(Path target) {
+    return resourceOf(target.toFile());
   }
 
   public FilesystemAccess getFilesystemAccess() {
