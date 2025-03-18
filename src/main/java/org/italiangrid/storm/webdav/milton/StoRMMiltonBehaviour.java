@@ -13,6 +13,7 @@ import io.milton.http.Response;
 import io.milton.http.Response.Status;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.ConflictException;
+import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.http.http11.Http11ResponseHandler;
 import java.io.IOException;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
@@ -65,6 +66,9 @@ public class StoRMMiltonBehaviour implements Filter {
       responseHandler.respondBadRequest(e.getResource(), response, request);
     } catch (DirectoryNotEmpty e) {
       sendError(response, Status.SC_PRECONDITION_FAILED, e.getMessage());
+    } catch (NotAuthorizedException e) {
+      // Message is vague to avoid leaking information on why the request was forbidden.
+      sendError(response, Status.SC_FORBIDDEN, "Permission denied.");
     } catch (Exception t) {
       LOG.error(t.getMessage(), t);
       responseHandler.respondServerError(request, response, t.getMessage());

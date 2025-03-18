@@ -17,11 +17,11 @@ import io.milton.resource.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
@@ -73,18 +73,18 @@ public class StoRMDirectoryResource extends StoRMResource
 
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
+    try {
+      var factory = getResourceFactory();
 
-    List<StoRMResource> childResources = new ArrayList<>();
-
-    for (File f : file.listFiles()) {
-      if (f.isDirectory()) {
-        childResources.add(new StoRMDirectoryResource(getResourceFactory(), f));
-      } else if (f.isFile()) {
-        childResources.add(new StoRMFileResource(getResourceFactory(), f));
-      }
+      return Files.list(file.toPath())
+          .filter(p -> Files.isDirectory(p) || Files.isRegularFile(p))
+          .map(factory::resourceOf)
+          .toList();
+    } catch (AccessDeniedException e) {
+      throw new NotAuthorizedException(this, e);
+    } catch (IOException e) {
+      throw new StoRMWebDAVError(e);
     }
-
-    return childResources;
   }
 
   @Override
