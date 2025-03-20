@@ -51,9 +51,6 @@ SPDX-License-Identifier: Apache-2.0
     <owner-config.version>1.0.12</owner-config.version>
 
     <mock-server.version>5.15.0</mock-server.version>
-
-    <!-- Fixed to 3.1.2 due to https://github.com/thymeleaf/thymeleaf/issues/1027, remove this property after the issue is fixed -->
-    <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
   </properties>
 
   <build>
