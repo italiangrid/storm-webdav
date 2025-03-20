@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
-@RequestMapping("/errors")
+@RequestMapping(PathConstants.ERRORS_PATH)
 public class SecurityErrorController {
 
   @ResponseStatus(BAD_REQUEST)

@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class SAConfigurationParser implements StorageAreaConfiguration {
 
-  private static final Set<String> RESERVED_SA_NAMES =
-      Set.of("oauth", ".well-known", "actuator", "assets", "authn-info", "logout", "oidc-login");
+  private static final Set<String> RESERVED_SA_NAMES = Set.of(".storm-webdav", ".well-known");
 
   private final ServiceConfiguration serviceConfig;
 

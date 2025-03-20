@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AuthnInfoController {
 
-  @GetMapping("/authn-info")
+  @GetMapping(PathConstants.AUTHN_INFO_PATH)
   String getAuthenticationInfo(Authentication authentication, Model model) {
     model.addAttribute("authnSimpleName", authentication.getClass().getSimpleName());
     return "authn-info";

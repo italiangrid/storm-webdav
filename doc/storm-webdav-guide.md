@@ -203,7 +203,7 @@ systemctl status storm-webdav
 Check that the service responds:
 
 ```
-$ curl http://localhost:8085/actuator/health
+$ curl http://localhost:8085/.storm-webdav/actuator/health
 {"status":"UP"}
 ```
 

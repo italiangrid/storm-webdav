@@ -17,6 +17,7 @@ import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
@@ -70,6 +71,8 @@ public class SAIndexServlet extends HttpServlet {
       throws ServletException, IOException {
 
     SecurityContext securityContext = SecurityContextHolder.getContext();
+    req.setAttribute(PathConstants.class.getSimpleName(), PathConstants.pathConstants());
+
     req.setAttribute(SA_INDEX_MAP_KEY, saIndexMap);
 
     req.setAttribute(AUTHN_KEY, securityContext.getAuthentication());

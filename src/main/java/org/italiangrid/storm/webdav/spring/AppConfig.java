@@ -95,10 +95,12 @@ import org.italiangrid.storm.webdav.tpc.TpcSchemePortResolver;
 import org.italiangrid.storm.webdav.tpc.TpcTlsSocketStrategy;
 import org.italiangrid.storm.webdav.tpc.http.DropAuthorizationHeaderExec;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -403,8 +405,7 @@ public class AppConfig {
   AuthzServerMetadata metadata(ServiceConfigurationProperties props) {
     AuthzServerMetadata md = new AuthzServerMetadata();
     md.setIssuer(props.getAuthzServer().getIssuer());
-    String tokenEndpoint = String.format("%s/oauth/token", props.getAuthzServer().getIssuer());
-    md.setTokenEndpoint(tokenEndpoint);
+    md.setTokenEndpoint(props.getAuthzServer().getIssuer() + PathConstants.OAUTH_TOKEN_PATH);
     return md;
   }
 
@@ -463,5 +464,13 @@ public class AppConfig {
   @ConditionalOnProperty(name = "spring.session.store-type", havingValue = "none")
   public SessionRepository<MapSession> sessionRepository() {
     return new MapSessionRepository(new HashMap<>());
+  }
+
+  @Bean
+  @Primary
+  public WebEndpointProperties customizeWebEndpointProperties(
+      WebEndpointProperties webEndpointProperties) {
+    webEndpointProperties.setBasePath(PathConstants.ACTUATOR_PATH);
+    return webEndpointProperties;
   }
 }

@@ -41,7 +41,7 @@ public class OidcLoginController {
             .toList();
   }
 
-  @GetMapping("/oidc-login")
+  @GetMapping(PathConstants.OIDC_LOGIN_PATH)
   String oidcLoginController(Model model) {
     model.addAttribute("clients", clients);
     return "oidc-login";

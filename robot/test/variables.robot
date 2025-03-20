@@ -14,7 +14,7 @@ ${davs.port}   8443
 ${dav.endpoint}   http://${dav.host}:${dav.port}
 ${davs.endpoint}  https://${dav.host}:${davs.port}
 
-${token.endpoint}  https://${dav.host}:${davs.port}/oauth/token
+${token.endpoint}  https://${dav.host}:${davs.port}/.storm-webdav/oauth/token
 
 ${remote.dav.host}             storm-alias.test.example
 ${remote.dav.port}             80

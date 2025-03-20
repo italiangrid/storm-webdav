@@ -71,7 +71,7 @@ services:
       - ../:/code:ro
 
     healthcheck:
-      test: curl http://localhost:8085/actuator/health --fail || exit 1
+      test: curl http://localhost:8085/.storm-webdav/actuator/health --fail || exit 1
       interval: 5s
       timeout: 3s
       retries: 10

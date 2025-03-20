@@ -45,6 +45,7 @@ import org.italiangrid.storm.webdav.oauth.StormJwtAuthenticationConverter;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,20 +149,16 @@ public class SecurityConfig {
 
     http.authorizeHttpRequests(
         authorize ->
-            authorize.requestMatchers(AntPathRequestMatcher.antMatcher("/errors/**")).permitAll());
-
-    http.authorizeHttpRequests(
-        authorize ->
             authorize
                 .requestMatchers(
                     AntPathRequestMatcher.antMatcher("/"),
                     AntPathRequestMatcher.antMatcher("/robots.txt"),
-                    AntPathRequestMatcher.antMatcher("/assets/css/*"),
-                    AntPathRequestMatcher.antMatcher("/assets/js/*"),
-                    AntPathRequestMatcher.antMatcher("/authn-info"),
-                    AntPathRequestMatcher.antMatcher("/actuator/*"),
+                    AntPathRequestMatcher.antMatcher(PathConstants.ASSETS_PATH + "/**"),
+                    AntPathRequestMatcher.antMatcher(PathConstants.AUTHN_INFO_PATH),
+                    AntPathRequestMatcher.antMatcher(PathConstants.ACTUATOR_PATH + "/*"),
+                    AntPathRequestMatcher.antMatcher(PathConstants.ERRORS_PATH + "/*"),
                     AntPathRequestMatcher.antMatcher("/status/metrics"),
-                    AntPathRequestMatcher.antMatcher("/oauth/token"),
+                    AntPathRequestMatcher.antMatcher(PathConstants.OAUTH_TOKEN_PATH),
                     AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
                     AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
                     AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
@@ -175,7 +172,7 @@ public class SecurityConfig {
     }
 
     AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
-    handler.setErrorPage("/errors/403");
+    handler.setErrorPage(PathConstants.ERRORS_PATH + "/403");
     http.exceptionHandling(
         exception ->
             exception.accessDeniedHandler(
@@ -184,7 +181,7 @@ public class SecurityConfig {
     http.logout(
         logout ->
             logout
-                .logoutUrl("/logout")
+                .logoutUrl(PathConstants.LOGOUT_PATH)
                 .clearAuthentication(true)
                 .invalidateHttpSession(true)
                 .logoutSuccessUrl("/"));
@@ -203,13 +200,16 @@ public class SecurityConfig {
   @Bean
   static ErrorPageRegistrar securityErrorPageRegistrar() {
     return r -> {
-      r.addErrorPages(new ErrorPage(RequestRejectedException.class, "/errors/400"));
-      r.addErrorPages(new ErrorPage(InsufficientAuthenticationException.class, "/errors/401"));
-      r.addErrorPages(new ErrorPage(BAD_REQUEST, "/errors/400"));
-      r.addErrorPages(new ErrorPage(UNAUTHORIZED, "/errors/401"));
-      r.addErrorPages(new ErrorPage(FORBIDDEN, "/errors/403"));
-      r.addErrorPages(new ErrorPage(NOT_FOUND, "/errors/404"));
-      r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, "/errors/405"));
+      r.addErrorPages(
+          new ErrorPage(RequestRejectedException.class, PathConstants.ERRORS_PATH + "/400"));
+      r.addErrorPages(
+          new ErrorPage(
+              InsufficientAuthenticationException.class, PathConstants.ERRORS_PATH + "/401"));
+      r.addErrorPages(new ErrorPage(BAD_REQUEST, PathConstants.ERRORS_PATH + "/400"));
+      r.addErrorPages(new ErrorPage(UNAUTHORIZED, PathConstants.ERRORS_PATH + "/401"));
+      r.addErrorPages(new ErrorPage(FORBIDDEN, PathConstants.ERRORS_PATH + "/403"));
+      r.addErrorPages(new ErrorPage(NOT_FOUND, PathConstants.ERRORS_PATH + "/404"));
+      r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, PathConstants.ERRORS_PATH + "/405"));
     };
   }
 
@@ -237,9 +237,9 @@ public class SecurityConfig {
       http.authorizeHttpRequests(
           authorize ->
               authorize
-                  .requestMatchers(AntPathRequestMatcher.antMatcher("/oidc-login"))
+                  .requestMatchers(AntPathRequestMatcher.antMatcher(PathConstants.OIDC_LOGIN_PATH))
                   .permitAll());
-      http.oauth2Login(oauth2Login -> oauth2Login.loginPage("/oidc-login"));
+      http.oauth2Login(oauth2Login -> oauth2Login.loginPage(PathConstants.OIDC_LOGIN_PATH));
     }
   }
 

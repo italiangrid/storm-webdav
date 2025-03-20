@@ -23,6 +23,7 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationFilter;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -77,27 +78,33 @@ public class OAuthAuthzServerIntegrationTests {
 
   @Test
   void getNotSupported() throws Exception {
-    mvc.perform(get("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
+    mvc.perform(get(PathConstants.OAUTH_TOKEN_PATH).contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
   void postNotSupportedForAnonymous() throws Exception {
-    mvc.perform(post("/oauth/token").contentType(APPLICATION_FORM_URLENCODED))
+    mvc.perform(post(PathConstants.OAUTH_TOKEN_PATH).contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   @WithMockUser(username = "test")
   void postNotSupportedForAuthenticatedNonVomsUsers() throws Exception {
-    mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
+    mvc.perform(
+            post(PathConstants.OAUTH_TOKEN_PATH)
+                .content(CONTENT)
+                .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isForbidden());
   }
 
   @Test
   @WithMockVOMSUser(acExpirationSecs = 200)
   void postSupportedForAuthenticatedVomsUsers() throws Exception {
-    mvc.perform(post("/oauth/token").content(CONTENT).contentType(APPLICATION_FORM_URLENCODED))
+    mvc.perform(
+            post(PathConstants.OAUTH_TOKEN_PATH)
+                .content(CONTENT)
+                .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
         .andExpect(jsonPath("$.expires_in", is(200)))
@@ -108,7 +115,9 @@ public class OAuthAuthzServerIntegrationTests {
   @WithMockVOMSUser
   void invalidGrantTypeRejected() throws Exception {
     mvc.perform(
-            post("/oauth/token").content(CONTENT_CUSTOM).contentType(APPLICATION_FORM_URLENCODED))
+            post(PathConstants.OAUTH_TOKEN_PATH)
+                .content(CONTENT_CUSTOM)
+                .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error", is(UNSUPPORTED_GRANT_TYPE)))
         .andExpect(jsonPath("$.error_description", is("Invalid grant type: " + CUSTOM_GRANT_TYPE)))
@@ -119,7 +128,7 @@ public class OAuthAuthzServerIntegrationTests {
   @WithMockVOMSUser
   void requestedLifetimeHonoured() throws Exception {
     mvc.perform(
-            post("/oauth/token")
+            post(PathConstants.OAUTH_TOKEN_PATH)
                 .content(format("%s&lifetime=50", CONTENT))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
@@ -132,7 +141,7 @@ public class OAuthAuthzServerIntegrationTests {
   @WithMockVOMSUser(acExpirationSecs = 200)
   void requestedLifetimeLimited() throws Exception {
     mvc.perform(
-            post("/oauth/token")
+            post(PathConstants.OAUTH_TOKEN_PATH)
                 .content(format("%s&lifetime=200000", CONTENT))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
@@ -150,7 +159,7 @@ public class OAuthAuthzServerIntegrationTests {
     String randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH);
 
     mvc.perform(
-            post("/oauth/token")
+            post(PathConstants.OAUTH_TOKEN_PATH)
                 .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
@@ -159,7 +168,7 @@ public class OAuthAuthzServerIntegrationTests {
     randomAlphabetic = randomStringUtils.nextAlphabetic(AccessTokenRequest.MAX_SCOPE_LENGTH + 1);
 
     mvc.perform(
-            post("/oauth/token")
+            post(PathConstants.OAUTH_TOKEN_PATH)
                 .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())

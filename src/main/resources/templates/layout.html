@@ -5,8 +5,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="/assets/css/bootstrap-table.min.css">
+<link rel="stylesheet" type="text/css" th:href="${PathConstants.ASSETS_PATH + '/css/bootstrap.min.css'}">
+<link rel="stylesheet" type="text/css" th:href="${PathConstants.ASSETS_PATH + '/css/bootstrap-table.min.css'}">
 </head>
 <body class="d-flex flex-column h-100">
   <main class="flex-shrink-0 pt-3" role="main">
@@ -23,20 +23,20 @@
     <div class="container">
       <div class="d-flex flex-wrap gap-2" th:if="${authnSubject}">
         <div class="flex-grow-1">
-          <a href="/authn-info" th:text="${authnSubject}">Authenticated user</a>
+          <a th:href="${PathConstants.AUTHN_INFO_PATH}" th:text="${authnSubject}">Authenticated user</a>
         </div>
         <div th:if="${authn != null} and ${authn.class.name} != 'org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken'">
-          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" href="/logout">Logout</a>
+          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" th:href="${PathConstants.LOGOUT_PATH}">Logout</a>
         </div>
         <div th:if="${authn != null} and ${authn.class.name} == 'org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken' and ${oidcEnabled}">
-          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" href="/oidc-login">Login with OIDC</a>
+          <a th:if="${authnSubject} and ${authnSubject} != 'Anonymous user'" th:href="${PathConstants.OIDC_LOGIN_PATH}">Login with OIDC</a>
         </div>
       </div>
     </div>
   </footer>
   <!-- Javascript -->
-  <script src="/assets/js/bootstrap.bundle.min.js"></script>
-  <script src="/assets/js/jquery-3.7.1.slim.min.js"></script>
-  <script src="/assets/js/bootstrap-table.min.js"></script>
+  <script th:src="${PathConstants.ASSETS_PATH + '/js/bootstrap.bundle.min.js'}"></script>
+  <script th:src="${PathConstants.ASSETS_PATH + '/js/jquery-3.7.1.slim.min.js'}"></script>
+  <script th:src="${PathConstants.ASSETS_PATH + '/js/bootstrap-table.min.js'}"></script>
   <script>document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))</script>
 </body>

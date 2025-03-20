@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidScopeError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.InvalidTokenRequestError;
 import org.italiangrid.storm.webdav.oauth.authzserver.error.UnsupportedGrantTypeError;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,13 +26,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @ConditionalOnExpression("${storm.authz-server.enabled}")
-@RequestMapping("/oauth")
 public class AuthzServerController {
 
   final TokenIssuerService tokenService;
@@ -54,7 +53,7 @@ public class AuthzServerController {
 
   @PreAuthorize("#storm.isVOMSAuthenticated()")
   @PostMapping(
-      value = "/token",
+      value = PathConstants.OAUTH_TOKEN_PATH,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public TokenResponseDTO getAccessToken(

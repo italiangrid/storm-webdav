@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -22,7 +23,7 @@ import org.springframework.util.StringUtils;
 
 public class ErrorPageAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-  static final String ERROR_PAGE = "/errors/401";
+  static final String ERROR_PAGE = PathConstants.ERRORS_PATH + "/401";
 
   @Override
   public void commence(

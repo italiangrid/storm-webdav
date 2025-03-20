@@ -21,6 +21,8 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
+import org.italiangrid.storm.webdav.web.PathConstants;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -103,15 +105,17 @@ public class StormDirectoryResourceWrapper extends Resource {
 
     String title = StringUtil.sanitizeXmlString(decodedBase);
 
+    context.setVariable(PathConstants.class.getSimpleName(), PathConstants.pathConstants());
     context.setVariable("title", title);
-    context.setVariable("storm", serviceConfig.getHostnames().get(0));
-    context.setVariable("authn", SecurityContextHolder.getContext().getAuthentication());
+    context.setVariable(SAIndexServlet.STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
     context.setVariable(
-        "authnSubject",
+        SAIndexServlet.AUTHN_KEY, SecurityContextHolder.getContext().getAuthentication());
+    context.setVariable(
+        SAIndexServlet.AUTHN_SUBJECT_KEY,
         AuthenticationUtils.getPalatableSubject(
             SecurityContextHolder.getContext().getAuthentication()));
 
-    context.setVariable("oidcEnabled", oauthProperties.isEnableOidc());
+    context.setVariable(SAIndexServlet.OIDC_ENABLED_KEY, oauthProperties.isEnableOidc());
 
     String encodedBase = hrefEncodeURI(decodedBase);
 

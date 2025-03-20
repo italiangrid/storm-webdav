@@ -65,7 +65,7 @@ docker cp storm-webdav-ts-1:/home/test/robot/reports .
 | `remote.dav.host`     | Hostname of the WebDAV server considered as running remotely  | storm-alias.test.example                                                                                             |
 | `remote.dav.port`     | Schema of the WebDAV server considered as running remotely | 80                                                                                             |
 | `remote.davs.port`     | Schema of the WebDAV server considered as running remotely with HTTPS | 443                                                                                             |
-| `token.endpoint`     | WebDAV endpoint for the locally issued tokens | https://localhost:8443/oauth/token                                                                                             |
+| `token.endpoint`     | WebDAV endpoint for the locally issued tokens | https://localhost:8443/.storm-webdav/oauth/token                                                                                             |
 | `cred.oauth.env_var_name`     | Environment variable for an OAuth access token | IAM_ACCESS_TOKEN                                                                                             |
 | `cred.voms.use_os`     | Use `/tmp/x509up_u<user-id>` as proxy path | True                                                                                             |
 | `oidc-agent.alias`     | Alias for the oidc-agent client | dev-wlcg                                                                                               |
