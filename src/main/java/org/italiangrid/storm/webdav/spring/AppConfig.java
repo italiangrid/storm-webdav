@@ -19,6 +19,7 @@ import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyManagementException;
@@ -94,6 +95,7 @@ import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcSchemePortResolver;
 import org.italiangrid.storm.webdav.tpc.TpcTlsSocketStrategy;
 import org.italiangrid.storm.webdav.tpc.http.DropAuthorizationHeaderExec;
+import org.italiangrid.storm.webdav.tpc.http.HttpComponentsMetrics;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.storm.webdav.web.PathConstants;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
@@ -472,5 +474,10 @@ public class AppConfig {
       WebEndpointProperties webEndpointProperties) {
     webEndpointProperties.setBasePath(PathConstants.ACTUATOR_PATH);
     return webEndpointProperties;
+  }
+
+  @Bean
+  public HttpComponentsMetrics httpComponentsMetrics(MeterRegistry registry) {
+    return new HttpComponentsMetrics(registry);
   }
 }

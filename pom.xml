@@ -135,6 +135,10 @@ SPDX-License-Identifier: Apache-2.0
 
   <dependencies>
     <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.jimfs</groupId>
       <artifactId>jimfs</artifactId>
       <version>${jimfs.version}</version>

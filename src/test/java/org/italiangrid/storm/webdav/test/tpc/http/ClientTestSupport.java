@@ -9,6 +9,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.google.common.jimfs.PathType;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -22,12 +24,14 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.Buffer
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.http.HttpComponentsMetrics;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ClientTestSupport {
 
@@ -58,6 +62,10 @@ public class ClientTestSupport {
   @Mock
   ScheduledFuture sf;
 
+  @Autowired ObservationRegistry observationRegistry;
+
+  @Mock MeterRegistry meterRegistry;
+
   HttpTransferClient client;
 
   @Captor ArgumentCaptor<BasicClassicHttpRequest> getRequest;
@@ -81,9 +89,18 @@ public class ClientTestSupport {
     ServiceConfigurationProperties config = new ServiceConfigurationProperties();
     BufferProperties buffer = new BufferProperties();
     config.setBuffer(buffer);
+    HttpComponentsMetrics httpComponentsMetrics = new HttpComponentsMetrics(meterRegistry);
 
     client =
         new HttpTransferClient(
-            Clock.systemDefaultZone(), httpClient, resolver, eah, es, props, config);
+            Clock.systemDefaultZone(),
+            httpClient,
+            resolver,
+            eah,
+            es,
+            props,
+            config,
+            observationRegistry,
+            httpComponentsMetrics);
   }
 }

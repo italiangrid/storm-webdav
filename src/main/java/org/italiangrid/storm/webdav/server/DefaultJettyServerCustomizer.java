@@ -17,6 +17,7 @@ import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
@@ -89,7 +90,8 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
             new HttpConnectionFactory(plainConnectorConfig),
             metricRegistry.timer("storm-http.connection"));
 
-    ServerConnector connector = new ServerConnector(server, connFactory);
+    NetworkTrafficServerConnector connector =
+        new NetworkTrafficServerConnector(server, connFactory);
 
     connector.setName(HTTP_CONNECTOR_NAME);
     connector.setPort(configuration.getHTTPPort());
