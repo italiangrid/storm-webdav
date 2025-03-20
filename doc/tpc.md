@@ -73,6 +73,6 @@ Example flowd configuration (`/etc/flowd/flowd.cfg`):
 ```
 PLUGIN='np_api'
 BACKEND='udp_firefly'
-FLOW_MAP_API='https://www.scitags.org/api.json'
+FLOW_MAP_API='https://scitags.docs.cern.ch/api.json'
 IP_DISCOVERY_ENABLED=True
 ```
