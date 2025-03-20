@@ -155,7 +155,7 @@ public class SecurityConfig {
                     AntPathRequestMatcher.antMatcher("/robots.txt"),
                     AntPathRequestMatcher.antMatcher(PathConstants.ASSETS_PATH + "/**"),
                     AntPathRequestMatcher.antMatcher(PathConstants.AUTHN_INFO_PATH),
-                    AntPathRequestMatcher.antMatcher(PathConstants.ACTUATOR_PATH + "/*"),
+                    AntPathRequestMatcher.antMatcher(PathConstants.ACTUATOR_PATH + "/**"),
                     AntPathRequestMatcher.antMatcher(PathConstants.ERRORS_PATH + "/*"),
                     AntPathRequestMatcher.antMatcher("/status/metrics"),
                     AntPathRequestMatcher.antMatcher(PathConstants.OAUTH_TOKEN_PATH),

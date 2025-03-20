@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.tpc.http;
 
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
   final ExtendedAttributesHelper attributesHelper;
   final int bufferSize;
   final boolean computeChecksum;
+  final ApacheHttpClientContext observationContext;
 
   public GetResponseHandler(
       GetTransferRequest req,
@@ -39,7 +41,8 @@ public class GetResponseHandler extends ResponseHandlerSupport
       ExtendedAttributesHelper ah,
       Map<String, String> mdcContextMap,
       int bufSiz,
-      boolean computeChecksum) {
+      boolean computeChecksum,
+      ApacheHttpClientContext observationContext) {
 
     super(mdcContextMap);
     request = req;
@@ -47,11 +50,12 @@ public class GetResponseHandler extends ResponseHandlerSupport
     attributesHelper = ah;
     bufferSize = bufSiz;
     this.computeChecksum = computeChecksum;
+    this.observationContext = observationContext;
   }
 
   public GetResponseHandler(
       GetTransferRequest req, StormCountingOutputStream fs, ExtendedAttributesHelper ah) {
-    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true);
+    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true, null);
   }
 
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
@@ -77,6 +81,10 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     setupMDC();
     LOG.debug("Response: {}", response);
+
+    if (this.observationContext != null) {
+      this.observationContext.setResponse(response);
+    }
 
     HttpEntity entity = response.getEntity();
 

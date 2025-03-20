@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.tpc.http;
 
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -17,14 +18,21 @@ public class PutResponseHandler extends ResponseHandlerSupport
     implements HttpClientResponseHandler<Boolean> {
 
   public static final Logger LOG = LoggerFactory.getLogger(PutResponseHandler.class);
+  final ApacheHttpClientContext observationContext;
 
-  public PutResponseHandler(Map<String, String> mdcContextMap) {
+  public PutResponseHandler(
+      Map<String, String> mdcContextMap, ApacheHttpClientContext observationContext) {
     super(mdcContextMap);
+    this.observationContext = observationContext;
   }
 
   @Override
   public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
     setupMDC();
+
+    if (this.observationContext != null) {
+      this.observationContext.setResponse(response);
+    }
 
     try {
       checkResponseStatus(response);

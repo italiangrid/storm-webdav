@@ -36,6 +36,10 @@ management:
   health:
     redis:
       enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
 
 tpc:
   tls-protocol: ${STORM_WEBDAV_TPC_TLS_PROTOCOL:TLSv1.2}

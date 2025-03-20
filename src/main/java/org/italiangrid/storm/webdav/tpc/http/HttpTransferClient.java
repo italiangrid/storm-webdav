@@ -6,6 +6,11 @@ package org.italiangrid.storm.webdav.tpc.http;
 
 import static java.lang.String.format;
 
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientObservationDocumentation;
+import io.micrometer.core.instrument.binder.httpcomponents.hc5.DefaultApacheHttpClientObservationConvention;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +30,7 @@ import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -58,6 +64,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
   final Clock clock;
   final PathResolver resolver;
   final ExtendedAttributesHelper attributesHelper;
+  final ObservationRegistry observationRegistry;
+  final HttpComponentsMetrics httpComponentsMetrics;
   final CloseableHttpClient httpClient;
   final ScheduledExecutorService executorService;
   final TransferStatus.Builder statusBuilder;
@@ -77,9 +85,13 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       ExtendedAttributesHelper ah,
       @Qualifier("tpcProgressReportEs") ScheduledExecutorService es,
       ThirdPartyCopyProperties properties,
-      ServiceConfigurationProperties config) {
+      ServiceConfigurationProperties config,
+      ObservationRegistry observationRegistry,
+      HttpComponentsMetrics httpComponentsMetrics) {
     this.clock = clock;
     httpClient = client;
+    this.observationRegistry = observationRegistry;
+    this.httpComponentsMetrics = httpComponentsMetrics;
     resolver = pr;
     attributesHelper = ah;
     executorService = es;
@@ -158,26 +170,42 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
+    Observation observation = null;
+    BytesCount bytesCount = new BytesCount();
 
     ScheduledFuture<?> reportTask =
         executorService.scheduleAtFixedRate(
-            () -> reportStatus(cb, request, statusBuilder.inProgress(os.getCount())),
+            () -> {
+              reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
+              bytesCount.updateMetrics(context);
+            },
             reportDelaySec,
             reportDelaySec,
             TimeUnit.SECONDS);
-
     try {
-
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
+      ApacheHttpClientContext observationContext = new ApacheHttpClientContext(get, context);
+      observation =
+          ApacheHttpClientObservationDocumentation.DEFAULT.observation(
+              null,
+              DefaultApacheHttpClientObservationConvention.INSTANCE,
+              () -> observationContext,
+              observationRegistry);
+      observation.start();
+
       httpClient.execute(
           get,
           context,
           new GetResponseHandler(
-              request, os, attributesHelper, MDC.getCopyOfContextMap(), socketBufferSize, true));
-
+              request,
+              os,
+              attributesHelper,
+              MDC.getCopyOfContextMap(),
+              socketBufferSize,
+              true,
+              observationContext));
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
-
     } catch (HttpResponseException e) {
       logException(e);
       reportStatus(
@@ -187,6 +215,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
               format(
                   "Error fetching %s: %d %s",
                   request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
+      observation.error(e);
 
     } catch (ClientProtocolException e) {
       logException(e);
@@ -195,6 +224,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           request,
           statusBuilder.error(
               format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+      observation.error(e);
 
     } catch (Throwable e) {
       logException(e);
@@ -205,6 +235,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
               format(
                   "%s while fetching %s: %s",
                   e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
+      observation.error(e);
+
     } finally {
       if (!reportTask.isCancelled()) {
         reportTask.cancel(true);
@@ -213,6 +245,10 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           (SciTagTransfer) context.getAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE);
       if (scitagTransfer != null) {
         scitagTransfer.writeEnd();
+      }
+      bytesCount.updateMetrics(context);
+      if (observation != null) {
+        observation.stop();
       }
     }
   }
@@ -246,12 +282,17 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     BasicClassicHttpRequest put = null;
     HttpClientContext context = HttpClientContext.create();
+    Observation observation = null;
+    BytesCount bytesCount = new BytesCount();
 
     put = prepareRequest(request, cfe);
 
     ScheduledFuture<?> reportTask =
         executorService.scheduleAtFixedRate(
-            () -> reportStatus(cb, request, statusBuilder.inProgress(cfe.getCount())),
+            () -> {
+              reportStatus(cb, request, statusBuilder.inProgress(cfe.getCount()));
+              bytesCount.updateMetrics(context);
+            },
             reportDelaySec,
             reportDelaySec,
             TimeUnit.SECONDS);
@@ -259,7 +300,17 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     try {
       checkOverwrite(request);
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
-      httpClient.execute(put, context, new PutResponseHandler(MDC.getCopyOfContextMap()));
+      ApacheHttpClientContext observationContext = new ApacheHttpClientContext(put, context);
+      observation =
+          ApacheHttpClientObservationDocumentation.DEFAULT.observation(
+              null,
+              DefaultApacheHttpClientObservationConvention.INSTANCE,
+              () -> observationContext,
+              observationRegistry);
+      observation.start();
+
+      httpClient.execute(
+          put, context, new PutResponseHandler(MDC.getCopyOfContextMap(), observationContext));
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(cfe.getCount()));
     } catch (HttpResponseException e) {
@@ -271,6 +322,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
               format(
                   "Error pushing %s: %d %s",
                   request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
+      observation.error(e);
     } catch (ClientProtocolException e) {
       logException(e);
       reportStatus(
@@ -278,6 +330,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           request,
           statusBuilder.error(
               format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+      observation.error(e);
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e); // we explicitly always log a generic error
       reportStatus(
@@ -287,6 +340,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
               format(
                   "%s while pushing %s: %s",
                   e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
+      observation.error(e);
     } finally {
       if (!reportTask.isCancelled()) {
         reportTask.cancel(true);
@@ -296,12 +350,33 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
       if (scitagTransfer != null) {
         scitagTransfer.writeEnd();
       }
+      bytesCount.updateMetrics(context);
+      if (observation != null) {
+        observation.stop();
+      }
     }
   }
 
   private void logException(Throwable e) {
     if (LOG.isDebugEnabled()) {
       LOG.error(e.getMessage(), e);
+    }
+  }
+
+  private class BytesCount {
+    double received = 0;
+    double sent = 0;
+
+    public void updateMetrics(HttpClientContext context) {
+      EndpointDetails metrics = context.getEndpointDetails();
+      if (metrics != null) {
+        double receivedBytesCount = metrics.getReceivedBytesCount();
+        double sentBytesCount = metrics.getSentBytesCount();
+        httpComponentsMetrics.incoming(receivedBytesCount - this.received);
+        httpComponentsMetrics.outgoing(sentBytesCount - this.sent);
+        this.received = receivedBytesCount;
+        this.sent = sentBytesCount;
+      }
     }
   }
 }
