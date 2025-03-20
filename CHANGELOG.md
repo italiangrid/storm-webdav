@@ -11,13 +11,13 @@ SPDX-License-Identifier: Apache-2.0
 ### Fixed
 
 * Remove warning in case a non-existent file is requested
-* Fix put over directory not allowed
+* [STOR-819](https://issues.infn.it/jira/browse/STOR-819) - Fix put over directory not allowed
 
 ## 1.7.0 (2025-03-03)
 
 ### Changed
 
-* Upgrade to Spring Boot 3
+* [STOR-1621](https://issues.infn.it/jira/browse/STOR-1621) - Upgrade to Spring Boot 3
 
 ## 1.6.1 (2025-02-28)
 
