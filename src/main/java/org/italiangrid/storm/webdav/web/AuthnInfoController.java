@@ -14,6 +14,7 @@ public class AuthnInfoController {
 
   @GetMapping("/authn-info")
   String getAuthenticationInfo(Authentication authentication, Model model) {
+    model.addAttribute("authnSimpleName", authentication.getClass().getSimpleName());
     return "authn-info";
   }
 }
