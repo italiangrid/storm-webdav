@@ -37,7 +37,7 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
   protected void afterInit() {
 
     super.afterInit();
-    disableDeleteExistingBeforeMoveInMoveHandler();
+    //disableDeleteExistingBeforeMoveInMoveHandler();
   }
 
   private void disableDeleteExistingBeforeMoveInMoveHandler() {
