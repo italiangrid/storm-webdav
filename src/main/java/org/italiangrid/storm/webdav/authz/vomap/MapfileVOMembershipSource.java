@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +32,6 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     this.voName = voName;
     this.mapFile = mapFile;
-  }
-
-  private CSVParser getParser() {
-
-    try {
-      return new CSVParser(new FileReader(mapFile), CSVFormat.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e.getMessage(), e);
-    }
   }
 
   private boolean isValidCSVRecord(CSVRecord r) {
@@ -66,11 +56,9 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     Set<String> subjects = new HashSet<>();
 
-    CSVParser parser = getParser();
-
     try {
 
-      List<CSVRecord> records = parser.getRecords();
+      List<CSVRecord> records = CSVFormat.DEFAULT.parse(new FileReader(mapFile)).getRecords();
 
       for (CSVRecord r : records) {
 

@@ -6,14 +6,10 @@ package org.italiangrid.storm.webdav.test.tpc.http;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.google.common.jimfs.PathType;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -69,19 +65,6 @@ public class ClientTestSupport {
   HttpTransferClient client;
 
   @Captor ArgumentCaptor<BasicClassicHttpRequest> getRequest;
-
-  public static final String MOCKFS_WORKDIR = "/mockfs";
-
-  public FileSystem initMockFs() {
-    Configuration fsConfig =
-        Configuration.builder(PathType.unix())
-            .setRoots("/")
-            .setWorkingDirectory(MOCKFS_WORKDIR)
-            .setAttributeViews("basic", "owner", "posix", "unix", "user")
-            .build();
-
-    return Jimfs.newFileSystem(fsConfig);
-  }
 
   @BeforeEach
   void setup() throws IOException {

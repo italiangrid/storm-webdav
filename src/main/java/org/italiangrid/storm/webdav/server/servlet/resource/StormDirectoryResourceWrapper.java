@@ -39,6 +39,7 @@ public class StormDirectoryResourceWrapper extends Resource {
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
   final String pathInContext;
+  private final String listHTML;
 
   public StormDirectoryResourceWrapper(
       OAuthProperties oauth,
@@ -52,6 +53,7 @@ public class StormDirectoryResourceWrapper extends Resource {
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
     this.pathInContext = pathInContext;
+    listHTML = getListHTML(pathInContext);
   }
 
   // Adapted from
@@ -186,7 +188,7 @@ public class StormDirectoryResourceWrapper extends Resource {
 
   @Override
   public long length() {
-    return delegate.length();
+    return listHTML.length();
   }
 
   @Override
@@ -196,7 +198,7 @@ public class StormDirectoryResourceWrapper extends Resource {
 
   @Override
   public InputStream newInputStream() throws IOException {
-    return new ByteArrayInputStream(getListHTML(pathInContext).getBytes(StandardCharsets.UTF_8));
+    return new ByteArrayInputStream(listHTML.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override

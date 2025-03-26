@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.3</version>
+    <version>3.4.4</version>
     <relativePath />
   </parent>
 
@@ -25,7 +25,6 @@ SPDX-License-Identifier: Apache-2.0
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <plugin.license.version>1.9.0</plugin.license.version>
     <plugin.jacoco.version>0.8.12</plugin.jacoco.version>
     <plugin.spotless.version>2.44.3</plugin.spotless.version>
 
@@ -39,18 +38,17 @@ SPDX-License-Identifier: Apache-2.0
     <voms-api-java.version>3.3.3</voms-api-java.version>
     <milton.version>4.0.4.2305</milton.version>
 
-    <commons-csv.version>1.9.0</commons-csv.version>
-    <jimfs.version>1.3.0</jimfs.version>
+    <commons-csv.version>1.14.0</commons-csv.version>
 
     <metrics.version>4.2.30</metrics.version>
 
     <logback-access.version>2.0.6</logback-access.version>
 
-    <guava.version>33.4.0-jre</guava.version>
+    <guava.version>33.4.6-jre</guava.version>
 
     <owner-config.version>1.0.12</owner-config.version>
 
-    <mock-server.version>5.15.0</mock-server.version>
+    <wiremock.version>3.12.1</wiremock.version>
   </properties>
 
   <build>
@@ -137,12 +135,6 @@ SPDX-License-Identifier: Apache-2.0
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.jimfs</groupId>
-      <artifactId>jimfs</artifactId>
-      <version>${jimfs.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -249,13 +241,6 @@ SPDX-License-Identifier: Apache-2.0
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mock-server</groupId>
-      <artifactId>mockserver-netty</artifactId>
-      <version>${mock-server.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -371,6 +356,19 @@ SPDX-License-Identifier: Apache-2.0
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-jetty12</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

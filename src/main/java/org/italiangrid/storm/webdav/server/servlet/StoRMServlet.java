@@ -11,8 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.eclipse.jetty.ee10.servlet.ResourceServlet;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
-import org.eclipse.jetty.ee10.servlet.ServletContextResponse;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.content.HttpContent;
@@ -114,17 +112,7 @@ public class StoRMServlet extends ResourceServlet {
               request.getRemotePort());
       scitagTransfer.writeStart();
     }
-    if (request.getHeader(HttpHeader.RANGE.asString()) != null) {
-      // If the response is not of type ServletApiResponse, an UnknownLengthHttpContent is used and
-      // range requests do not work.
-      ServletContextRequest servletContextRequest =
-          ServletContextRequest.getServletContextRequest(request);
-      ServletContextResponse servletContextResponse =
-          servletContextRequest.getServletContextResponse();
-      super.doGet(request, servletContextResponse.getServletApiResponse());
-    } else {
-      super.doGet(request, response);
-    }
+    super.doGet(request, response);
     if (scitagTransfer != null) {
       scitagTransfer.writeEnd();
     }

@@ -23,7 +23,7 @@ Mkcol works
     ${url}  DAVS URL  mkcol_works
     Curl Voms MKCOL Success   ${url}
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}
-    Should Contain  ${out}  Content-Length: 4096
+    Should Contain  ${out}  Content-Length:
     [Teardown]   Teardown directory  mkcol_works
 
 Mkcol with missing parent

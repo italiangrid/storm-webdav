@@ -4,20 +4,23 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http.integration;
 
-import static org.mockserver.configuration.Configuration.configuration;
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
-import static org.mockserver.model.Header.header;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.NottableString.not;
-import static org.mockserver.verify.VerificationTimes.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
+import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import javax.net.ssl.HttpsURLConnection;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.italiangrid.storm.webdav.WebdavService;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
@@ -25,17 +28,9 @@ import org.italiangrid.storm.webdav.test.tpc.http.integration.TpcClientRedirecti
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.logging.MockServerLogger;
-import org.mockserver.matchers.Times;
-import org.mockserver.model.HttpResponse;
-import org.mockserver.socket.PortFactory;
-import org.mockserver.socket.tls.KeyStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -55,10 +51,13 @@ public class TpcClientRedirectionTest {
 
   public static final Logger LOG = LoggerFactory.getLogger(TpcIntegrationTest.class);
 
-  private static int httpPort;
-  private static int httpsPort;
+  private static String authorizationHeaderValue = "Bearer this-is-a-fake-token";
 
-  private static ClientAndServer mockServer;
+  @RegisterExtension
+  static WireMockExtension wiremock =
+      WireMockExtension.newInstance()
+          .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+          .build();
 
   @Autowired HttpTransferClient client;
 
@@ -68,48 +67,32 @@ public class TpcClientRedirectionTest {
     @Bean("tpcConnectionManager")
     @Primary
     public HttpClientConnectionManager tpcClientConnectionManager(
-        ThirdPartyCopyProperties props, ServiceConfiguration conf) {
+        ThirdPartyCopyProperties props, ServiceConfiguration conf)
+        throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
       return PoolingHttpClientConnectionManagerBuilder.create()
           .setMaxConnTotal(props.getMaxConnections())
+          .setTlsSocketStrategy(
+              new DefaultClientTlsStrategy(
+                  SSLContextBuilder.create()
+                      .loadTrustMaterial(new TrustSelfSignedStrategy())
+                      .build(),
+                  NoopHostnameVerifier.INSTANCE))
           .build();
     }
   }
 
-  @BeforeAll
-  static void startMockServer() {
-    // Ensure all connection using HTTPS will use the SSL context defined by
-    // MockServer to allow dynamically generated certificates to be accepted
-    HttpsURLConnection.setDefaultSSLSocketFactory(
-        new KeyStoreFactory(configuration(), new MockServerLogger())
-            .sslContext()
-            .getSocketFactory());
-    httpPort = PortFactory.findFreePort();
-    httpsPort = httpPort + 1;
-    mockServer = startClientAndServer(httpPort, httpsPort);
-  }
-
-  @AfterAll
-  static void stopMockServer() {
-    mockServer.stop();
-  }
-
-  @BeforeEach
-  void before() {
-    mockServer.reset();
-  }
-
   private String mockHttpsUrl(String path) {
-    return String.format("https://localhost:%d%s", httpsPort, path);
+    return String.format("https://localhost:%d%s", wiremock.getRuntimeInfo().getHttpsPort(), path);
   }
 
   private String mockHttpUrl(String path) {
-    return String.format("http://localhost:%d%s", httpPort, path);
+    return String.format("http://localhost:%d%s", wiremock.getRuntimeInfo().getHttpPort(), path);
   }
 
   @Test
   void handleCrossProtocolRedirectionCorrectly() {
     Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("Authorization", "Bearer this-is-a-fake-token");
+    headers.put(HttpHeaders.AUTHORIZATION, authorizationHeaderValue);
 
     GetTransferRequest getRequest =
         new GetTransferRequestImpl(
@@ -121,20 +104,15 @@ public class TpcClientRedirectionTest {
             false,
             false);
 
-    mockServer
-        .when(
-            request().withMethod("GET").withPath("/test/example").withSecure(true),
-            Times.exactly(1))
-        .respond(
-            HttpResponse.response()
-                .withStatusCode(307)
-                .withHeader("Location", mockHttpUrl("/redirected/test/example")));
+    wiremock.stubFor(
+        get("/test/example")
+            .withPort(wiremock.getRuntimeInfo().getHttpsPort())
+            .willReturn(temporaryRedirect(mockHttpUrl("/redirected/test/example"))));
 
-    mockServer
-        .when(
-            request().withMethod("GET").withPath("/redirected/test/example").withSecure(false),
-            Times.exactly(1))
-        .respond(HttpResponse.response().withStatusCode(200).withBody("example"));
+    wiremock.stubFor(
+        get("/redirected/test/example")
+            .withPort(wiremock.getRuntimeInfo().getHttpPort())
+            .willReturn(ok().withBody("example")));
 
     client.handle(
         getRequest,
@@ -142,15 +120,14 @@ public class TpcClientRedirectionTest {
           // do nothing here
         });
 
-    mockServer.verify(
-        request().withMethod("GET").withPath("/test/example").withHeaders(header("Authorization")),
-        exactly(1));
+    wiremock.verify(
+        1,
+        getRequestedFor(urlEqualTo("/test/example"))
+            .withHeader(HttpHeaders.AUTHORIZATION, equalTo(authorizationHeaderValue)));
 
-    mockServer.verify(
-        request()
-            .withMethod("GET")
-            .withPath("/redirected/test/example")
-            .withHeaders(header(not("Authorization"))),
-        exactly(1));
+    wiremock.verify(
+        1,
+        getRequestedFor(urlEqualTo("/redirected/test/example"))
+            .withHeader(HttpHeaders.AUTHORIZATION, absent()));
   }
 }

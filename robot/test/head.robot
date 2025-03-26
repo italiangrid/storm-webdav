@@ -31,7 +31,7 @@ Head directory works
     [Setup]  Setup directory  head_works
     ${url}  DAVS URL  head_works
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}
-    Should Contain  ${out}  Content-Length: 4096
+    Should Contain  ${out}  Content-Length:
     [Teardown]   Teardown directory  head_works
 
 Head not empty directory works
@@ -40,7 +40,7 @@ Head not empty directory works
     ...      AND            Create Test File   head_works/file_head_works   some-text
     ${url}  DAVS URL  head_works
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}
-    Should Contain  ${out}  Content-Length: 4096
+    Should Contain  ${out}  Content-Length:
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}/file_head_works
     Should Contain  ${out}  Content-Length: 9
     [Teardown]   Teardown directory  head_works
@@ -50,7 +50,7 @@ Head root directory works
     [Setup]  Default Setup
     ${url}  Set Variable  ${davs.endpoint}/${sa.default}
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}
-    Should Contain  ${out}  Content-Length: 4096
+    Should Contain  ${out}  Content-Length:
     [Teardown]   Default Teardown
 
 Head not existent resource
