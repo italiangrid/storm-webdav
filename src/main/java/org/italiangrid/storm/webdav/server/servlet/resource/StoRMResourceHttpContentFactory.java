@@ -66,7 +66,8 @@ public class StoRMResourceHttpContentFactory extends ResourceHttpContentFactory 
                 serviceConfig,
                 templateEngine,
                 pathResourceFactory.newResource(new URI("file:" + resolvedPath)),
-                pathInContext);
+                pathInContext,
+                pathResolver);
         return new ResourceHttpContent(resource, "text/html");
       } else {
         return new ResourceHttpContent(

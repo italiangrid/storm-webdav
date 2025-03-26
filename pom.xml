@@ -34,6 +34,7 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/fs/Stat.java,src/main/java/org/italiangrid/storm/webdav/fs/Timespec.java</sonar.exclusions>
 
     <voms-api-java.version>3.3.5</voms-api-java.version>
     <milton.version>4.0.4.2305</milton.version>
@@ -47,6 +48,8 @@ SPDX-License-Identifier: Apache-2.0
     <guava.version>33.4.8-jre</guava.version>
 
     <owner-config.version>1.0.12</owner-config.version>
+
+    <jna.version>5.17.0</jna.version>
 
     <wiremock.version>3.13.0</wiremock.version>
   </properties>
@@ -365,6 +368,18 @@ SPDX-License-Identifier: Apache-2.0
       <groupId>io.milton</groupId>
       <artifactId>milton-api</artifactId>
       <version>${milton.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>${jna.version}</version>
     </dependency>
 
     <dependency>

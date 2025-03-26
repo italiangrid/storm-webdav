@@ -38,7 +38,7 @@ Propfind allprop works
     ${url}  DAVS URL  propfind_works
     ${body}  Get PROPFIND ALLPROP body
     ${rc}  ${out}  Curl Voms PROPFIND  ${url}  ${body}
-    Should Contain  ${out}  <ns1:Checksum></ns1:Checksum>
+    Should Contain  ${out}  <ns1:Checksum/>
     Should Contain  ${out}  <d:iscollection>FALSE</d:iscollection>
     Should Contain  ${out}  <d:displayname>propfind_works</d:displayname> 
     Should Contain  ${out}  <d:status>HTTP/1.1 200 OK</d:status>
@@ -52,7 +52,7 @@ Propfind allprop not empty directory works
     ${url}  DAVS URL  propfind_works
     ${body}  Get PROPFIND ALLPROP body
     ${rc}  ${out}  Curl Voms PROPFIND  ${url}  ${body}
-    Should Contain  ${out}  <ns1:Checksum></ns1:Checksum>
+    Should Contain  ${out}  <ns1:Checksum/>
     Should Contain  ${out}  <d:iscollection>FALSE</d:iscollection><d:displayname>file_propfind_works</d:displayname>
     Should Contain  ${out}  <d:iscollection>TRUE</d:iscollection><d:displayname>propfind_works</d:displayname>
     Should Contain  ${out}  <d:status>HTTP/1.1 200 OK</d:status>

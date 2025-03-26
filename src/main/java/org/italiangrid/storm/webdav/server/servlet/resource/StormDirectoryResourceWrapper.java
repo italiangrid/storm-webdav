@@ -21,6 +21,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.italiangrid.storm.webdav.authn.AuthenticationUtils;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.web.PathConstants;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +40,8 @@ public class StormDirectoryResourceWrapper extends Resource {
   final OAuthProperties oauthProperties;
   final ServiceConfigurationProperties serviceConfig;
   final String pathInContext;
+  final PathResolver pathResolver;
+
   private final String listHTML;
 
   public StormDirectoryResourceWrapper(
@@ -46,13 +49,15 @@ public class StormDirectoryResourceWrapper extends Resource {
       ServiceConfigurationProperties serviceConfig,
       TemplateEngine engine,
       Resource delegate,
-      String pathInContext) {
+      String pathInContext,
+      PathResolver pathResolver) {
 
     this.oauthProperties = oauth;
     this.engine = engine;
     this.delegate = delegate;
     this.serviceConfig = serviceConfig;
     this.pathInContext = pathInContext;
+    this.pathResolver = pathResolver;
     listHTML = getListHTML(pathInContext);
   }
 
@@ -135,6 +140,8 @@ public class StormDirectoryResourceWrapper extends Resource {
               .withIsDirectory(r.isDirectory())
               .withLastModificationTime(Date.from(r.lastModified()))
               .withSizeInBytes(r.length())
+              .withLocality(
+                  pathResolver.getLocality(URIUtil.addEncodedPaths(encodedBase, r.getFileName())))
               .build());
     }
 

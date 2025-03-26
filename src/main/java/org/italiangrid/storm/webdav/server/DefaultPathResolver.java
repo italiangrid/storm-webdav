@@ -6,6 +6,10 @@ package org.italiangrid.storm.webdav.server;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +18,11 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.fs.Libc;
+import org.italiangrid.storm.webdav.fs.Locality;
+import org.italiangrid.storm.webdav.fs.Stat;
+import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +30,19 @@ public class DefaultPathResolver implements PathResolver {
 
   private final StorageAreaConfiguration saConfig;
 
+  private final ExtendedAttributesHelper attributesHelper;
+
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPathResolver.class);
+
+  String osName = System.getProperty("os.name");
 
   private final NavigableMap<String, StorageAreaInfo> contextMap;
 
-  public DefaultPathResolver(StorageAreaConfiguration cfg) {
+  public DefaultPathResolver(
+      StorageAreaConfiguration cfg, ExtendedAttributesHelper attributesHelper) {
 
     this.saConfig = cfg;
+    this.attributesHelper = attributesHelper;
     contextMap = new TreeMap<>();
 
     for (StorageAreaInfo sa : saConfig.getStorageAreaInfo()) {
@@ -124,5 +139,67 @@ public class DefaultPathResolver implements PathResolver {
     }
 
     return null;
+  }
+
+  @Override
+  public boolean isStub(String pathInContext) {
+    String resolvedPath = resolvePath(pathInContext);
+    if (resolvedPath != null) {
+      File f = new File(resolvedPath);
+      if (f.isFile()) {
+        if (osName.startsWith("Linux")) {
+          Stat stat = new Stat();
+          Libc.INSTANCE.stat(resolvedPath, stat);
+          return stat.st_blocks.longValue() * 512 < f.length();
+        } else if (osName.startsWith("Mac")) {
+          try {
+            Process process = Runtime.getRuntime().exec("stat -f %b " + resolvedPath);
+            BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()));
+            long statBlockSize = Long.parseLong(reader.readLine());
+            return statBlockSize * 512 < f.length();
+          } catch (IOException e) {
+            LOG.warn("Error getting block size: " + e.getMessage());
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Locality getLocality(String pathInContext) {
+    if (!resolveStorageArea(pathInContext).tapeEnabled()) {
+      return Locality.DISK;
+    }
+    Path filePath = getPath(pathInContext);
+    String migratedAttribute = null;
+    try {
+      migratedAttribute = attributesHelper.getMigratedAttribute(filePath);
+    } catch (IOException e) {
+      LOG.warn(
+          "Impossible getting migrated extended attribute of {}: {}",
+          pathInContext,
+          e.getMessage(),
+          e);
+    }
+    if (isStub(pathInContext)) {
+      if (migratedAttribute != null) {
+        return Locality.TAPE;
+      } else {
+        LOG.warn(
+            "The file {} appears lost, check stubbification and presence of {}{} xattr",
+            filePath,
+            DefaultExtendedFileAttributesHelper.USER_NAMESPACE,
+            DefaultExtendedFileAttributesHelper.STORM_MIGRATED_ATTR_NAME);
+        return Locality.UNAVAILABLE; // Undefined state
+      }
+    } else {
+      if (migratedAttribute != null) {
+        return Locality.DISK_AND_TAPE;
+      } else {
+        return Locality.DISK;
+      }
+    }
   }
 }

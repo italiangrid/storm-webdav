@@ -9,6 +9,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -49,5 +50,11 @@ public class SecurityErrorController {
   @RequestMapping("/405")
   String methodNotAllowed() {
     return "405";
+  }
+
+  @ResponseStatus(UNSUPPORTED_MEDIA_TYPE)
+  @RequestMapping("/415")
+  String unsupportedMediaType() {
+    return "415";
   }
 }

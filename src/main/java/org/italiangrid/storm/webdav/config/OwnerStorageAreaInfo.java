@@ -56,4 +56,8 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
   @Override
   @DefaultValue("false")
   public boolean fineGrainedAuthzEnabled();
+
+  @Override
+  @DefaultValue("false")
+  public boolean tapeEnabled();
 }

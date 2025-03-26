@@ -11,6 +11,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -210,6 +211,7 @@ public class SecurityConfig {
       r.addErrorPages(new ErrorPage(FORBIDDEN, PathConstants.ERRORS_PATH + "/403"));
       r.addErrorPages(new ErrorPage(NOT_FOUND, PathConstants.ERRORS_PATH + "/404"));
       r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, PathConstants.ERRORS_PATH + "/405"));
+      r.addErrorPages(new ErrorPage(UNSUPPORTED_MEDIA_TYPE, PathConstants.ERRORS_PATH + "/415"));
     };
   }
 

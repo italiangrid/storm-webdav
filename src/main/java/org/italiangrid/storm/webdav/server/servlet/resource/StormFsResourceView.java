@@ -5,6 +5,7 @@
 package org.italiangrid.storm.webdav.server.servlet.resource;
 
 import java.util.Date;
+import org.italiangrid.storm.webdav.fs.Locality;
 
 public class StormFsResourceView {
 
@@ -20,6 +21,8 @@ public class StormFsResourceView {
 
   final Date creationTime;
 
+  final Locality locality;
+
   private StormFsResourceView(Builder b) {
     if (b.isDirectory && !b.name.endsWith("/")) {
       this.name = b.name + "/";
@@ -31,6 +34,7 @@ public class StormFsResourceView {
     this.sizeInBytes = b.sizeInBytes;
     this.lastModificationTime = b.lastModificationTime;
     this.creationTime = b.creationTime;
+    this.locality = b.locality;
   }
 
   public String getName() {
@@ -57,6 +61,10 @@ public class StormFsResourceView {
     return creationTime;
   }
 
+  public Locality getLocality() {
+    return locality;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -68,6 +76,7 @@ public class StormFsResourceView {
     long sizeInBytes;
     Date lastModificationTime;
     Date creationTime;
+    Locality locality;
 
     public Builder() {}
 
@@ -98,6 +107,11 @@ public class StormFsResourceView {
 
     public Builder withCreationTime(Date creationTime) {
       this.creationTime = creationTime;
+      return this;
+    }
+
+    public Builder withLocality(Locality locality) {
+      this.locality = locality;
       return this;
     }
 

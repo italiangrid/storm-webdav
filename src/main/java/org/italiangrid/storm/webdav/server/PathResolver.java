@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.server;
 
 import java.nio.file.Path;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.fs.Locality;
 
 public interface PathResolver {
 
@@ -16,4 +17,8 @@ public interface PathResolver {
   StorageAreaInfo resolveStorageArea(String pathInContext);
 
   boolean pathExists(String pathInContext);
+
+  boolean isStub(String pathInContext);
+
+  Locality getLocality(String pathInContext);
 }

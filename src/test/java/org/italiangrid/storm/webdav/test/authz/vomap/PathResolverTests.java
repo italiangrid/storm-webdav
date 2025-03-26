@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
+import org.italiangrid.storm.webdav.fs.Locality;
+import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.junit.Assert;
@@ -62,7 +65,9 @@ class PathResolverTests {
     saConfig = mock(StorageAreaConfiguration.class);
     when(saConfig.getStorageAreaInfo()).thenReturn(saInfoList);
 
-    pathResolver = new DefaultPathResolver(saConfig);
+    ExtendedAttributesHelper attributesHelper = new DefaultExtendedFileAttributesHelper();
+
+    pathResolver = new DefaultPathResolver(saConfig, attributesHelper);
   }
 
   private StorageAreaInfo getMockSAInfo(String name, String voname) {
@@ -104,5 +109,11 @@ class PathResolverTests {
       StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
       Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
     }
+  }
+
+  @Test
+  void checkFileLocality() {
+    Locality locality = pathResolver.getLocality("/test1/notATapeStorageArea/normalFile.txt");
+    Assert.assertEquals(Locality.DISK, locality);
   }
 }

@@ -36,4 +36,6 @@ public interface StorageAreaInfo {
   public boolean wlcgScopeAuthzEnabled();
 
   public boolean fineGrainedAuthzEnabled();
+
+  public boolean tapeEnabled();
 }

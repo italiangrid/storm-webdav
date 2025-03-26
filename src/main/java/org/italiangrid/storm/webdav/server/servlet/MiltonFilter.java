@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.server.servlet;
 
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
+import io.milton.http.Request.Method;
 import io.milton.http.Response;
 import io.milton.servlet.MiltonServlet;
 import jakarta.servlet.Filter;
@@ -44,6 +45,10 @@ public class MiltonFilter implements Filter {
       WEBDAV_METHOD_SET.add(m.name());
     }
   }
+
+  // List of acceptable WebDAV methods on stub files
+  static final Set<String> WEBDAV_METHOD_ON_STUB_SET =
+      Set.of(WebDAVMethod.OPTIONS.name(), WebDAVMethod.DELETE.name(), WebDAVMethod.PROPFIND.name());
 
   private HttpManager miltonHTTPManager;
 
@@ -118,6 +123,13 @@ public class MiltonFilter implements Filter {
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
+      if (resolver.resolveStorageArea(miltonReq.getAbsolutePath()).tapeEnabled()
+          && resolver.isStub(miltonReq.getAbsolutePath())
+          && !WEBDAV_METHOD_ON_STUB_SET.contains(request.getMethod())) {
+        miltonRes.sendError(
+            Response.Status.SC_UNSUPPORTED_MEDIA_TYPE, "Called a WebDAV method on a stub file");
+        return;
+      }
       SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
       if (scitag != null) {
         SciTagTransfer scitagTransfer =
@@ -131,6 +143,18 @@ public class MiltonFilter implements Filter {
         request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
       }
       miltonHTTPManager.process(miltonReq, miltonRes);
+      if (miltonReq.getMethod() == Method.PUT
+          && resolver.resolveStorageArea(miltonReq.getAbsolutePath()).tapeEnabled()) {
+        try {
+          attrsHelper.setPremigratedAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
+        } catch (IOException e) {
+          LOG.warn(
+              "Error setting premigrated extended attribute to {}: {}",
+              resolver.resolvePath(miltonReq.getAbsolutePath()),
+              e.getMessage(),
+              e);
+        }
+      }
 
     } finally {
 

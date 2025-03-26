@@ -222,8 +222,8 @@ public class AppConfig {
   }
 
   @Bean
-  PathResolver pathResolver(ServiceConfiguration conf) {
-    return new DefaultPathResolver(storageAreaConfiguration(conf));
+  PathResolver pathResolver(ServiceConfiguration conf, ExtendedAttributesHelper ah) {
+    return new DefaultPathResolver(storageAreaConfiguration(conf), ah);
   }
 
   @Bean

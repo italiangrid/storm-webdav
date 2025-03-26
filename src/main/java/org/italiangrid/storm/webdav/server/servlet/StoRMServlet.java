@@ -100,6 +100,13 @@ public class StoRMServlet extends ResourceServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    final boolean included = request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
+    final String pathInContext = getEncodedPathInContext(request, included);
+    if (pathResolver.resolveStorageArea(pathInContext).tapeEnabled()
+        && pathResolver.isStub(pathInContext)) {
+      response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+      return;
+    }
     SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
     SciTagTransfer scitagTransfer = null;
     if (scitag != null) {
@@ -144,6 +151,7 @@ public class StoRMServlet extends ResourceServlet {
         response.setHeader(HttpHeader.CONTENT_TYPE.asString(), content.getContentType().getValue());
       }
       response.setHeader(HttpHeader.ACCEPT_RANGES.asString(), "bytes");
+      response.setHeader("Locality", pathResolver.getLocality(pathInContext).name());
     }
   }
 

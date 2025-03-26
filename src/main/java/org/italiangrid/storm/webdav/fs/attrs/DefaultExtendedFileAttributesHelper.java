@@ -4,14 +4,14 @@
 
 package org.italiangrid.storm.webdav.fs.attrs;
 
+import com.sun.jna.platform.linux.XAttrUtil;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import org.springframework.util.Assert;
 
@@ -20,21 +20,27 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
   private static final String USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE =
       "UserDefinedFileAttributeView not supported on file ";
 
+  // Namespace for extended user attributes
+  public static final String USER_NAMESPACE = "user.";
+
   public static final String STORM_ADLER32_CHECKSUM_ATTR_NAME = "storm.checksum.adler32";
+
+  public static final String STORM_MIGRATED_ATTR_NAME = "storm.migrated";
+
+  public static final String STORM_PREMIGRATED_ATTR_NAME = "storm.premigrated";
 
   public DefaultExtendedFileAttributesHelper() {}
 
-  protected String getAttributeValue(UserDefinedFileAttributeView view, String attributeName)
-      throws IOException {
-
-    if (view.list().contains(attributeName)) {
-      ByteBuffer buffer = ByteBuffer.allocateDirect(view.size(attributeName));
-      view.read(attributeName, buffer);
-      buffer.flip();
-      return StandardCharsets.UTF_8.decode(buffer).toString();
-    } else {
-      return "";
+  protected String getAttributeValue(File f, String attributeName) throws IOException {
+    String userAttributeName = USER_NAMESPACE + attributeName;
+    String path = f.toPath().toString();
+    Collection<String> attrNames = getExtendedFileAttributeNames(f);
+    if (attrNames.contains(userAttributeName)) {
+      // XAttrUtil is used because UserDefinedFileAttributeView do an openat potentially triggering
+      // a transparent recall
+      return XAttrUtil.getXAttr(path, userAttributeName);
     }
+    return null;
   }
 
   @Override
@@ -61,31 +67,17 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     Objects.requireNonNull(f);
     Assert.hasText(attributeName, "Attribute name must not be empty");
 
-    UserDefinedFileAttributeView faView =
-        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
-
-    if (faView == null) {
-      throw new IOException(
-          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
-    }
-
-    return getAttributeValue(faView, attributeName);
+    return getAttributeValue(f, attributeName);
   }
 
   @Override
-  public List<String> getExtendedFileAttributeNames(File f) throws IOException {
+  public Collection<String> getExtendedFileAttributeNames(File f) throws IOException {
 
     Objects.requireNonNull(f);
-
-    UserDefinedFileAttributeView faView =
-        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
-
-    if (faView == null) {
-      throw new IOException(
-          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
-    }
-
-    return faView.list();
+    String path = f.toPath().toString();
+    // XAttrUtil is used because UserDefinedFileAttributeView do an openat potentially triggering a
+    // transparent recall
+    return XAttrUtil.listXAttr(path);
   }
 
   @Override
@@ -97,9 +89,26 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
   }
 
   @Override
+  public void setPremigratedAttribute(Path p) throws IOException {
+    setPremigratedAttribute(p.toFile());
+  }
+
+  @Override
+  public void setPremigratedAttribute(File f) throws IOException {
+    if (fileSupportsExtendedAttributes(f)) {
+      setExtendedFileAttribute(f, STORM_PREMIGRATED_ATTR_NAME, "");
+    }
+  }
+
+  @Override
   public String getChecksumAttribute(File f) throws IOException {
 
     return getExtendedFileAttributeValue(f, STORM_ADLER32_CHECKSUM_ATTR_NAME);
+  }
+
+  @Override
+  public String getMigratedAttribute(File f) throws IOException {
+    return getExtendedFileAttributeValue(f, STORM_MIGRATED_ATTR_NAME);
   }
 
   @Override
@@ -121,5 +130,10 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
   @Override
   public String getChecksumAttribute(Path p) throws IOException {
     return getChecksumAttribute(p.toFile());
+  }
+
+  @Override
+  public String getMigratedAttribute(Path p) throws IOException {
+    return getMigratedAttribute(p.toFile());
   }
 }
