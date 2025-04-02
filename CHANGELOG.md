@@ -6,6 +6,27 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.8.0 (2025-04-02)
+
+### Added
+
+* Add Spring Boot Micrometer metrics support ([documentation](https://github.com/italiangrid/storm-webdav/blob/develop/doc/metrics.md))
+* Add dark theme support in web interface
+* Push the Docker image also to GitHub Container Registry
+
+### Changed
+
+* Move non storage-area endpoints under `.storm-webdav` path
+* Update Bootstrap, Bootstrap Table and jQuery
+
+### Deprecated
+
+* The old metrics endpoint `/status/metrics` will be removed in a future release
+
+### Fixed
+
+* [GH-107](https://github.com/italiangrid/storm-webdav/issues/107) - Return 403 code if PROPFIND-based directory listing is denied instead of 500
+
 ## 1.7.1 (2025-03-05)
 
 ### Fixed
