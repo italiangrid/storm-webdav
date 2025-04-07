@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.organization>italiangrid</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <voms-api-java.version>3.3.4</voms-api-java.version>
+    <voms-api-java.version>3.3.5-SNAPSHOT</voms-api-java.version>
     <milton.version>4.0.4.2305</milton.version>
 
     <commons-csv.version>1.14.0</commons-csv.version>
