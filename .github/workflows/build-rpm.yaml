@@ -46,7 +46,7 @@ jobs:
               if [[ -z ${BASH_REMATCH[2]} ]]; then
                 REPO='stable'
                 VERSION="${BASH_REMATCH[1]}"
-                VERSION_POM=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+                VERSION_POM=$(mvn org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version -q -DforceStdout)
                 if [[ ${VERSION} != ${VERSION_POM} ]]; then
                   echo "Version mismatch between tag (${VERSION}) and POM file (${VERSION_POM})"
                   exit 1
