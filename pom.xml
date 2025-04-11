@@ -25,8 +25,8 @@ SPDX-License-Identifier: Apache-2.0
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <plugin.jacoco.version>0.8.12</plugin.jacoco.version>
-    <plugin.spotless.version>2.44.3</plugin.spotless.version>
+    <plugin.jacoco.version>0.8.13</plugin.jacoco.version>
+    <plugin.spotless.version>2.44.4</plugin.spotless.version>
 
     <java.version>17</java.version>
 
@@ -44,7 +44,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <logback-access.version>2.0.6</logback-access.version>
 
-    <guava.version>33.4.6-jre</guava.version>
+    <guava.version>33.4.8-jre</guava.version>
 
     <owner-config.version>1.0.12</owner-config.version>
 
