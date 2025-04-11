@@ -4,8 +4,7 @@
 
 name: Build RPM
 on: push
-env:
-  NIGHTLY_BRANCH: develop
+
 jobs:
   build-rpm:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
@@ -23,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf upgrade -y
-          [[ "${{ matrix.version }}" = 8 ]] && dnf module enable -y maven:3.8/common
+          dnf module enable -y maven:3.8
           dnf install -y git rpmdevtools rpmlint maven-openjdk17
       - name: Setup build tree
         run: |
@@ -38,11 +37,8 @@ jobs:
         run: |
           cd rpmbuild/BUILD
           if [[ ${{ github.ref_type }} = 'tag' ]]; then
-            # In case is a tag, get the tag value
-            GITHUB_REF=${{ github.ref }}
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            # Check if the tag matches v<x>.<y>.<z>(-[0-9A-Za-z-]+)?
-            if [[ ${TAG_NAME} =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-[[:alnum:]-]+)?$ ]]; then
+            # In case is a tag, check if the tag matches v<x>.<y>.<z>(-[0-9A-Za-z-]+)?
+            if [[ ${GITHUB_REF_NAME} =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-[[:alnum:]-]+)?$ ]]; then
               if [[ -z ${BASH_REMATCH[2]} ]]; then
                 REPO='stable'
                 VERSION="${BASH_REMATCH[1]}"
@@ -65,7 +61,7 @@ jobs:
             # - the first remaining "-" (if any) with "~"
             # - all possible remaining "-" with "_"
             VERSION=$(git describe --tags --long | sed 's/^v//' | sed -r 's/(.*)-/\1./' | sed -r 's/(.*)-/\1^/' | sed 's/-/~/' | sed 's/-/_/g')
-            if [[ ${GITHUB_REF} = "refs/heads/${NIGHTLY_BRANCH}" ]]; then
+            if [[ ${GITHUB_REF_NAME} = ${{ github.event.repository.default_branch }} ]]; then
               REPO='nightly'
             fi
           fi
