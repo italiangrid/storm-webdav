@@ -29,11 +29,9 @@ ARG USERNAME=storm
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
 
-RUN apk add --no-cache sudo curl
-RUN addgroup --gid ${USER_GID} ${USERNAME}
-RUN adduser --uid ${USER_UID} --ingroup ${USERNAME} ${USERNAME} --disabled-password
-RUN echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers
-RUN chmod 0440 /etc/sudoers
+RUN apk add --no-cache curl && \
+    addgroup --gid ${USER_GID} ${USERNAME} && \
+    adduser --uid ${USER_UID} --ingroup ${USERNAME} ${USERNAME} --disabled-password
 USER ${USERNAME}
 
 ENTRYPOINT java ${STORM_WEBDAV_JVM_OPTS} -cp app:app/lib/* org.italiangrid.storm.webdav.WebdavService
