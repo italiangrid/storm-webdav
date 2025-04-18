@@ -24,6 +24,8 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class FineGrainedCopyMoveAuthzManager extends PathAuthzPdpManagerSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(FineGrainedCopyMoveAuthzManager.class);
@@ -39,6 +41,7 @@ public class FineGrainedCopyMoveAuthzManager extends PathAuthzPdpManagerSupport 
   /**
    * @deprecated To be remove in Spring Security 7
    */
+  @WithSpan
   @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(
@@ -51,6 +54,7 @@ public class FineGrainedCopyMoveAuthzManager extends PathAuthzPdpManagerSupport 
     return null;
   }
 
+  @WithSpan
   @Override
   public AuthorizationResult authorize(
       Supplier<Authentication> authentication,

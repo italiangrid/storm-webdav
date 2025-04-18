@@ -17,6 +17,8 @@ import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class DefaultPathResolver implements PathResolver {
 
   private final StorageAreaConfiguration saConfig;
@@ -25,6 +27,7 @@ public class DefaultPathResolver implements PathResolver {
 
   private final NavigableMap<String, StorageAreaInfo> contextMap;
 
+  @WithSpan
   public DefaultPathResolver(StorageAreaConfiguration cfg) {
 
     this.saConfig = cfg;
@@ -48,7 +51,8 @@ public class DefaultPathResolver implements PathResolver {
       return path;
     }
   }
-
+  
+  @WithSpan
   @Override
   public String resolvePath(String pathInContext) {
 
@@ -65,6 +69,7 @@ public class DefaultPathResolver implements PathResolver {
     return null;
   }
 
+  @WithSpan
   @Override
   public StorageAreaInfo resolveStorageArea(String pathInContext) {
 
@@ -86,6 +91,7 @@ public class DefaultPathResolver implements PathResolver {
     return null;
   }
 
+  @WithSpan
   @Override
   public boolean pathExists(String pathInContext) {
     String resolvedPath = resolvePath(pathInContext);
@@ -97,6 +103,7 @@ public class DefaultPathResolver implements PathResolver {
     return Files.exists(Paths.get(resolvedPath), NOFOLLOW_LINKS);
   }
 
+  @WithSpan
   @Override
   public Path getPath(String pathInContext) {
 

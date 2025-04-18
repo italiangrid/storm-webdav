@@ -14,6 +14,8 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class ConsensusBasedManager implements AuthorizationManager<RequestAuthorizationContext> {
 
   public static final Logger LOG = LoggerFactory.getLogger(ConsensusBasedManager.class);
@@ -31,6 +33,7 @@ public class ConsensusBasedManager implements AuthorizationManager<RequestAuthor
   /**
    * @deprecated To be remove in Spring Security 7
    */
+  @WithSpan
   @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(
@@ -43,6 +46,7 @@ public class ConsensusBasedManager implements AuthorizationManager<RequestAuthor
     return null;
   }
 
+  @WithSpan
   @Override
   public AuthorizationResult authorize(
       Supplier<Authentication> authentication,

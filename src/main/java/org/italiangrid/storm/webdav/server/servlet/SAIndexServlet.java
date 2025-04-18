@@ -25,6 +25,8 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class SAIndexServlet extends HttpServlet {
 
   /** */
@@ -66,6 +68,7 @@ public class SAIndexServlet extends HttpServlet {
     }
   }
 
+  @WithSpan
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {

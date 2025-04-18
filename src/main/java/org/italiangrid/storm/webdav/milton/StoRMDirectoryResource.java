@@ -14,6 +14,8 @@ import io.milton.resource.DeletableCollectionResource;
 import io.milton.resource.MakeCollectionableResource;
 import io.milton.resource.PutableResource;
 import io.milton.resource.Resource;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +48,7 @@ public class StoRMDirectoryResource extends StoRMResource
     return new File(getFile(), filename);
   }
 
+  @WithSpan
   @Override
   public Resource child(String childName) throws NotAuthorizedException, BadRequestException {
 
@@ -71,6 +74,7 @@ public class StoRMDirectoryResource extends StoRMResource
     }
   }
 
+  @WithSpan
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
     try {
@@ -87,6 +91,7 @@ public class StoRMDirectoryResource extends StoRMResource
     }
   }
 
+  @WithSpan
   @Override
   public CollectionResource createCollection(String dirName)
       throws NotAuthorizedException, ConflictException, BadRequestException {
@@ -95,6 +100,7 @@ public class StoRMDirectoryResource extends StoRMResource
     return new StoRMDirectoryResource(getResourceFactory(), nd);
   }
 
+  @WithSpan
   @Override
   public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
 
@@ -115,6 +121,7 @@ public class StoRMDirectoryResource extends StoRMResource
     }
   }
 
+  @WithSpan
   @Override
   public Resource createNew(
       String fileName, InputStream inputStream, Long length, String contentType)
@@ -126,6 +133,7 @@ public class StoRMDirectoryResource extends StoRMResource
     return new StoRMFileResource(getResourceFactory(), targetFile);
   }
 
+  @WithSpan
   @Override
   public void copyTo(CollectionResource toCollection, String name)
       throws NotAuthorizedException, BadRequestException, ConflictException {

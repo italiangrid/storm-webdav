@@ -8,6 +8,7 @@ import io.milton.http.HttpManager;
 import io.milton.http.Request;
 import io.milton.http.Response;
 import io.milton.servlet.MiltonServlet;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -96,6 +97,7 @@ public class MiltonFilter implements Filter {
     return WEBDAV_METHOD_SET.contains(((HttpServletRequest) request).getMethod());
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -107,6 +109,7 @@ public class MiltonFilter implements Filter {
     }
   }
 
+  @WithSpan
   public void doMilton(HttpServletRequest request, HttpServletResponse response) {
 
     LOG.trace("doMilton: req: {}, res: {}", request, response);

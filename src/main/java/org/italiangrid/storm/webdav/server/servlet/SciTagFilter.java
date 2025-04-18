@@ -17,10 +17,13 @@ import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class SciTagFilter implements Filter {
 
   public static final Logger logger = LoggerFactory.getLogger(SciTagFilter.class);
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

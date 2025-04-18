@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.util.StringUtils;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(LocalAuthzManager.class);
@@ -56,6 +58,7 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
   /**
    * @deprecated To be remove in Spring Security 7
    */
+  @WithSpan
   @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(
@@ -68,6 +71,7 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
     return null;
   }
 
+  @WithSpan
   @Override
   public AuthorizationResult authorize(
       Supplier<Authentication> authentication,

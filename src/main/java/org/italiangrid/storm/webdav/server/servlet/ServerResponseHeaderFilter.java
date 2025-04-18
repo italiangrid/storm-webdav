@@ -24,6 +24,8 @@ import java.util.jar.Manifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 /**
  * Add 'Server' header response, using StoRM-WebDAV version (taken from the .jar file) and an
  * instance ID that is (with high likelihood) different between any two invocations of StoRM-WebDAV
@@ -69,6 +71,7 @@ public class ServerResponseHeaderFilter implements Filter {
     response.setHeader("Server", SERVER_HEADER_VALUE);
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

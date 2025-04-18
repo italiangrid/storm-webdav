@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 @Service
 @ConditionalOnProperty(name = "storm.authz.enable-fine-grained-authz", havingValue = "true")
 public class DefaultPathAuthorizationPdp implements PathAuthorizationPdp {
@@ -24,6 +26,7 @@ public class DefaultPathAuthorizationPdp implements PathAuthorizationPdp {
     this.repo = repo;
   }
 
+  @WithSpan
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
 

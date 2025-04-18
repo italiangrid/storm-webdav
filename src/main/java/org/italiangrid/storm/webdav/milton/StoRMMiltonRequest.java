@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.milton;
 
 import io.milton.http.Auth;
 import io.milton.servlet.ServletRequest;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
@@ -22,6 +23,7 @@ public class StoRMMiltonRequest extends ServletRequest {
     super(r, servletContext);
   }
 
+  @WithSpan
   @Override
   public String getDestinationHeader() {
 
@@ -37,6 +39,7 @@ public class StoRMMiltonRequest extends ServletRequest {
     return destHeaderValue;
   }
 
+  @WithSpan
   @Override
   public String getAbsolutePath() {
     return URIUtil.compactPath(super.getAbsolutePath());

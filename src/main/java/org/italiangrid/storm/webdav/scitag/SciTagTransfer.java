@@ -7,6 +7,7 @@ package org.italiangrid.storm.webdav.scitag;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,18 +24,13 @@ public class SciTagTransfer {
   private int destinationPort;
   private File flowdPipeFile;
 
-  public SciTagTransfer(
-      SciTag scitag, String localAddress, int localPort, String remoteAddress, int remotePort) {
+  public SciTagTransfer(SciTag scitag, String localAddress, int localPort, String remoteAddress,
+      int remotePort) {
     this(scitag, localAddress, localPort, remoteAddress, remotePort, new File(FLOWD_PIPE_NAME));
   }
 
-  public SciTagTransfer(
-      SciTag scitag,
-      String localAddress,
-      int localPort,
-      String remoteAddress,
-      int remotePort,
-      File flowdPipeFile) {
+  public SciTagTransfer(SciTag scitag, String localAddress, int localPort, String remoteAddress,
+      int remotePort, File flowdPipeFile) {
     this.scitag = scitag;
     if (scitag.remoteAddressIsSource()) {
       this.sourceAddress = remoteAddress;
@@ -51,19 +47,8 @@ public class SciTagTransfer {
   }
 
   private String flowdEntry() {
-    return " tcp "
-        + sourceAddress
-        + " "
-        + sourcePort
-        + " "
-        + destinationAddress
-        + " "
-        + destinationPort
-        + " "
-        + scitag.experimentId()
-        + " "
-        + scitag.activityId()
-        + "\n";
+    return " tcp " + sourceAddress + " " + sourcePort + " " + destinationAddress + " "
+        + destinationPort + " " + scitag.experimentId() + " " + scitag.activityId() + "\n";
   }
 
   public void writeStart() {

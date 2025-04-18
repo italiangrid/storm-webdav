@@ -12,10 +12,13 @@ import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import org.slf4j.MDC;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class RequestIdFilter implements Filter {
 
   public static final String REQUEST_ID_ATTRIBUTE_NAME = "storm.requestId";
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

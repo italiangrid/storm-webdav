@@ -4,13 +4,15 @@
 
 package org.italiangrid.storm.webdav.authz;
 
-import eu.emi.security.authn.x509.proxy.ProxyUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class VOMSAuthenticationFilter extends X509AuthenticationFilter {
 

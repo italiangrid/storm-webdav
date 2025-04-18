@@ -9,6 +9,8 @@ import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,6 +44,7 @@ public class MacaroonRequestFilter implements Filter {
     return (MACAROON_REQUEST_CONTENT_TYPE.equals(request.getContentType()));
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -56,6 +59,7 @@ public class MacaroonRequestFilter implements Filter {
     }
   }
 
+  @WithSpan
   private void processMacaroonRequest(
       HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
 

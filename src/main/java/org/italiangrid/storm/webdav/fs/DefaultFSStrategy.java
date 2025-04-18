@@ -23,6 +23,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.MethodNotAllowedException;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 @Component
 public class DefaultFSStrategy implements FilesystemAccess {
 
@@ -35,6 +37,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     attrsHelper = helper;
   }
 
+  @WithSpan
   @Override
   public File mkdir(File parentDirectory, String dirName) {
 
@@ -48,6 +51,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     return nd;
   }
 
+  @WithSpan
   @Override
   public void rm(File f) throws IOException {
 
@@ -55,6 +59,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     Files.delete(f.toPath());
   }
 
+  @WithSpan
   @Override
   public void mv(File source, File dest) {
 
@@ -74,6 +79,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     }
   }
 
+  @WithSpan
   @Override
   public File[] ls(File dir, int limit) {
 
@@ -81,6 +87,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     return null;
   }
 
+  @WithSpan
   @Override
   public void cp(File source, File dest) {
 
@@ -107,6 +114,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
     }
   }
 
+  @WithSpan
   @Override
   public File create(File file, InputStream in) {
 

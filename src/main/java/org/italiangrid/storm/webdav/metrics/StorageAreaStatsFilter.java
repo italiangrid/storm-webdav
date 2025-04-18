@@ -7,6 +7,8 @@ package org.italiangrid.storm.webdav.metrics;
 import static com.codahale.metrics.MetricRegistry.name;
 
 import com.codahale.metrics.MetricRegistry;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -49,6 +51,7 @@ public class StorageAreaStatsFilter implements Filter, TpcUtils {
     }
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

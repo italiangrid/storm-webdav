@@ -5,6 +5,8 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,6 +60,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
     this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true, null);
   }
 
+  @WithSpan
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
       throws UnsupportedOperationException, IOException {
 
@@ -76,6 +79,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
     }
   }
 
+  @WithSpan
   @Override
   public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
 

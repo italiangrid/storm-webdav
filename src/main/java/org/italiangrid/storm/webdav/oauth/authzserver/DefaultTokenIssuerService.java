@@ -5,6 +5,9 @@
 package org.italiangrid.storm.webdav.oauth.authzserver;
 
 import com.nimbusds.jwt.SignedJWT;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.text.ParseException;
 import java.time.Clock;
 import java.time.Duration;
@@ -41,6 +44,7 @@ public class DefaultTokenIssuerService implements TokenIssuerService {
     }
   }
 
+  @WithSpan
   @Override
   public TokenResponseDTO createAccessToken(
       AccessTokenRequest tokenRequest, Authentication authentication) {
