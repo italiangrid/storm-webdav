@@ -4,14 +4,9 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import ch.qos.logback.access.jetty.RequestLogImpl;
-import com.codahale.metrics.MetricRegistry;
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
-import io.dropwizard.metrics.jetty12.ee10.InstrumentedEE10Handler;
-import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Paths;
+
 import org.eclipse.jetty.rewrite.handler.CompactPathRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
@@ -30,6 +25,14 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.util.StringUtils;
 
+import com.codahale.metrics.MetricRegistry;
+
+import ch.qos.logback.access.jetty.RequestLogImpl;
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
+import io.dropwizard.metrics.jetty12.ee10.InstrumentedEE10Handler;
+import jakarta.annotation.PostConstruct;
+
 public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
   public static final Logger LOG = LoggerFactory.getLogger(DefaultJettyServerCustomizer.class);
@@ -45,13 +48,9 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
   final X509CertChainValidatorExt certChainValidator;
   final ServiceConfigurationProperties serviceConfig;
 
-  public DefaultJettyServerCustomizer(
-      ServiceConfigurationProperties serviceConfig,
-      ServiceConfiguration configuration,
-      StorageAreaConfiguration saConf,
-      ServerProperties serverProperties,
-      MetricRegistry registry,
-      ConfigurationLogger confLogger,
+  public DefaultJettyServerCustomizer(ServiceConfigurationProperties serviceConfig,
+      ServiceConfiguration configuration, StorageAreaConfiguration saConf,
+      ServerProperties serverProperties, MetricRegistry registry, ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
 
     this.configuration = configuration;
@@ -86,8 +85,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
 
     InstrumentedConnectionFactory connFactory =
-        new InstrumentedConnectionFactory(
-            new HttpConnectionFactory(plainConnectorConfig),
+        new InstrumentedConnectionFactory(new HttpConnectionFactory(plainConnectorConfig),
             metricRegistry.timer("storm-http.connection"));
 
     NetworkTrafficServerConnector connector =
@@ -107,39 +105,32 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     connectorBuilder.httpConfiguration().setSendServerVersion(false);
     connectorBuilder.httpConfiguration().setSendDateHeader(false);
-    connectorBuilder
-        .httpConfiguration()
-        .setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
+    connectorBuilder.httpConfiguration()
+      .setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
 
-    connectorBuilder
-        .httpConfiguration()
-        .setOutputBufferSize(serviceConfig.getConnector().getOutputBufferSizeBytes());
+    connectorBuilder.httpConfiguration()
+      .setOutputBufferSize(serviceConfig.getConnector().getOutputBufferSizeBytes());
 
-    ServerConnector connector =
-        connectorBuilder
-            .withPort(configuration.getHTTPSPort())
-            .withWantClientAuth(true)
-            .withNeedClientAuth(configuration.requireClientCertificateAuthentication())
-            .withCertificateFile(configuration.getCertificatePath())
-            .withCertificateKeyFile(configuration.getPrivateKeyPath())
-            .metricName("storm-https.connection")
-            .metricRegistry(metricRegistry)
-            .withConscrypt(configuration.useConscrypt())
-            .withHttp2(configuration.enableHttp2())
-            .withDisableJsseHostnameVerification(true)
-            .withTlsProtocol(configuration.getTlsProtocol())
-            .withAcceptors(serverProperties.getJetty().getThreads().getAcceptors())
-            .withSelectors(serverProperties.getJetty().getThreads().getSelectors())
-            .build();
+    ServerConnector connector = connectorBuilder.withPort(configuration.getHTTPSPort())
+      .withWantClientAuth(true)
+      .withNeedClientAuth(configuration.requireClientCertificateAuthentication())
+      .withCertificateFile(configuration.getCertificatePath())
+      .withCertificateKeyFile(configuration.getPrivateKeyPath())
+      .metricName("storm-https.connection")
+      .metricRegistry(metricRegistry)
+      .withConscrypt(configuration.useConscrypt())
+      .withHttp2(configuration.enableHttp2())
+      .withDisableJsseHostnameVerification(true)
+      .withTlsProtocol(configuration.getTlsProtocol())
+      .withAcceptors(serverProperties.getJetty().getThreads().getAcceptors())
+      .withSelectors(serverProperties.getJetty().getThreads().getSelectors())
+      .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
 
     server.addConnector(connector);
-    LOG.info(
-        "Configured TLS connector on port: {}. Conscrypt enabled: {}. HTTP/2 enabled: {}",
-        configuration.getHTTPSPort(),
-        configuration.useConscrypt(),
-        configuration.enableHttp2());
+    LOG.info("Configured TLS connector on port: {}. Conscrypt enabled: {}. HTTP/2 enabled: {}",
+        configuration.getHTTPSPort(), configuration.useConscrypt(), configuration.enableHttp2());
   }
 
   private void configureRewriteHandler(Server server) {

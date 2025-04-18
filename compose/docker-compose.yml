@@ -57,6 +57,16 @@ services:
       STORM_WEBDAV_AUTHZ_SERVER_ENABLE: true
       STORM_WEBDAV_AUTHZ_SERVER_ISSUER: https://storm.test.example:8443
       STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=policies,issuers
+      OTEL_EXPORTER_OTLP_ENDPOINT: https://otello.cloud.cnaf.infn.it/collector
+      OTEL_LOGS_EXPORTER: none
+      OTEL_TRACES_SAMPLER: parentbased_always_on
+      OTEL_TRACES_SAMPLER_ARG: 1
+      OTEL_SERVICE_NAME: storm-webdav
+      OTEL_RESOURCE_ATTRIBUTES: host.name=${HOSTNAME}
+      OTEL_COLLECTOR_TIMEOUT: 5s
+      OTEL_COLLECTOR_TIMEOUT_TRACES: 5s
+      # OTEL_JAVAAGENT_DEBUG: true
+      JAVA_TOOL_OPTIONS: -javaagent:/app/lib/opentelemetry-javaagent.jar
 
     volumes:
       - storage:/storage

@@ -30,6 +30,8 @@ ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
 
 RUN apk add --no-cache sudo curl
+RUN curl -sSOL https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.15.0/opentelemetry-javaagent.jar \
+  --output-dir /app/lib
 RUN addgroup --gid ${USER_GID} ${USERNAME}
 RUN adduser --uid ${USER_UID} --ingroup ${USERNAME} ${USERNAME} --disabled-password
 RUN echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers
