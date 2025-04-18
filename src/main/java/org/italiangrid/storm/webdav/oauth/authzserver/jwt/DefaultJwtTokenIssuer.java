@@ -12,6 +12,9 @@ import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
@@ -104,6 +107,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     return Date.from(defaultExpiration);
   }
 
+  @WithSpan
   @Override
   public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication) {
 
@@ -133,6 +137,7 @@ public class DefaultJwtTokenIssuer implements SignedJwtTokenIssuer {
     return signedJWT;
   }
 
+  @WithSpan
   @Override
   public SignedJWT createResourceAccessToken(
       ResourceAccessTokenRequest request, Authentication authentication) {

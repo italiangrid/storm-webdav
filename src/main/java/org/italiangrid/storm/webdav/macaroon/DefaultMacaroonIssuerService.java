@@ -5,6 +5,9 @@
 package org.italiangrid.storm.webdav.macaroon;
 
 import com.nimbusds.jwt.SignedJWT;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
@@ -33,6 +36,7 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
     this.clock = clock;
   }
 
+  @WithSpan
   protected AccessTokenRequest createRequest(MacaroonRequestDTO request) {
     AccessTokenRequest req = new AccessTokenRequest();
 
@@ -48,6 +52,7 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
     return req;
   }
 
+  @WithSpan
   @Override
   @PreAuthorize("#storm.isVOMSAuthenticated()")
   public MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth) {

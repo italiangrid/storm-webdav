@@ -15,6 +15,8 @@ import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class LogbackAccessAuthnInfoFilter implements Filter {
 
   public static final String REMOTE_USER_ATTR_NAME = "storm.remoteUser";
@@ -25,6 +27,7 @@ public class LogbackAccessAuthnInfoFilter implements Filter {
     this.helper = principalHelper;
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

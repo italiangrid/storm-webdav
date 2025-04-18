@@ -15,6 +15,9 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Collections;
@@ -76,6 +79,7 @@ public class LocallyIssuedJwtDecoder implements JwtDecoder {
     return jwt;
   }
 
+  @WithSpan
   private Jwt createJwt(String token, JWT parsedJwt) {
     Jwt jwt;
 

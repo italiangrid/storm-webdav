@@ -9,6 +9,9 @@ import static org.italiangrid.storm.webdav.authz.SAPermission.canWrite;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,6 +31,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
   private final Multimap<String, SAPermission> voPerms;
   private final Multimap<String, SAPermission> voMapPerms;
 
+  @WithSpan
   public VOMSPolicyService(StorageAreaConfiguration saConfig) {
     authenticatedPerms = new ArrayList<>();
 
@@ -54,6 +58,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
     }
   }
 
+  @WithSpan
   @Override
   public Set<GrantedAuthority> getSAPermissions(
       Collection<? extends GrantedAuthority> authorities) {
@@ -74,6 +79,7 @@ public class VOMSPolicyService implements AuthorizationPolicyService {
     return saPermissions;
   }
 
+  @WithSpan
   @Override
   public Set<GrantedAuthority> getSAPermissions(Authentication authn) {
     Objects.requireNonNull(authn);

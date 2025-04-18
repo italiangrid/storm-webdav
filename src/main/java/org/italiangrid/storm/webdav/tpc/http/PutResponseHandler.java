@@ -5,6 +5,8 @@
 package org.italiangrid.storm.webdav.tpc.http;
 
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.IOException;
 import java.util.Map;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -26,6 +28,7 @@ public class PutResponseHandler extends ResponseHandlerSupport
     this.observationContext = observationContext;
   }
 
+  @WithSpan
   @Override
   public Boolean handleResponse(ClassicHttpResponse response) throws IOException {
     setupMDC();

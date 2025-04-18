@@ -21,6 +21,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class RedirectFilter implements Filter, TpcUtils {
   public static final String LOCATION = "Location";
 
@@ -35,6 +37,7 @@ public class RedirectFilter implements Filter, TpcUtils {
     this.service = service;
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

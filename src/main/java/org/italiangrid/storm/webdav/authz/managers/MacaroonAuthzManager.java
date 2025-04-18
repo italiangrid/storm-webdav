@@ -13,11 +13,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.util.Assert;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class MacaroonAuthzManager implements AuthorizationManager<RequestAuthorizationContext> {
 
   /**
    * @deprecated To be remove in Spring Security 7
    */
+  @WithSpan
   @Deprecated(forRemoval = true)
   @Override
   public AuthorizationDecision check(
@@ -30,6 +33,7 @@ public class MacaroonAuthzManager implements AuthorizationManager<RequestAuthori
     return null;
   }
 
+  @WithSpan
   @Override
   public AuthorizationResult authorize(
       Supplier<Authentication> authentication,

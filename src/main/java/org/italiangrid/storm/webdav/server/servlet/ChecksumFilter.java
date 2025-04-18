@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class ChecksumFilter implements Filter {
 
   private final ExtendedAttributesHelper attributeHelper;
@@ -43,6 +45,7 @@ public class ChecksumFilter implements Filter {
     logger.debug("Initializing checksum filter.");
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

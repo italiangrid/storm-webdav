@@ -20,6 +20,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public abstract class PathAuthzPdpManagerSupport
     implements MatcherUtils, TpcUtils, AuthorizationManager<RequestAuthorizationContext> {
 
@@ -47,6 +49,7 @@ public abstract class PathAuthzPdpManagerSupport
     this.permissive = permissive;
   }
 
+  @WithSpan
   protected void logPdpDecision(
       PathAuthorizationRequest request, PathAuthorizationResult result, Logger logger) {
     String requestString = requestToString(request);
@@ -59,6 +62,7 @@ public abstract class PathAuthzPdpManagerSupport
         result.getPolicy());
   }
 
+  @WithSpan
   public AuthorizationDecision renderDecision(PathAuthorizationResult result) {
     if (ABSTAIN_DECISIONS.contains(result.getDecision()) && permissive) {
       return null;
@@ -71,6 +75,7 @@ public abstract class PathAuthzPdpManagerSupport
     return new AuthorizationDecision(false);
   }
 
+  @WithSpan
   public AuthorizationDecision renderDecision(PathAuthorizationRequest request, Logger log) {
     PathAuthorizationResult result = pdp.authorizeRequest(request);
 

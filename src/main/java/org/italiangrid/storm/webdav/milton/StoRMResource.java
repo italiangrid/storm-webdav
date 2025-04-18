@@ -13,6 +13,8 @@ import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.CollectionResource;
 import io.milton.resource.MoveableResource;
 import io.milton.resource.PropFindableResource;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.File;
 import java.util.Date;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
@@ -29,6 +31,7 @@ public abstract class StoRMResource implements PropFindableResource, MoveableRes
     file = f;
   }
 
+  @WithSpan
   @Override
   public Date getCreateDate() {
 
@@ -97,6 +100,7 @@ public abstract class StoRMResource implements PropFindableResource, MoveableRes
     return resourceFactory.getExtendedAttributesHelper();
   }
 
+  @WithSpan
   @Override
   public void moveTo(CollectionResource rDest, String name)
       throws ConflictException, NotAuthorizedException, BadRequestException {

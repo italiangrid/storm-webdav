@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class StructuredPathScopeMatcher implements ScopeMatcher {
 
   public static final Logger LOG = LoggerFactory.getLogger(StructuredPathScopeMatcher.class);
@@ -38,6 +40,7 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
     pathMatchPattern = Pattern.compile(path + ".*");
   }
 
+  @WithSpan
   @Override
   public boolean matchesScope(String scope) {
     Objects.requireNonNull(scope, "scope must be non-null");
@@ -58,10 +61,12 @@ public class StructuredPathScopeMatcher implements ScopeMatcher {
     }
   }
 
+  @WithSpan
   public boolean matchesPath(String path) {
     return pathMatchPattern.matcher(path).matches();
   }
 
+  @WithSpan
   public boolean matchesPathIncludingParents(String path) {
     Path targetPath = Path.of(path);
     return this.path.startsWith(targetPath) || matchesPath(path);

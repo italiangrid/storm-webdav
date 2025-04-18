@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import org.springframework.util.Assert;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHelper {
 
   private static final String USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE =
@@ -24,6 +26,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
 
   public DefaultExtendedFileAttributesHelper() {}
 
+  @WithSpan
   protected String getAttributeValue(UserDefinedFileAttributeView view, String attributeName)
       throws IOException {
 
@@ -37,6 +40,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     }
   }
 
+  @WithSpan
   @Override
   public void setExtendedFileAttribute(File f, String attributeName, String attributeValue)
       throws IOException {
@@ -55,6 +59,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     faView.write(attributeName, StandardCharsets.UTF_8.encode(attributeValue));
   }
 
+  @WithSpan
   @Override
   public String getExtendedFileAttributeValue(File f, String attributeName) throws IOException {
 
@@ -72,6 +77,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     return getAttributeValue(faView, attributeName);
   }
 
+  @WithSpan
   @Override
   public List<String> getExtendedFileAttributeNames(File f) throws IOException {
 
@@ -88,6 +94,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     return faView.list();
   }
 
+  @WithSpan
   @Override
   public void setChecksumAttribute(File f, String checksumValue) throws IOException {
 
@@ -96,12 +103,14 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     }
   }
 
+  @WithSpan
   @Override
   public String getChecksumAttribute(File f) throws IOException {
 
     return getExtendedFileAttributeValue(f, STORM_ADLER32_CHECKSUM_ATTR_NAME);
   }
 
+  @WithSpan
   @Override
   public boolean fileSupportsExtendedAttributes(File f) throws IOException {
 
@@ -113,11 +122,13 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     return (faView != null);
   }
 
+  @WithSpan
   @Override
   public void setChecksumAttribute(Path p, String checksumValue) throws IOException {
     setChecksumAttribute(p.toFile(), checksumValue);
   }
 
+  @WithSpan
   @Override
   public String getChecksumAttribute(Path p) throws IOException {
     return getChecksumAttribute(p.toFile());

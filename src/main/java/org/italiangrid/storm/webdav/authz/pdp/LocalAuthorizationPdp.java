@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
   public static final String INSUFFICIENT_PRIVILEGES = "Insufficient privileges";
 
@@ -45,6 +47,7 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
             String.format("Invalid token: '%s' claim not found", claimName));
   }
 
+  @WithSpan
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
 

@@ -20,6 +20,8 @@ import io.milton.resource.CopyableResource;
 import io.milton.resource.DeletableResource;
 import io.milton.resource.GetableResource;
 import io.milton.resource.MultiNamespaceCustomPropertyResource;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,6 +69,7 @@ public class StoRMFileResource extends StoRMResource
     super(factory, f);
   }
 
+  @WithSpan
   @Override
   public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
 
@@ -89,6 +92,7 @@ public class StoRMFileResource extends StoRMResource
     throw new StoRMWebDAVError(e.getMessage(), e);
   }
 
+  @WithSpan
   @Override
   public void copyTo(CollectionResource toCollection, String name)
       throws NotAuthorizedException, BadRequestException, ConflictException {
@@ -98,6 +102,7 @@ public class StoRMFileResource extends StoRMResource
     getFilesystemAccess().cp(getFile(), destFile);
   }
 
+  @WithSpan
   @Override
   public void replaceContent(InputStream in, Long length)
       throws BadRequestException, ConflictException, NotAuthorizedException {
@@ -115,6 +120,7 @@ public class StoRMFileResource extends StoRMResource
     }
   }
 
+  @WithSpan
   protected void validateRange(Range range) {
     long fileSize = getFile().length();
 
@@ -131,6 +137,7 @@ public class StoRMFileResource extends StoRMResource
     }
   }
 
+  @WithSpan
   @Override
   public void replacePartialContent(Range range, InputStream in) {
 
@@ -158,6 +165,7 @@ public class StoRMFileResource extends StoRMResource
     calculateChecksum();
   }
 
+  @WithSpan
   protected void calculateChecksum() {
     try (Adler32ChecksumInputStream cis =
         new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(getFile())))) {

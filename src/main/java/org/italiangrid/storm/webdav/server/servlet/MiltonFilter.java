@@ -156,12 +156,10 @@ public class MiltonFilter implements Filter {
     }
   }
 
-  @WithSpan
   public void setMiltonHTTPManager(HttpManager miltonHTTPManager) {
     this.miltonHTTPManager = miltonHTTPManager;
   }
 
-  @WithSpan
   @Override
   public void destroy() {}
 }

@@ -65,7 +65,6 @@ public class StoRMServlet extends ResourceServlet {
         || value.startsWith("Y") || value.startsWith("1"));
   }
 
-  @WithSpan
   @Override
   protected String getEncodedPathInContext(HttpServletRequest request, boolean included) {
     String servletPath = null;

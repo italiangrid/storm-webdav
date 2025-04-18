@@ -15,6 +15,8 @@ import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.ConflictException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.http.http11.Http11ResponseHandler;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.IOException;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
@@ -28,6 +30,7 @@ public class StoRMMiltonBehaviour implements Filter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StoRMMiltonBehaviour.class);
 
+  @WithSpan
   @Override
   public void process(FilterChain chain, Request request, Response response) {
 

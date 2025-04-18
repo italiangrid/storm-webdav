@@ -19,6 +19,8 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
 
   private final PathResolver resolver;
@@ -36,6 +38,7 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
     }
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

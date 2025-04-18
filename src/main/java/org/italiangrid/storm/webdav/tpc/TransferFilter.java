@@ -40,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class TransferFilter extends TransferFilterSupport implements Filter {
 
   public static final String XFER_ID_KEY = "tpc.xferId";
@@ -66,6 +68,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -91,6 +94,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+  @WithSpan
   protected void handleTpc(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
@@ -231,6 +235,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+  @WithSpan
   protected void handlePullCopy(
       HttpServletRequest request, HttpServletResponse response, SciTag scitag) throws IOException {
 
@@ -272,6 +277,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
+  @WithSpan
   protected void handlePushCopy(
       HttpServletRequest request, HttpServletResponse response, SciTag scitag) throws IOException {
     URI uri = URI.create(request.getHeader(TransferConstants.DESTINATION_HEADER));

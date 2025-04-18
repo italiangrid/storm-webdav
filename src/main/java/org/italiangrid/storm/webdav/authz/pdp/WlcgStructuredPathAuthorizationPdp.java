@@ -26,6 +26,8 @@ import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class WlcgStructuredPathAuthorizationPdp
     implements PathAuthorizationPdp, MatcherUtils, TpcUtils {
 
@@ -86,6 +88,7 @@ public class WlcgStructuredPathAuthorizationPdp
     return WLCG_STORAGE_SCOPE_PATTERN.matcher(scope).matches();
   }
 
+  @WithSpan
   public String getStorageAreaPath(String requestPath, StorageAreaInfo sa) {
 
     return sa.accessPoints().stream()
@@ -96,6 +99,7 @@ public class WlcgStructuredPathAuthorizationPdp
         .orElse("/");
   }
 
+  @WithSpan
   public static Set<String> resolveWlcgScopes(JwtAuthenticationToken token) {
     Set<String> wlcgScopes =
         Stream.of(token.getToken().getClaimAsString(SCOPE_CLAIM).split(" "))
@@ -112,6 +116,7 @@ public class WlcgStructuredPathAuthorizationPdp
     return wlcgScopes;
   }
 
+  @WithSpan
   boolean filterMatcherByRequest(
       HttpServletRequest request,
       String method,
@@ -152,6 +157,7 @@ public class WlcgStructuredPathAuthorizationPdp
     throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
   }
 
+  @WithSpan
   @Override
   public PathAuthorizationResult authorizeRequest(PathAuthorizationRequest authzRequest) {
 

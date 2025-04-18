@@ -22,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class LogRequestFilter implements Filter {
 
   public static final Logger log = LoggerFactory.getLogger(LogRequestFilter.class);
@@ -37,6 +39,7 @@ public class LogRequestFilter implements Filter {
   @Override
   public void destroy() {}
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

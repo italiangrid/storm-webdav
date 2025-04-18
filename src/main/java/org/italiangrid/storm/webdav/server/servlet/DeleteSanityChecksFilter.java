@@ -15,6 +15,8 @@ import java.io.IOException;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 public class DeleteSanityChecksFilter implements Filter, TpcUtils {
 
   final PathResolver resolver;
@@ -23,6 +25,7 @@ public class DeleteSanityChecksFilter implements Filter, TpcUtils {
     this.resolver = resolver;
   }
 
+  @WithSpan
   @Override
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
       throws IOException, ServletException {

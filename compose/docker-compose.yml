@@ -65,8 +65,8 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: host.name=${HOSTNAME}
       OTEL_COLLECTOR_TIMEOUT: 5s
       OTEL_COLLECTOR_TIMEOUT_TRACES: 5s
-      # OTEL_JAVAAGENT_DEBUG: true
       JAVA_TOOL_OPTIONS: -javaagent:/app/lib/opentelemetry-javaagent.jar
+      # OTEL_JAVAAGENT_DEBUG: true
 
     volumes:
       - storage:/storage

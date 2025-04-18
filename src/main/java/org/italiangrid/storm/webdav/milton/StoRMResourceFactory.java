@@ -8,6 +8,8 @@ import io.milton.http.ResourceFactory;
 import io.milton.http.exceptions.BadRequestException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.resource.Resource;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.io.File;
 import java.nio.file.Path;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
@@ -41,6 +43,7 @@ public class StoRMResourceFactory implements ResourceFactory {
     this.rcs = rcs;
   }
 
+  @WithSpan
   @Override
   public Resource getResource(String host, String path)
       throws NotAuthorizedException, BadRequestException {
