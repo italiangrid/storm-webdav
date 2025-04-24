@@ -6,6 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.8.1 (2025-04-24)
+
+### Changed
+
+* Update dependencies, in particular voms-api-java to 3.3.5, and Bootstrap
+* Do not add sudo to Docker image
+
 ## 1.8.0 (2025-04-02)
 
 ### Added
