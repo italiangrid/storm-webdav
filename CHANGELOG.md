@@ -6,6 +6,31 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.9.0 (2025-07-08)
+
+### Added
+
+* [STOR-1604](https://issues.infn.it/jira/projects/STOR/issues/STOR-1604) - Add tape enabled storage area support
+* Support deployment behind nginx reverse proxy
+* Build RPM for AlmaLinux 10
+
+### Changed
+
+* Update milton2 to support PROPFIND propname listing
+* Update to Spring Boot 3.5.3
+* Improve access log
+
+### Fixed
+
+* The TPC max-connections parameter was ignored and this produced many ConnectionRequestTimeoutException
+* Expose metrics also for HTTPS traffic
+* [GH-123](https://github.com/italiangrid/storm-webdav/issues/123) - Fix StandardOutput and StandardError in systemd service unit
+* Fix NullPointerException when accessing authn-info page from Anonymous user
+* Improve how StoRM WebDAV version in Server header is obtained
+* Avoid duplicate Server header
+* Fix prefix of TPC progress threads
+* Set the idle timeout also on connector
+
 ## 1.8.1 (2025-04-24)
 
 ### Changed
