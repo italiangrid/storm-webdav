@@ -6,6 +6,18 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.9.0 (2025-05-21)
+
+### Added
+
+* [STOR-1604](https://issues.infn.it/jira/projects/STOR/issues/STOR-1604) - Add tape enabled storage area support
+* Support deployment behind nginx reverse proxy
+
+### Fixed
+
+* Expose metrics also for HTTPS traffic
+* [GH-123](https://github.com/italiangrid/storm-webdav/issues/123) - Fix StandardOutput and StandardError in systemd service unit
+
 ## 1.8.1 (2025-04-24)
 
 ### Changed
