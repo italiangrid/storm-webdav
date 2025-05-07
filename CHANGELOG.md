@@ -6,6 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.9.0 (2025-05-07)
+
+### Added
+
+* Add tape enabled storage area support
+* Support deployment behind nginx reverse proxy
+
 ## 1.8.1 (2025-04-24)
 
 ### Changed
