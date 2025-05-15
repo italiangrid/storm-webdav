@@ -19,7 +19,6 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -117,7 +116,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         .httpConfiguration()
         .setOutputBufferSize(serviceConfig.getConnector().getOutputBufferSizeBytes());
 
-    ServerConnector connector =
+    NetworkTrafficServerConnector connector =
         connectorBuilder
             .withPort(configuration.getHTTPSPort())
             .withWantClientAuth(true)

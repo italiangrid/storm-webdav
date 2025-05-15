@@ -30,9 +30,9 @@ import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -488,11 +488,12 @@ public class TLSServerConnectorBuilder {
   }
 
   /**
-   * Builds a {@link ServerConnector} based on the {@link TLSServerConnectorBuilder} parameters
+   * Builds a {@link NetworkTrafficServerConnector} based on the {@link TLSServerConnectorBuilder}
+   * parameters
    *
-   * @return a {@link ServerConnector}
+   * @return a {@link NetworkTrafficServerConnector}
    */
-  public ServerConnector build() {
+  public NetworkTrafficServerConnector build() {
 
     if (keyManager == null) {
       loadCredentials();
@@ -519,7 +520,7 @@ public class TLSServerConnectorBuilder {
     }
 
     ConnectionFactory h2ConnFactory = null;
-    ServerConnector connector = null;
+    NetworkTrafficServerConnector connector = null;
 
     if (enableHttp2) {
 
@@ -537,14 +538,26 @@ public class TLSServerConnectorBuilder {
       SslConnectionFactory sslCf = new SslConnectionFactory(cf, alpn.getProtocol());
 
       connector =
-          new ServerConnector(
-              server, acceptors, selectors, sslCf, alpn, h2ConnFactory, httpConnFactory);
+          new NetworkTrafficServerConnector(
+              server,
+              null,
+              null,
+              null,
+              acceptors,
+              selectors,
+              sslCf,
+              alpn,
+              h2ConnFactory,
+              httpConnFactory);
 
     } else {
 
       connector =
-          new ServerConnector(
+          new NetworkTrafficServerConnector(
               server,
+              null,
+              null,
+              null,
               acceptors,
               selectors,
               new SslConnectionFactory(cf, HttpVersion.HTTP_1_1.asString()),
