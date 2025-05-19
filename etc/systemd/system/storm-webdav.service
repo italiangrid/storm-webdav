@@ -14,8 +14,8 @@ ExecStart=java $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/storm-webdav/work \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
     -jar ${STORM_WEBDAV_JAR}
-StandardOutput=append:${STORM_WEBDAV_OUT}
-StandardError=append:${STORM_WEBDAV_ERR}
+StandardOutput=append:/var/log/storm/webdav/storm-webdav-server.out
+StandardError=append:/var/log/storm/webdav/storm-webdav-server.err
 SuccessExitStatus=143
 
 [Install]
