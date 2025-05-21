@@ -146,10 +146,10 @@ public class MiltonFilter implements Filter {
       if (miltonReq.getMethod() == Method.PUT
           && resolver.resolveStorageArea(miltonReq.getAbsolutePath()).tapeEnabled()) {
         try {
-          attrsHelper.setPremigratedAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
+          attrsHelper.setPremigrateAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
         } catch (IOException e) {
           LOG.warn(
-              "Error setting premigrated extended attribute to {}: {}",
+              "Error setting premigrate extended attribute to {}: {}",
               resolver.resolvePath(miltonReq.getAbsolutePath()),
               e.getMessage(),
               e);

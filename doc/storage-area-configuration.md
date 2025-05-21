@@ -26,7 +26,7 @@ StoRM WebDAV will look for configuration in all files ending with `.properties` 
 | `orgsGrantWritePermission` | Enables write access to storage area files to users authenticated using OAuth/OIDC                                           | False      | `orgsGrantWritePermission=false`        | false     |
 | `wlcgScopeAuthzEnabled`    | Enables scope-based authorization following the rules imposed by the WLCG JWT profile                                        | False      | `wlcgScopeAuthzEnabled=true`            | false     |
 | `fineGrainedAuthzEnabled`  | Enables fine-grained authorization engine for the storage area                                                               | False      | `fineGrainedAuthzEnabled=true`          | false     |
-| `tapeEnabled`              | Tape enabled storage area (e.g. stub files and premigrated/migrated xattrs)                                                  | False      | `tapeEnabled=true`                      | false     |
+| `tapeEnabled`              | Tape enabled storage area (e.g. stub files and premigrate/migrated xattrs)                                                   | False      | `tapeEnabled=true`                      | false     |
 
 ## Authorization configuration
 

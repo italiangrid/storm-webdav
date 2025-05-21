@@ -27,7 +27,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
 
   public static final String STORM_MIGRATED_ATTR_NAME = "storm.migrated";
 
-  public static final String STORM_PREMIGRATED_ATTR_NAME = "storm.premigrated";
+  public static final String STORM_PREMIGRATE_ATTR_NAME = "storm.premigrate";
 
   public DefaultExtendedFileAttributesHelper() {}
 
@@ -89,14 +89,14 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
   }
 
   @Override
-  public void setPremigratedAttribute(Path p) throws IOException {
-    setPremigratedAttribute(p.toFile());
+  public void setPremigrateAttribute(Path p) throws IOException {
+    setPremigrateAttribute(p.toFile());
   }
 
   @Override
-  public void setPremigratedAttribute(File f) throws IOException {
+  public void setPremigrateAttribute(File f) throws IOException {
     if (fileSupportsExtendedAttributes(f)) {
-      setExtendedFileAttribute(f, STORM_PREMIGRATED_ATTR_NAME, "");
+      setExtendedFileAttribute(f, STORM_PREMIGRATE_ATTR_NAME, "");
     }
   }
 

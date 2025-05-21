@@ -22,9 +22,9 @@ public interface ExtendedAttributesHelper {
 
   public void setChecksumAttribute(File f, String checksumValue) throws IOException;
 
-  public void setPremigratedAttribute(Path p) throws IOException;
+  public void setPremigrateAttribute(Path p) throws IOException;
 
-  public void setPremigratedAttribute(File f) throws IOException;
+  public void setPremigrateAttribute(File f) throws IOException;
 
   public String getChecksumAttribute(File f) throws IOException;
 
