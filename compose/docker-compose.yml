@@ -57,7 +57,7 @@ services:
       STORM_WEBDAV_AUTHZ_SERVER_ENABLE: true
       STORM_WEBDAV_AUTHZ_SERVER_ISSUER: https://storm.test.example:8443
       STORM_WEBDAV_JVM_OPTS: -Dspring.profiles.active=policies,issuers
-      OTEL_EXPORTER_OTLP_ENDPOINT: https://otello.cloud.cnaf.infn.it/collector
+      OTEL_EXPORTER_OTLP_ENDPOINT: https://otello.cloud.cnaf.infn.it:8443/collector
       OTEL_LOGS_EXPORTER: none
       OTEL_TRACES_SAMPLER: parentbased_always_on
       OTEL_TRACES_SAMPLER_ARG: 1
