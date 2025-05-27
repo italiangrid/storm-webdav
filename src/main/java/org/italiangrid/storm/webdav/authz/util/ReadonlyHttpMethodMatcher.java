@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class ReadonlyHttpMethodMatcher implements RequestMatcher {
@@ -26,7 +26,7 @@ public class ReadonlyHttpMethodMatcher implements RequestMatcher {
     if (pattern.isEmpty()) {
       pathMatcher = new EmptyPathRequestMatcher();
     } else {
-      pathMatcher = new AntPathRequestMatcher(pattern);
+      pathMatcher = PathPatternRequestMatcher.withDefaults().matcher(pattern);
     }
 
     delegate = new AndRequestMatcher(pathMatcher, methodMatcher);

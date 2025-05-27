@@ -32,8 +32,9 @@ import org.italiangrid.storm.webdav.oauth.authority.JwtIssuerAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtScopeAuthority;
 import org.italiangrid.storm.webdav.oauth.authority.JwtSubjectAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 
@@ -69,16 +70,17 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   Supplier<RequestMatcher> matcherByActionSupplier(Action a, String pattern) {
     return () -> {
       if (Action.ALL.equals(a)) {
-        return new AntPathRequestMatcher(pattern);
+        return PathPatternRequestMatcher.withDefaults().matcher(pattern);
       } else if (Action.READ.equals(a)) {
         return new ReadonlyHttpMethodMatcher(pattern);
       } else if (Action.WRITE.equals(a)) {
         return new WriteHttpMethodMatcher(pattern);
       } else if (Action.DELETE.equals(a)) {
-        return new AntPathRequestMatcher(pattern, "DELETE");
+        return PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.DELETE, pattern);
       } else if (Action.LIST.equals(a)) {
         return new AndRequestMatcher(
-            new CustomHttpMethodMatcher(Set.of("PROPFIND")), new AntPathRequestMatcher(pattern));
+            new CustomHttpMethodMatcher(Set.of("PROPFIND")),
+            PathPatternRequestMatcher.withDefaults().matcher(pattern));
       } else {
         throw new IllegalArgumentException("Unknown action: " + a);
       }

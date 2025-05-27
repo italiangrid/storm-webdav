@@ -15,8 +15,10 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.MappingMatch;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.jetty.ee10.servlet.ServletPathMapping;
 import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;
@@ -33,10 +35,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthzPdpTests {
@@ -52,6 +55,8 @@ public class AuthzPdpTests {
 
   @Mock Authentication authentication;
 
+  @Mock ServletPathMapping servletPathMapping;
+
   @InjectMocks DefaultPathAuthorizationPdp pdp;
 
   @SuppressWarnings("unchecked")
@@ -61,7 +66,9 @@ public class AuthzPdpTests {
 
   @BeforeEach
   void setup() {
-    lenient().when(request.getServletPath()).thenReturn("/");
+    lenient().when(request.getRequestURI()).thenReturn("/");
+    lenient().when(request.getHttpServletMapping()).thenReturn(servletPathMapping);
+    lenient().when(servletPathMapping.getMappingMatch()).thenReturn(MappingMatch.DEFAULT);
     lenient().when(repo.getPolicies()).thenReturn(emptyList());
   }
 
@@ -80,7 +87,7 @@ public class AuthzPdpTests {
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(denyAllPolicy);
@@ -100,14 +107,14 @@ public class AuthzPdpTests {
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     PathAuthorizationPolicy permitAllPolicy =
         PathAuthorizationPolicy.builder()
             .withPermit()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(permitAllPolicy, denyAllPolicy);
@@ -128,14 +135,15 @@ public class AuthzPdpTests {
             .withPermit()
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     PathAuthorizationPolicy denyAllPolicy =
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
@@ -160,7 +168,8 @@ public class AuthzPdpTests {
             .withPermit()
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     PathAuthorizationPolicy denyAllPolicy =
@@ -168,13 +177,14 @@ public class AuthzPdpTests {
             .withDescription("Deny all")
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
 
-    when(request.getServletPath()).thenReturn("/test/ciccio");
+    when(request.getMethod()).thenReturn("GET");
+    when(request.getRequestURI()).thenReturn("/test/ciccio");
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
@@ -195,19 +205,21 @@ public class AuthzPdpTests {
             .withPermit()
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     PathAuthorizationPolicy denyAllPolicy =
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
     when(repo.getPolicies()).thenReturn(policies);
-    when(request.getServletPath()).thenReturn("/test/ciccio");
+    when(request.getMethod()).thenReturn("GET");
+    when(request.getRequestURI()).thenReturn("/test/ciccio");
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
@@ -219,7 +231,7 @@ public class AuthzPdpTests {
   @Test
   void oauthGroupHolderPolicyApplied() {
 
-    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getRequestURI()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
 
     when(authentication.getAuthorities())
@@ -230,14 +242,15 @@ public class AuthzPdpTests {
             .withPermit()
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     PathAuthorizationPolicy denyAllPolicy =
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
@@ -253,7 +266,7 @@ public class AuthzPdpTests {
   @Test
   void oauthClientHolderPolicyApplied() {
 
-    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getRequestURI()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
 
     when(authentication.getAuthorities())
@@ -265,14 +278,15 @@ public class AuthzPdpTests {
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(
                     new JwtClientAuthority(TEST_ISSUER, AUTHORIZED_JWT_CLIENT_ID)))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     PathAuthorizationPolicy denyAllPolicy =
         PathAuthorizationPolicy.builder()
             .withDeny()
             .withPrincipalMatcher(new Anyone())
-            .withRequestMatcher(new AntPathRequestMatcher("/**"))
+            .withRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(oauthTestPolicy, denyAllPolicy);
@@ -294,7 +308,7 @@ public class AuthzPdpTests {
   @Test
   void multiplePrincipalMatchersWorkAsExpected() {
 
-    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getRequestURI()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
 
     PathAuthorizationPolicy multiplePrincipalsPolicy =
@@ -304,7 +318,8 @@ public class AuthzPdpTests {
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(multiplePrincipalsPolicy);
@@ -349,7 +364,7 @@ public class AuthzPdpTests {
   @Test
   void multiplePathsMatchersWorkAsExpected() {
 
-    when(request.getServletPath()).thenReturn("/test/file0");
+    when(request.getRequestURI()).thenReturn("/test/file0");
     when(request.getMethod()).thenReturn("GET");
 
     PathAuthorizationPolicy multiplePathsPolicy =
@@ -359,8 +374,10 @@ public class AuthzPdpTests {
                 AuthorityHolder.fromAuthority(new JwtGroupAuthority(TEST_ISSUER, "/test")))
             .withPrincipalMatcher(
                 AuthorityHolder.fromAuthority(new VOMSFQANAuthority("/test/example")))
-            .withRequestMatcher(new AntPathRequestMatcher("/test/**", "GET"))
-            .withRequestMatcher(new AntPathRequestMatcher("/other/**", "GET"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/test/**"))
+            .withRequestMatcher(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/other/**"))
             .build();
 
     List<PathAuthorizationPolicy> policies = List.of(multiplePathsPolicy);
@@ -375,14 +392,14 @@ public class AuthzPdpTests {
     assertThat(result.getPolicy().isPresent(), is(true));
     assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
 
-    when(request.getServletPath()).thenReturn("/other/file0");
+    when(request.getRequestURI()).thenReturn("/other/file0");
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
     assertThat(result.getDecision(), is(PERMIT));
     assertThat(result.getPolicy().isPresent(), is(true));
     assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
 
-    when(request.getServletPath()).thenReturn("/yet-another");
+    when(request.getRequestURI()).thenReturn("/yet-another");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
 
     assertThat(result.getDecision(), is(NOT_APPLICABLE));

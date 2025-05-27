@@ -70,7 +70,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity(proxyTargetClass = true)
@@ -152,17 +151,17 @@ public class SecurityConfig {
         authorize ->
             authorize
                 .requestMatchers(
-                    AntPathRequestMatcher.antMatcher("/"),
-                    AntPathRequestMatcher.antMatcher("/robots.txt"),
-                    AntPathRequestMatcher.antMatcher(PathConstants.ASSETS_PATH + "/**"),
-                    AntPathRequestMatcher.antMatcher(PathConstants.AUTHN_INFO_PATH),
-                    AntPathRequestMatcher.antMatcher(PathConstants.ACTUATOR_PATH + "/**"),
-                    AntPathRequestMatcher.antMatcher(PathConstants.ERRORS_PATH + "/*"),
-                    AntPathRequestMatcher.antMatcher("/status/metrics"),
-                    AntPathRequestMatcher.antMatcher(PathConstants.OAUTH_TOKEN_PATH),
-                    AntPathRequestMatcher.antMatcher("/.well-known/oauth-authorization-server"),
-                    AntPathRequestMatcher.antMatcher("/.well-known/openid-configuration"),
-                    AntPathRequestMatcher.antMatcher("/.well-known/wlcg-tape-rest-api"))
+                    "/",
+                    "/robots.txt",
+                    PathConstants.ASSETS_PATH + "/**",
+                    PathConstants.AUTHN_INFO_PATH,
+                    PathConstants.ACTUATOR_PATH + "/**",
+                    PathConstants.ERRORS_PATH + "/*",
+                    "/status/metrics",
+                    PathConstants.OAUTH_TOKEN_PATH,
+                    "/.well-known/oauth-authorization-server",
+                    "/.well-known/openid-configuration",
+                    "/.well-known/wlcg-tape-rest-api")
                 .permitAll());
 
     configureOidcAuthn(http);
@@ -237,10 +236,7 @@ public class SecurityConfig {
   protected void configureOidcAuthn(HttpSecurity http) throws Exception {
     if (oauthProperties.isEnableOidc()) {
       http.authorizeHttpRequests(
-          authorize ->
-              authorize
-                  .requestMatchers(AntPathRequestMatcher.antMatcher(PathConstants.OIDC_LOGIN_PATH))
-                  .permitAll());
+          authorize -> authorize.requestMatchers(PathConstants.OIDC_LOGIN_PATH).permitAll());
       http.oauth2Login(oauth2Login -> oauth2Login.loginPage(PathConstants.OIDC_LOGIN_PATH));
     }
   }
@@ -274,7 +270,7 @@ public class SecurityConfig {
       http.authorizeHttpRequests(
           authorize ->
               authorize
-                  .requestMatchers(AntPathRequestMatcher.antMatcher(ap + "/**"))
+                  .requestMatchers(ap + "/**")
                   .access(
                       fineGrainedAuthorizationManager(
                           new WebExpressionAuthorizationManager(writeAccessRule))));
