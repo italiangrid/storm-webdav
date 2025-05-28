@@ -5,6 +5,8 @@
 # Turn off meaningless jar repackaging
 %define __jar_repack 0
 
+%define source_date_epoch_from_changelog 0
+
 # Remember to define the base_version macro
 %{!?base_version: %global base_version 0.0.0}
 %global slash_name storm/webdav
@@ -19,9 +21,13 @@ URL:     https://github.com/italiangrid/storm-webdav
 
 BuildArch: noarch
 
+%if 0%{?rhel} && 0%{?rhel} < 10
 BuildRequires: maven-openjdk17
-
 Requires: java-17-openjdk-headless
+%else
+BuildRequires: maven-openjdk21
+Requires: java-21-openjdk-headless
+%endif
 
 %description
 StoRM provides an SRM interface to any POSIX filesystem with direct file
