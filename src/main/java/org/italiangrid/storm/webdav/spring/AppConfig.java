@@ -285,6 +285,7 @@ public class AppConfig {
     return PoolingHttpClientConnectionManagerBuilder.create()
         .setConnectionFactory(connectionFactory)
         .setDefaultConnectionConfig(connectionConfig)
+        .setMaxConnTotal(props.getMaxConnections())
         .setMaxConnPerRoute(props.getMaxConnectionsPerRoute())
         .setSchemePortResolver(new TpcSchemePortResolver())
         .setTlsSocketStrategy(new TpcTlsSocketStrategy(ctx))
