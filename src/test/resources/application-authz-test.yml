@@ -7,7 +7,7 @@ server:
     accesslog:
       enabled: false
 oauth:
-  enable-oidc: false
+  enable-oidc: true
 
 storm:
   sa:
