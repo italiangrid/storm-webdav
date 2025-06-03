@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -183,7 +184,7 @@ public class VOMSPreAuthDetailsSource
       Optional.ofNullable(request.getHeader(VOMSConstants.VOMS_GENERIC_ATTRIBUTES_HEADER))
           .ifPresent(
               vomsGenericAttributesHeader -> {
-                List<VOMSGenericAttribute> genericAttrs = Collections.emptyList();
+                List<VOMSGenericAttribute> genericAttrs = new ArrayList<>();
                 for (String genericAttribute : vomsGenericAttributesHeader.split(",")) {
                   Matcher matcher =
                       VOMSConstants.VOMS_GENERIC_ATTRIBUTES_PATTERN.matcher(genericAttribute);
