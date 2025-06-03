@@ -95,6 +95,9 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         new NetworkTrafficServerConnector(server, connFactory);
 
     connector.setName(HTTP_CONNECTOR_NAME);
+    if (serviceConfig.getNginx().getEnabled()) {
+      connector.setHost("localhost");
+    }
     connector.setPort(configuration.getHTTPPort());
 
     server.addConnector(connector);
