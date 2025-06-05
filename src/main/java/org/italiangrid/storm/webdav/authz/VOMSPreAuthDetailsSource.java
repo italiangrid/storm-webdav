@@ -40,8 +40,6 @@ public class VOMSPreAuthDetailsSource
   private final VOMSACValidator validator;
   private final VOMapDetailsService voMapDetailsService;
   private final boolean nginxEnabled;
-  private final SimpleDateFormat simpleDateFormat =
-      new SimpleDateFormat(VOMSConstants.VOMS_DATE_FORMAT);
 
   public VOMSPreAuthDetailsSource(
       VOMSACValidator vomsValidator,
@@ -157,6 +155,7 @@ public class VOMSPreAuthDetailsSource
                 attrs.setHost(splittedServerUri[0]);
                 attrs.setPort(Integer.parseInt(splittedServerUri[1]));
               });
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(VOMSConstants.VOMS_DATE_FORMAT);
       Optional.ofNullable(request.getHeader(VOMSConstants.VOMS_NOT_BEFORE_HEADER))
           .ifPresent(
               vomsNotBeforeHeader -> {
