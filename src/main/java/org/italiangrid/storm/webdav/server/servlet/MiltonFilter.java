@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMHTTPManagerBuilder;
@@ -123,7 +124,9 @@ public class MiltonFilter implements Filter {
       Request miltonReq = new StoRMMiltonRequest(request, servletContext);
 
       Response miltonRes = new io.milton.servlet.ServletResponse(response);
-      if (resolver.resolveStorageArea(miltonReq.getAbsolutePath()).tapeEnabled()
+      StorageAreaInfo storageAreaInfo = resolver.resolveStorageArea(miltonReq.getAbsolutePath());
+      if (storageAreaInfo != null
+          && storageAreaInfo.tapeEnabled()
           && resolver.isStub(miltonReq.getAbsolutePath())
           && !WEBDAV_METHOD_ON_STUB_SET.contains(request.getMethod())) {
         miltonRes.sendError(
@@ -144,7 +147,8 @@ public class MiltonFilter implements Filter {
       }
       miltonHTTPManager.process(miltonReq, miltonRes);
       if (miltonReq.getMethod() == Method.PUT
-          && resolver.resolveStorageArea(miltonReq.getAbsolutePath()).tapeEnabled()) {
+          && storageAreaInfo != null
+          && storageAreaInfo.tapeEnabled()) {
         try {
           attrsHelper.setPremigrateAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
         } catch (IOException e) {

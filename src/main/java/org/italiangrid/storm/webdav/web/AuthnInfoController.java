@@ -14,7 +14,9 @@ public class AuthnInfoController {
 
   @GetMapping(PathConstants.AUTHN_INFO_PATH)
   String getAuthenticationInfo(Authentication authentication, Model model) {
-    model.addAttribute("authnSimpleName", authentication.getClass().getSimpleName());
+    if (authentication != null) {
+      model.addAttribute("authnSimpleName", authentication.getClass().getSimpleName());
+    }
     return "authn-info";
   }
 }
