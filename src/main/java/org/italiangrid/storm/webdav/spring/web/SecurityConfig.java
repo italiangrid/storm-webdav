@@ -37,13 +37,14 @@ import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.WlcgStructuredPathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
-import org.italiangrid.storm.webdav.authz.util.SaveAuthnAccessDeniedHandler;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthenticationConverter;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.ForwardedByHeaderFilter;
+import org.italiangrid.storm.webdav.server.servlet.PreAuthenticatedFilter;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.web.PathConstants;
@@ -51,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
@@ -66,10 +68,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 @EnableMethodSecurity(proxyTargetClass = true)
@@ -127,9 +132,19 @@ public class SecurityConfig {
   SecurityFilterChain filterChain(
       HttpSecurity http,
       VOMSAuthenticationProvider vomsProvider,
-      StormJwtAuthenticationConverter authConverter)
+      StormJwtAuthenticationConverter authConverter,
+      @Value("${storm.nginx.enabled}") boolean nginxEnabled,
+      PrincipalHelper helper)
       throws Exception {
 
+    if (nginxEnabled) {
+      // ForwardedByHeaderFilter must be ordered ahead of the ForwardedHeaderFilter because the
+      // latter removes the Forwarded header partially parsed by the former
+      http.addFilterBefore(new ForwardedByHeaderFilter(), LogoutFilter.class)
+          .addFilterAfter(new ForwardedHeaderFilter(), ForwardedByHeaderFilter.class);
+    }
+    http.addFilterAfter(
+        new PreAuthenticatedFilter(nginxEnabled, helper), AnonymousAuthenticationFilter.class);
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 
     if (serviceConfigurationProperties.getAuthz().isDisabled()) {
@@ -173,10 +188,6 @@ public class SecurityConfig {
 
     AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
     handler.setErrorPage(PathConstants.ERRORS_PATH + "/403");
-    http.exceptionHandling(
-        exception ->
-            exception.accessDeniedHandler(
-                new SaveAuthnAccessDeniedHandler(principalHelper, handler)));
 
     http.logout(
         logout ->

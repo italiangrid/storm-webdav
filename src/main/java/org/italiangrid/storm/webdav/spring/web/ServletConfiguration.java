@@ -10,7 +10,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.metrics.servlets.MetricsServlet;
 import java.time.Clock;
-import org.italiangrid.storm.webdav.authn.PrincipalHelper;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
@@ -26,7 +25,6 @@ import org.italiangrid.storm.webdav.redirector.RedirectionService;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.ChecksumFilter;
 import org.italiangrid.storm.webdav.server.servlet.DeleteSanityChecksFilter;
-import org.italiangrid.storm.webdav.server.servlet.ForwardedByHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.LogRequestFilter;
 import org.italiangrid.storm.webdav.server.servlet.MiltonFilter;
 import org.italiangrid.storm.webdav.server.servlet.MoveRequestSanityChecksFilter;
@@ -34,8 +32,6 @@ import org.italiangrid.storm.webdav.server.servlet.SAIndexServlet;
 import org.italiangrid.storm.webdav.server.servlet.SciTagFilter;
 import org.italiangrid.storm.webdav.server.servlet.ServerResponseHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
-import org.italiangrid.storm.webdav.server.tracing.LogbackAccessAuthnInfoFilter;
-import org.italiangrid.storm.webdav.server.tracing.RequestIdFilter;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
@@ -48,7 +44,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.thymeleaf.TemplateEngine;
 
 @Configuration
@@ -56,8 +51,6 @@ public class ServletConfiguration {
 
   public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
 
-  static final int REQUEST_ID_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1000;
-  static final int LOGBACK_ACCESS_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1001;
   static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
   static final int REDIRECT_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
   static final int CHECKSUM_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1004;
@@ -69,56 +62,6 @@ public class ServletConfiguration {
   static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
   static final int SERVER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 100;
   static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
-  // ForwardedByHeaderFilter must be ordered ahead of the ForwardedHeaderFilter because the latter
-  // removes the Forwarded header partially parsed by the former
-  static final int FORWARDED_HEADER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 300;
-  static final int FORWARDED_BY_HEADER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 400;
-
-  @Bean
-  @ConditionalOnProperty(name = "storm.nginx.enabled", havingValue = "true")
-  FilterRegistrationBean<ForwardedByHeaderFilter> forwardedByHeaderFilter() {
-    FilterRegistrationBean<ForwardedByHeaderFilter> forwardedByHeaderFilter =
-        new FilterRegistrationBean<>(new ForwardedByHeaderFilter());
-
-    forwardedByHeaderFilter.addUrlPatterns("/*");
-    forwardedByHeaderFilter.setOrder(FORWARDED_BY_HEADER_FILTER_ORDER);
-
-    return forwardedByHeaderFilter;
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = "storm.nginx.enabled", havingValue = "true")
-  FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
-    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter =
-        new FilterRegistrationBean<>(new ForwardedHeaderFilter());
-
-    forwardedHeaderFilter.addUrlPatterns("/*");
-    forwardedHeaderFilter.setOrder(FORWARDED_HEADER_FILTER_ORDER);
-
-    return forwardedHeaderFilter;
-  }
-
-  @Bean
-  FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
-    FilterRegistrationBean<RequestIdFilter> requestIdFilter =
-        new FilterRegistrationBean<>(new RequestIdFilter());
-
-    requestIdFilter.addUrlPatterns("/*");
-    requestIdFilter.setOrder(REQUEST_ID_FILTER_ORDER);
-
-    return requestIdFilter;
-  }
-
-  @Bean
-  FilterRegistrationBean<LogbackAccessAuthnInfoFilter> authnInfoFilter(PrincipalHelper helper) {
-    FilterRegistrationBean<LogbackAccessAuthnInfoFilter> filter =
-        new FilterRegistrationBean<>(new LogbackAccessAuthnInfoFilter(helper));
-
-    filter.addUrlPatterns("/*");
-    filter.setOrder(LOGBACK_ACCESS_FILTER_ORDER);
-
-    return filter;
-  }
 
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {

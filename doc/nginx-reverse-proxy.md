@@ -58,6 +58,7 @@ server {
 		proxy_http_version 1.1;
 		proxy_set_header Connection "";
 		proxy_set_header Forwarded "$proxy_forwarded_by;$proxy_forwarded_for;host=$http_host;proto=$scheme";
+		proxy_set_header X-request-id $request_id;
 		proxy_set_header X-VOMS-voms_user $voms_user;
 		proxy_set_header X-VOMS-ssl_client_ee_s_dn $ssl_client_ee_s_dn;
 		proxy_set_header X-VOMS-voms_user_ca $voms_user_ca;
@@ -91,7 +92,15 @@ server {
 Also add this to the NGINX configuration:
 
 ```
+user storm;
+
+error_log /var/log/storm/nginx/error.log warn;
+
 http {
+	log_format storm '$time_iso8601 [$request_id] $remote_addr - "$ssl_client_ee_s_dn" "$request" '
+	                 '"$http_user_agent" $status $body_bytes_sent $request_time <$upstream_response_time>';
+	access_log /var/log/storm/nginx/access.log storm;
+
 	# https://github.com/nginxinc/nginx-wiki/blob/master/source/start/topics/examples/forwarded.rst
 	map $remote_addr $proxy_forwarded_for {
 		# IPv4 addresses can be sent as-is
