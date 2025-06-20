@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
  */
 public class PermissiveBearerTokenResolver implements BearerTokenResolver {
 
-  private static final Pattern authorizationPattern =
+  private static final Pattern AUTHORIZATION_PATTERN =
       Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$", Pattern.CASE_INSENSITIVE);
 
   private static String resolveFromRequestParameters(HttpServletRequest request) {
@@ -46,7 +46,7 @@ public class PermissiveBearerTokenResolver implements BearerTokenResolver {
   private static String resolveFromAuthorizationHeader(HttpServletRequest request) {
     String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-      Matcher matcher = authorizationPattern.matcher(authorization);
+      Matcher matcher = AUTHORIZATION_PATTERN.matcher(authorization);
 
       if (!matcher.matches()) {
         BearerTokenError error =

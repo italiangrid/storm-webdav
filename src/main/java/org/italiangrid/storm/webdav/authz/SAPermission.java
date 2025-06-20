@@ -4,11 +4,9 @@
 
 package org.italiangrid.storm.webdav.authz;
 
-import static java.lang.String.format;
-
 import org.springframework.security.core.GrantedAuthority;
 
-public class SAPermission implements GrantedAuthority, Comparable<SAPermission> {
+public final class SAPermission implements GrantedAuthority, Comparable<SAPermission> {
 
   /** */
   private static final long serialVersionUID = 1L;
@@ -20,12 +18,12 @@ public class SAPermission implements GrantedAuthority, Comparable<SAPermission> 
 
   public static SAPermission canRead(String saName) {
 
-    return new SAPermission(format(READ_PERM, saName));
+    return new SAPermission(String.format(READ_PERM, saName));
   }
 
   public static SAPermission canWrite(String saName) {
 
-    return new SAPermission(format(WRITE_PERM, saName));
+    return new SAPermission(String.format(WRITE_PERM, saName));
   }
 
   private SAPermission(String permission) {

@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +77,7 @@ public class FineGrainedAuthzPolicyProperties {
 
   @NotEmpty @Valid List<PrincipalProperties> principals;
 
-  @NotEmpty EnumSet<Action> actions;
+  @NotEmpty Set<Action> actions;
 
   public String getDescription() {
     return description;
@@ -116,7 +115,7 @@ public class FineGrainedAuthzPolicyProperties {
     return actions;
   }
 
-  public void setActions(EnumSet<Action> actions) {
+  public void setActions(Set<Action> actions) {
     this.actions = actions;
   }
 

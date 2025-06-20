@@ -6,47 +6,47 @@ package org.italiangrid.storm.webdav.config;
 
 public interface ServiceConfiguration {
 
-  public int getHTTPSPort();
+  int getHTTPSPort();
 
-  public int getHTTPPort();
+  int getHTTPPort();
 
-  public String getCertificatePath();
+  String getCertificatePath();
 
-  public String getPrivateKeyPath();
+  String getPrivateKeyPath();
 
-  public String getTrustAnchorsDir();
+  String getTrustAnchorsDir();
 
-  public String getLogConfigurationPath();
+  String getLogConfigurationPath();
 
-  public String getAccessLogConfigurationPath();
+  String getAccessLogConfigurationPath();
 
-  public long getTrustAnchorsRefreshIntervalInSeconds();
+  long getTrustAnchorsRefreshIntervalInSeconds();
 
-  public int getMinConnections();
+  int getMinConnections();
 
-  public int getMaxConnections();
+  int getMaxConnections();
 
-  public int getMaxQueueSize();
+  int getMaxQueueSize();
 
-  public int getThreadPoolMaxIdleTimeInMsec();
+  int getThreadPoolMaxIdleTimeInMsec();
 
-  public int getConnectorMaxIdleTimeInMsec();
+  int getConnectorMaxIdleTimeInMsec();
 
-  public String getSAConfigDir();
+  String getSAConfigDir();
 
-  public boolean enableVOMapFiles();
+  boolean enableVOMapFiles();
 
-  public String getVOMapFilesConfigDir();
+  String getVOMapFilesConfigDir();
 
-  public long getVOMapFilesRefreshIntervalInSeconds();
+  long getVOMapFilesRefreshIntervalInSeconds();
 
-  public boolean isAuthorizationDisabled();
+  boolean isAuthorizationDisabled();
 
-  public boolean requireClientCertificateAuthentication();
+  boolean requireClientCertificateAuthentication();
 
-  public boolean useConscrypt();
+  boolean useConscrypt();
 
-  public boolean enableHttp2();
+  boolean enableHttp2();
 
-  public String getTlsProtocol();
+  String getTlsProtocol();
 }

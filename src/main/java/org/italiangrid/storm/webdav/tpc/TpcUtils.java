@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.tpc;
 
-import static java.lang.String.format;
-
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,7 +18,8 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 public interface TpcUtils {
 
   default Supplier<ResourceNotFound> resourceNotFoundError(String path) {
-    return () -> new ResourceNotFound(format("No storage area found matching path: %s", path));
+    return () ->
+        new ResourceNotFound(String.format("No storage area found matching path: %s", path));
   }
 
   default String getSerlvetRequestPath(HttpServletRequest request) {
@@ -50,7 +49,7 @@ public interface TpcUtils {
     Optional<String> destination =
         Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
 
-    return (destination.isPresent() && localURLService.isLocalURL(destination.get()));
+    return destination.isPresent() && localURLService.isLocalURL(destination.get());
   }
 
   default boolean requestHasRemoteDestinationHeader(
@@ -58,7 +57,7 @@ public interface TpcUtils {
     Optional<String> destination =
         Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
 
-    return (destination.isPresent() && !localURLService.isLocalURL(destination.get()));
+    return destination.isPresent() && !localURLService.isLocalURL(destination.get());
   }
 
   default boolean requestPathAndDestinationHeaderAreInSameStorageArea(

@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
-import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -25,6 +24,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +53,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtIssuerTest {
+class JwtIssuerTest {
 
   public static final String ISSUER = "https://storm.example";
   public static final String AUTHN_SUBJECT = "CN=test";
@@ -116,7 +116,7 @@ public class JwtIssuerTest {
     lenient().when(authn.getDetails()).thenReturn(details);
     lenient().when(helper.getPrincipalAsString(Mockito.any())).thenReturn(AUTHN_SUBJECT);
 
-    lenient().when(ps.getSAPermissions(authn)).thenReturn(emptySet());
+    lenient().when(ps.getSAPermissions(authn)).thenReturn(Collections.emptySet());
 
     issuer = new DefaultJwtTokenIssuer(fixedClock, props, ps, helper);
   }

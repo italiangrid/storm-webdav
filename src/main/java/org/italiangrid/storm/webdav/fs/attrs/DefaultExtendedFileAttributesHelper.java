@@ -29,8 +29,6 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
 
   public static final String STORM_PREMIGRATE_ATTR_NAME = "storm.premigrate";
 
-  public DefaultExtendedFileAttributesHelper() {}
-
   protected String getAttributeValue(File f, String attributeName) throws IOException {
     String userAttributeName = USER_NAMESPACE + attributeName;
     String path = f.toPath().toString();
@@ -119,7 +117,7 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
     UserDefinedFileAttributeView faView =
         Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
 
-    return (faView != null);
+    return faView != null;
   }
 
   @Override

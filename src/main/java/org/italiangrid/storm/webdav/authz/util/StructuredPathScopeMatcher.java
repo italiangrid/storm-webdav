@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-public class StructuredPathScopeMatcher implements ScopeMatcher {
+public final class StructuredPathScopeMatcher implements ScopeMatcher {
 
   public static final Logger LOG = LoggerFactory.getLogger(StructuredPathScopeMatcher.class);
 

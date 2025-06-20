@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.server.servlet;
 
-import static java.lang.String.format;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -28,7 +26,7 @@ public class ChecksumFilter implements Filter {
   private final ExtendedAttributesHelper attributeHelper;
   private final PathResolver resolver;
 
-  public static final Logger logger = LoggerFactory.getLogger(ChecksumFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ChecksumFilter.class);
 
   @Autowired
   public ChecksumFilter(ExtendedAttributesHelper attributeHelper, PathResolver resolver) {
@@ -40,7 +38,7 @@ public class ChecksumFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
 
-    logger.debug("Initializing checksum filter.");
+    LOG.debug("Initializing checksum filter.");
   }
 
   @Override
@@ -55,38 +53,38 @@ public class ChecksumFilter implements Filter {
   @Override
   public void destroy() {
 
-    logger.debug("Destroying checksum filter.");
+    LOG.debug("Destroying checksum filter.");
   }
 
   private void addChecksumHeader(HttpServletRequest request, HttpServletResponse response) {
 
     String method = request.getMethod().toUpperCase();
 
-    if (!(method.equals("HEAD") || method.equals("GET"))) {
+    if (!("HEAD".equals(method) || "GET".equals(method))) {
 
       // Skip if request is not a HEAD or a GET
       return;
     }
 
-    logger.debug("Retrieving checksum value ...");
-    String requestPath = format("%s%s", request.getServletPath(), request.getPathInfo());
+    LOG.debug("Retrieving checksum value ...");
+    String requestPath = String.format("%s%s", request.getServletPath(), request.getPathInfo());
 
     String pathResolved = resolver.resolvePath(requestPath);
 
     if (pathResolved == null) {
-      logger.debug("Unable to resolve path {} to a local file", requestPath);
+      LOG.debug("Unable to resolve path {} to a local file", requestPath);
       return;
     }
 
     File f = new File(pathResolved);
 
     if (!f.exists()) {
-      logger.debug("File {} doesn't exist", f);
+      LOG.debug("File {} doesn't exist", f);
       return;
     }
 
     if (f.isDirectory()) {
-      logger.debug("{} is a directory: no checksum value to retrieve", f);
+      LOG.debug("{} is a directory: no checksum value to retrieve", f);
       return;
     }
 
@@ -98,17 +96,16 @@ public class ChecksumFilter implements Filter {
 
     } catch (IOException e) {
 
-      logger.error(
-          "Error retrieving checksum value for path '{}': {}", pathResolved, e.getMessage());
+      LOG.error("Error retrieving checksum value for path '{}': {}", pathResolved, e.getMessage());
 
-      if (logger.isDebugEnabled()) {
-        logger.error(e.getMessage(), e);
+      if (LOG.isDebugEnabled()) {
+        LOG.error(e.getMessage(), e);
       }
       return;
     }
 
     if (!StringUtils.hasText(checksumValue)) {
-      logger.warn("Null or empty checksum value for path: {}", pathResolved);
+      LOG.warn("Null or empty checksum value for path: {}", pathResolved);
       return;
     }
 

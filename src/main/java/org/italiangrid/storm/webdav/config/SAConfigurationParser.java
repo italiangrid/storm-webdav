@@ -6,9 +6,9 @@ package org.italiangrid.storm.webdav.config;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -30,9 +30,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
 
   private static final String PROPERTIES_FILENAME_SUFFIX = ".properties";
 
-  private List<StorageAreaInfo> saInfos;
-
-  private boolean statAlreadyChecked = false;
+  private final List<StorageAreaInfo> saInfos;
 
   public SAConfigurationParser(ServiceConfiguration sc) {
 
@@ -51,8 +49,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
               if (RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX)) {
                 log.warn("Skipping {} as it is a reserved storage area name", name);
               }
-              return (!RESERVED_SA_NAMES.contains(name)
-                  && name.endsWith(PROPERTIES_FILENAME_SUFFIX));
+              return !RESERVED_SA_NAMES.contains(name) && name.endsWith(PROPERTIES_FILENAME_SUFFIX);
             });
 
     if (saFiles.length == 0) {
@@ -65,10 +62,12 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
 
     saInfos = new ArrayList<>();
 
+    boolean statAlreadyChecked = false;
+
     for (File f : saFiles) {
 
       Properties p = new Properties();
-      try (FileReader fr = new FileReader(f)) {
+      try (BufferedReader fr = Files.newBufferedReader(f.toPath())) {
         p.load(fr);
       } catch (Exception e) {
         throw new StoRMIntializationError("Error reading properties: " + e.getMessage(), e);
@@ -77,6 +76,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
       OwnerStorageAreaInfo saInfo = ConfigFactory.create(OwnerStorageAreaInfo.class, p);
       if (!statAlreadyChecked && saInfo.tapeEnabled()) {
         checkStat(f);
+        statAlreadyChecked = true;
       }
       saInfos.add(saInfo);
 
@@ -86,23 +86,27 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
 
   private void directorySanityChecks(File directory) {
 
-    if (!directory.exists())
+    if (!directory.exists()) {
       throw new StoRMIntializationError(
           "Storage area configuration directory does not exist: " + directory.getAbsolutePath());
+    }
 
-    if (!directory.isDirectory())
+    if (!directory.isDirectory()) {
       throw new StoRMIntializationError(
           "Storage area configuration directory is not a directory: "
               + directory.getAbsolutePath());
+    }
 
-    if (!directory.canRead())
+    if (!directory.canRead()) {
       throw new StoRMIntializationError(
           "Storage area configuration directory is not readable: " + directory.getAbsolutePath());
+    }
 
-    if (!directory.canExecute())
+    if (!directory.canExecute()) {
       throw new StoRMIntializationError(
           "Storage area configuration directory is not traversable: "
               + directory.getAbsolutePath());
+    }
   }
 
   @Override
@@ -112,13 +116,16 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
   }
 
   private void checkStat(File saFile) {
-    try {
-      if (System.getProperty("os.name").startsWith("Linux")) {
+    if (System.getProperty("os.name").startsWith("Linux")) {
+      try {
         Process process = Runtime.getRuntime().exec("stat -c %b " + saFile.getPath());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        long statBlockSize;
+        try (BufferedReader reader =
+            new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          statBlockSize = Long.parseLong(reader.readLine());
+        }
         Stat stat = new Stat();
         Libc.INSTANCE.stat(saFile.getPath(), stat);
-        long statBlockSize = Long.parseLong(reader.readLine());
         long jnaBlockSize = stat.st_blocks.longValue();
         if (statBlockSize != jnaBlockSize) {
           String msg =
@@ -127,12 +134,11 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
                   statBlockSize, jnaBlockSize);
           throw new StoRMIntializationError(msg);
         }
-      } else {
-        log.warn("Cannot check stat because you are on an unsupported platform");
+      } catch (IOException e) {
+        throw new StoRMIntializationError("Error checking block size: " + e.getMessage(), e);
       }
-      statAlreadyChecked = true;
-    } catch (IOException e) {
-      throw new StoRMIntializationError("Error checking block size: " + e.getMessage());
+    } else {
+      log.warn("Cannot check stat because you are on an unsupported platform");
     }
   }
 }

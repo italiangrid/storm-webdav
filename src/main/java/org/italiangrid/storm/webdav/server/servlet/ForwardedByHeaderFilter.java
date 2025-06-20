@@ -34,17 +34,15 @@ public class ForwardedByHeaderFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
+    ServletRequest wrappedRequest;
     try {
-      ServletRequest wrappedRequest = new ForwardedByHeaderRequest(request);
-      filterChain.doFilter(wrappedRequest, response);
+      wrappedRequest = new ForwardedByHeaderRequest(request);
     } catch (Throwable e) {
       LOG.warn("Failed to apply forwarded header: {}", request.getHeader("Forwarded"), e);
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      return;
     }
-  }
-
-  protected String formatRequest(HttpServletRequest request) {
-    return "HTTP " + request.getMethod() + " \"" + request.getRequestURI() + "\"";
+    filterChain.doFilter(wrappedRequest, response);
   }
 
   // This is inspired by ForwardedHeaderExtractingRequest subclass of Spring Framework's
@@ -85,7 +83,7 @@ public class ForwardedByHeaderFilter extends OncePerRequestFilter {
             return Optional.of(InetSocketAddress.createUnresolved(host, port));
           } catch (NumberFormatException ex) {
             throw new IllegalArgumentException(
-                "Failed to parse a port from \"forwarded\"-type header value: " + value);
+                "Failed to parse a port from \"forwarded\"-type header value: " + value, ex);
           }
         }
       }

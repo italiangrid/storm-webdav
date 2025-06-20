@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 
 public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultVOMapDetailsService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultVOMapDetailsService.class);
 
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -48,7 +48,7 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
     Assert.notNull(principal, "PrincipalProperties cannot be null");
 
-    HashSet<String> voNames = new HashSet<>();
+    Set<String> voNames = new HashSet<>();
 
     for (VOMembershipProvider p : providers) {
 
@@ -62,13 +62,13 @@ public class DefaultVOMapDetailsService implements VOMapDetailsService {
 
   protected void refresh() {
 
-    logger.debug("Refreshing vo membership providers...");
+    LOG.debug("Refreshing vo membership providers...");
     for (VOMembershipProvider p : providers) {
       if (p instanceof Refreshable refreshable) {
         try {
           refreshable.refresh();
         } catch (Throwable t) {
-          logger.warn(
+          LOG.warn(
               "Exception caught refreshing VOMembership provider for VO: {}. {}",
               p.getVOName(),
               t.getMessage(),

@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
 @ExtendWith(MockitoExtension.class)
-public class TokenServiceTest {
+class TokenServiceTest {
 
   public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
   public static final Instant NOW_PLUS_100_SECS = NOW.plusSeconds(100);

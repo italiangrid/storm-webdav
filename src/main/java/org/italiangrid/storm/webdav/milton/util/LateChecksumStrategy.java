@@ -6,9 +6,9 @@ package org.italiangrid.storm.webdav.milton.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
@@ -35,7 +35,8 @@ public class LateChecksumStrategy implements ReplaceContentStrategy {
   protected void calculateChecksum(File targetFile) {
 
     try (Adler32ChecksumInputStream cis =
-        new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(targetFile)))) {
+        new Adler32ChecksumInputStream(
+            new BufferedInputStream(Files.newInputStream(targetFile.toPath())))) {
 
       byte[] buffer = new byte[8192];
 

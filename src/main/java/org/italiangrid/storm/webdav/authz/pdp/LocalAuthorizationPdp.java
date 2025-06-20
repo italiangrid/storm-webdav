@@ -11,8 +11,6 @@ import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtToken
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.PERMS_CLAIM;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -33,10 +31,10 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
   private static final Set<Permission> READ_PERMS = EnumSet.of(Permission.r, Permission.rw);
   private static final Set<Permission> WRITE_PERMS = EnumSet.of(Permission.w, Permission.rw);
 
-  private final URL localAuthzServerIssuer;
+  private final String localAuthzServerIssuer;
 
-  public LocalAuthorizationPdp(ServiceConfigurationProperties config) throws MalformedURLException {
-    localAuthzServerIssuer = new URL(config.getAuthzServer().getIssuer());
+  public LocalAuthorizationPdp(ServiceConfigurationProperties config) {
+    localAuthzServerIssuer = config.getAuthzServer().getIssuer();
   }
 
   private Supplier<IllegalArgumentException> claimNotFound(String claimName) {
@@ -56,7 +54,7 @@ public class LocalAuthorizationPdp implements PathAuthorizationPdp, TpcUtils {
 
     JwtAuthenticationToken token = (JwtAuthenticationToken) authzRequest.getAuthentication();
 
-    if (!localAuthzServerIssuer.equals(token.getToken().getIssuer())) {
+    if (!localAuthzServerIssuer.equals(token.getToken().getIssuer().toString())) {
       return indeterminate();
     }
 

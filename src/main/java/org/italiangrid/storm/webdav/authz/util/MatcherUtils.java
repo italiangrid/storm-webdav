@@ -9,7 +9,7 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 
 public interface MatcherUtils {
 
-  public default String getRequestPath(HttpServletRequest request) {
+  default String getRequestPath(HttpServletRequest request) {
     String url = request.getServletPath();
 
     if (request.getPathInfo() != null) {
@@ -19,7 +19,7 @@ public interface MatcherUtils {
     return url;
   }
 
-  public default String requestToString(PathAuthorizationRequest request) {
+  default String requestToString(PathAuthorizationRequest request) {
 
     final String requestString =
         String.format(

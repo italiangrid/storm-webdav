@@ -4,16 +4,12 @@
 
 package org.italiangrid.storm.webdav.tpc.http;
 
-import static java.lang.String.format;
-
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientObservationDocumentation;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.DefaultApacheHttpClientObservationConvention;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -57,7 +53,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HttpTransferClient implements TransferClient, DisposableBean {
+public final class HttpTransferClient implements TransferClient, DisposableBean {
 
   public static final Logger LOG = LoggerFactory.getLogger(HttpTransferClient.class);
 
@@ -151,7 +147,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
         p = Files.createFile(p);
       }
 
-      OutputStream fos = new FileOutputStream(new File(p.toString()));
+      OutputStream fos = Files.newOutputStream(p);
 
       if (localFileBufferSize > 0) {
         fos = new BufferedOutputStream(fos, localFileBufferSize);
@@ -212,7 +208,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format(
+              String.format(
                   "Error fetching %s: %d %s",
                   request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
       observation.error(e);
@@ -223,7 +219,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format("Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+              String.format(
+                  "Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
 
     } catch (Throwable e) {
@@ -232,7 +229,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format(
+              String.format(
                   "%s while fetching %s: %s",
                   e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
@@ -253,7 +250,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     }
   }
 
-  protected void checkOverwrite(PutTransferRequest request) throws IOException {
+  private void checkOverwrite(PutTransferRequest request) throws IOException {
     if (!request.overwrite()) {
       HttpHead head = new HttpHead(request.remoteURI());
       for (Map.Entry<String, String> h : request.transferHeaders().entries()) {
@@ -266,7 +263,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
               throw new TransferError("Remote file exists and overwrite is false");
             } else if (response.getCode() != 404) {
               throw new TransferError(
-                  format(
+                  String.format(
                       "Error checking if remote file exists: %d %s",
                       response.getCode(), response.getReasonPhrase()));
             }
@@ -280,12 +277,10 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
 
     CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
 
-    BasicClassicHttpRequest put = null;
+    BasicClassicHttpRequest put = prepareRequest(request, cfe);
     HttpClientContext context = HttpClientContext.create();
     Observation observation = null;
     BytesCount bytesCount = new BytesCount();
-
-    put = prepareRequest(request, cfe);
 
     ScheduledFuture<?> reportTask =
         executorService.scheduleAtFixedRate(
@@ -319,7 +314,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format(
+              String.format(
                   "Error pushing %s: %d %s",
                   request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
       observation.error(e);
@@ -329,7 +324,8 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format("Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
+              String.format(
+                  "Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e); // we explicitly always log a generic error
@@ -337,7 +333,7 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
           cb,
           request,
           statusBuilder.error(
-              format(
+              String.format(
                   "%s while pushing %s: %s",
                   e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
@@ -363,9 +359,9 @@ public class HttpTransferClient implements TransferClient, DisposableBean {
     }
   }
 
-  private class BytesCount {
-    double received = 0;
-    double sent = 0;
+  private final class BytesCount {
+    double received;
+    double sent;
 
     public void updateMetrics(HttpClientContext context) {
       EndpointDetails metrics = context.getEndpointDetails();

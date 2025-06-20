@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
-import static java.lang.String.format;
-
 import com.google.common.collect.Multimap;
 import java.net.URI;
 import org.italiangrid.storm.webdav.scitag.SciTag;
@@ -43,6 +41,6 @@ public class PutTransferRequestImpl extends TransferRequestImpl implements PutTr
 
   @Override
   public String statusString() {
-    return format("Push xfer request %s status: %s", uuid, lastTransferStatus());
+    return String.format("Push xfer request %s status: %s", uuid, lastTransferStatus());
   }
 }

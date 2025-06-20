@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.config.validation;
 
-import static java.lang.String.format;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.FQAN;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_CLIENT;
 import static org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType.JWT_GROUP;
@@ -54,7 +53,7 @@ public class PrincipalValidator
 
     Collection<String> requiredArgs = REQUIRED_ARGS.get(value.getType());
 
-    if (requiredArgs == null || requiredArgs.isEmpty()) {
+    if (requiredArgs.isEmpty()) {
       return true;
     }
 
@@ -62,7 +61,8 @@ public class PrincipalValidator
       if (!value.getParams().containsKey(ra)) {
         context.disableDefaultConstraintViolation();
         context
-            .buildConstraintViolationWithTemplate(format("Required param '%s' not found", ra))
+            .buildConstraintViolationWithTemplate(
+                String.format("Required param '%s' not found", ra))
             .addConstraintViolation();
         return false;
       }
@@ -71,7 +71,7 @@ public class PrincipalValidator
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate(
-                format("Required param '%s' value is null or empty", ra))
+                String.format("Required param '%s' value is null or empty", ra))
             .addConstraintViolation();
         return false;
       }

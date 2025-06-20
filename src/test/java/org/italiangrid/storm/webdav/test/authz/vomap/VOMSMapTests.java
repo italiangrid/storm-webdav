@@ -9,7 +9,7 @@ import org.italiangrid.storm.webdav.authz.vomap.MapfileVOMembershipSource;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-public class VOMSMapTests {
+class VOMSMapTests {
 
   public static final String AC_SUBJECT =
       "CN=Andrea Ceccanti,L=CNAF,OU=Personal Certificate,O=INFN,C=IT";

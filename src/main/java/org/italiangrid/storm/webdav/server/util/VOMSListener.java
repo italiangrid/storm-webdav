@@ -17,8 +17,6 @@ public class VOMSListener implements ValidationResultListener, VOMSTrustStoreSta
 
   public static final Logger LOG = LoggerFactory.getLogger(VOMSListener.class);
 
-  public VOMSListener() {}
-
   @Override
   public void notifyValidationResult(VOMSValidationResult result) {
     if (!result.isValid()) {

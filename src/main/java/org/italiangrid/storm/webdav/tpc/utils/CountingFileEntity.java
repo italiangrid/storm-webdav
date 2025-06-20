@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.hc.core5.http.io.entity.FileEntity;
 
-public class CountingFileEntity extends FileEntity implements Countable {
+public final class CountingFileEntity extends FileEntity implements Countable {
 
   private CountingOutputStream os;
 

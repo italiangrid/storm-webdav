@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class StoRMDirectoryResource extends StoRMResource
         DeletableCollectionResource,
         CopyableResource {
 
-  private static final Logger logger = LoggerFactory.getLogger(StoRMDirectoryResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StoRMDirectoryResource.class);
 
   public StoRMDirectoryResource(StoRMResourceFactory factory, File f) {
 
@@ -73,10 +74,10 @@ public class StoRMDirectoryResource extends StoRMResource
 
   @Override
   public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
-    try {
+    try (Stream<Path> children = Files.list(file.toPath())) {
       var factory = getResourceFactory();
 
-      return Files.list(file.toPath())
+      return children
           .filter(p -> Files.isDirectory(p) || Files.isRegularFile(p))
           .map(factory::resourceOf)
           .toList();
@@ -109,7 +110,7 @@ public class StoRMDirectoryResource extends StoRMResource
     try {
       getFilesystemAccess().rm(getFile());
     } catch (NoSuchFileException e) {
-      logger.warn("Unable to remove directory {}: {}", getFile(), e.getMessage());
+      LOG.warn("Unable to remove directory {}: {}", getFile(), e.getMessage());
     } catch (IOException e) {
       throw new StoRMWebDAVError(e);
     }

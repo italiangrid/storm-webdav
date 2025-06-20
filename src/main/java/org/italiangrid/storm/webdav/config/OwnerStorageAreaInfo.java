@@ -12,52 +12,52 @@ public interface OwnerStorageAreaInfo extends StorageAreaInfo, Config {
 
   @Override
   @DefaultValue("posix")
-  public String filesystemType();
+  String filesystemType();
 
   @Override
   @Separator(",")
-  public List<String> accessPoints();
+  List<String> accessPoints();
 
   @Override
   @Separator(",")
-  public Set<String> vos();
+  Set<String> vos();
 
   @Override
   @Separator(",")
-  public Set<String> orgs();
+  Set<String> orgs();
 
   @DefaultValue("false")
-  public boolean anonymousReadEnabled();
+  boolean anonymousReadEnabled();
 
   @Override
   @DefaultValue("false")
-  public boolean authenticatedReadEnabled();
+  boolean authenticatedReadEnabled();
 
   @Override
   @DefaultValue("true")
-  public boolean voMapEnabled();
+  boolean voMapEnabled();
 
   @Override
   @DefaultValue("false")
-  public boolean voMapGrantsWritePermission();
+  boolean voMapGrantsWritePermission();
 
   @Override
   @DefaultValue("true")
-  public boolean orgsGrantReadPermission();
+  boolean orgsGrantReadPermission();
 
   @Override
   @DefaultValue("true")
-  public boolean orgsGrantWritePermission();
+  boolean orgsGrantWritePermission();
 
   @Override
   @DefaultValue("false")
-  public boolean wlcgScopeAuthzEnabled();
+  boolean wlcgScopeAuthzEnabled();
 
   @Override
   @DefaultValue("false")
-  public boolean fineGrainedAuthzEnabled();
+  boolean fineGrainedAuthzEnabled();
 
   @Override
   @DefaultValue("false")
-  public boolean tapeEnabled();
+  boolean tapeEnabled();
 }

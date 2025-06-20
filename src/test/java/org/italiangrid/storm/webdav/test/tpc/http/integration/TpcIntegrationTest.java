@@ -25,8 +25,6 @@ import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -36,16 +34,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("dev")
-public class TpcIntegrationTest {
-
-  public static final Logger LOG = LoggerFactory.getLogger(TpcIntegrationTest.class);
+class TpcIntegrationTest {
 
   private static String authorizationHeaderValue = "Bearer this-is-a-fake-token";
 
   @Autowired HttpTransferClient client;
 
   @RegisterExtension
-  static WireMockExtension wiremock =
+  private static final WireMockExtension wiremock =
       WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
   private String mockUrl(String path) {

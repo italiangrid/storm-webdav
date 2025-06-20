@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-public class AuthenticationUtils {
+public final class AuthenticationUtils {
 
   private AuthenticationUtils() {
     // empty on purpose
@@ -23,14 +23,11 @@ public class AuthenticationUtils {
     } else if (authn instanceof OAuth2AuthenticationToken authToken) {
       Map<String, Object> attributes = authToken.getPrincipal().getAttributes();
 
-      String subjectIssuer = String.format("%s @ %s", attributes.get("sub"), attributes.get("iss"));
-
       if (attributes.get("name") != null) {
         return (String) attributes.get("name");
       }
 
-      return subjectIssuer;
-
+      return String.format("%s @ %s", attributes.get("sub"), attributes.get("iss"));
     } else if (authn instanceof PreAuthenticatedAuthenticationToken) {
       return authn.getName();
     } else if (authn instanceof JwtAuthenticationToken jwtToken) {

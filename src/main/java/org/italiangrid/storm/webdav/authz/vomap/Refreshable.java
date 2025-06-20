@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.authz.vomap;
 
 public interface Refreshable {
 
-  public void refresh();
+  void refresh();
 
-  public long getLastRefreshTime();
+  long getLastRefreshTime();
 }

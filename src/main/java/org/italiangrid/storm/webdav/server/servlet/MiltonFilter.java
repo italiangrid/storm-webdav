@@ -75,7 +75,7 @@ public class MiltonFilter implements Filter {
     this.rcs = rcs;
   }
 
-  private void initMiltonHTTPManager(ServletContext context) {
+  private void initMiltonHTTPManager() {
 
     final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
 
@@ -93,7 +93,7 @@ public class MiltonFilter implements Filter {
     servletContext = config.getServletContext();
 
     if (miltonHTTPManager == null) {
-      initMiltonHTTPManager(servletContext);
+      initMiltonHTTPManager();
     }
   }
 

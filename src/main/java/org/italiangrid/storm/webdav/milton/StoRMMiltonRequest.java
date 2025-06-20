@@ -15,7 +15,7 @@ import org.eclipse.jetty.util.URIUtil;
 public class StoRMMiltonRequest extends ServletRequest {
 
   private static final String REGEX = "(http.*:\\d*)/webdav/(.*)$";
-  private static final Pattern p = Pattern.compile(REGEX);
+  private static final Pattern PATTERN = Pattern.compile(REGEX);
 
   public StoRMMiltonRequest(HttpServletRequest r, ServletContext servletContext) {
 
@@ -30,7 +30,7 @@ public class StoRMMiltonRequest extends ServletRequest {
       return null;
     }
 
-    Matcher m = p.matcher(destHeaderValue);
+    Matcher m = PATTERN.matcher(destHeaderValue);
     if (m.matches()) {
       return String.format("%s/%s", m.group(1), m.group(2));
     }

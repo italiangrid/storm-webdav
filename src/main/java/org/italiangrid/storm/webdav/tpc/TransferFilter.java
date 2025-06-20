@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.tpc;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_ACCEPTED;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -127,7 +125,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     }
   }
 
-  protected void reportProgress(TransferRequest request, TransferStatus s, HttpServletResponse r) {
+  protected void reportProgress(TransferStatus s, HttpServletResponse r) {
     try {
       r.getWriter().write(s.asPerfMarker());
       r.getWriter().flush();
@@ -242,7 +240,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
             .uuid(RequestIdHolder.getRequestId())
             .uri(uri)
             .path(path)
-            .headers(getTransferHeaders(request, response))
+            .headers(getTransferHeaders(request))
             .scitag(scitag)
             .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
             .overwrite(overwriteRequested(request))
@@ -252,8 +250,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
     try {
 
-      response.setStatus(SC_ACCEPTED);
-      client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
+      response.setStatus(HttpServletResponse.SC_ACCEPTED);
+      client.handle(xferRequest, (r, s) -> reportProgress(s, response));
 
     } catch (ChecksumVerificationError e) {
       logTransferException(xferRequest, e);
@@ -282,7 +280,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
             .uuid(RequestIdHolder.getRequestId())
             .uri(uri)
             .path(path)
-            .headers(getTransferHeaders(request, response))
+            .headers(getTransferHeaders(request))
             .scitag(scitag)
             .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
             .overwrite(overwriteRequested(request))
@@ -292,8 +290,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
     try {
 
-      response.setStatus(SC_ACCEPTED);
-      client.handle(xferRequest, (r, s) -> reportProgress(xferRequest, s, response));
+      response.setStatus(HttpServletResponse.SC_ACCEPTED);
+      client.handle(xferRequest, (r, s) -> reportProgress(s, response));
 
     } catch (ChecksumVerificationError e) {
       logTransferException(xferRequest, e);

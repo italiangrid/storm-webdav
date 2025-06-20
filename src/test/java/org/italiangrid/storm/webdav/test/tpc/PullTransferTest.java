@@ -4,12 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyEnumeration;
-import static java.util.Collections.enumeration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -18,6 +14,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Multimap;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class PullTransferTest extends TransferFilterTestSupport {
   @BeforeEach
   public void setup() throws IOException {
     super.setup();
-    lenient().when(request.getMethod()).thenReturn(COPY.name());
+    lenient().when(request.getMethod()).thenReturn(WebDAVMethod.COPY.name());
     lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
     lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
     lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
@@ -41,7 +40,7 @@ class PullTransferTest extends TransferFilterTestSupport {
     lenient().when(request.getHeader(TransferConstants.CLIENT_INFO_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
-    lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
+    lenient().when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
   }
@@ -98,8 +97,8 @@ class PullTransferTest extends TransferFilterTestSupport {
 
     when(request.getHeaderNames())
         .thenReturn(
-            enumeration(
-                asList(
+            Collections.enumeration(
+                Arrays.asList(
                     TRANSFER_HEADER_AUTHORIZATION_KEY,
                     TRANSFER_HEADER_WHATEVER_KEY,
                     TRANSFER_HEADER_SCITAG)));
@@ -127,7 +126,8 @@ class PullTransferTest extends TransferFilterTestSupport {
   @Test
   void emptyTransferHeaderAreIgnored() throws IOException, ServletException {
     when(request.getHeaderNames())
-        .thenReturn(enumeration(asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
+        .thenReturn(
+            Collections.enumeration(Arrays.asList(TRANSFER_HEADER, TRANSFER_HEADER_WHATEVER_KEY)));
 
     when(request.getHeader(TRANSFER_HEADER_WHATEVER_KEY))
         .thenReturn(TRANSFER_HEADER_WHATEVER_VALUE);
@@ -150,7 +150,7 @@ class PullTransferTest extends TransferFilterTestSupport {
   @Test
   void bothSciTagAndTransferHeaderSciTag() throws IOException, ServletException {
     when(request.getHeaderNames())
-        .thenReturn(enumeration(asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
+        .thenReturn(Collections.enumeration(Arrays.asList(SCITAG_HEADER, TRANSFER_HEADER_SCITAG)));
 
     when(request.getHeader(SCITAG_HEADER)).thenReturn(SCITAG_HEADER_VALUE);
 

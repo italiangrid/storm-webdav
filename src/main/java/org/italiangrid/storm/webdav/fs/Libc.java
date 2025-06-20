@@ -8,7 +8,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public interface Libc extends Library {
-  public static final Libc INSTANCE = Native.load("c", Libc.class);
+  Libc INSTANCE = Native.load("c", Libc.class);
 
   int stat(String path, Stat stat);
 }

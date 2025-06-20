@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /** */
-public class StormCountingOutputStream extends FilterOutputStream implements Countable {
+public final class StormCountingOutputStream extends FilterOutputStream implements Countable {
 
   final CountingOutputStream delegate;
 

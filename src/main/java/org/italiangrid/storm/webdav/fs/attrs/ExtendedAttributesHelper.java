@@ -11,28 +11,28 @@ import java.util.Collection;
 
 public interface ExtendedAttributesHelper {
 
-  public void setExtendedFileAttribute(File f, String attributeName, String attributeValue)
+  void setExtendedFileAttribute(File f, String attributeName, String attributeValue)
       throws IOException;
 
-  public String getExtendedFileAttributeValue(File f, String attributeName) throws IOException;
+  String getExtendedFileAttributeValue(File f, String attributeName) throws IOException;
 
-  public Collection<String> getExtendedFileAttributeNames(File f) throws IOException;
+  Collection<String> getExtendedFileAttributeNames(File f) throws IOException;
 
-  public void setChecksumAttribute(Path p, String checksumValue) throws IOException;
+  void setChecksumAttribute(Path p, String checksumValue) throws IOException;
 
-  public void setChecksumAttribute(File f, String checksumValue) throws IOException;
+  void setChecksumAttribute(File f, String checksumValue) throws IOException;
 
-  public void setPremigrateAttribute(Path p) throws IOException;
+  void setPremigrateAttribute(Path p) throws IOException;
 
-  public void setPremigrateAttribute(File f) throws IOException;
+  void setPremigrateAttribute(File f) throws IOException;
 
-  public String getChecksumAttribute(File f) throws IOException;
+  String getChecksumAttribute(File f) throws IOException;
 
-  public String getChecksumAttribute(Path p) throws IOException;
+  String getChecksumAttribute(Path p) throws IOException;
 
-  public String getMigratedAttribute(File f) throws IOException;
+  String getMigratedAttribute(File f) throws IOException;
 
-  public String getMigratedAttribute(Path p) throws IOException;
+  String getMigratedAttribute(Path p) throws IOException;
 
-  public boolean fileSupportsExtendedAttributes(File f) throws IOException;
+  boolean fileSupportsExtendedAttributes(File f) throws IOException;
 }

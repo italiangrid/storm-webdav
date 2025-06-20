@@ -12,6 +12,8 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
   /** */
   private static final long serialVersionUID = 1L;
 
+  private String fqanAuthority;
+
   @Override
   public int hashCode() {
 
@@ -41,8 +43,6 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
     }
     return true;
   }
-
-  String fqanAuthority;
 
   public VOMSFQANAuthority(String fqan) {
     Assert.hasText(fqan, "FQAN must not be empty");

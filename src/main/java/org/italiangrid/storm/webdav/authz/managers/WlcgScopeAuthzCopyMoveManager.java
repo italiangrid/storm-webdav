@@ -4,9 +4,6 @@
 
 package org.italiangrid.storm.webdav.authz.managers;
 
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.PUT;
-
 import java.net.MalformedURLException;
 import java.util.function.Supplier;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
@@ -15,6 +12,7 @@ import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
@@ -72,7 +70,7 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
       return null;
     }
 
-    if (COPY.name().equals(requestAuthorizationContext.getRequest().getMethod())
+    if (WebDAVMethod.COPY.name().equals(requestAuthorizationContext.getRequest().getMethod())
         && requestHasRemoteDestinationHeader(
             requestAuthorizationContext.getRequest(), localUrlService)) {
       return null;
@@ -93,7 +91,10 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
 
       return renderDecision(
           PathAuthorizationRequest.newAuthorizationRequest(
-              requestAuthorizationContext.getRequest(), authentication.get(), destinationPath, PUT),
+              requestAuthorizationContext.getRequest(),
+              authentication.get(),
+              destinationPath,
+              WebDAVMethod.PUT),
           LOG);
 
     } catch (MalformedURLException e) {

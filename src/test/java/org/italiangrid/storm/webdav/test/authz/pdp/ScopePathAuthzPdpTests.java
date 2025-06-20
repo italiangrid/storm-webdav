@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
-public class ScopePathAuthzPdpTests {
+class ScopePathAuthzPdpTests {
 
   public static final String[] CATCHALL_METHODS = {"HEAD", "OPTIONS"};
   public static final String[] READ_METHODS = {"GET", "PROPFIND"};

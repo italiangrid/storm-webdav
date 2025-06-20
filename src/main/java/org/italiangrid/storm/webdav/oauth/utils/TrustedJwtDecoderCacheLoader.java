@@ -22,7 +22,6 @@ import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
 import org.italiangrid.storm.webdav.oauth.validator.WlcgProfileValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.Cache;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -44,7 +43,6 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
   public TrustedJwtDecoderCacheLoader(
       ServiceConfigurationProperties properties,
       OAuthProperties oauthProperties,
-      RestTemplateBuilder builder,
       OidcConfigurationFetcher fetcher,
       ExecutorService executor) {
     this.properties = properties;
@@ -70,7 +68,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
     Cache noExpirationCache = new NoExpirationStringCache(fetcher.loadJWKSourceForURL(jwksUri));
 
     NimbusJwtDecoder decoder =
-        NimbusJwtDecoder.withJwkSetUri((oidcConfiguration.get("jwks_uri").toString()))
+        NimbusJwtDecoder.withJwkSetUri(oidcConfiguration.get("jwks_uri").toString())
             .cache(noExpirationCache)
             .build();
 

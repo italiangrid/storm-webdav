@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.authn;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -19,11 +17,11 @@ public class PrincipalHelper {
 
   public static final String ANONYMOUS = "anonymous";
 
-  private final Optional<URL> localAuthzServerIssuer;
+  private final Optional<String> localAuthzServerIssuer;
 
-  public PrincipalHelper(ServiceConfigurationProperties config) throws MalformedURLException {
+  public PrincipalHelper(ServiceConfigurationProperties config) {
     if (config.getAuthzServer().isEnabled()) {
-      localAuthzServerIssuer = Optional.of(new URL(config.getAuthzServer().getIssuer()));
+      localAuthzServerIssuer = Optional.of(config.getAuthzServer().getIssuer());
     } else {
       localAuthzServerIssuer = Optional.empty();
     }
@@ -39,7 +37,7 @@ public class PrincipalHelper {
       return authn.getName();
     } else if (authn instanceof JwtAuthenticationToken jwtToken) {
       if (localAuthzServerIssuer.isPresent()
-          && localAuthzServerIssuer.get().equals(jwtToken.getToken().getIssuer())) {
+          && localAuthzServerIssuer.get().equals(jwtToken.getToken().getIssuer().toString())) {
         return jwtToken.getToken().getSubject();
       } else {
         return String.format(

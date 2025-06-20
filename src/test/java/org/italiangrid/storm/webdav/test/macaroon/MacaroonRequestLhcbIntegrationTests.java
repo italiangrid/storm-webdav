@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles({"dev", "lhcb"})
 @WithAnonymousUser
-public class MacaroonRequestLhcbIntegrationTests {
+class MacaroonRequestLhcbIntegrationTests {
 
   public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
   public static final Instant NOW_PLUS_2H =

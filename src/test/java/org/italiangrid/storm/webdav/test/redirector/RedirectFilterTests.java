@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.redirector;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_TEMPORARY_REDIRECT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -34,7 +33,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class RedirectFilterTests extends RedirectorTestSupport {
+class RedirectFilterTests extends RedirectorTestSupport {
 
   public static final String REDIRECTED_URL =
       "http://redirected.org/example/file?access_token=123456";
@@ -137,7 +136,7 @@ public class RedirectFilterTests extends RedirectorTestSupport {
     filter.doFilter(request, response, filterChain);
     verify(redirectionService)
         .buildRedirect(Mockito.any(), Mockito.eq(request), Mockito.eq(response));
-    verify(response).setStatus(SC_TEMPORARY_REDIRECT);
+    verify(response).setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
     verify(response).setHeader(Mockito.eq("Location"), redirectUrl.capture());
 
     assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));

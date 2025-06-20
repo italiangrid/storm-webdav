@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver;
 
-import static java.lang.String.format;
 import static org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest.GRANT_TYPE_NOT_FOUND;
 import static org.italiangrid.storm.webdav.oauth.authzserver.AccessTokenRequest.INVALID_GRANT_TYPE;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.INVALID_REQUEST;
@@ -46,7 +45,7 @@ public class AuthzServerController {
     }
     if (INVALID_GRANT_TYPE.equals(e.getDefaultMessage())) {
       throw new UnsupportedGrantTypeError(
-          format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
+          String.format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
     }
     throw new InvalidScopeError(e.getDefaultMessage() != null ? e.getDefaultMessage() : "");
   }
@@ -68,19 +67,19 @@ public class AuthzServerController {
     return tokenService.createAccessToken(tokenRequest, authentication);
   }
 
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(UnsupportedGrantTypeError.class)
   public ErrorResponseDTO unsupportedGrantType(HttpServletRequest req, Exception ex) {
     return ErrorResponseDTO.from(UNSUPPORTED_GRANT_TYPE, ex.getMessage());
   }
 
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(InvalidTokenRequestError.class)
   public ErrorResponseDTO invalidTokenRequestError(HttpServletRequest req, Exception ex) {
     return ErrorResponseDTO.from(INVALID_REQUEST, ex.getMessage());
   }
 
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(InvalidScopeError.class)
   public ErrorResponseDTO invalidScopeError(HttpServletRequest req, Exception ex) {
     return ErrorResponseDTO.from(INVALID_SCOPE, ex.getMessage());

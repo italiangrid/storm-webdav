@@ -7,7 +7,7 @@ package org.italiangrid.storm.webdav.tpc.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class UrlHelper {
+public final class UrlHelper {
 
   private UrlHelper() {
     // no instantiation

@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.authz.pdp;
 
-import static java.lang.String.format;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.deny;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.indeterminate;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.permit;
@@ -21,6 +20,7 @@ import org.italiangrid.storm.webdav.authz.util.StructuredPathScopeMatcher;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.springframework.security.core.Authentication;
@@ -149,7 +149,7 @@ public class WlcgStructuredPathAuthorizationPdp
       return STORAGE_MODIFY.equals(m.getPrefix());
     }
 
-    throw new IllegalArgumentException(format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
+    throw new IllegalArgumentException(String.format(ERROR_UNSUPPORTED_METHOD_PATTERN, method));
   }
 
   @Override
@@ -202,7 +202,7 @@ public class WlcgStructuredPathAuthorizationPdp
     final boolean requestedResourceExists = pathResolver.pathExists(requestPath);
     final String saPath = getStorageAreaPath(requestPath, sa);
 
-    if ("MKCOL".equals(method)) {
+    if (WebDAVMethod.MKCOL.name().equals(method)) {
       scopeMatchers =
           scopeMatchers.stream()
               .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))

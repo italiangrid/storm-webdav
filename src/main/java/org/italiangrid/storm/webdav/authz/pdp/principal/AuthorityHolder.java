@@ -7,7 +7,7 @@ package org.italiangrid.storm.webdav.authz.pdp.principal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-public class AuthorityHolder implements PrincipalMatcher {
+public final class AuthorityHolder implements PrincipalMatcher {
 
   final GrantedAuthority authority;
 
@@ -15,6 +15,7 @@ public class AuthorityHolder implements PrincipalMatcher {
     this.authority = authority;
   }
 
+  @Override
   public String toString() {
     return String.format("AuthorityHolder(%s)", authority.getAuthority());
   }

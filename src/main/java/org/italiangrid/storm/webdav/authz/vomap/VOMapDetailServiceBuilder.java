@@ -4,9 +4,8 @@
 
 package org.italiangrid.storm.webdav.authz.vomap;
 
-import static java.util.Collections.emptySet;
-
 import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
@@ -21,7 +20,7 @@ public class VOMapDetailServiceBuilder {
 
   private static final String VOMAPFILE_SUFFIX = ".vomap";
 
-  private static final Logger logger = LoggerFactory.getLogger(VOMapDetailServiceBuilder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(VOMapDetailServiceBuilder.class);
 
   private final ServiceConfiguration serviceConf;
 
@@ -33,30 +32,34 @@ public class VOMapDetailServiceBuilder {
 
   private void directorySanityChecks(File directory) {
 
-    if (!directory.exists())
+    if (!directory.exists()) {
       throw new VOMapFilesConfigurationError(
           "VOMS map files configuration directory does not exists: " + directory.getAbsolutePath());
+    }
 
-    if (!directory.isDirectory())
+    if (!directory.isDirectory()) {
       throw new VOMapFilesConfigurationError(
           "VOMS map files configuration directory is not a directory: "
               + directory.getAbsolutePath());
+    }
 
-    if (!directory.canRead())
+    if (!directory.canRead()) {
       throw new VOMapFilesConfigurationError(
           "VOMS map files configuration directory is not readable: " + directory.getAbsolutePath());
+    }
 
-    if (!directory.canExecute())
+    if (!directory.canExecute()) {
       throw new VOMapFilesConfigurationError(
           "VOMS map files configuration directory is not traversable: "
               + directory.getAbsolutePath());
+    }
   }
 
   public VOMapDetailsService build() {
 
     if (!serviceConf.enableVOMapFiles()) {
-      logger.info("VOMS Map files disabled.");
-      return new DefaultVOMapDetailsService(emptySet(), 0);
+      LOG.info("VOMS Map files disabled.");
+      return new DefaultVOMapDetailsService(Collections.emptySet(), 0);
     }
 
     File configDir = new File(serviceConf.getVOMapFilesConfigDir());
@@ -65,11 +68,11 @@ public class VOMapDetailServiceBuilder {
     File[] files = configDir.listFiles((dir, name) -> name.endsWith(VOMAPFILE_SUFFIX));
 
     if (files.length == 0) {
-      logger.warn(
+      LOG.warn(
           "No mapfiles found in {}. Was looking for files ending in {}",
           configDir,
           VOMAPFILE_SUFFIX);
-      return new DefaultVOMapDetailsService(emptySet(), 0);
+      return new DefaultVOMapDetailsService(Collections.emptySet(), 0);
     }
 
     Set<VOMembershipProvider> providers = new HashSet<>();
@@ -83,7 +86,7 @@ public class VOMapDetailServiceBuilder {
         providers.add(prov);
 
       } catch (Throwable t) {
-        logger.error("Error parsing mapfile {}: {}", f.getAbsolutePath(), t.getMessage(), t);
+        LOG.error("Error parsing mapfile {}: {}", f.getAbsolutePath(), t.getMessage(), t);
       }
     }
 

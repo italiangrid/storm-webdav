@@ -9,33 +9,33 @@ import java.util.Set;
 
 public interface StorageAreaInfo {
 
-  public String name();
+  String name();
 
-  public String rootPath();
+  String rootPath();
 
-  public String filesystemType();
+  String filesystemType();
 
-  public List<String> accessPoints();
+  List<String> accessPoints();
 
-  public Set<String> vos();
+  Set<String> vos();
 
-  public Set<String> orgs();
+  Set<String> orgs();
 
-  public boolean anonymousReadEnabled();
+  boolean anonymousReadEnabled();
 
-  public boolean authenticatedReadEnabled();
+  boolean authenticatedReadEnabled();
 
-  public boolean voMapEnabled();
+  boolean voMapEnabled();
 
-  public boolean voMapGrantsWritePermission();
+  boolean voMapGrantsWritePermission();
 
-  public boolean orgsGrantReadPermission();
+  boolean orgsGrantReadPermission();
 
-  public boolean orgsGrantWritePermission();
+  boolean orgsGrantWritePermission();
 
-  public boolean wlcgScopeAuthzEnabled();
+  boolean wlcgScopeAuthzEnabled();
 
-  public boolean fineGrainedAuthzEnabled();
+  boolean fineGrainedAuthzEnabled();
 
-  public boolean tapeEnabled();
+  boolean tapeEnabled();
 }

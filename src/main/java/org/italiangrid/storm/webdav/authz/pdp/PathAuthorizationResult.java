@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.authz.pdp;
 
 import java.util.Optional;
 
-public class PathAuthorizationResult {
+public final class PathAuthorizationResult {
 
   public enum Decision {
     DENY,

@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.authz.pdp;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.italiangrid.storm.webdav.authz.pdp.principal.PrincipalMatcher;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-public class PathAuthorizationPolicy {
+public final class PathAuthorizationPolicy {
 
   public static final Logger LOG = LoggerFactory.getLogger(PathAuthorizationPolicy.class);
 
@@ -89,8 +90,8 @@ public class PathAuthorizationPolicy {
 
     private PolicyEffect effect = PolicyEffect.DENY;
 
-    private List<RequestMatcher> requestMatchers = new ArrayList<>();
-    private List<PrincipalMatcher> principalMatchers = new ArrayList<>();
+    private final List<RequestMatcher> requestMatchers = new ArrayList<>();
+    private final List<PrincipalMatcher> principalMatchers = new ArrayList<>();
 
     public Builder withSa(String sa) {
       this.sa = sa;
@@ -123,9 +124,7 @@ public class PathAuthorizationPolicy {
     }
 
     public Builder withRequestMatchers(RequestMatcher... matchers) {
-      for (RequestMatcher m : matchers) {
-        this.requestMatchers.add(m);
-      }
+      this.requestMatchers.addAll(Arrays.asList(matchers));
       return this;
     }
 

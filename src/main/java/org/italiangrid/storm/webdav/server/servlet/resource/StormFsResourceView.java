@@ -7,7 +7,7 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 import java.util.Date;
 import org.italiangrid.storm.webdav.fs.Locality;
 
-public class StormFsResourceView {
+public final class StormFsResourceView {
 
   final String name;
 
@@ -77,8 +77,6 @@ public class StormFsResourceView {
     Date lastModificationTime;
     Date creationTime;
     Locality locality;
-
-    public Builder() {}
 
     public Builder withName(String name) {
       this.name = name;

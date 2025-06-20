@@ -14,7 +14,7 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-public class UnanimousDelegatedManager
+public final class UnanimousDelegatedManager
     implements AuthorizationManager<RequestAuthorizationContext> {
 
   public static final Logger LOG = LoggerFactory.getLogger(UnanimousDelegatedManager.class);

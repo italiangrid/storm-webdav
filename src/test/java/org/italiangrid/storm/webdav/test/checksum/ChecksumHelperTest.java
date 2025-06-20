@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.utils.ChecksumHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ChecksumHelperTest {
 
-  private File testFile;
   private Adler32ChecksumInputStream cis;
 
   @BeforeEach
@@ -31,14 +30,15 @@ class ChecksumHelperTest {
     String resourcePath = "storage/test/example";
 
     ClassLoader classLoader = getClass().getClassLoader();
-    testFile = new File(classLoader.getResource(resourcePath).getFile());
+    File testFile = new File(classLoader.getResource(resourcePath).getFile());
 
     String absolutePath = testFile.getAbsolutePath();
-    System.out.println(absolutePath);
 
     assertTrue(absolutePath.endsWith("example"));
 
-    cis = new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(testFile)));
+    cis =
+        new Adler32ChecksumInputStream(
+            new BufferedInputStream(Files.newInputStream(testFile.toPath())));
 
     byte[] buffer = new byte[8192];
 

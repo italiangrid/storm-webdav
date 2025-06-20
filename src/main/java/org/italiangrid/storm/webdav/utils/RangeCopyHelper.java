@@ -14,7 +14,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
 import org.springframework.util.Assert;
 
-public class RangeCopyHelper {
+public final class RangeCopyHelper {
 
   private RangeCopyHelper() {}
 

@@ -4,10 +4,6 @@
 
 package org.italiangrid.storm.webdav.tpc;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
-import static java.lang.String.format;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,8 +59,7 @@ public class TransferFilterSupport implements TpcUtils {
     return Paths.get(request.getServletPath(), request.getPathInfo()).toString();
   }
 
-  protected Multimap<String, String> getTransferHeaders(
-      HttpServletRequest request, HttpServletResponse response) {
+  protected Multimap<String, String> getTransferHeaders(HttpServletRequest request) {
 
     Multimap<String, String> xferHeaders = ArrayListMultimap.create();
     Enumeration<String> headerNames = request.getHeaderNames();
@@ -126,7 +121,7 @@ public class TransferFilterSupport implements TpcUtils {
 
   protected boolean validTransferURI(String xferUri) {
 
-    boolean result = false;
+    boolean result;
 
     try {
       URI uri = new URI(xferUri);
@@ -161,7 +156,7 @@ public class TransferFilterSupport implements TpcUtils {
 
   protected void invalidRequest(HttpServletResponse response, String msg) throws IOException {
     LOG.info("Invalid request: {}", msg);
-    response.sendError(BAD_REQUEST.value(), msg);
+    response.sendError(HttpStatus.BAD_REQUEST.value(), msg);
   }
 
   protected boolean validLocalSourcePath(HttpServletRequest request, HttpServletResponse response)
@@ -247,7 +242,7 @@ public class TransferFilterSupport implements TpcUtils {
         && !validTransferURI(request.getHeader(TransferConstants.SOURCE_HEADER))) {
       invalidRequest(
           response,
-          format(
+          String.format(
               "Invalid %s header: %s",
               TransferConstants.SOURCE_HEADER, request.getHeader(TransferConstants.SOURCE_HEADER)));
       return false;
@@ -257,7 +252,7 @@ public class TransferFilterSupport implements TpcUtils {
         && !validTransferURI(request.getHeader(TransferConstants.DESTINATION_HEADER))) {
       invalidRequest(
           response,
-          format(
+          String.format(
               "Invalid %s header: %s",
               TransferConstants.DESTINATION_HEADER,
               request.getHeader(TransferConstants.DESTINATION_HEADER)));
@@ -286,7 +281,7 @@ public class TransferFilterSupport implements TpcUtils {
       if (invalidOverwrite) {
         invalidRequest(
             response,
-            format("Invalid %s header value: %s", TransferConstants.OVERWRITE_HEADER, val));
+            String.format("Invalid %s header value: %s", TransferConstants.OVERWRITE_HEADER, val));
         return false;
       }
     }
@@ -304,7 +299,8 @@ public class TransferFilterSupport implements TpcUtils {
       if (invalidChecksum) {
         invalidRequest(
             response,
-            format("Invalid %s header value: %s", TransferConstants.REQUIRE_CHECKSUM_HEADER, val));
+            String.format(
+                "Invalid %s header value: %s", TransferConstants.REQUIRE_CHECKSUM_HEADER, val));
         return false;
       }
     }
@@ -322,13 +318,13 @@ public class TransferFilterSupport implements TpcUtils {
       TransferRequest req, ChecksumVerificationError e, HttpServletResponse response)
       throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
-    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, e.getMessage());
   }
 
   public void handleTransferError(
       TransferRequest req, TransferError e, HttpServletResponse response) throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
-    response.sendError(SC_PRECONDITION_FAILED, e.getMessage());
+    response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, e.getMessage());
   }
 
   public void handleClientProtocolException(
@@ -336,7 +332,8 @@ public class TransferFilterSupport implements TpcUtils {
       throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(
-        SC_PRECONDITION_FAILED, format("Third party transfer error: %s", e.getMessage()));
+        HttpServletResponse.SC_PRECONDITION_FAILED,
+        String.format("Third party transfer error: %s", e.getMessage()));
   }
 
   public void handleHttpResponseException(
@@ -344,7 +341,7 @@ public class TransferFilterSupport implements TpcUtils {
       throws IOException {
     req.setTransferStatus(status.error(e.getMessage()));
     response.sendError(
-        SC_PRECONDITION_FAILED,
-        format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
+        HttpServletResponse.SC_PRECONDITION_FAILED,
+        String.format("Third party transfer error: %d %s", e.getStatusCode(), e.getMessage()));
   }
 }

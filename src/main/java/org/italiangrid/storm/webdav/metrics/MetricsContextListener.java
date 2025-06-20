@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MetricsContextListener extends ContextListener {
 
-  private MetricRegistry registry;
+  private final MetricRegistry registry;
 
   @Autowired
   public MetricsContextListener(MetricRegistry r) {

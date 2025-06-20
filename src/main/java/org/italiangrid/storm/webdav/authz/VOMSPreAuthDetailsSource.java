@@ -87,7 +87,7 @@ public class VOMSPreAuthDetailsSource
       return Collections.emptySet();
     }
 
-    LinkedHashSet<GrantedAuthority> authorities = new LinkedHashSet<>();
+    Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 
     for (String voName : voMapDetailsService.getPrincipalVOs(principal.get())) {
       authorities.add(new VOMSVOMapAuthority(voName));
@@ -101,7 +101,7 @@ public class VOMSPreAuthDetailsSource
       return Collections.emptySet();
     }
 
-    LinkedHashSet<GrantedAuthority> authorities = new LinkedHashSet<>();
+    Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 
     for (VOMSAttribute va : attributes) {
       authorities.add(new VOMSVOAuthority(va.getVO()));

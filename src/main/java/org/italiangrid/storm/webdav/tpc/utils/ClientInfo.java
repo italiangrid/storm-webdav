@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.MDC;
 import org.springframework.util.Assert;
 
-public class ClientInfo {
+public final class ClientInfo {
 
   private static final String INVALID_CLIENTINFO_HEADER_MESSAGE = "Invalid ClientInfo header: %s";
 

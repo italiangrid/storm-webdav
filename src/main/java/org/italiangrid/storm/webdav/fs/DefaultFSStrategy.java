@@ -5,9 +5,9 @@
 package org.italiangrid.storm.webdav.fs;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
@@ -117,7 +117,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
           HttpMethod.PUT, Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.valueOf("PROPFIND")));
     }
 
-    try (FileOutputStream fos = new FileOutputStream(file)) {
+    try (OutputStream fos = Files.newOutputStream(file.toPath())) {
 
       Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
 

@@ -18,7 +18,7 @@ import org.springframework.security.web.firewall.RequestRejectedHandler;
 
 public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler {
 
-  private static final Log logger = LogFactory.getLog(HttpMethodRequestRejectedHandler.class);
+  private static final Log LOG = LogFactory.getLog(HttpMethodRequestRejectedHandler.class);
 
   private final List<String> allowedMethods;
 
@@ -35,7 +35,7 @@ public class HttpMethodRequestRejectedHandler implements RequestRejectedHandler 
       RequestRejectedException requestRejectedException)
       throws IOException, ServletException {
 
-    logger.debug(
+    LOG.debug(
         LogMessage.format("Rejecting request due to: %s", requestRejectedException.getMessage()),
         requestRejectedException);
 

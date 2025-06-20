@@ -4,13 +4,11 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonInclude(NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ErrorResponseDTO {
 

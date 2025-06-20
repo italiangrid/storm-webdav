@@ -11,8 +11,8 @@ import org.springframework.security.core.Authentication;
 
 public interface SignedJwtTokenIssuer {
 
-  public SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
+  SignedJWT createAccessToken(AccessTokenRequest request, Authentication authentication);
 
-  public SignedJWT createResourceAccessToken(
+  SignedJWT createResourceAccessToken(
       ResourceAccessTokenRequest request, Authentication authentication);
 }

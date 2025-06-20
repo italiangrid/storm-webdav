@@ -31,8 +31,6 @@ import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -47,14 +45,12 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = {WebdavService.class, TestConfig.class},
     properties = {"spring.main.allow-bean-definition-overriding=true"})
 @ActiveProfiles("dev")
-public class TpcClientRedirectionTest {
-
-  public static final Logger LOG = LoggerFactory.getLogger(TpcIntegrationTest.class);
+class TpcClientRedirectionTest {
 
   private static String authorizationHeaderValue = "Bearer this-is-a-fake-token";
 
   @RegisterExtension
-  static WireMockExtension wiremock =
+  private static final WireMockExtension wiremock =
       WireMockExtension.newInstance()
           .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
           .build();

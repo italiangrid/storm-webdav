@@ -4,13 +4,7 @@
 
 package org.italiangrid.storm.webdav.web;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Controller;
@@ -22,37 +16,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping(PathConstants.ERRORS_PATH)
 public class SecurityErrorController {
 
-  @ResponseStatus(BAD_REQUEST)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   @RequestMapping("/400")
   String badRequestError(RequestRejectedException e) {
     return "400";
   }
 
-  @ResponseStatus(UNAUTHORIZED)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @RequestMapping("/401")
   String unauthorized() {
     return "401";
   }
 
-  @ResponseStatus(FORBIDDEN)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
   @RequestMapping("/403")
   String forbidden(Authentication auth, Model model) {
     return "403";
   }
 
-  @ResponseStatus(NOT_FOUND)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
   @RequestMapping("/404")
   String notFound() {
     return "404";
   }
 
-  @ResponseStatus(METHOD_NOT_ALLOWED)
+  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
   @RequestMapping("/405")
   String methodNotAllowed() {
     return "405";
   }
 
-  @ResponseStatus(UNSUPPORTED_MEDIA_TYPE)
+  @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   @RequestMapping("/415")
   String unsupportedMediaType() {
     return "415";

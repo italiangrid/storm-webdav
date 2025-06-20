@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.oauth;
 
-import static java.lang.String.format;
-
 import org.springframework.security.oauth2.jwt.JwtException;
 
 public class UnknownTokenIssuerError extends JwtException {
@@ -16,6 +14,6 @@ public class UnknownTokenIssuerError extends JwtException {
   private static final long serialVersionUID = 1L;
 
   public UnknownTokenIssuerError(String issuer) {
-    super(format(UNKNOWN_ISSUER_TEMPLATE, issuer));
+    super(String.format(UNKNOWN_ISSUER_TEMPLATE, issuer));
   }
 }

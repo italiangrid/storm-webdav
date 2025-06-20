@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.oidc;
 
-import static java.lang.String.format;
-
 import com.google.common.cache.CacheLoader;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -106,7 +104,8 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
     try {
       return getClientRegistration(key, reg, clientProperties.getProvider());
     } catch (IllegalArgumentException | IllegalStateException e) {
-      throw new OidcProviderError(format(ERROR_TEMPLATE, reg.getClientName(), e.getMessage()), e);
+      throw new OidcProviderError(
+          String.format(ERROR_TEMPLATE, reg.getClientName(), e.getMessage()), e);
     }
   }
 

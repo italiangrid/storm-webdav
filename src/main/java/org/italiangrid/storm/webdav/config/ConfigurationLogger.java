@@ -8,5 +8,5 @@ import org.slf4j.Logger;
 
 public interface ConfigurationLogger {
 
-  public void logConfiguration(Logger logger);
+  void logConfiguration(Logger logger);
 }

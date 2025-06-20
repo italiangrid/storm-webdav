@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -14,6 +13,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -96,7 +96,7 @@ class PolicyPropertiesValidationTests {
   void testPrincipalsNotEmpty() {
 
     FineGrainedAuthzPolicyProperties props = minimalValidPolicy();
-    props.setPrincipals(emptyList());
+    props.setPrincipals(Collections.emptyList());
 
     Set<ConstraintViolation<FineGrainedAuthzPolicyProperties>> violations =
         validator.validate(props);

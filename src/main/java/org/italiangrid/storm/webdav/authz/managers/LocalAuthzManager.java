@@ -4,13 +4,10 @@
 
 package org.italiangrid.storm.webdav.authz.managers;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.function.Supplier;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
-import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
@@ -27,7 +24,7 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
 
   public static final Logger LOG = LoggerFactory.getLogger(LocalAuthzManager.class);
 
-  final URI localTokenIssuer;
+  final String localTokenIssuer;
 
   public LocalAuthzManager(
       ServiceConfigurationProperties config,
@@ -35,22 +32,12 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
       PathAuthorizationPdp pdp,
       LocalURLService localUrlService) {
     super(config, resolver, pdp, localUrlService, true);
-    try {
-      localTokenIssuer = new URI(config.getAuthzServer().getIssuer());
-    } catch (URISyntaxException e) {
-      throw new StoRMIntializationError(e.getMessage());
-    }
+    localTokenIssuer = config.getAuthzServer().getIssuer();
   }
 
   private boolean isLocalAuthzToken(JwtAuthenticationToken token) {
-    try {
-      return localTokenIssuer.equals(token.getToken().getIssuer().toURI())
-          && StringUtils.hasText(
-              token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
-    } catch (URISyntaxException e) {
-      LOG.warn("{}", e.getMessage());
-      return false;
-    }
+    return localTokenIssuer.equals(token.getToken().getIssuer().toString())
+        && StringUtils.hasText(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
   }
 
   /**

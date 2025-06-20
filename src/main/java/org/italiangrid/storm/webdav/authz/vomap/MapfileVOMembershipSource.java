@@ -6,8 +6,8 @@ package org.italiangrid.storm.webdav.authz.vomap;
 
 import eu.emi.security.authn.x509.impl.OpensslNameUtils;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 
 public class MapfileVOMembershipSource implements VOMembershipSource {
 
-  private static final Logger logger = LoggerFactory.getLogger(MapfileVOMembershipSource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MapfileVOMembershipSource.class);
 
   private final String voName;
   private final File mapFile;
@@ -37,12 +37,12 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
   private boolean isValidCSVRecord(CSVRecord r) {
 
     if (r.size() > 3) {
-      logger.warn("Invalid CSVRecord: {}. Illegal size: {}", r, r.size());
+      LOG.warn("Invalid CSVRecord: {}. Illegal size: {}", r, r.size());
       return false;
     }
 
     if (!r.get(0).startsWith("/")) {
-      logger.warn("Invalid CSVRecord: {}. Subject does not start with / : {}", r, r.get(0));
+      LOG.warn("Invalid CSVRecord: {}. Subject does not start with / : {}", r, r.get(0));
       return false;
     }
 
@@ -58,12 +58,13 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     try {
 
-      List<CSVRecord> records = CSVFormat.DEFAULT.parse(new FileReader(mapFile)).getRecords();
+      List<CSVRecord> records =
+          CSVFormat.DEFAULT.parse(Files.newBufferedReader(mapFile.toPath())).getRecords();
 
       for (CSVRecord r : records) {
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("Parsed record: {} for VO {}", r, voName);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Parsed record: {} for VO {}", r, voName);
         }
 
         if (!isValidCSVRecord(r)) {
@@ -73,15 +74,15 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
         String subject = r.get(0);
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("Parsed subject {} as member of VO {}", subject, voName);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Parsed subject {} as member of VO {}", subject, voName);
         }
 
         @SuppressWarnings("deprecation")
         String rfcSubject = OpensslNameUtils.opensslToRfc2253(subject);
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("Converted subject {} to rfc format {}", subject, rfcSubject);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Converted subject {} to rfc format {}", subject, rfcSubject);
         }
 
         subjects.add(rfcSubject);
@@ -93,7 +94,7 @@ public class MapfileVOMembershipSource implements VOMembershipSource {
 
     long totalTime = System.currentTimeMillis() - startTime;
 
-    logger.debug("Parsing VO {} members from {} took {} msecs.", voName, mapFile, totalTime);
+    LOG.debug("Parsing VO {} members from {} took {} msecs.", voName, mapFile, totalTime);
 
     return subjects;
   }

@@ -6,7 +6,6 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -16,6 +15,7 @@ import static org.mockito.Mockito.when;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Set;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
@@ -57,7 +57,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
     }
 
     // Ignore other WebDAV methods
-    EnumSet<WebDAVMethod> nonCopyMethods = EnumSet.complementOf(EnumSet.of(WebDAVMethod.COPY));
+    Set<WebDAVMethod> nonCopyMethods = EnumSet.complementOf(EnumSet.of(WebDAVMethod.COPY));
     for (WebDAVMethod m : nonCopyMethods) {
       when(request.getMethod()).thenReturn(m.toString());
       filter.doFilter(request, response, chain);
@@ -73,14 +73,14 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
     when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
     when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(null);
 
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     filter.doFilter(request, response, chain);
     verify(chain).doFilter(request, response);
   }
 
   @Test
   void filterBlocksLocalCopyAcrossStorageAreas() throws IOException, ServletException {
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
         .thenReturn("https://localhost/other/file");
     filter.doFilter(request, response, chain);
@@ -91,7 +91,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
 
   @Test
   void filterIgnoresLocalCopyInSameStorageArea() throws IOException, ServletException {
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
         .thenReturn("https://localhost/test/otherfile");
     filter.doFilter(request, response, chain);
@@ -100,7 +100,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
 
   @Test
   void filterHandlesLocalCopyWithTransferHeader() throws IOException, ServletException {
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
         .thenReturn("https://localhost/test/otherfile");
     when(requestHeaderNames.hasMoreElements()).thenReturn(true, true, false);
@@ -113,7 +113,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
 
   @Test
   void filterHandlesRemoteSourceHeader() throws IOException, ServletException {
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
     filter.doFilter(request, response, chain);
     verifyNoInteractions(chain);
@@ -121,7 +121,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
 
   @Test
   void filterHandlesRemoteDestinationHeader() throws IOException, ServletException {
-    when(request.getMethod()).thenReturn(COPY.toString());
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(HTTP_URL);
     filter.doFilter(request, response, chain);
     verifyNoInteractions(chain);

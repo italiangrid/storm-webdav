@@ -4,13 +4,12 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class DefaultPathResolver implements PathResolver {
       return false;
     }
 
-    return Files.exists(Paths.get(resolvedPath), NOFOLLOW_LINKS);
+    return Files.exists(Paths.get(resolvedPath), LinkOption.NOFOLLOW_LINKS);
   }
 
   @Override
@@ -154,12 +153,14 @@ public class DefaultPathResolver implements PathResolver {
         } else if (osName.startsWith("Mac")) {
           try {
             Process process = Runtime.getRuntime().exec("stat -f %b " + resolvedPath);
-            BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()));
-            long statBlockSize = Long.parseLong(reader.readLine());
+            long statBlockSize;
+            try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+              statBlockSize = Long.parseLong(reader.readLine());
+            }
             return statBlockSize * 512 < f.length();
           } catch (IOException e) {
-            LOG.warn("Error getting block size: " + e.getMessage());
+            LOG.warn("Error getting block size: {}", e.getMessage());
           }
         }
       }

@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.oauth.integration;
 
-import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -44,15 +43,15 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 @WithAnonymousUser
-public class OAuthAuthzServerIntegrationTests {
+class OAuthAuthzServerIntegrationTests {
 
   public static final Instant NOW = Instant.parse("2018-01-01T00:00:00.00Z");
 
   public static final String GRANT_TYPE = "grant_type";
   public static final String CLIENT_CREDENTIALS = "client_credentials";
   public static final String CUSTOM_GRANT_TYPE = "my_own_grant_type";
-  public static final String CONTENT = format("%s=%s", GRANT_TYPE, CLIENT_CREDENTIALS);
-  public static final String CONTENT_CUSTOM = format("%s=%s", GRANT_TYPE, CUSTOM_GRANT_TYPE);
+  public static final String CONTENT = String.format("%s=%s", GRANT_TYPE, CLIENT_CREDENTIALS);
+  public static final String CONTENT_CUSTOM = String.format("%s=%s", GRANT_TYPE, CUSTOM_GRANT_TYPE);
 
   @TestConfiguration
   static class Configuration {
@@ -129,7 +128,7 @@ public class OAuthAuthzServerIntegrationTests {
   void requestedLifetimeHonoured() throws Exception {
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(format("%s&lifetime=50", CONTENT))
+                .content(String.format("%s&lifetime=50", CONTENT))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
@@ -142,7 +141,7 @@ public class OAuthAuthzServerIntegrationTests {
   void requestedLifetimeLimited() throws Exception {
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(format("%s&lifetime=200000", CONTENT))
+                .content(String.format("%s&lifetime=200000", CONTENT))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
@@ -160,7 +159,7 @@ public class OAuthAuthzServerIntegrationTests {
 
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .content(String.format("%s&scope=%s", CONTENT, randomAlphabetic))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists());
@@ -169,7 +168,7 @@ public class OAuthAuthzServerIntegrationTests {
 
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .content(String.format("%s&scope=%s", CONTENT, randomAlphabetic))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error", is("invalid_scope")))

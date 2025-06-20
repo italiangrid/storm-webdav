@@ -4,21 +4,19 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static java.util.Collections.emptyEnumeration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.italiangrid.storm.webdav.server.servlet.WebDAVMethod.COPY;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,8 +32,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
     super.setup();
     lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
     lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    lenient().when(request.getMethod()).thenReturn(COPY.name());
-    lenient().when(request.getHeaderNames()).thenReturn(emptyEnumeration());
+    lenient().when(request.getMethod()).thenReturn(WebDAVMethod.COPY.name());
+    lenient().when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH)).thenReturn(false);
     lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
     lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
@@ -53,7 +51,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
     assertThat(error.getValue(), containsString("both present"));
   }
 
@@ -63,7 +61,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString("Invalid Destination header"));
       reset(response);
     }
@@ -75,7 +73,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString("Invalid Source header"));
       reset(response);
     }
@@ -92,7 +90,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(s);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString("Invalid Overwrite header"));
       reset(response);
     }
@@ -107,7 +105,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(s);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString("Invalid RequireChecksumVerification header"));
       reset(response);
     }
@@ -125,7 +123,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
 
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(BAD_REQUEST.value()));
+      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString(expectedErrorMsgs[i]));
       reset(response);
     }
@@ -137,7 +135,7 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
     when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn("gridsite");
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(SC_BAD_REQUEST));
+    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
     assertThat(error.getValue(), is("Unsupported Credential header value: gridsite"));
   }
 

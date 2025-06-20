@@ -4,15 +4,11 @@
 
 package org.italiangrid.storm.webdav.tpc.transfer;
 
-import static java.lang.String.format;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status.DONE;
-import static org.italiangrid.storm.webdav.tpc.transfer.TransferStatus.Status.ERROR;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
-public class TransferStatus {
+public final class TransferStatus {
 
   public enum Status {
     STARTED,
@@ -55,17 +51,17 @@ public class TransferStatus {
 
     StringBuilder builder = new StringBuilder();
 
-    if (status == DONE) {
+    if (status == Status.DONE) {
       builder.append("success: Created");
-    } else if (status == ERROR) {
+    } else if (status == Status.ERROR) {
       builder.append(String.format("failure: %s", getErrorMessage().orElse("")));
     } else {
-      builder.append("Perf Marker\n");
-      builder.append(format("Timestamp: %d%n", instant.getEpochSecond()));
-      builder.append("Stripe Index: 0\n");
-      builder.append(format("Stripe Bytes Transferred: %d%n", getTransferByteCount()));
-      builder.append("Total Stripe Count: 1\n");
-      builder.append("End\n");
+      builder
+          .append("Perf Marker\n")
+          .append(String.format("Timestamp: %d%n", instant.getEpochSecond()))
+          .append("Stripe Index: 0\n")
+          .append(String.format("Stripe Bytes Transferred: %d%n", getTransferByteCount()))
+          .append("Total Stripe Count: 1\nEnd\n");
     }
 
     return builder.toString();
@@ -77,8 +73,7 @@ public class TransferStatus {
     StringBuilder builder = new StringBuilder();
     builder.append(status);
     if (errorMessage.isPresent()) {
-      builder.append(" : ");
-      builder.append(errorMessage.get());
+      builder.append(" : ").append(errorMessage.get());
     }
 
     return builder.toString();
@@ -92,7 +87,7 @@ public class TransferStatus {
     return instant;
   }
 
-  public static class Builder {
+  public static final class Builder {
 
     Clock clock;
 

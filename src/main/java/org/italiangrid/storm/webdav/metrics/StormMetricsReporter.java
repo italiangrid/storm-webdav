@@ -19,11 +19,11 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StormMetricsReporter extends ScheduledReporter {
+public final class StormMetricsReporter extends ScheduledReporter {
 
   public static final String METRICS_LOGGER_NAME = "storm-metrics-LOG";
 
-  private static final Logger logger = LoggerFactory.getLogger(METRICS_LOGGER_NAME);
+  private static final Logger LOG = LoggerFactory.getLogger(METRICS_LOGGER_NAME);
 
   private Long lastCountValue = null;
 
@@ -38,7 +38,7 @@ public class StormMetricsReporter extends ScheduledReporter {
     return new Builder(registry);
   }
 
-  public static class Builder {
+  public static final class Builder {
 
     private final MetricRegistry registry;
     private MetricFilter filter;
@@ -111,7 +111,7 @@ public class StormMetricsReporter extends ScheduledReporter {
     lastCountValue = handlerDispatches.getCount();
     final String heapUsedBytesString = FileUtils.byteCountToDisplaySize(heapUsed.getValue());
 
-    logger.info(
+    LOG.info(
         "Heap[usage={}, used={}] Requests[m1_count={}, count={}, max={}, min={}, mean={}, mean_rate={}, m1_rate={}, m5_rate={}, m15_rate={}] Duration_units={}, Rate_units={}",
         heapUsage.getValue(),
         heapUsedBytesString,

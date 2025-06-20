@@ -85,7 +85,9 @@ public class StormDirectoryResourceWrapper extends Resource {
         break;
       }
     }
-    if (buf == null) return raw;
+    if (buf == null) {
+      return raw;
+    }
 
     for (int i = 0; i < raw.length(); i++) {
       char c = raw.charAt(i);

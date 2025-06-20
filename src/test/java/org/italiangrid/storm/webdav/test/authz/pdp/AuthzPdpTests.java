@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
@@ -16,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.MappingMatch;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jetty.ee10.servlet.ServletPathMapping;
@@ -42,7 +42,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthzPdpTests {
+class AuthzPdpTests {
 
   public static final String TEST_ISSUER = "https://test.example";
   public static final String TEST2_ISSUER = "https://test2.example";
@@ -69,7 +69,7 @@ public class AuthzPdpTests {
     lenient().when(request.getRequestURI()).thenReturn("/");
     lenient().when(request.getHttpServletMapping()).thenReturn(servletPathMapping);
     lenient().when(servletPathMapping.getMappingMatch()).thenReturn(MappingMatch.DEFAULT);
-    lenient().when(repo.getPolicies()).thenReturn(emptyList());
+    lenient().when(repo.getPolicies()).thenReturn(Collections.emptyList());
   }
 
   @Test

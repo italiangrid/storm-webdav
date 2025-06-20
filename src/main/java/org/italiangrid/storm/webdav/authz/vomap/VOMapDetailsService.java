@@ -9,5 +9,5 @@ import javax.security.auth.x500.X500Principal;
 
 public interface VOMapDetailsService {
 
-  public Set<String> getPrincipalVOs(X500Principal principal);
+  Set<String> getPrincipalVOs(X500Principal principal);
 }

@@ -10,7 +10,7 @@ import org.springframework.web.context.ContextLoaderListener;
 
 public class AppContextLoaderListener extends ContextLoaderListener {
 
-  private ApplicationContext parentContext;
+  private final ApplicationContext parentContext;
 
   public AppContextLoaderListener(ApplicationContext ctxt) {
 

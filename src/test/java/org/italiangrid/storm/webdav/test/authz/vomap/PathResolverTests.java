@@ -37,7 +37,7 @@ class PathResolverTests {
   @BeforeAll
   static void init() {
 
-    input = new HashMap<String, String>();
+    input = new HashMap<>();
     input.put("test.vo.bis", "testers.eu-emi.eu");
     input.put("test.vo", "test.vo");
     input.put("test1", "testers.eu-emi.eu");
@@ -57,7 +57,7 @@ class PathResolverTests {
   @BeforeEach
   void setup() {
 
-    saInfoList = new ArrayList<StorageAreaInfo>();
+    saInfoList = new ArrayList<>();
     for (String ap : input.keySet()) {
       saInfoList.add(getMockSAInfo(ap, input.get(ap)));
     }

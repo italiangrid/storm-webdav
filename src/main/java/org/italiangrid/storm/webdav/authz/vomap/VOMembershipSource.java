@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface VOMembershipSource {
 
-  public String getVOName();
+  String getVOName();
 
-  public Set<String> getVOMembers();
+  Set<String> getVOMembers();
 }

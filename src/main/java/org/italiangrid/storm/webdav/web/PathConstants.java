@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @ControllerAdvice
-public class PathConstants {
+public final class PathConstants {
 
   private static final PathConstants INSTANCE = new PathConstants();
 

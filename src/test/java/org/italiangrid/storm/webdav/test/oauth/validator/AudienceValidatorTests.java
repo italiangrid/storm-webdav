@@ -4,13 +4,13 @@
 
 package org.italiangrid.storm.webdav.test.oauth.validator;
 
-import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
@@ -47,7 +47,7 @@ class AudienceValidatorTests {
 
   @Test
   void testEmptyAudiences() {
-    when(server.getAudiences()).thenReturn(emptyList());
+    when(server.getAudiences()).thenReturn(Collections.emptyList());
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -64,7 +64,7 @@ class AudienceValidatorTests {
 
   @Test
   void testEmptyAudienceInTokenYeldsSuccess() {
-    when(jwt.getAudience()).thenReturn(emptyList());
+    when(jwt.getAudience()).thenReturn(Collections.emptyList());
     validator = new AudienceValidator(server);
     assertThat(validator.validate(jwt).hasErrors(), is(false));
   }

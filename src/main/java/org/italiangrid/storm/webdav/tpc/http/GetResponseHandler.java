@@ -61,17 +61,13 @@ public class GetResponseHandler extends ResponseHandlerSupport
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
       throws UnsupportedOperationException, IOException {
 
-    final InputStream inStream = entity.getContent();
-
-    if (inStream != null) {
-      try {
+    try (InputStream inStream = entity.getContent()) {
+      if (inStream != null) {
         int l;
         final byte[] tmp = new byte[bufferSize];
         while ((l = inStream.read(tmp)) != -1) {
           os.write(tmp, 0, l);
         }
-      } finally {
-        inStream.close();
       }
     }
   }

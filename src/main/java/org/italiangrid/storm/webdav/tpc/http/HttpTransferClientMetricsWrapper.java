@@ -88,12 +88,12 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
     }
   }
 
-  private void updateStats(GetTransferRequest request, TransferStatusCallback status) {
+  private void updateStats(GetTransferRequest request) {
     updateRequestOutcome(request);
     updateThroughput(request);
   }
 
-  private void updateStats(PutTransferRequest request, TransferStatusCallback status) {
+  private void updateStats(PutTransferRequest request) {
     updateRequestOutcome(request);
     updateThroughput(request);
   }
@@ -108,7 +108,7 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
       delegate.handle(request, status);
     } finally {
       context.stop();
-      updateStats(request, status);
+      updateStats(request);
     }
   }
 
@@ -122,7 +122,7 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
       delegate.handle(request, status);
     } finally {
       context.stop();
-      updateStats(request, status);
+      updateStats(request);
     }
   }
 }

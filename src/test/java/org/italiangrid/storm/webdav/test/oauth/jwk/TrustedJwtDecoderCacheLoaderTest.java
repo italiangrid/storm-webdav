@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
@@ -41,10 +40,8 @@ class TrustedJwtDecoderCacheLoaderTest {
 
   @Mock ServiceConfigurationProperties properties;
   @Mock OAuthProperties oauthProperties;
-  @Mock RestTemplateBuilder builder;
   @Mock OidcConfigurationFetcher fetcher;
 
-  private ExecutorService executor;
   private TrustedJwtDecoderCacheLoader jwtLoader;
 
   @BeforeEach
@@ -72,10 +69,9 @@ class TrustedJwtDecoderCacheLoaderTest {
     props.setIssuer("http://localhost");
     lenient().when(properties.getAuthzServer()).thenReturn(props);
 
-    executor = Executors.newScheduledThreadPool(1);
+    ExecutorService executor = Executors.newScheduledThreadPool(1);
 
-    jwtLoader =
-        new TrustedJwtDecoderCacheLoader(properties, oauthProperties, builder, fetcher, executor);
+    jwtLoader = new TrustedJwtDecoderCacheLoader(properties, oauthProperties, fetcher, executor);
   }
 
   @Test

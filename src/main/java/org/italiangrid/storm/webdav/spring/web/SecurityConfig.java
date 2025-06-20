@@ -4,17 +4,8 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
-import static java.util.Arrays.asList;
-import static org.italiangrid.storm.webdav.authz.managers.UnanimousDelegatedManager.forVoters;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +49,7 @@ import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -216,12 +208,14 @@ public class SecurityConfig {
       r.addErrorPages(
           new ErrorPage(
               InsufficientAuthenticationException.class, PathConstants.ERRORS_PATH + "/401"));
-      r.addErrorPages(new ErrorPage(BAD_REQUEST, PathConstants.ERRORS_PATH + "/400"));
-      r.addErrorPages(new ErrorPage(UNAUTHORIZED, PathConstants.ERRORS_PATH + "/401"));
-      r.addErrorPages(new ErrorPage(FORBIDDEN, PathConstants.ERRORS_PATH + "/403"));
-      r.addErrorPages(new ErrorPage(NOT_FOUND, PathConstants.ERRORS_PATH + "/404"));
-      r.addErrorPages(new ErrorPage(METHOD_NOT_ALLOWED, PathConstants.ERRORS_PATH + "/405"));
-      r.addErrorPages(new ErrorPage(UNSUPPORTED_MEDIA_TYPE, PathConstants.ERRORS_PATH + "/415"));
+      r.addErrorPages(new ErrorPage(HttpStatus.BAD_REQUEST, PathConstants.ERRORS_PATH + "/400"));
+      r.addErrorPages(new ErrorPage(HttpStatus.UNAUTHORIZED, PathConstants.ERRORS_PATH + "/401"));
+      r.addErrorPages(new ErrorPage(HttpStatus.FORBIDDEN, PathConstants.ERRORS_PATH + "/403"));
+      r.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, PathConstants.ERRORS_PATH + "/404"));
+      r.addErrorPages(
+          new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, PathConstants.ERRORS_PATH + "/405"));
+      r.addErrorPages(
+          new ErrorPage(HttpStatus.UNSUPPORTED_MEDIA_TYPE, PathConstants.ERRORS_PATH + "/415"));
     };
   }
 
@@ -293,9 +287,9 @@ public class SecurityConfig {
     List<AuthorizationManager<RequestAuthorizationContext>> voters = new ArrayList<>();
 
     UnanimousDelegatedManager fineGrainedVoters =
-        forVoters(
+        UnanimousDelegatedManager.forVoters(
             "FineGrainedAuthz",
-            asList(
+            Arrays.asList(
                 new FineGrainedAuthzManager(
                     serviceConfigurationProperties,
                     pathResolver,
@@ -312,25 +306,21 @@ public class SecurityConfig {
             serviceConfigurationProperties, pathResolver, localURLService);
 
     UnanimousDelegatedManager wlcgVoters =
-        forVoters(
+        UnanimousDelegatedManager.forVoters(
             "WLCGScopeBasedAuthz",
-            asList(
+            Arrays.asList(
                 new WlcgScopeAuthzManager(
                     serviceConfigurationProperties, pathResolver, wlcgPdp, localURLService),
                 new WlcgScopeAuthzCopyMoveManager(
                     serviceConfigurationProperties, pathResolver, wlcgPdp, localURLService)));
 
     if (serviceConfigurationProperties.getRedirector().isEnabled()) {
-      try {
-        voters.add(
-            new LocalAuthzManager(
-                serviceConfigurationProperties,
-                pathResolver,
-                new LocalAuthorizationPdp(serviceConfigurationProperties),
-                localURLService));
-      } catch (MalformedURLException e) {
-        LOG.error(e.getMessage(), e);
-      }
+      voters.add(
+          new LocalAuthzManager(
+              serviceConfigurationProperties,
+              pathResolver,
+              new LocalAuthorizationPdp(serviceConfigurationProperties),
+              localURLService));
     }
     if (serviceConfigurationProperties.getMacaroonFilter().isEnabled()) {
       voters.add(new MacaroonAuthzManager());

@@ -21,7 +21,6 @@ import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -105,7 +104,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -360,12 +358,11 @@ public class AppConfig {
   JwtDecoder jwtDecoder(
       OAuthProperties props,
       ServiceConfigurationProperties sProps,
-      RestTemplateBuilder builder,
       OidcConfigurationFetcher fetcher,
       ExecutorService executor) {
 
     TrustedJwtDecoderCacheLoader loader =
-        new TrustedJwtDecoderCacheLoader(sProps, props, builder, fetcher, executor);
+        new TrustedJwtDecoderCacheLoader(sProps, props, fetcher, executor);
 
     LoadingCache<String, JwtDecoder> decoders =
         CacheBuilder.newBuilder()
@@ -458,8 +455,7 @@ public class AppConfig {
   }
 
   @Bean
-  PrincipalHelper principalHelper(ServiceConfigurationProperties config)
-      throws MalformedURLException {
+  PrincipalHelper principalHelper(ServiceConfigurationProperties config) {
     return new PrincipalHelper(config);
   }
 

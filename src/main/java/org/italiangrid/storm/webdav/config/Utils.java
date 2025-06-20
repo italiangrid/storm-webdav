@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.config;
 
 import java.io.File;
 
-public class Utils {
+public final class Utils {
 
   private Utils() {}
 

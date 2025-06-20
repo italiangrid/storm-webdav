@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransferStatsTest {
+class TransferStatsTest {
 
   public static final Instant NOW = Instant.parse("2021-01-01T00:00:00.00Z");
 

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class SciTagFilter implements Filter {
 
-  public static final Logger logger = LoggerFactory.getLogger(SciTagFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SciTagFilter.class);
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -28,7 +28,7 @@ public class SciTagFilter implements Filter {
     if (req.getHeader(SciTag.SCITAG_HEADER) != null) {
       Optional<String> source = Optional.ofNullable(req.getHeader(TransferConstants.SOURCE_HEADER));
       boolean remoteAddressIsSource =
-          req.getMethod().equals("PUT") || (req.getMethod().equals("COPY") && source.isPresent());
+          "PUT".equals(req.getMethod()) || ("COPY".equals(req.getMethod()) && source.isPresent());
       // state prot src_ip src_port dst_ip dst_port exp act
       // If the active party receives an HTTP-TPC COPY request with a SciTag request header with
       // a valid value then the server SHOULD mark the resulting network traffic with the

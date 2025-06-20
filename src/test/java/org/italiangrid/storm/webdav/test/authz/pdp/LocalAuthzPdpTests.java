@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
-public class LocalAuthzPdpTests {
+class LocalAuthzPdpTests {
 
   public static final String LOCAL_AUTHZ_SERVER_ISSUER = "https://issuer.example";
   public static final String REMOTE_ADDR = "192.168.1.1";

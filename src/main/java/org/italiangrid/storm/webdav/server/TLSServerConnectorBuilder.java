@@ -40,7 +40,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
  * A builder that configures a Jetty server TLS connector integrated with CANL {@link
  * X509CertChainValidatorExt} certificate validation services.
  */
-public class TLSServerConnectorBuilder {
+public final class TLSServerConnectorBuilder {
 
   /** Conscrypt provider name. */
   public static final String CONSCRYPT_PROVIDER = "Conscrypt";
@@ -61,7 +61,7 @@ public class TLSServerConnectorBuilder {
   private String certificateKeyFile = DEFAULT_CERTIFICATE_KEY_FILE;
 
   /** The password to decrypt the certificate private key file. */
-  private char[] certicateKeyPassword = null;
+  private char[] certicateKeyPassword;
 
   /** The certificate validator used by this connector builder. */
   private final X509CertChainValidatorExt certificateValidator;
@@ -109,7 +109,7 @@ public class TLSServerConnectorBuilder {
   private String tlsProtocol = "TLSv1.2";
 
   /** Custom TLS hostname verifier */
-  private HostnameVerifier hostnameVerifier = null;
+  private HostnameVerifier hostnameVerifier;
 
   /** Disable JSSE hostname verification */
   private boolean disableJsseHostnameVerification = false;
@@ -165,7 +165,7 @@ public class TLSServerConnectorBuilder {
 
     credentialsSanityChecks();
 
-    PEMCredential serviceCredentials = null;
+    PEMCredential serviceCredentials;
 
     try {
 
@@ -511,7 +511,7 @@ public class TLSServerConnectorBuilder {
     }
 
     HttpConnectionFactory httpConnFactory = new HttpConnectionFactory(httpConfiguration);
-    ConnectionFactory connFactory = null;
+    ConnectionFactory connFactory;
 
     if (registry != null) {
       connFactory = new InstrumentedConnectionFactory(httpConnFactory, registry.timer(metricName));
@@ -519,13 +519,13 @@ public class TLSServerConnectorBuilder {
       connFactory = httpConnFactory;
     }
 
-    ConnectionFactory h2ConnFactory = null;
-    NetworkTrafficServerConnector connector = null;
+    NetworkTrafficServerConnector connector;
 
     if (enableHttp2) {
 
       HTTP2ServerConnectionFactory h2cf = new HTTP2ServerConnectionFactory(httpConfiguration);
 
+      ConnectionFactory h2ConnFactory;
       if (registry != null) {
         h2ConnFactory = new InstrumentedConnectionFactory(h2cf, registry.timer(metricName));
       } else {

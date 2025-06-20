@@ -4,7 +4,7 @@
 
 package org.italiangrid.storm.webdav.oauth.authzserver;
 
-public class ResourceAccessTokenRequest {
+public final class ResourceAccessTokenRequest {
 
   public enum Permission {
     r,

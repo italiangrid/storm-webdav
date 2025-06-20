@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.authz.vomap;
 
 public interface VOMembershipProvider {
 
-  public String getVOName();
+  String getVOName();
 
-  public boolean hasSubjectAsMember(String subject);
+  boolean hasSubjectAsMember(String subject);
 }

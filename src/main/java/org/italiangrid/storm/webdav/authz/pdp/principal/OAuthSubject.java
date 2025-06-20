@@ -4,16 +4,15 @@
 
 package org.italiangrid.storm.webdav.authz.pdp.principal;
 
-import java.net.URL;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 public class OAuthSubject implements PrincipalMatcher {
 
-  final URL iss;
+  final String iss;
   final String sub;
 
-  public OAuthSubject(URL issuer, String subject) {
+  public OAuthSubject(String issuer, String subject) {
     this.iss = issuer;
     this.sub = subject;
   }
@@ -26,7 +25,7 @@ public class OAuthSubject implements PrincipalMatcher {
 
     JwtAuthenticationToken authToken = (JwtAuthenticationToken) authentication;
 
-    return iss.equals(authToken.getToken().getIssuer())
+    return iss.equals(authToken.getToken().getIssuer().toString())
         && sub.equals(authToken.getToken().getSubject());
   }
 }

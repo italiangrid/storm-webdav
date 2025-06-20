@@ -12,11 +12,11 @@ public class DefaultVOMembershipProvider implements VOMembershipProvider, Refres
 
   private final String voName;
   private final VOMembershipSource membershipSource;
-  private long lastRefreshTimestamp = 0L;
+  private long lastRefreshTimestamp;
 
   protected ReentrantReadWriteLock refreshLock = new ReentrantReadWriteLock();
 
-  protected Set<String> members = null;
+  protected Set<String> members;
 
   public DefaultVOMembershipProvider(String voName, VOMembershipSource membershipSource) {
 

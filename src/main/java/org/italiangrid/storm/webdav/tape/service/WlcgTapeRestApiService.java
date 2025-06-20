@@ -29,12 +29,11 @@ public class WlcgTapeRestApiService {
 
   public WlcgTapeRestApiService(ServiceConfigurationProperties props) {
 
-    metadata = null;
     File source = new File(props.getTape().getWellKnown().getSource());
     if (source.exists()) {
       LOG.info(LOG_INFO_LOADING, source);
       try {
-        metadata = (new ObjectMapper()).readValue(source, WlcgTapeRestApi.class);
+        metadata = new ObjectMapper().readValue(source, WlcgTapeRestApi.class);
       } catch (IOException e) {
         LOG.error(LOG_ERROR_PREFIX, e.getMessage());
       }

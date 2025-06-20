@@ -68,18 +68,20 @@ public class StoRMServlet extends ResourceServlet {
   // https://github.com/jetty/jetty.project/blob/jetty-12.0.x/jetty-ee10/jetty-ee10-servlet/src/main/java/org/eclipse/jetty/ee10/servlet/ResourceServlet.java
   private boolean getInitBooleanStoRM(String name, boolean defaultValue) {
     String value = getInitParameter(name);
-    if (value == null || value.isEmpty()) return defaultValue;
-    return (value.startsWith("t")
+    if (value == null || value.isEmpty()) {
+      return defaultValue;
+    }
+    return value.startsWith("t")
         || value.startsWith("T")
         || value.startsWith("y")
         || value.startsWith("Y")
-        || value.startsWith("1"));
+        || value.startsWith("1");
   }
 
   @Override
   protected String getEncodedPathInContext(HttpServletRequest request, boolean included) {
-    String servletPath = null;
-    String pathInfo = null;
+    String servletPath;
+    String pathInfo;
 
     if (included) {
       servletPath =

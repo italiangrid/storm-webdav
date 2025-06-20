@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.tpc.transfer;
 
 import org.italiangrid.storm.webdav.tpc.transfer.impl.PutTransferRequestImpl;
 
-public class PutTransferRequestBuilder extends RequestBuilder<PutTransferRequest> {
+public final class PutTransferRequestBuilder extends RequestBuilder<PutTransferRequest> {
 
   private PutTransferRequestBuilder() {
     // empty constructor

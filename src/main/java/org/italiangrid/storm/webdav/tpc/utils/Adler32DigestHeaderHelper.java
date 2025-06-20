@@ -12,7 +12,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.springframework.util.StringUtils;
 
-public class Adler32DigestHeaderHelper {
+public final class Adler32DigestHeaderHelper {
 
   public static final String DIGEST_HEADER = "Digest";
   public static final String DIGEST_HEADER_REGEX = "^\\s*adler32\\s*=\\s*([0-9a-zA-Z]{8})\\s*";

@@ -22,13 +22,13 @@ import io.milton.resource.GetableResource;
 import io.milton.resource.MultiNamespaceCustomPropertyResource;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class StoRMFileResource extends StoRMResource
           new QName(STORM_NAMESPACE_URI, PROPERTY_CHECKSUM),
           new PropertyMetaData(READ_ONLY, String.class));
 
-  private static final Logger logger = LoggerFactory.getLogger(StoRMFileResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StoRMFileResource.class);
 
   public StoRMFileResource(StoRMResourceFactory factory, File f) {
     super(factory, f);
@@ -73,9 +73,9 @@ public class StoRMFileResource extends StoRMResource
     try {
       getFilesystemAccess().rm(getFile());
     } catch (NoSuchFileException e) {
-      logger.warn("Unable to remove file {}: {}", getFile(), e.getMessage());
+      LOG.warn("Unable to remove file {}: {}", getFile(), e.getMessage());
     } catch (IOException e) {
-      logger.error("Unable to remove file {}: {}", getFile(), e.getMessage());
+      LOG.error("Unable to remove file {}: {}", getFile(), e.getMessage());
       throw new StoRMWebDAVError(e);
     }
   }
@@ -102,7 +102,7 @@ public class StoRMFileResource extends StoRMResource
   public void replaceContent(InputStream in, Long length)
       throws BadRequestException, ConflictException, NotAuthorizedException {
 
-    logger.warn("Replacing file content: {}", getFile().getAbsolutePath());
+    LOG.warn("Replacing file content: {}", getFile().getAbsolutePath());
 
     try {
 
@@ -134,7 +134,7 @@ public class StoRMFileResource extends StoRMResource
   @Override
   public void replacePartialContent(Range range, InputStream in) {
 
-    logger.warn("Replacing partial file content: {}", getFile().getAbsolutePath());
+    LOG.warn("Replacing partial file content: {}", getFile().getAbsolutePath());
 
     validateRange(range);
 
@@ -160,7 +160,8 @@ public class StoRMFileResource extends StoRMResource
 
   protected void calculateChecksum() {
     try (Adler32ChecksumInputStream cis =
-        new Adler32ChecksumInputStream(new BufferedInputStream(new FileInputStream(getFile())))) {
+        new Adler32ChecksumInputStream(
+            new BufferedInputStream(Files.newInputStream(getFile().toPath())))) {
 
       byte[] buffer = new byte[8192];
 
@@ -178,12 +179,12 @@ public class StoRMFileResource extends StoRMResource
   @Override
   public Object getProperty(QName name) {
 
-    if (name.getNamespaceURI().equals(STORM_NAMESPACE_URI)
-        && name.getLocalPart().equals(PROPERTY_CHECKSUM)) {
+    if (STORM_NAMESPACE_URI.equals(name.getNamespaceURI())
+        && PROPERTY_CHECKSUM.equals(name.getLocalPart())) {
       try {
         return getExtendedAttributesHelper().getChecksumAttribute(getFile());
       } catch (IOException e) {
-        logger.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
+        LOG.warn("Errror getting checksum value for file: {}", getFile().getAbsolutePath(), e);
         return null;
       }
     }

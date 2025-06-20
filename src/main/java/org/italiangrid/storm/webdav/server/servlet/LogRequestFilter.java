@@ -24,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class LogRequestFilter implements Filter {
 
-  public static final Logger log = LoggerFactory.getLogger(LogRequestFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LogRequestFilter.class);
 
   private static final List<String> IP_HEADERS =
       List.of(
@@ -63,7 +63,7 @@ public class LogRequestFilter implements Filter {
             authn.isPresent() ? authn.get().getName() : null,
             authn.isPresent() ? authn.get().getAuthorities() : null);
 
-    log.debug(resMsg);
+    LOG.debug(resMsg);
   }
 
   public static String getClientIpAddr(HttpServletRequest request) {

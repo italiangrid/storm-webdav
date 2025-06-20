@@ -10,15 +10,15 @@ import java.io.InputStream;
 
 public interface FilesystemAccess {
 
-  public File mkdir(File parentDirectory, String dirName);
+  File mkdir(File parentDirectory, String dirName);
 
-  public void rm(File f) throws IOException;
+  void rm(File f) throws IOException;
 
-  public void mv(File source, File dest);
+  void mv(File source, File dest);
 
-  public void cp(File source, File dest);
+  void cp(File source, File dest);
 
-  public File[] ls(File dir, int limit);
+  File[] ls(File dir, int limit);
 
-  public File create(File file, InputStream in);
+  File create(File file, InputStream in);
 }

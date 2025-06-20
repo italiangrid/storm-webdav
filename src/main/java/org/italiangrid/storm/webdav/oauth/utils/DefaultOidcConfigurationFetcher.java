@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.oauth.utils;
 
-import static java.lang.String.format;
-
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.RemoteKeySourceException;
 import java.net.URI;
@@ -56,11 +54,11 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
 
     if (!issuer.equals(metadataIssuer)) {
       throw new OidcConfigurationResolutionError(
-          format(ISSUER_MISMATCH_ERROR_TEMPLATE, metadataIssuer, issuer));
+          String.format(ISSUER_MISMATCH_ERROR_TEMPLATE, metadataIssuer, issuer));
     }
 
     if (!oidcConfiguration.containsKey("jwks_uri")) {
-      throw new OidcConfigurationResolutionError(format(NO_JWKS_URI_ERROR_TEMPLATE, issuer));
+      throw new OidcConfigurationResolutionError(String.format(NO_JWKS_URI_ERROR_TEMPLATE, issuer));
     }
   }
 
@@ -72,11 +70,12 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
         new ParameterizedTypeReference<Map<String, Object>>() {};
 
     URI uri = UriComponentsBuilder.fromUriString(issuer + WELL_KNOWN_FRAGMENT).build().toUri();
-    ResponseEntity<Map<String, Object>> response = null;
+    ResponseEntity<Map<String, Object>> response;
     try {
       response = restTemplate.exchange(RequestEntity.get(uri).build(), typeReference);
     } catch (RuntimeException e) {
-      final String errorMsg = format("Unable to resolve OpenID configuration from '%s'", uri);
+      final String errorMsg =
+          String.format("Unable to resolve OpenID configuration from '%s'", uri);
       if (LOG.isDebugEnabled()) {
         LOG.error("{}: {}", errorMsg, e.getMessage());
       }
@@ -84,7 +83,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
     }
     if (response.getStatusCode().value() != 200) {
       throw new OidcConfigurationResolutionError(
-          format("Received status code: %s", response.getStatusCode().value()));
+          String.format("Received status code: %s", response.getStatusCode().value()));
     }
     Map<String, Object> body = response.getBody();
     if (body == null) {
@@ -101,12 +100,12 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
 
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
-    ResponseEntity<String> response = null;
+    ResponseEntity<String> response;
     try {
       RequestEntity<Void> request = RequestEntity.get(uri).headers(headers).build();
       response = restTemplate.exchange(request, String.class);
     } catch (RuntimeException e) {
-      final String errorMsg = format("Unable to get JWK from '%s'", uri);
+      final String errorMsg = String.format("Unable to get JWK from '%s'", uri);
       if (LOG.isDebugEnabled()) {
         LOG.error("{}: {}", errorMsg, e.getMessage());
       }
@@ -114,7 +113,7 @@ public class DefaultOidcConfigurationFetcher implements OidcConfigurationFetcher
     }
     if (response.getStatusCode().value() != 200) {
       throw new KeySourceException(
-          format(
+          String.format(
               "Unable to get JWK from '%s': received status code %s",
               uri, response.getStatusCode().value()));
     }

@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.oauth;
 
-import static java.lang.String.format;
-
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.nimbusds.jwt.JWT;
@@ -58,9 +56,9 @@ public class CompositeJwtDecoder implements JwtDecoder {
       return jwt.getJWTClaimsSet().getIssuer();
     } catch (ParseException e) {
       if (LOG.isDebugEnabled()) {
-        LOG.error(format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()));
+        LOG.error(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()));
       }
-      throw new JwtException(format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()), e);
+      throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, e.getMessage()), e);
     }
   }
 }

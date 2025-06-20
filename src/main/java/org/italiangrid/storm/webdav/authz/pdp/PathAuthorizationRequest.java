@@ -9,7 +9,7 @@ import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 
-public class PathAuthorizationRequest {
+public final class PathAuthorizationRequest {
 
   final HttpServletRequest request;
   final Authentication authentication;

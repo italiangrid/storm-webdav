@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HealthContextListener extends ContextListener {
 
-  private HealthCheckRegistry registry;
+  private final HealthCheckRegistry registry;
 
   @Autowired
   public HealthContextListener(HealthCheckRegistry r) {

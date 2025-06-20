@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("local-authz-test")
 @WithAnonymousUser
-public class LocalAuthzIntegrationTests {
+class LocalAuthzIntegrationTests {
 
   public static final String SLASH_WLCG_SLASH_FILE = "/wlcg/file";
   public static final String SLASH_ANONYMOUS_SLASH_FILE = "/anonymous/file";

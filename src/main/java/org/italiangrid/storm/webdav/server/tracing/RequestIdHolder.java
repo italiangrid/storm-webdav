@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.server.tracing;
 
 import java.util.UUID;
 
-public class RequestIdHolder {
+public final class RequestIdHolder {
 
   private static ThreadLocal<String> requestId = new ThreadLocal<>();
 

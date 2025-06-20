@@ -4,7 +4,7 @@
 
 package org.italiangrid.storm.webdav.utils;
 
-public class ChecksumHelper {
+public final class ChecksumHelper {
 
   public static final int ADLER32_CHECKSUM_LENGTH = 8;
 

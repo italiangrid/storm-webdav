@@ -11,7 +11,7 @@ import java.util.Optional;
 import javax.security.auth.x500.X500Principal;
 import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
 
-public class Utils {
+public final class Utils {
 
   private Utils() {}
 

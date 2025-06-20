@@ -49,7 +49,7 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
         serviceConfiguration.getVOMapFilesRefreshIntervalInSeconds());
 
     if (serviceConfiguration.isAuthorizationDisabled()) {
-      logger.warn("\n\n\nAuthorization is DISABLED! " + "Do not use this in production!\n\n\n");
+      logger.warn("\n\n\nAuthorization is DISABLED! Do not use this in production!\n\n\n");
     }
   }
 

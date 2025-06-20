@@ -4,10 +4,6 @@
 
 package org.italiangrid.storm.webdav.macaroon;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static jakarta.servlet.http.HttpServletResponse.SC_OK;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -39,7 +35,7 @@ public class MacaroonRequestFilter implements Filter {
   }
 
   public static boolean isMacaroonRequest(HttpServletRequest request) {
-    return (MACAROON_REQUEST_CONTENT_TYPE.equals(request.getContentType()));
+    return MACAROON_REQUEST_CONTENT_TYPE.equals(request.getContentType());
   }
 
   @Override
@@ -73,13 +69,13 @@ public class MacaroonRequestFilter implements Filter {
       MacaroonRequestDTO req = mapper.readValue(httpRequest.getReader(), MacaroonRequestDTO.class);
       MacaroonResponseDTO res = service.createAccessToken(req, context.getAuthentication());
 
-      httpResponse.setStatus(SC_OK);
+      httpResponse.setStatus(HttpServletResponse.SC_OK);
       mapper.writeValue(httpResponse.getWriter(), res);
 
     } catch (AccessDeniedException e) {
-      httpResponse.sendError(SC_FORBIDDEN, "Access denied");
+      httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
     } catch (IOException e) {
-      httpResponse.sendError(SC_BAD_REQUEST, "Invalid macaroon request");
+      httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid macaroon request");
     }
   }
 }
