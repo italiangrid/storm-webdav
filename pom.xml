@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.0</version>
+    <version>3.5.3</version>
     <relativePath />
   </parent>
 
@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <plugin.jacoco.version>0.8.13</plugin.jacoco.version>
-    <plugin.spotless.version>2.44.4</plugin.spotless.version>
+    <plugin.spotless.version>2.44.5</plugin.spotless.version>
 
     <java.version>17</java.version>
 
@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <jna.version>5.17.0</jna.version>
 
-    <wiremock.version>3.13.0</wiremock.version>
+    <wiremock.version>3.13.1</wiremock.version>
   </properties>
 
   <repositories>
