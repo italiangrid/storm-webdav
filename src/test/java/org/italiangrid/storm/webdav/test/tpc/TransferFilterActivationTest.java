@@ -85,7 +85,9 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
         .thenReturn("https://localhost/other/file");
     filter.doFilter(request, response, chain);
     verify(responseWriter).print(error.capture());
-    assertThat(error.getValue(), is("Local copy across storage areas is not supported"));
+    assertThat(
+        error.getValue(),
+        is("Local copy across storage areas with Destination header is not supported"));
     verifyNoInteractions(chain);
   }
 

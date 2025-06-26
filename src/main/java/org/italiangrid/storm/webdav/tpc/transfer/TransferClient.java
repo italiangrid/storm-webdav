@@ -11,6 +11,9 @@ public interface TransferClient {
   void handle(GetTransferRequest request, TransferStatusCallback status)
       throws ClientProtocolException;
 
+  void handleCheckAccessPermission(GetTransferRequest request, TransferStatusCallback status)
+      throws ClientProtocolException;
+
   void handle(PutTransferRequest request, TransferStatusCallback status)
       throws ClientProtocolException;
 }

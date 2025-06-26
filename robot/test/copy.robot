@@ -86,12 +86,21 @@ Copy with destination equal to source
     Should Contain  ${out}  403
     [Teardown]   Teardown file  copy_works
 
-Copy across storage areas fails
+Copy across storage areas with Source header works
+    [Tags]  voms
+    [Setup]  Setup file  copy_x_sa_works  sa=${sa.noauth}
+    ${dest}  DAVS URL  copy_x_sa_works.dest
+    ${source}  DAVS URL  copy_x_sa_works  sa=${sa.noauth}
+    ${rc}  ${out}  Curl Voms Pull COPY Success  ${dest}  ${source}
+    Davix Get Success   ${dest}  ${davix.opts.voms}
+    [Teardown]   Teardown file cross sa   copy_x_sa_works  sa_source=${sa.noauth}
+
+Copy across storage areas with Destination header fails
     [Tags]  voms
     [Setup]  Setup file  copy_x_sa_works
     ${dest}  DAVS URL  copy_x_sa_works.dest  sa=${sa.oauth}
     ${source}  DAVS URL  copy_x_sa_works
     ${rc}  ${out}  Curl Voms Push COPY  ${dest}  ${source}
     Should Contain  ${out}   400
-    Should Contain  ${out}   Local copy across storage areas is not supported
+    Should Contain  ${out}   Local copy across storage areas with Destination header is not supported
     [Teardown]   Teardown file cross sa   copy_x_sa_works

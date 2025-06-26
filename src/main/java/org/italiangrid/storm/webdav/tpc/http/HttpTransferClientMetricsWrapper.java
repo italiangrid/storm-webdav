@@ -113,6 +113,12 @@ public class HttpTransferClientMetricsWrapper implements TransferClient {
   }
 
   @Override
+  public void handleCheckAccessPermission(GetTransferRequest request, TransferStatusCallback status)
+      throws ClientProtocolException {
+    delegate.handleCheckAccessPermission(request, status);
+  }
+
+  @Override
   public void handle(PutTransferRequest request, TransferStatusCallback status)
       throws ClientProtocolException {
 
