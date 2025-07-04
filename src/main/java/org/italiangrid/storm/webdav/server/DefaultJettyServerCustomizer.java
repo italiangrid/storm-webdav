@@ -95,6 +95,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         new NetworkTrafficServerConnector(server, connFactory);
 
     connector.setName(HTTP_CONNECTOR_NAME);
+    connector.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
     if (serviceConfig.getNginx().getEnabled()) {
       connector.setHost("localhost");
     }
@@ -137,6 +138,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
             .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);
+    connector.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
 
     server.addConnector(connector);
     LOG.info(
