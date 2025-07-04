@@ -228,7 +228,7 @@ public class AppConfig {
   ScheduledExecutorService tpcProgressReportEs(ThirdPartyCopyProperties props) {
 
     final int tpSize = props.getProgressReportThreadPoolSize();
-    CustomizableThreadFactory namedThreadFactory = new CustomizableThreadFactory("tpc-progress-%d");
+    CustomizableThreadFactory namedThreadFactory = new CustomizableThreadFactory("tpc-progress-");
     namedThreadFactory.setDaemon(true);
 
     return Executors.newScheduledThreadPool(tpSize, namedThreadFactory);
