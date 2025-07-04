@@ -64,7 +64,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   final HttpComponentsMetrics httpComponentsMetrics;
   final CloseableHttpClient httpClient;
   final ScheduledExecutorService executorService;
-  final TransferStatus.Builder statusBuilder;
+  TransferStatus.Builder statusBuilder;
   final int reportDelaySec;
   final int localFileBufferSize;
   final int socketBufferSize;
@@ -163,6 +163,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   @Override
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
 
+    statusBuilder = statusBuilder.withIsPushMode(false);
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
@@ -180,6 +181,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
             TimeUnit.SECONDS);
     try {
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
+      context.setAttribute(TransferStatus.Builder.TRANSFER_STATUS_BUILDER_ATTRIBUTE, statusBuilder);
       ApacheHttpClientContext observationContext = new ApacheHttpClientContext(get, context);
       observation =
           ApacheHttpClientObservationDocumentation.DEFAULT.observation(
@@ -275,6 +277,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   @Override
   public void handle(PutTransferRequest request, TransferStatusCallback cb) {
 
+    statusBuilder = statusBuilder.withIsPushMode(true);
     CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
 
     BasicClassicHttpRequest put = prepareRequest(request, cfe);
@@ -295,6 +298,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     try {
       checkOverwrite(request);
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
+      context.setAttribute(TransferStatus.Builder.TRANSFER_STATUS_BUILDER_ATTRIBUTE, statusBuilder);
       ApacheHttpClientContext observationContext = new ApacheHttpClientContext(put, context);
       observation =
           ApacheHttpClientObservationDocumentation.DEFAULT.observation(

@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 
 public class TpcTlsSocketStrategy extends DefaultClientTlsStrategy {
 
@@ -24,6 +25,12 @@ public class TpcTlsSocketStrategy extends DefaultClientTlsStrategy {
       Socket socket, String target, int port, Object attachment, HttpContext context)
       throws IOException {
     SSLSocket s = super.upgrade(socket, target, port, attachment, context);
+    TransferStatus.Builder transferStatusBuilder =
+        (TransferStatus.Builder)
+            context.getAttribute(TransferStatus.Builder.TRANSFER_STATUS_BUILDER_ATTRIBUTE);
+    if (transferStatusBuilder != null) {
+      transferStatusBuilder.withSocket(s);
+    }
     SciTag scitag = (SciTag) context.getAttribute(SciTag.SCITAG_ATTRIBUTE);
     if (scitag != null) {
       SciTagTransfer scitagTransfer =
