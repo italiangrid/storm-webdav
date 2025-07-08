@@ -84,7 +84,11 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     plainConnectorConfig.setSendDateHeader(false);
     plainConnectorConfig.setSendServerVersion(false);
 
-    plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
+    if (serviceConfig.getNginx().getEnabled()) {
+      plainConnectorConfig.setIdleTimeout(0);
+    } else {
+      plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
+    }
 
     InstrumentedConnectionFactory connFactory =
         new InstrumentedConnectionFactory(
@@ -95,9 +99,11 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         new NetworkTrafficServerConnector(server, connFactory);
 
     connector.setName(HTTP_CONNECTOR_NAME);
-    connector.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
     if (serviceConfig.getNginx().getEnabled()) {
       connector.setHost("localhost");
+      connector.setIdleTimeout(0);
+    } else {
+      connector.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
     }
     connector.setPort(configuration.getHTTPPort());
 
