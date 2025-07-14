@@ -224,7 +224,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
       observation.error(e);
 
     } catch (Throwable e) {
-      logException(e);
+      LOG.error(e.getMessage(), e); // we explicitly always log a generic error
       reportStatus(
           cb,
           request,
