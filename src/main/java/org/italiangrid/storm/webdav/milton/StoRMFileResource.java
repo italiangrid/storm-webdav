@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
-import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
 import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +53,6 @@ public class StoRMFileResource extends StoRMResource
 
   public static final String STORM_NAMESPACE_URI = "http://storm.italiangrid.org/2014/webdav";
   public static final String PROPERTY_CHECKSUM = "Checksum";
-
-  public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
 
   private static final Map<QName, PropertyMetaData> PROPERTY_METADATA =
       Map.of(
@@ -80,15 +78,6 @@ public class StoRMFileResource extends StoRMResource
     }
   }
 
-  protected void handleIOException(IOException e) {
-
-    if (DISK_QUOTA_EXCEEDED.equals(e.getMessage())) {
-      throw new DiskQuotaExceeded(e.getMessage(), e);
-    }
-
-    throw new StoRMWebDAVError(e.getMessage(), e);
-  }
-
   @Override
   public void copyTo(CollectionResource toCollection, String name)
       throws NotAuthorizedException, BadRequestException, ConflictException {
@@ -111,7 +100,7 @@ public class StoRMFileResource extends StoRMResource
     } catch (FileNotFoundException e) {
       throw new ResourceNotFound(e);
     } catch (IOException e) {
-      handleIOException(e);
+      throw IOExceptionHelper.getStoRMWebDAVError(e);
     }
   }
 
@@ -151,7 +140,7 @@ public class StoRMFileResource extends StoRMResource
       RangeCopyHelper.rangeCopy(in, getFile(), rangeStart, rangeLength);
     } catch (IOException e) {
 
-      handleIOException(e);
+      throw IOExceptionHelper.getStoRMWebDAVError(e);
     }
 
     // Need to update the checksum...

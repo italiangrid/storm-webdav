@@ -15,8 +15,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.SameFileError;
-import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -70,7 +70,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
       Files.move(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
     } catch (IOException e) {
-      throw new StoRMWebDAVError(e.getMessage(), e);
+      throw IOExceptionHelper.getStoRMWebDAVError(e);
     }
   }
 
@@ -102,8 +102,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
       }
 
     } catch (IOException e) {
-
-      throw new StoRMWebDAVError(e.getMessage(), e);
+      throw IOExceptionHelper.getStoRMWebDAVError(e);
     }
   }
 
@@ -127,9 +126,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
       return file;
 
     } catch (IOException e) {
-
-      LOG.error(e.getMessage(), e);
-      throw new StoRMWebDAVError(e.getMessage(), e);
+      throw IOExceptionHelper.getStoRMWebDAVError(e);
     }
   }
 }
