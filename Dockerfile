@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # https://spring.io/guides/topicals/spring-boot-docker#_multi_stage_build
-FROM eclipse-temurin:17-jdk-alpine as build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /workspace/app
 RUN apk add maven
 COPY pom.xml .
@@ -34,4 +34,5 @@ RUN apk add --no-cache curl && \
     adduser --uid ${USER_UID} --ingroup ${USERNAME} ${USERNAME} --disabled-password
 USER ${USERNAME}
 
+SHELL ["/bin/sh", "-c"]
 ENTRYPOINT java ${STORM_WEBDAV_JVM_OPTS} -cp app:app/lib/* org.italiangrid.storm.webdav.WebdavService
