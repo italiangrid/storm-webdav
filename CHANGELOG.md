@@ -6,6 +6,23 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.10.0 (2025-08-21)
+
+### Added
+
+* [STOR-1575](https://issues.infn.it/jira/browse/STOR-1575) - Add RemoteConnections and Connection to PerfMarker
+
+### Changed
+
+* Add Cache-Control header to well-known URIs
+* Make HEAD requests on folders more lightweight: do not calculate listing
+* Update dependencies, in particular Spring Boot to 3.5.5 and voms-api-java to 3.3.6
+
+### Fixed
+
+* Return 507 instead of 502 in more cases when disk quota is exceeded
+* Add premigrate extended attribute also for pull-mode TPC
+
 ## 1.9.0 (2025-07-08)
 
 ### Added
