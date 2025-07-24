@@ -118,7 +118,8 @@ public class StormDirectoryResourceWrapper extends Resource {
     context.setVariable("title", title);
     context.setVariable(SAIndexServlet.STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
     context.setVariable(
-        SAIndexServlet.AUTHN_KEY, SecurityContextHolder.getContext().getAuthentication());
+        SAIndexServlet.AUTHN_CLASS_SIMPLE_NAME_KEY,
+        SecurityContextHolder.getContext().getAuthentication().getClass().getSimpleName());
     context.setVariable(
         SAIndexServlet.AUTHN_SUBJECT_KEY,
         AuthenticationUtils.getPalatableSubject(

@@ -38,6 +38,9 @@ public class ViewUtilsInterceptor implements HandlerInterceptor {
     SecurityContext context = SecurityContextHolder.getContext();
     request.setAttribute(SAIndexServlet.AUTHN_KEY, context.getAuthentication());
     request.setAttribute(
+        SAIndexServlet.AUTHN_CLASS_SIMPLE_NAME_KEY,
+        context.getAuthentication().getClass().getSimpleName());
+    request.setAttribute(
         SAIndexServlet.AUTHN_SUBJECT_KEY,
         AuthenticationUtils.getPalatableSubject(context.getAuthentication()));
     request.setAttribute(SAIndexServlet.STORM_HOSTNAME_KEY, serviceConfig.getHostnames().get(0));
