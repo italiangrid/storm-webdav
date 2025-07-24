@@ -64,7 +64,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   final HttpComponentsMetrics httpComponentsMetrics;
   final CloseableHttpClient httpClient;
   final ScheduledExecutorService executorService;
-  TransferStatus.Builder statusBuilder;
   final int reportDelaySec;
   final int localFileBufferSize;
   final int socketBufferSize;
@@ -94,7 +93,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     reportDelaySec = properties.getReportDelaySecs();
     localFileBufferSize = config.getBuffer().getFileBufferSizeBytes();
     socketBufferSize = properties.getHttpClientSocketBufferSize();
-    statusBuilder = TransferStatus.builder(clock);
   }
 
   @Override
@@ -162,8 +160,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
 
   @Override
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
-
-    statusBuilder = statusBuilder.withIsPushMode(false);
+    TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(false);
     StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
@@ -276,8 +273,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
 
   @Override
   public void handle(PutTransferRequest request, TransferStatusCallback cb) {
-
-    statusBuilder = statusBuilder.withIsPushMode(true);
+    TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(true);
     CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
 
     BasicClassicHttpRequest put = prepareRequest(request, cfe);
