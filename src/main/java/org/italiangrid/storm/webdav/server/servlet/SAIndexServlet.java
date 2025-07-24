@@ -38,6 +38,7 @@ public class SAIndexServlet extends HttpServlet {
   private static final String SA_INDEX_MAP_KEY = "saIndexMap";
 
   public static final String AUTHN_KEY = "authn";
+  public static final String AUTHN_CLASS_SIMPLE_NAME_KEY = "authnSimpleName";
   public static final String AUTHN_SUBJECT_KEY = "authnSubject";
 
   public static final String STORM_HOSTNAME_KEY = "storm";
@@ -75,7 +76,9 @@ public class SAIndexServlet extends HttpServlet {
 
     req.setAttribute(SA_INDEX_MAP_KEY, saIndexMap);
 
-    req.setAttribute(AUTHN_KEY, securityContext.getAuthentication());
+    req.setAttribute(
+        AUTHN_CLASS_SIMPLE_NAME_KEY,
+        securityContext.getAuthentication().getClass().getSimpleName());
 
     req.setAttribute(AUTHN_SUBJECT_KEY, getPalatableSubject(securityContext.getAuthentication()));
 

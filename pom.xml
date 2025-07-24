@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.3</version>
+    <version>3.5.4</version>
     <relativePath />
   </parent>
 
@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <plugin.jacoco.version>0.8.13</plugin.jacoco.version>
-    <plugin.spotless.version>2.44.5</plugin.spotless.version>
+    <plugin.spotless.version>2.46.1</plugin.spotless.version>
 
     <java.version>17</java.version>
 
@@ -36,10 +36,10 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/fs/Stat.java,src/main/java/org/italiangrid/storm/webdav/fs/Timespec.java</sonar.exclusions>
 
-    <voms-api-java.version>3.3.5</voms-api-java.version>
+    <voms-api-java.version>3.3.6</voms-api-java.version>
     <milton.version>4.0.5.2421</milton.version>
 
-    <commons-csv.version>1.14.0</commons-csv.version>
+    <commons-csv.version>1.14.1</commons-csv.version>
 
     <metrics.version>4.2.30</metrics.version>
 
