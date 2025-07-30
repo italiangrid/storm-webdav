@@ -21,11 +21,13 @@ import java.nio.file.Paths;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,6 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ClientTest extends ClientTestSupport {
 
   @TempDir public File storage;
+
+  @Mock StorageAreaInfo sa;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -54,7 +58,9 @@ class ClientTest extends ClientTestSupport {
 
     Files.createDirectory(saRootPath);
 
-    lenient().when(resolver.resolvePath(LOCAL_PATH)).thenReturn(localFilePath.toString());
+    lenient().when(resolver.getPath(LOCAL_PATH)).thenReturn(localFilePath);
+    lenient().when(resolver.resolveStorageArea(LOCAL_PATH)).thenReturn(sa);
+    lenient().when(sa.tapeEnabled()).thenReturn(false);
   }
 
   @Test
