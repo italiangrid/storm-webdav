@@ -135,23 +135,21 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     return CountingFileEntity.create(p.toFile());
   }
 
-  StormCountingOutputStream prepareOutputStream(String path) {
+  StormCountingOutputStream prepareOutputStream(Path path) {
     Objects.requireNonNull(path, "Impossible path resolution error");
 
     try {
-      Path p = Paths.get(path);
-
-      if (!p.toFile().exists()) {
-        p = Files.createFile(p);
+      if (!path.toFile().exists()) {
+        path = Files.createFile(path);
       }
 
-      OutputStream fos = Files.newOutputStream(p);
+      OutputStream fos = Files.newOutputStream(path);
 
       if (localFileBufferSize > 0) {
         fos = new BufferedOutputStream(fos, localFileBufferSize);
       }
 
-      return StormCountingOutputStream.create(fos, p.toString());
+      return StormCountingOutputStream.create(fos, path);
 
     } catch (IOException e) {
       throw new TransferError(e.getMessage(), e);
@@ -161,7 +159,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   @Override
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
     TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(false);
-    StormCountingOutputStream os = prepareOutputStream(resolver.resolvePath(request.path()));
+    StormCountingOutputStream os = prepareOutputStream(resolver.getPath(request.path()));
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
     Observation observation = null;
@@ -198,6 +196,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               MDC.getCopyOfContextMap(),
               socketBufferSize,
               true,
+              resolver.resolveStorageArea(request.path()).tapeEnabled(),
               observationContext));
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));

@@ -33,6 +33,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
   final ExtendedAttributesHelper attributesHelper;
   final int bufferSize;
   final boolean computeChecksum;
+  final boolean tapeEnabledStorageArea;
   final ApacheHttpClientContext observationContext;
 
   public GetResponseHandler(
@@ -42,6 +43,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
       Map<String, String> mdcContextMap,
       int bufSiz,
       boolean computeChecksum,
+      boolean tapeEnabledStorageArea,
       ApacheHttpClientContext observationContext) {
 
     super(mdcContextMap);
@@ -50,12 +52,13 @@ public class GetResponseHandler extends ResponseHandlerSupport
     attributesHelper = ah;
     bufferSize = bufSiz;
     this.computeChecksum = computeChecksum;
+    this.tapeEnabledStorageArea = tapeEnabledStorageArea;
     this.observationContext = observationContext;
   }
 
   public GetResponseHandler(
       GetTransferRequest req, StormCountingOutputStream fs, ExtendedAttributesHelper ah) {
-    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true, null);
+    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true, false, null);
   }
 
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
@@ -103,6 +106,17 @@ public class GetResponseHandler extends ResponseHandlerSupport
         if (computeChecksum) {
           attributesHelper.setChecksumAttribute(
               fileStream.getPath(), checkedStream.getChecksumValue());
+        }
+        if (tapeEnabledStorageArea) {
+          try {
+            attributesHelper.setPremigrateAttribute(fileStream.getPath());
+          } catch (IOException e) {
+            LOG.warn(
+                "Error setting premigrate extended attribute to {}: {}",
+                fileStream.getPath(),
+                e.getMessage(),
+                e);
+          }
         }
       }
 

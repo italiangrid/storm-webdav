@@ -8,7 +8,6 @@ import com.google.common.io.CountingOutputStream;
 import java.io.FilterOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /** */
 public final class StormCountingOutputStream extends FilterOutputStream implements Countable {
@@ -17,10 +16,10 @@ public final class StormCountingOutputStream extends FilterOutputStream implemen
 
   final Path path;
 
-  private StormCountingOutputStream(CountingOutputStream out, String p) {
+  private StormCountingOutputStream(CountingOutputStream out, Path p) {
     super(out);
     delegate = out;
-    this.path = Paths.get(p);
+    this.path = p;
   }
 
   public long getCount() {
@@ -31,7 +30,7 @@ public final class StormCountingOutputStream extends FilterOutputStream implemen
     return path;
   }
 
-  public static StormCountingOutputStream create(OutputStream out, String path) {
+  public static StormCountingOutputStream create(OutputStream out, Path path) {
     CountingOutputStream cout = new CountingOutputStream(out);
     return new StormCountingOutputStream(cout, path);
   }
