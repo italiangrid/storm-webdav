@@ -147,6 +147,18 @@ public class StoRMServlet extends ResourceServlet {
     final boolean included = request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
     final String pathInContext = getEncodedPathInContext(request, included);
 
+    // If is a folder, send only the Content-Type header. It is important to avoid the getContent
+    // call otherwise a StormDirectoryResourceWrapper is created and the listing is calculated which
+    // is a heavy operation.
+    String resolvedPath = pathResolver.resolvePath(pathInContext);
+    if (resolvedPath != null) {
+      File f = new File(resolvedPath);
+      if (f.isDirectory()) {
+        response.setHeader(HttpHeader.CONTENT_TYPE.asString(), "text/html");
+        return;
+      }
+    }
+
     final HttpContent content =
         getResourceService().getHttpContentFactory().getContent(pathInContext);
 
