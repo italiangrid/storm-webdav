@@ -139,10 +139,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     Objects.requireNonNull(path, "Impossible path resolution error");
 
     try {
-      if (!path.toFile().exists()) {
-        path = Files.createFile(path);
-      }
-
       OutputStream fos = Files.newOutputStream(path);
 
       if (localFileBufferSize > 0) {
