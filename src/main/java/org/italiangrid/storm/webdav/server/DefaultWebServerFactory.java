@@ -8,6 +8,7 @@ import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
@@ -15,6 +16,9 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 
 public class DefaultWebServerFactory
     implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
+
+  @Value("${spring.threads.virtual.enabled:false}")
+  private boolean virtualThreadsEnabled;
 
   final ServiceConfiguration configuration;
   final ServerProperties serverProperties;
@@ -48,8 +52,9 @@ public class DefaultWebServerFactory
 
   @Override
   public void customize(JettyServletWebServerFactory factory) {
-
-    factory.setThreadPool(getInstrumentedThreadPool());
+    if (!virtualThreadsEnabled) {
+      factory.setThreadPool(getInstrumentedThreadPool());
+    }
     factory.addServerCustomizers(serverCustomizer);
   }
 }
