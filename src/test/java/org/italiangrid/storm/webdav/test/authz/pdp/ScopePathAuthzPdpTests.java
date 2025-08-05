@@ -17,7 +17,8 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -68,9 +69,9 @@ class ScopePathAuthzPdpTests {
   @InjectMocks WlcgStructuredPathAuthorizationPdp pdp;
 
   @BeforeEach
-  void setup() throws MalformedURLException {
+  void setup() throws MalformedURLException, URISyntaxException {
     jwtAuth = new JwtAuthenticationToken(jwt);
-    lenient().when(jwt.getIssuer()).thenReturn(new URL("https://issuer.example"));
+    lenient().when(jwt.getIssuer()).thenReturn(new URI("https://issuer.example").toURL());
     lenient().when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("storage.read:/");
     lenient().when(request.getServletPath()).thenReturn("/");
     lenient().when(request.getPathInfo()).thenReturn("test/example");
@@ -407,8 +408,8 @@ class ScopePathAuthzPdpTests {
   }
 
   @Test
-  void issuerChecksAreEnforced() throws Exception {
-    lenient().when(jwt.getIssuer()).thenReturn(new URL("https://unknown.example"));
+  void issuerChecksAreEnforced() throws MalformedURLException, URISyntaxException {
+    lenient().when(jwt.getIssuer()).thenReturn(new URI("https://unknown.example").toURL());
     lenient().when(request.getMethod()).thenReturn("GET");
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));

@@ -12,8 +12,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Clock;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
@@ -58,7 +58,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     client = c;
   }
 
-  private void localCopySanityChecks(HttpServletRequest req) throws MalformedURLException {
+  private void localCopySanityChecks(HttpServletRequest req) throws URISyntaxException {
     if (!requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
       throw new BadRequest("Local copy across storage areas is not supported");
     }
@@ -78,7 +78,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
         localCopySanityChecks(req);
         // Let milton handle the local copy
         chain.doFilter(request, response);
-      } catch (MalformedURLException | BadRequest | ResourceNotFound e) {
+      } catch (URISyntaxException | BadRequest | ResourceNotFound e) {
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.setContentType("text/plain");
         res.getWriter().print(e.getMessage());

@@ -15,7 +15,8 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import org.italiangrid.storm.webdav.authz.pdp.LocalAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult;
@@ -60,7 +61,7 @@ class LocalAuthzPdpTests {
   LocalAuthorizationPdp pdp;
 
   @BeforeEach
-  void setup() throws MalformedURLException {
+  void setup() throws MalformedURLException, URISyntaxException {
 
     AuthorizationServerProperties props = new AuthorizationServerProperties();
     props.setIssuer(LOCAL_AUTHZ_SERVER_ISSUER);
@@ -68,7 +69,7 @@ class LocalAuthzPdpTests {
 
     jwtAuth = new JwtAuthenticationToken(jwt);
 
-    lenient().when(jwt.getIssuer()).thenReturn(new URL(LOCAL_AUTHZ_SERVER_ISSUER));
+    lenient().when(jwt.getIssuer()).thenReturn(new URI(LOCAL_AUTHZ_SERVER_ISSUER).toURL());
     lenient().when(jwt.getClaimAsString("path")).thenReturn("/test/example");
     lenient().when(jwt.getClaimAsString("perms")).thenReturn("r");
     lenient().when(request.getServletPath()).thenReturn("/");

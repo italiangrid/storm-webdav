@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
     <plugin.jacoco.version>0.8.13</plugin.jacoco.version>
     <plugin.spotless.version>2.46.1</plugin.spotless.version>
 
-    <java.version>17</java.version>
+    <java.version>21</java.version>
 
     <!-- Sonarcloud.io properties -->
     <sonar.projectKey>italiangrid_storm-webdav</sonar.projectKey>

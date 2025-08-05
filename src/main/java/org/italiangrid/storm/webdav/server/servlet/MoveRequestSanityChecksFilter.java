@@ -12,7 +12,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import org.italiangrid.storm.webdav.error.BadRequest;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -28,7 +28,7 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
     this.resolver = resolver;
   }
 
-  private void moveSanityChecks(HttpServletRequest req) throws MalformedURLException {
+  private void moveSanityChecks(HttpServletRequest req) throws URISyntaxException {
     if (WebDAVMethod.MOVE.name().equals(req.getMethod())
         && requestHasDestinationHeader(req)
         && !requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
@@ -45,7 +45,7 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
 
     try {
       moveSanityChecks(req);
-    } catch (MalformedURLException | BadRequest | ResourceNotFound e) {
+    } catch (URISyntaxException | BadRequest | ResourceNotFound e) {
       res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       res.setContentType("text/plain");
       res.getWriter().print(e.getMessage());
