@@ -5,8 +5,8 @@
 package org.italiangrid.storm.webdav.tpc;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -61,7 +61,7 @@ public interface TpcUtils {
   }
 
   default boolean requestPathAndDestinationHeaderAreInSameStorageArea(
-      HttpServletRequest request, PathResolver resolver) throws MalformedURLException {
+      HttpServletRequest request, PathResolver resolver) throws URISyntaxException {
     final String source = getSerlvetRequestPath(request);
     final String destination = getSanitizedPathFromUrl(destinationHeader(request));
 
@@ -132,8 +132,8 @@ public interface TpcUtils {
     return path;
   }
 
-  default String getSanitizedPathFromUrl(String destinationUrl) throws MalformedURLException {
-    URL url = new URL(destinationUrl);
+  default String getSanitizedPathFromUrl(String destinationUrl) throws URISyntaxException {
+    URI url = new URI(destinationUrl);
     return dropSlashWebdavFromPath(url.getPath());
   }
 }

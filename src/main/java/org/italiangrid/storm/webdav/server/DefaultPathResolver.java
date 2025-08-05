@@ -152,7 +152,8 @@ public class DefaultPathResolver implements PathResolver {
           return stat.st_blocks.longValue() * 512 < f.length();
         } else if (osName.startsWith("Mac")) {
           try {
-            Process process = Runtime.getRuntime().exec("stat -f %b " + resolvedPath);
+            Process process =
+                Runtime.getRuntime().exec(new String[] {"stat", "-f", "%b", resolvedPath});
             long statBlockSize;
             try (BufferedReader reader =
                 new BufferedReader(new InputStreamReader(process.getInputStream()))) {

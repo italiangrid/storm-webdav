@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # https://spring.io/guides/topicals/spring-boot-docker#_multi_stage_build
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /workspace/app
 RUN apk add maven
 COPY pom.xml .
@@ -15,7 +15,7 @@ COPY src src
 RUN mvn package -Dmaven.test.skip
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM eclipse-temurin:17-alpine
+FROM eclipse-temurin:21-alpine
 ENV STORM_WEBDAV_JVM_OPTS="-Dspring.profiles.active=dev"
 ARG DEPENDENCY=/workspace/app/target/dependency
 

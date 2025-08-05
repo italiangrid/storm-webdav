@@ -4,7 +4,7 @@
 
 package org.italiangrid.storm.webdav.authz.managers;
 
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.function.Supplier;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationPdp;
 import org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest;
@@ -97,7 +97,7 @@ public class WlcgScopeAuthzCopyMoveManager extends PathAuthzPdpManagerSupport {
               WebDAVMethod.PUT),
           LOG);
 
-    } catch (MalformedURLException e) {
+    } catch (URISyntaxException e) {
       return renderDecision(PathAuthorizationResult.deny(e.getMessage()));
     }
   }

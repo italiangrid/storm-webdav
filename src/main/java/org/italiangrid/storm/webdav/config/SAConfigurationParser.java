@@ -118,7 +118,8 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
   private void checkStat(File saFile) {
     if (System.getProperty("os.name").startsWith("Linux")) {
       try {
-        Process process = Runtime.getRuntime().exec("stat -c %b " + saFile.getPath());
+        Process process =
+            Runtime.getRuntime().exec(new String[] {"stat", "-c", "%b", saFile.getPath()});
         long statBlockSize;
         try (BufferedReader reader =
             new BufferedReader(new InputStreamReader(process.getInputStream()))) {
