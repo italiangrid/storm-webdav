@@ -26,6 +26,8 @@ public interface ServiceConfiguration {
 
   int getMaxConnections();
 
+  int getMaxVirtualThreads();
+
   int getMaxQueueSize();
 
   int getThreadPoolMaxIdleTimeInMsec();
