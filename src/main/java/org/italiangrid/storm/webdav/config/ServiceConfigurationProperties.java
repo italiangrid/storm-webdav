@@ -259,6 +259,8 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     @Positive int maxConnections = 300;
 
+    @Positive int maxVirtualThreads = 100;
+
     @Positive int maxQueueSize = 900;
 
     @Positive int maxIdleTimeMsec = 30000;
@@ -301,6 +303,14 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
     public void setMaxConnections(int maxConnections) {
       this.maxConnections = maxConnections;
+    }
+
+    public int getMaxVirtualThreads() {
+      return maxVirtualThreads;
+    }
+
+    public void setMaxVirtualThreads(int maxVirtualThreads) {
+      this.maxVirtualThreads = maxVirtualThreads;
     }
 
     public int getMaxQueueSize() {
@@ -731,6 +741,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public int getMaxConnections() {
     return getConnector().getMaxConnections();
+  }
+
+  @Override
+  public int getMaxVirtualThreads() {
+    return getConnector().getMaxVirtualThreads();
   }
 
   @Override

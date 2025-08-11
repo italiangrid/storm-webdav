@@ -7,6 +7,8 @@ package org.italiangrid.storm.webdav.server;
 import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 import java.util.concurrent.ArrayBlockingQueue;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.VirtualThreadPool;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -54,6 +56,12 @@ public class DefaultWebServerFactory
   public void customize(JettyServletWebServerFactory factory) {
     if (!virtualThreadsEnabled) {
       factory.setThreadPool(getInstrumentedThreadPool());
+    } else {
+      if (factory.getThreadPool() instanceof QueuedThreadPool queuedThreadPool) {
+        VirtualThreadPool virtualExecutor = new VirtualThreadPool();
+        virtualExecutor.setMaxThreads(configuration.getMaxVirtualThreads());
+        queuedThreadPool.setVirtualThreadsExecutor(virtualExecutor);
+      }
     }
     factory.addServerCustomizers(serverCustomizer);
   }
