@@ -156,22 +156,22 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
     TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(false);
     Path filePath = resolver.getPath(request.path());
-    StormCountingOutputStream os = prepareOutputStream(filePath);
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
     Observation observation = null;
+    ScheduledFuture<?> reportTask = null;
     BytesCount bytesCount = new BytesCount();
 
-    ScheduledFuture<?> reportTask =
-        executorService.scheduleAtFixedRate(
-            () -> {
-              reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
-              bytesCount.updateMetrics(context);
-            },
-            reportDelaySec,
-            reportDelaySec,
-            TimeUnit.SECONDS);
-    try {
+    try (StormCountingOutputStream os = prepareOutputStream(filePath)) {
+      reportTask =
+          executorService.scheduleAtFixedRate(
+              () -> {
+                reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
+                bytesCount.updateMetrics(context);
+              },
+              reportDelaySec,
+              reportDelaySec,
+              TimeUnit.SECONDS);
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
       context.setAttribute(TransferStatus.Builder.TRANSFER_STATUS_BUILDER_ATTRIBUTE, statusBuilder);
       ApacheHttpClientContext observationContext = new ApacheHttpClientContext(get, context);
@@ -229,7 +229,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
       observation.error(e);
 
     } finally {
-      if (!reportTask.isCancelled()) {
+      if (reportTask != null && !reportTask.isCancelled()) {
         reportTask.cancel(true);
       }
       if (resolver.resolveStorageArea(request.path()).tapeEnabled()) {
