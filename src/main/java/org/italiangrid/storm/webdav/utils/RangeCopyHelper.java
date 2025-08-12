@@ -27,9 +27,8 @@ public final class RangeCopyHelper {
     Assert.isTrue(rangeCount > 0, "rangeCount must be > 0");
 
     try (ReadableByteChannel src = Channels.newChannel(is);
-        RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
-
-      FileChannel fc = raf.getChannel();
+        RandomAccessFile raf = new RandomAccessFile(f, "rw");
+        FileChannel fc = raf.getChannel()) {
 
       long bytesTransferred = 0;
 

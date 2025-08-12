@@ -89,23 +89,19 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     checkResponseStatus(response);
 
-    Adler32ChecksumOutputStream checkedStream = null;
-
-    OutputStream os = fileStream;
-
-    if (computeChecksum) {
-      checkedStream = new Adler32ChecksumOutputStream(fileStream);
-      os = checkedStream;
-    }
-
-    try {
+    try (OutputStream os = fileStream) {
 
       if (entity != null) {
-
-        writeEntityToStream(entity, os);
         if (computeChecksum) {
-          attributesHelper.setChecksumAttribute(
-              fileStream.getPath(), checkedStream.getChecksumValue());
+          try (Adler32ChecksumOutputStream checkedStream =
+              new Adler32ChecksumOutputStream(fileStream)) {
+
+            writeEntityToStream(entity, checkedStream);
+            attributesHelper.setChecksumAttribute(
+                fileStream.getPath(), checkedStream.getChecksumValue());
+          }
+        } else {
+          writeEntityToStream(entity, os);
         }
         if (tapeEnabledStorageArea) {
           try {
@@ -123,7 +119,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
       return true;
 
     } finally {
-      fileStream.close();
       EntityUtils.consumeQuietly(entity);
     }
   }
