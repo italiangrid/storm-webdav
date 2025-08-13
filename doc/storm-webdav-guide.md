@@ -71,11 +71,6 @@ tpc:
   max-connections: 200
   max-connections-per-route: 150
   progress-report-thread-pool-size: (# of cores of your machine)
-
-storm:
-  connector:
-    max-connections: 300
-    max-queue-size: 900
 ```
 
 ### Conscrypt

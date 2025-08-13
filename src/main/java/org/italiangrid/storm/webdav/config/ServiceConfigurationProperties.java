@@ -187,19 +187,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
-  public static class ServerProperties {
-
-    @Positive int maxIdleTimeMsec = 3600000;
-
-    public int getMaxIdleTimeMsec() {
-      return maxIdleTimeMsec;
-    }
-
-    public void setMaxIdleTimeMsec(int maxIdleTimeMsec) {
-      this.maxIdleTimeMsec = maxIdleTimeMsec;
-    }
-  }
-
   public static class ConnectorProperties {
 
     @Positive
@@ -210,17 +197,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     @Max(65536)
     int securePort = 8443;
 
-    @Positive int minConnections = 50;
-
-    @Positive int maxConnections = 300;
-
-    @Positive int maxQueueSize = 900;
-
     @Positive int maxIdleTimeMsec = 30000;
-
-    int jettyAcceptors = -1;
-
-    int jettySelectors = -1;
 
     @Positive
     @Min(4096)
@@ -242,52 +219,12 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
       this.securePort = securePort;
     }
 
-    public int getMinConnections() {
-      return minConnections;
-    }
-
-    public void setMinConnections(int minConnections) {
-      this.minConnections = minConnections;
-    }
-
-    public int getMaxConnections() {
-      return maxConnections;
-    }
-
-    public void setMaxConnections(int maxConnections) {
-      this.maxConnections = maxConnections;
-    }
-
-    public int getMaxQueueSize() {
-      return maxQueueSize;
-    }
-
-    public void setMaxQueueSize(int maxQueueSize) {
-      this.maxQueueSize = maxQueueSize;
-    }
-
     public int getMaxIdleTimeMsec() {
       return maxIdleTimeMsec;
     }
 
     public void setMaxIdleTimeMsec(int maxIdleTimeMsec) {
       this.maxIdleTimeMsec = maxIdleTimeMsec;
-    }
-
-    public void setJettyAcceptors(int jettyAcceptors) {
-      this.jettyAcceptors = jettyAcceptors;
-    }
-
-    public int getJettyAcceptors() {
-      return jettyAcceptors;
-    }
-
-    public void setJettySelectors(int jettySelectors) {
-      this.jettySelectors = jettySelectors;
-    }
-
-    public int getJettySelectors() {
-      return jettySelectors;
     }
 
     public int getOutputBufferSizeBytes() {
@@ -452,8 +389,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   private MacaroonFilterProperties macaroonFilter;
 
-  private ServerProperties server;
-
   private ConnectorProperties connector;
 
   private TLSProperties tls;
@@ -496,14 +431,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   public void setTls(TLSProperties tls) {
     this.tls = tls;
-  }
-
-  public ServerProperties getServer() {
-    return server;
-  }
-
-  public void setServer(ServerProperties server) {
-    this.server = server;
   }
 
   public ConnectorProperties getConnector() {
@@ -581,26 +508,6 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   @Override
   public long getTrustAnchorsRefreshIntervalInSeconds() {
     return getTls().getTrustAnchorsRefreshIntervalSecs();
-  }
-
-  @Override
-  public int getMinConnections() {
-    return getConnector().getMinConnections();
-  }
-
-  @Override
-  public int getMaxConnections() {
-    return getConnector().getMaxConnections();
-  }
-
-  @Override
-  public int getMaxQueueSize() {
-    return getConnector().getMaxQueueSize();
-  }
-
-  @Override
-  public int getThreadPoolMaxIdleTimeInMsec() {
-    return getServer().getMaxIdleTimeMsec();
   }
 
   @Override

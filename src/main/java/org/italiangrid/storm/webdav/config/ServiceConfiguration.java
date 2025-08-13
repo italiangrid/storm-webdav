@@ -22,14 +22,6 @@ public interface ServiceConfiguration {
 
   long getTrustAnchorsRefreshIntervalInSeconds();
 
-  int getMinConnections();
-
-  int getMaxConnections();
-
-  int getMaxQueueSize();
-
-  int getThreadPoolMaxIdleTimeInMsec();
-
   int getConnectorMaxIdleTimeInMsec();
 
   String getSAConfigDir();

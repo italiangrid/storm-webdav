@@ -26,8 +26,6 @@ public class DefaultConfigurationLogger implements ConfigurationLogger {
     logger.info("### Connector configuration");
     logger.info("HTTP port: {}", serviceConfiguration.getHTTPPort());
     logger.info("HTTPS port: {}", serviceConfiguration.getHTTPSPort());
-    logger.info("Max connections: {}", serviceConfiguration.getMaxConnections());
-    logger.info("Max connection queue size: {}", serviceConfiguration.getMaxQueueSize());
     logger.info("### TLS configuration");
     logger.info("Service certificate path: {}", serviceConfiguration.getCertificatePath());
     logger.info("Service private key path: {}", serviceConfiguration.getPrivateKeyPath());
