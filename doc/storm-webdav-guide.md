@@ -207,24 +207,6 @@ $ curl http://localhost:8085/.storm-webdav/actuator/health
 {"status":"UP"}
 ```
 
-Get service metrics:
-
-```
-# curl http://localhost:8085/status/metrics?pretty=true
-{
-  "version" : "4.0.0",
-  "gauges" : {
-    "jvm.gc.G1-Old-Generation.count" : {
-      "value" : 0
-    },
-    "jvm.gc.G1-Old-Generation.time" : {
-      "value" : 0
-    }
-    ...
-}
-
-```
-
 ### Service logs
 
 The service logs live in the `/var/log/storm/webdav` directory.

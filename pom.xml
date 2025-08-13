@@ -41,8 +41,6 @@ SPDX-License-Identifier: Apache-2.0
 
     <commons-csv.version>1.14.1</commons-csv.version>
 
-    <metrics.version>4.2.38</metrics.version>
-
     <logback-access.version>2.0.12</logback-access.version>
 
     <guava.version>33.5.0-jre</guava.version>
@@ -288,18 +286,6 @@ SPDX-License-Identifier: Apache-2.0
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-jetty12-ee10</artifactId>
-      <version>${metrics.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-jakarta-servlets</artifactId>
-      <version>${metrics.version}</version>
     </dependency>
 
     <dependency>

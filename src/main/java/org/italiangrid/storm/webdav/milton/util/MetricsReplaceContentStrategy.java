@@ -4,10 +4,6 @@
 
 package org.italiangrid.storm.webdav.milton.util;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 import java.io.File;
@@ -16,15 +12,11 @@ import java.io.InputStream;
 
 public class MetricsReplaceContentStrategy implements ReplaceContentStrategy {
 
-  final Timer timer;
   final ReplaceContentStrategy delegate;
   private final ObservationRegistry observationRegistry;
 
   public MetricsReplaceContentStrategy(
-      MetricRegistry registry,
-      ReplaceContentStrategy delegate,
-      ObservationRegistry observationRegistry) {
-    timer = registry.timer(name("storm.checksum-strategy"));
+      ReplaceContentStrategy delegate, ObservationRegistry observationRegistry) {
     this.delegate = delegate;
     this.observationRegistry = observationRegistry;
   }
@@ -35,13 +27,7 @@ public class MetricsReplaceContentStrategy implements ReplaceContentStrategy {
         Observation.createNotStarted("replace-content", this.observationRegistry);
     observation.observeChecked(
         () -> {
-          Timer.Context context = timer.time();
-
-          try {
-            delegate.replaceContent(in, length, targetFile);
-          } finally {
-            context.stop();
-          }
+          delegate.replaceContent(in, length, targetFile);
         });
   }
 }

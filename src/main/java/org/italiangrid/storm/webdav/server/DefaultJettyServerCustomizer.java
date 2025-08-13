@@ -5,10 +5,7 @@
 package org.italiangrid.storm.webdav.server;
 
 import ch.qos.logback.access.jetty.RequestLogImpl;
-import com.codahale.metrics.MetricRegistry;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
-import io.dropwizard.metrics.jetty12.ee10.InstrumentedEE10Handler;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Paths;
@@ -39,7 +36,6 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
   final ServiceConfiguration configuration;
   final StorageAreaConfiguration saConf;
   final JettyServerProperties serverProperties;
-  final MetricRegistry metricRegistry;
   final ConfigurationLogger confLogger;
   final X509CertChainValidatorExt certChainValidator;
   final ServiceConfigurationProperties serviceConfig;
@@ -49,7 +45,6 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
       ServiceConfiguration configuration,
       StorageAreaConfiguration saConf,
       JettyServerProperties serverProperties,
-      MetricRegistry registry,
       ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
 
@@ -58,7 +53,6 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     this.saConf = saConf;
     this.serverProperties = serverProperties;
     this.certChainValidator = certChainValidator;
-    this.metricRegistry = registry;
     this.confLogger = confLogger;
   }
 
@@ -90,13 +84,8 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
       plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
     }
 
-    InstrumentedConnectionFactory connFactory =
-        new InstrumentedConnectionFactory(
-            new HttpConnectionFactory(plainConnectorConfig),
-            metricRegistry.timer("storm-http.connection"));
-
     NetworkTrafficServerConnector connector =
-        new NetworkTrafficServerConnector(server, connFactory);
+        new NetworkTrafficServerConnector(server, new HttpConnectionFactory(plainConnectorConfig));
 
     connector.setName(HTTP_CONNECTOR_NAME);
     if (serviceConfig.getNginx().enabled()) {
@@ -133,8 +122,6 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
             .withNeedClientAuth(configuration.requireClientCertificateAuthentication())
             .withCertificateFile(configuration.getCertificatePath())
             .withCertificateKeyFile(configuration.getPrivateKeyPath())
-            .metricName("storm-https.connection")
-            .metricRegistry(metricRegistry)
             .withConscrypt(configuration.useConscrypt())
             .withHttp2(configuration.enableHttp2())
             .withDisableJsseHostnameVerification(true)
@@ -174,9 +161,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     rh.setHandler(server.getHandler());
 
-    InstrumentedEE10Handler ih = new InstrumentedEE10Handler(metricRegistry, "storm.http.handler");
-    ih.setHandler(rh);
-    server.setHandler(ih);
+    server.setHandler(rh);
   }
 
   private void configureAccessLog(Server server) {

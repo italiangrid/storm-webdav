@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import org.italiangrid.storm.webdav.config.ConfigurationLogger;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
@@ -29,27 +28,18 @@ public class JettyConfig {
       ServiceConfiguration configuration,
       StorageAreaConfiguration saConf,
       JettyServerProperties serverProperties,
-      MetricRegistry registry,
       ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
 
     return new DefaultJettyServerCustomizer(
-        serviceConfig,
-        configuration,
-        saConf,
-        serverProperties,
-        registry,
-        confLogger,
-        certChainValidator);
+        serviceConfig, configuration, saConf, serverProperties, confLogger, certChainValidator);
   }
 
   @Bean
   WebServerFactoryCustomizer<JettyServletWebServerFactory> defaultWebServerFactory(
-      ServiceConfiguration configuration,
-      JettyServerCustomizer serverCustomizer,
-      MetricRegistry registry) {
+      ServiceConfiguration configuration, JettyServerCustomizer serverCustomizer) {
 
-    return new DefaultWebServerFactory(configuration, serverCustomizer, registry);
+    return new DefaultWebServerFactory(configuration, serverCustomizer);
   }
 
   @Bean

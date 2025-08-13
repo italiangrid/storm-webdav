@@ -4,9 +4,6 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
-import java.util.concurrent.ArrayBlockingQueue;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jetty.JettyServerCustomizer;
@@ -20,37 +17,17 @@ public class DefaultWebServerFactory
   private boolean virtualThreadsEnabled;
 
   final ServiceConfiguration configuration;
-  final MetricRegistry metricRegistry;
   final JettyServerCustomizer serverCustomizer;
 
   public DefaultWebServerFactory(
-      ServiceConfiguration configuration,
-      JettyServerCustomizer serverCustomizer,
-      MetricRegistry registry) {
+      ServiceConfiguration configuration, JettyServerCustomizer serverCustomizer) {
 
     this.configuration = configuration;
     this.serverCustomizer = serverCustomizer;
-    this.metricRegistry = registry;
-  }
-
-  private InstrumentedQueuedThreadPool getInstrumentedThreadPool() {
-    InstrumentedQueuedThreadPool tPool =
-        new InstrumentedQueuedThreadPool(
-            metricRegistry,
-            configuration.getMaxConnections(),
-            configuration.getMinConnections(),
-            configuration.getThreadPoolMaxIdleTimeInMsec(),
-            new ArrayBlockingQueue<>(configuration.getMaxQueueSize()),
-            new ThreadGroup("storm.http"));
-    tPool.setName("thread-pool");
-    return tPool;
   }
 
   @Override
   public void customize(JettyServletWebServerFactory factory) {
-    if (!virtualThreadsEnabled) {
-      factory.setThreadPool(getInstrumentedThreadPool());
-    }
     factory.addServerCustomizers(serverCustomizer);
   }
 }

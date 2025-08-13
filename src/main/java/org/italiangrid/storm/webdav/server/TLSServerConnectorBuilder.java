@@ -4,11 +4,9 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
-import io.dropwizard.metrics.jetty12.InstrumentedConnectionFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -27,7 +25,6 @@ import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
-import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkTrafficServerConnector;
@@ -92,12 +89,6 @@ public final class TLSServerConnectorBuilder {
 
   /** The server for which the connector is being created. */
   private final Server server;
-
-  /** The metric name to associate to the connector being built. */
-  private String metricName;
-
-  /** The metric registry. */
-  private MetricRegistry registry;
 
   /** Whether the Conscrypt provider should be used instead of the default JSSE implementation */
   private boolean useConscrypt = false;
@@ -417,16 +408,6 @@ public final class TLSServerConnectorBuilder {
     return this;
   }
 
-  public TLSServerConnectorBuilder metricRegistry(MetricRegistry registry) {
-    this.registry = registry;
-    return this;
-  }
-
-  public TLSServerConnectorBuilder metricName(String metricName) {
-    this.metricName = metricName;
-    return this;
-  }
-
   public TLSServerConnectorBuilder withTlsProtocol(String tlsProtocol) {
     this.tlsProtocol = tlsProtocol;
     return this;
@@ -511,13 +492,6 @@ public final class TLSServerConnectorBuilder {
     }
 
     HttpConnectionFactory httpConnFactory = new HttpConnectionFactory(httpConfiguration);
-    ConnectionFactory connFactory;
-
-    if (registry != null) {
-      connFactory = new InstrumentedConnectionFactory(httpConnFactory, registry.timer(metricName));
-    } else {
-      connFactory = httpConnFactory;
-    }
 
     NetworkTrafficServerConnector connector;
 
@@ -525,12 +499,6 @@ public final class TLSServerConnectorBuilder {
 
       HTTP2ServerConnectionFactory h2cf = new HTTP2ServerConnectionFactory(httpConfiguration);
 
-      ConnectionFactory h2ConnFactory;
-      if (registry != null) {
-        h2ConnFactory = new InstrumentedConnectionFactory(h2cf, registry.timer(metricName));
-      } else {
-        h2ConnFactory = h2cf;
-      }
       ALPNServerConnectionFactory alpn = createAlpnProtocolFactory(httpConnFactory);
       cf.setCipherComparator(HTTP2Cipher.COMPARATOR);
       cf.setUseCipherSuitesOrder(true);
@@ -539,16 +507,7 @@ public final class TLSServerConnectorBuilder {
 
       connector =
           new NetworkTrafficServerConnector(
-              server,
-              null,
-              null,
-              null,
-              acceptors,
-              selectors,
-              sslCf,
-              alpn,
-              h2ConnFactory,
-              httpConnFactory);
+              server, null, null, null, acceptors, selectors, sslCf, alpn, h2cf, httpConnFactory);
 
     } else {
 
@@ -561,7 +520,7 @@ public final class TLSServerConnectorBuilder {
               acceptors,
               selectors,
               new SslConnectionFactory(cf, HttpVersion.HTTP_1_1.asString()),
-              connFactory);
+              httpConnFactory);
     }
 
     connector.setPort(port);

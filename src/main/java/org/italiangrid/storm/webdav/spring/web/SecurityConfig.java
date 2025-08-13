@@ -159,7 +159,6 @@ public class SecurityConfig {
                     PathConstants.AUTHN_INFO_PATH,
                     PathConstants.ACTUATOR_PATH + "/**",
                     PathConstants.ERRORS_PATH + "/*",
-                    "/status/metrics",
                     PathConstants.OAUTH_TOKEN_PATH,
                     "/.well-known/oauth-authorization-server",
                     "/.well-known/openid-configuration",

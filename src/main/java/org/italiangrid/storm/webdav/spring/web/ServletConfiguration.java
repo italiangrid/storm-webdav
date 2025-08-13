@@ -6,8 +6,6 @@ package org.italiangrid.storm.webdav.spring.web;
 
 import static org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterProperties.DEFAULT_FILTER_ORDER;
 
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.metrics.servlets.MetricsServlet;
 import io.micrometer.observation.ObservationRegistry;
 import java.time.Clock;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
@@ -18,7 +16,6 @@ import org.italiangrid.storm.webdav.fs.FilesystemAccess;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.macaroon.MacaroonIssuerService;
 import org.italiangrid.storm.webdav.macaroon.MacaroonRequestFilter;
-import org.italiangrid.storm.webdav.metrics.StorageAreaStatsFilter;
 import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.redirector.RedirectFilter;
 import org.italiangrid.storm.webdav.redirector.RedirectionService;
@@ -34,7 +31,6 @@ import org.italiangrid.storm.webdav.server.servlet.ServerResponseHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.StoRMServlet;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TransferFilter;
-import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +59,6 @@ public class ServletConfiguration {
   static final int DELETE_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1009;
   static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
   static final int SERVER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 100;
-  static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
 
   @Value("${storm.rfc9530.delete-files-with-mismatched-checksums}")
   boolean deleteFilesWithMismatchedChecksums;
@@ -176,16 +171,13 @@ public class ServletConfiguration {
       TransferClient client,
       ThirdPartyCopyProperties props,
       LocalURLService lus,
-      MetricRegistry registry,
       ObservationRegistry observationRegistry) {
-
-    TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter =
         new FilterRegistrationBean<>(
             new TransferFilter(
                 clock,
-                metricsClient,
+                client,
                 resolver,
                 lus,
                 props.getEnableExpectContinueThreshold(),
@@ -197,31 +189,12 @@ public class ServletConfiguration {
   }
 
   @Bean
-  FilterRegistrationBean<StorageAreaStatsFilter> statsFilter(
-      MetricRegistry registry, PathResolver resolver) {
-
-    FilterRegistrationBean<StorageAreaStatsFilter> filter =
-        new FilterRegistrationBean<>(new StorageAreaStatsFilter(registry, resolver));
-    filter.addUrlPatterns("/*");
-    filter.setOrder(STATS_FILTER_ORDER);
-    return filter;
-  }
-
-  @Bean
   FilterRegistrationBean<ServerResponseHeaderFilter> serverHeaderFilter() {
     FilterRegistrationBean<ServerResponseHeaderFilter> filter =
         new FilterRegistrationBean<>(new ServerResponseHeaderFilter());
     filter.addUrlPatterns("/*");
     filter.setOrder(SERVER_FILTER_ORDER);
     return filter;
-  }
-
-  @Bean
-  ServletRegistrationBean<MetricsServlet> metricsServlet(MetricRegistry registry) {
-    ServletRegistrationBean<MetricsServlet> metricsServlet =
-        new ServletRegistrationBean<>(new MetricsServlet(registry), "/status/metrics");
-    metricsServlet.setAsyncSupported(false);
-    return metricsServlet;
   }
 
   @Bean

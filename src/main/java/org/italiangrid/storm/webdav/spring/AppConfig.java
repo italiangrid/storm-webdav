@@ -6,11 +6,6 @@ package org.italiangrid.storm.webdav.spring;
 
 import static org.italiangrid.storm.webdav.server.TLSServerConnectorBuilder.CONSCRYPT_PROVIDER;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import eu.emi.security.authn.x509.CrlCheckingMode;
@@ -67,7 +62,6 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.DefaultFSStrategy;
 import org.italiangrid.storm.webdav.fs.FilesystemAccess;
-import org.italiangrid.storm.webdav.fs.MetricsFSStrategyWrapper;
 import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.util.EarlyChecksumStrategy;
@@ -78,7 +72,6 @@ import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.oauth.CompositeJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService;
 import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerService;
-import org.italiangrid.storm.webdav.oauth.authzserver.TokenIssuerServiceMetricsWrapper;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.LocallyIssuedJwtDecoder;
 import org.italiangrid.storm.webdav.oauth.authzserver.jwt.SignedJwtTokenIssuer;
@@ -137,15 +130,9 @@ public class AppConfig {
 
   @Bean
   TokenIssuerService tokenIssuerService(
-      ServiceConfigurationProperties props,
-      SignedJwtTokenIssuer tokenIssuer,
-      Clock clock,
-      MetricRegistry registry) {
+      ServiceConfigurationProperties props, SignedJwtTokenIssuer tokenIssuer, Clock clock) {
 
-    TokenIssuerService service =
-        new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
-
-    return new TokenIssuerServiceMetricsWrapper(service, registry);
+    return new DefaultTokenIssuerService(props.getAuthzServer(), tokenIssuer, clock);
   }
 
   @Bean
@@ -170,26 +157,8 @@ public class AppConfig {
   @Primary
   FilesystemAccess filesystemAccess(ObservationRegistry observationRegistry) {
 
-    return new MetricsFSStrategyWrapper(
-        new DefaultFSStrategy(extendedAttributesHelper(observationRegistry), observationRegistry),
-        metricRegistry());
-  }
-
-  @Bean
-  MetricRegistry metricRegistry() {
-
-    MetricRegistry registry = new MetricRegistry();
-
-    registry.registerAll("jvm.mem", new MemoryUsageGaugeSet());
-    registry.registerAll("jvm.gc", new GarbageCollectorMetricSet());
-    registry.registerAll("jvm.threads", new CachedThreadStatesGaugeSet(1, TimeUnit.MINUTES));
-    return registry;
-  }
-
-  @Bean
-  HealthCheckRegistry healthCheckRegistry() {
-
-    return new HealthCheckRegistry();
+    return new DefaultFSStrategy(
+        extendedAttributesHelper(observationRegistry), observationRegistry);
   }
 
   @Bean
@@ -411,32 +380,24 @@ public class AppConfig {
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "EARLY")
   ReplaceContentStrategy earlyChecksumStrategy(
-      MetricRegistry registry,
-      ExtendedAttributesHelper ah,
-      ObservationRegistry observationRegistry) {
+      ExtendedAttributesHelper ah, ObservationRegistry observationRegistry) {
     LOG.info("Checksum strategy: early");
-    return new MetricsReplaceContentStrategy(
-        registry, new EarlyChecksumStrategy(ah), observationRegistry);
+    return new MetricsReplaceContentStrategy(new EarlyChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "LATE")
   ReplaceContentStrategy lateChecksumStrategy(
-      MetricRegistry registry,
-      ExtendedAttributesHelper ah,
-      ObservationRegistry observationRegistry) {
+      ExtendedAttributesHelper ah, ObservationRegistry observationRegistry) {
     LOG.info("Checksum strategy: late");
-    return new MetricsReplaceContentStrategy(
-        registry, new LateChecksumStrategy(ah), observationRegistry);
+    return new MetricsReplaceContentStrategy(new LateChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
-  ReplaceContentStrategy noChecksumStrategy(
-      MetricRegistry registry, ObservationRegistry observationRegistry) {
+  ReplaceContentStrategy noChecksumStrategy(ObservationRegistry observationRegistry) {
     LOG.warn("Checksum strategy: no checksum");
-    return new MetricsReplaceContentStrategy(
-        registry, new NoChecksumStrategy(), observationRegistry);
+    return new MetricsReplaceContentStrategy(new NoChecksumStrategy(), observationRegistry);
   }
 
   @Bean
