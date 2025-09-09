@@ -101,13 +101,31 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  void filterHandlesLocalCopyWithTransferHeader() throws IOException, ServletException {
+  void filterIgnoresLocalCopyWithOnlyTransferHeaderAuthorization()
+      throws IOException, ServletException {
     when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
     when(request.getHeader(TransferConstants.DESTINATION_HEADER))
         .thenReturn("https://localhost/test/otherfile");
     when(requestHeaderNames.hasMoreElements()).thenReturn(true, true, false);
     when(requestHeaderNames.nextElement())
         .thenReturn(TransferConstants.DESTINATION_HEADER, TRANSFER_HEADER_AUTHORIZATION_KEY);
+
+    filter.doFilter(request, response, chain);
+    verify(chain).doFilter(request, response);
+  }
+
+  @Test
+  void filterHandlesLocalCopyWithTransferHeadersOtherThanAuthorization()
+      throws IOException, ServletException {
+    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.toString());
+    when(request.getHeader(TransferConstants.DESTINATION_HEADER))
+        .thenReturn("https://localhost/test/otherfile");
+    when(requestHeaderNames.hasMoreElements()).thenReturn(true, true, true, false);
+    when(requestHeaderNames.nextElement())
+        .thenReturn(
+            TransferConstants.DESTINATION_HEADER,
+            TRANSFER_HEADER_AUTHORIZATION_KEY,
+            TRANSFER_HEADER_WHATEVER_KEY);
 
     filter.doFilter(request, response, chain);
     verifyNoInteractions(chain);

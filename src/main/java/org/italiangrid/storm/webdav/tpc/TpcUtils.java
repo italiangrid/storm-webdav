@@ -127,11 +127,27 @@ public interface TpcUtils {
     return false;
   }
 
+  default boolean requestHasTranferHeaderOtherThanAuthorization(HttpServletRequest request) {
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      if (headerName.toLowerCase().startsWith(TransferConstants.TRANSFER_HEADER_LC)
+          && !headerName
+              .toLowerCase()
+              .equals(
+                  TransferConstants.TRANSFER_HEADER_LC
+                      + TransferConstants.AUTHORIZATION_HEADER.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   default boolean isTpc(HttpServletRequest request, LocalURLService localUrlService) {
     return "COPY".equals(request.getMethod())
         && (requestHasRemoteSourceHeader(request, localUrlService)
             || requestHasRemoteDestinationHeader(request, localUrlService)
-            || requestHasTranferHeader(request));
+            || requestHasTranferHeaderOtherThanAuthorization(request));
   }
 
   default boolean isCopyOrMoveRequest(HttpServletRequest request) {
