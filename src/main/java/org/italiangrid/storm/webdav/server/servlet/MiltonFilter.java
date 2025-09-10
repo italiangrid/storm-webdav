@@ -19,6 +19,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.HashSet;
 import java.util.Set;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -31,6 +32,8 @@ import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.SwappedServletRequest;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +173,11 @@ public class MiltonFilter implements Filter {
       }
 
       try {
+        // If it was a TPC send a success PerfMarker, so davix knows that the COPY was successful
+        if (request instanceof SwappedServletRequest) {
+          TransferStatus.Builder statusBuilder = TransferStatus.builder(Clock.systemDefaultZone());
+          response.getOutputStream().print(statusBuilder.done(0).asPerfMarker());
+        }
 
         response.getOutputStream().flush();
         response.flushBuffer();
