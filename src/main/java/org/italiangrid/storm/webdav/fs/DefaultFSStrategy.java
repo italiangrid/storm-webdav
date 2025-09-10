@@ -98,7 +98,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
       } else {
 
-        Files.copy(source.toPath(), dest.toPath());
+        Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
       }
 
     } catch (IOException e) {
