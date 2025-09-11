@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.error.SameFileError;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
 import org.slf4j.Logger;
@@ -97,12 +98,18 @@ public class DefaultFSStrategy implements FilesystemAccess {
         FileUtils.copyDirectory(source, dest);
 
       } else {
-
-        Files.copy(source.toPath(), dest.toPath());
+        Process process =
+            Runtime.getRuntime().exec(new String[] {"cp", "-a", source.getPath(), dest.getPath()});
+        int returnCode = process.waitFor();
+        if (returnCode != 0) {
+          throw new IOException("cp -a error");
+        }
       }
 
     } catch (IOException e) {
       throw IOExceptionHelper.getStoRMWebDAVError(e);
+    } catch (InterruptedException e) {
+      throw new StoRMWebDAVError(e.getMessage(), e);
     }
   }
 

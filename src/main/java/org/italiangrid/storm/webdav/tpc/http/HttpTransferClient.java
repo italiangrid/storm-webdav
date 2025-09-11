@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -216,8 +217,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               String.format(
                   "Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
-
-    } catch (Throwable e) {
+    } catch (Exception e) {
       LOG.error(e.getMessage(), e); // we explicitly always log a generic error
       reportStatus(
           cb,
@@ -241,6 +241,44 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
       if (observation != null) {
         observation.stop();
       }
+    }
+  }
+
+  @Override
+  public void handleCheckAccessPermission(GetTransferRequest request, TransferStatusCallback cb) {
+    TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(false);
+    BasicClassicHttpRequest get = prepareRequest(request);
+    HttpClientContext context = HttpClientContext.create();
+
+    try {
+      httpClient.execute(get, context, new BasicHttpClientResponseHandler());
+      reportStatus(cb, request, statusBuilder.done(1));
+    } catch (HttpResponseException e) {
+      logException(e);
+      reportStatus(
+          cb,
+          request,
+          statusBuilder.error(
+              String.format(
+                  "Error fetching %s: %d %s",
+                  request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
+    } catch (ClientProtocolException e) {
+      logException(e);
+      reportStatus(
+          cb,
+          request,
+          statusBuilder.error(
+              String.format(
+                  "Error fetching %s: %s", request.remoteURI().toString(), e.getMessage())));
+    } catch (Exception e) {
+      LOG.error(e.getMessage(), e); // we explicitly always log a generic error
+      reportStatus(
+          cb,
+          request,
+          statusBuilder.error(
+              String.format(
+                  "%s while fetching %s: %s",
+                  e.getClass().getSimpleName(), request.remoteURI().toString(), e.getMessage())));
     }
   }
 
@@ -322,7 +360,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               String.format(
                   "Error pushing %s: %s", request.remoteURI().toString(), e.getMessage())));
       observation.error(e);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       LOG.error(e.getMessage(), e); // we explicitly always log a generic error
       reportStatus(
           cb,

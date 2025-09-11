@@ -16,10 +16,12 @@ import io.milton.http.exceptions.ConflictException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.http.http11.Http11ResponseHandler;
 import java.io.IOException;
+import java.time.Clock;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.SameFileError;
+import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.MethodNotAllowedException;
@@ -48,6 +50,17 @@ public class StoRMMiltonBehaviour implements Filter {
       handler.process(manager, request, response);
       if (response.getEntity() != null) {
         manager.sendResponseEntity(response);
+      }
+      // If it was a TPC send a success PerfMarker, so davix knows that the COPY was successful
+      if (request instanceof StoRMMiltonRequest stoRMMiltonRequest
+          && stoRMMiltonRequest.sendSuccessPerfMarker()) {
+        TransferStatus.Builder statusBuilder = TransferStatus.builder(Clock.systemDefaultZone());
+        try {
+          response.getOutputStream().write(statusBuilder.done(0).asPerfMarker().getBytes());
+          response.getOutputStream().close();
+        } catch (IOException e) {
+          LOG.error("Error sending success PerfMarker: {}", e.getMessage(), e);
+        }
       }
     } catch (DiskQuotaExceeded e) {
       // responseHandler does not support sending insufficient storage

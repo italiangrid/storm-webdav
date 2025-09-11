@@ -349,6 +349,12 @@ class AuthorizationIntegrationTests {
                 .header("Source", "http://localhost/wlcg/destination")
                 .with(jwt().jwt(token)))
         .andExpect(status().isAccepted());
+
+    mvc.perform(
+            request(COPY_HTTP_METHOD, URI.create("http://localhost/wlcg/source"))
+                .header("Source", "/wlcg/destination")
+                .with(jwt().jwt(token)))
+        .andExpect(status().isAccepted());
   }
 
   @Test

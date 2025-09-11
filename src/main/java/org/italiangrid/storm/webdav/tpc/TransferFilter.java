@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.italiangrid.storm.webdav.error.BadRequest;
+import org.italiangrid.storm.webdav.error.Forbidden;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -37,6 +38,7 @@ import org.italiangrid.storm.webdav.tpc.utils.ClientInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.http.HttpHeaders;
 
 public class TransferFilter extends TransferFilterSupport implements Filter {
 
@@ -60,8 +62,30 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   private void localCopySanityChecks(HttpServletRequest req) throws URISyntaxException {
     if (!requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
-      throw new BadRequest("Local copy across storage areas is not supported");
+      throw new BadRequest(
+          "Local copy across storage areas with Destination header is not supported");
     }
+  }
+
+  private void checkAccessPermission(SwappedServletRequest wrappedRequest)
+      throws ClientProtocolException {
+    URI uri = URI.create(wrappedRequest.getRequestURL().toString());
+    String path = getScopedPathInfo(wrappedRequest);
+    GetTransferRequest xferRequest =
+        GetTransferRequestBuilder.create()
+            .uuid(RequestIdHolder.getRequestId())
+            .uri(uri)
+            .path(path)
+            .headers(getTransferHeaders(wrappedRequest))
+            .addHeader("Range", "bytes=0-0")
+            .build();
+    client.handleCheckAccessPermission(
+        xferRequest,
+        (r, s) -> {
+          if (s.getStatus() == TransferStatus.Status.ERROR) {
+            throw new Forbidden(s.asPerfMarker());
+          }
+        });
   }
 
   @Override
@@ -73,13 +97,32 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
     if (isTpc(req, localURLService)) {
       handleTpc(req, res);
-    } else if (isCopy(req) && requestHasLocalDestinationHeader(req, localURLService)) {
+    } else if (isCopy(req)) {
       try {
-        localCopySanityChecks(req);
+        if (requestHasLocalDestinationHeader(req, localURLService)) {
+          localCopySanityChecks(req);
+        } else if (requestHasLocalSourceHeader(req, localURLService)) {
+          SwappedServletRequest wrappedRequest = new SwappedServletRequest(req);
+          if (LOG.isInfoEnabled()) {
+            LOG.info(
+                "Wrapped the COPY request to swap Source/Destination, URL: {} -> {}, Host: {} -> {}, Source header {} -> Destination header {}",
+                req.getRequestURL(),
+                wrappedRequest.getRequestURL(),
+                req.getHeader(HttpHeaders.HOST),
+                wrappedRequest.getHeader(HttpHeaders.HOST),
+                req.getHeader(TransferConstants.SOURCE_HEADER),
+                wrappedRequest.getHeader(TransferConstants.DESTINATION_HEADER));
+          }
+          res.setStatus(HttpServletResponse.SC_ACCEPTED);
+          checkAccessPermission(wrappedRequest);
+          request = wrappedRequest;
+        }
         // Let milton handle the local copy
         chain.doFilter(request, response);
-      } catch (URISyntaxException | BadRequest | ResourceNotFound e) {
-        res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      } catch (URISyntaxException | BadRequest | Forbidden | ResourceNotFound e) {
+        if (!(e instanceof Forbidden)) {
+          res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        }
         res.setContentType("text/plain");
         res.getWriter().print(e.getMessage());
         res.flushBuffer();

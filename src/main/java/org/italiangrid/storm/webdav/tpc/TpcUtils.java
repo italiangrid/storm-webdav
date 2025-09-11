@@ -40,6 +40,22 @@ public interface TpcUtils {
     return Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER)).isPresent();
   }
 
+  default boolean requestHasLocalSourceHeader(
+      HttpServletRequest request, LocalURLService localURLService) {
+    Optional<String> source =
+        Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER));
+
+    return source.isPresent() && localURLService.isLocalURL(source.get());
+  }
+
+  default boolean requestHasRemoteSourceHeader(
+      HttpServletRequest request, LocalURLService localURLService) {
+    Optional<String> source =
+        Optional.ofNullable(request.getHeader(TransferConstants.SOURCE_HEADER));
+
+    return source.isPresent() && !localURLService.isLocalURL(source.get());
+  }
+
   default boolean requestHasDestinationHeader(HttpServletRequest request) {
     return Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER)).isPresent();
   }
@@ -111,11 +127,27 @@ public interface TpcUtils {
     return false;
   }
 
+  default boolean requestHasTranferHeaderOtherThanAuthorization(HttpServletRequest request) {
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      if (headerName.toLowerCase().startsWith(TransferConstants.TRANSFER_HEADER_LC)
+          && !headerName
+              .toLowerCase()
+              .equals(
+                  TransferConstants.TRANSFER_HEADER_LC
+                      + TransferConstants.AUTHORIZATION_HEADER.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   default boolean isTpc(HttpServletRequest request, LocalURLService localUrlService) {
     return "COPY".equals(request.getMethod())
-        && (requestHasSourceHeader(request)
+        && (requestHasRemoteSourceHeader(request, localUrlService)
             || requestHasRemoteDestinationHeader(request, localUrlService)
-            || requestHasTranferHeader(request));
+            || requestHasTranferHeaderOtherThanAuthorization(request));
   }
 
   default boolean isCopyOrMoveRequest(HttpServletRequest request) {

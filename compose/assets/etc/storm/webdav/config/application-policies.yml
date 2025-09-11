@@ -5,6 +5,13 @@
 storm:
   authz:
     policies:
+    - sa: noauth
+      actions:
+      - all
+      effect: permit
+      description: Grant read/write access to all users
+      principals:
+      - type: anyone
     - sa: fga
       actions:
       - all
