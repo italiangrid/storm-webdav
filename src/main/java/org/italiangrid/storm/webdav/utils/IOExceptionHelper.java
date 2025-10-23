@@ -5,18 +5,20 @@
 package org.italiangrid.storm.webdav.utils;
 
 import java.io.IOException;
-import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
+import java.util.Set;
+import org.italiangrid.storm.webdav.error.InsufficientStorage;
 import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
 
 public final class IOExceptionHelper {
 
-  public static final String DISK_QUOTA_EXCEEDED = "Disk quota exceeded";
+  public static final Set<String> INSUFFICIENT_STORAGE_MESSAGES =
+      Set.of("Disk quota exceeded", "No space left on device");
 
   private IOExceptionHelper() {}
 
   public static StoRMWebDAVError getStoRMWebDAVError(IOException e) {
-    if (DISK_QUOTA_EXCEEDED.equals(e.getMessage())) {
-      return new DiskQuotaExceeded(DISK_QUOTA_EXCEEDED, e);
+    if (INSUFFICIENT_STORAGE_MESSAGES.contains(e.getMessage())) {
+      return new InsufficientStorage(e.getMessage(), e);
     }
     return new StoRMWebDAVError(e.getMessage(), e);
   }

@@ -17,7 +17,7 @@ import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.http.http11.Http11ResponseHandler;
 import java.io.IOException;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
-import org.italiangrid.storm.webdav.error.DiskQuotaExceeded;
+import org.italiangrid.storm.webdav.error.InsufficientStorage;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.SameFileError;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class StoRMMiltonBehaviour implements Filter {
       if (response.getEntity() != null) {
         manager.sendResponseEntity(response);
       }
-    } catch (DiskQuotaExceeded e) {
+    } catch (InsufficientStorage e) {
       // responseHandler does not support sending insufficient storage
       response.sendError(Status.SC_INSUFFICIENT_STORAGE, e.getMessage());
     } catch (ResourceNotFound e) {
