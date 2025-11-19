@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -62,5 +63,12 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
       }
     }
     return false;
+  }
+
+  @Override
+  public boolean isRedirectAllowed(
+      HttpHost currentTarget, HttpHost newTarget, HttpRequest redirect, HttpContext context) {
+    redirect.removeHeaders(HttpHeaders.AUTHORIZATION);
+    return true;
   }
 }

@@ -40,7 +40,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.ChainElement;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
@@ -93,7 +92,6 @@ import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.StaticHostListLocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcSchemePortResolver;
 import org.italiangrid.storm.webdav.tpc.TpcTlsSocketStrategy;
-import org.italiangrid.storm.webdav.tpc.http.DropAuthorizationHeaderExec;
 import org.italiangrid.storm.webdav.tpc.http.HttpComponentsMetrics;
 import org.italiangrid.storm.webdav.tpc.http.SuperLaxRedirectStrategy;
 import org.italiangrid.storm.webdav.web.PathConstants;
@@ -305,10 +303,6 @@ public class AppConfig {
         .setConnectionManager(cm)
         .setDefaultRequestConfig(config)
         .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
-        .addExecInterceptorAfter(
-            ChainElement.REDIRECT.name(),
-            "DropAuthorizationHeader",
-            new DropAuthorizationHeaderExec(SuperLaxRedirectStrategy.INSTANCE))
         .build();
   }
 
