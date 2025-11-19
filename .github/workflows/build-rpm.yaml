@@ -85,8 +85,10 @@ jobs:
             rpmbuild/RPMS/noarch/*.rpm
       - name: Upload release to repo
         if: env.REPO != ''
+        env:
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          curl --fail --user "${{ vars.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}" --upload-file rpmbuild/RPMS/noarch/*.rpm https://repo.cloud.cnaf.infn.it/repository/storm-rpm-${REPO}/redhat${{ matrix.version }}/
+          curl --fail --user "${{ vars.NEXUS_USERNAME }}:${NEXUS_PASSWORD}" --upload-file rpmbuild/RPMS/noarch/*.rpm https://repo.cloud.cnaf.infn.it/repository/storm-rpm-${REPO}/redhat${{ matrix.version }}/
   create-release:
     needs: build-rpm
     runs-on: ubuntu-latest
