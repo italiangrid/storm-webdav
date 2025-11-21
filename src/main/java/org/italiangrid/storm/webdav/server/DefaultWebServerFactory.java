@@ -9,9 +9,8 @@ import io.dropwizard.metrics.jetty12.InstrumentedQueuedThreadPool;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.italiangrid.storm.webdav.config.ServiceConfiguration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.jetty.JettyServerCustomizer;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 
 public class DefaultWebServerFactory
@@ -21,18 +20,15 @@ public class DefaultWebServerFactory
   private boolean virtualThreadsEnabled;
 
   final ServiceConfiguration configuration;
-  final ServerProperties serverProperties;
   final MetricRegistry metricRegistry;
   final JettyServerCustomizer serverCustomizer;
 
   public DefaultWebServerFactory(
       ServiceConfiguration configuration,
-      ServerProperties serverProperties,
       JettyServerCustomizer serverCustomizer,
       MetricRegistry registry) {
 
     this.configuration = configuration;
-    this.serverProperties = serverProperties;
     this.serverCustomizer = serverCustomizer;
     this.metricRegistry = registry;
   }

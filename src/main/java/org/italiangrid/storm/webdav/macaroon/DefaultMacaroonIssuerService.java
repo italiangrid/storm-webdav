@@ -36,13 +36,13 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
   protected AccessTokenRequest createRequest(MacaroonRequestDTO request) {
     AccessTokenRequest req = new AccessTokenRequest();
 
-    if (StringUtils.hasText(request.getValidity())) {
+    if (StringUtils.hasText(request.validity())) {
 
       try {
-        final long requestedValidity = Duration.parse(request.getValidity()).getSeconds();
+        final long requestedValidity = Duration.parse(request.validity()).getSeconds();
         req.setLifetime(requestedValidity);
       } catch (DateTimeParseException e) {
-        LOG.warn("Invalid validity string: {}", request.getValidity());
+        LOG.warn("Invalid validity string: {}", request.validity());
       }
     }
     return req;
@@ -53,9 +53,6 @@ public class DefaultMacaroonIssuerService implements MacaroonIssuerService {
   public MacaroonResponseDTO createAccessToken(MacaroonRequestDTO request, Authentication auth) {
 
     SignedJWT jwt = tokenIssuer.createAccessToken(createRequest(request), auth);
-    MacaroonResponseDTO response = new MacaroonResponseDTO();
-    response.setMacaroon(jwt.serialize());
-
-    return response;
+    return new MacaroonResponseDTO(jwt.serialize());
   }
 }

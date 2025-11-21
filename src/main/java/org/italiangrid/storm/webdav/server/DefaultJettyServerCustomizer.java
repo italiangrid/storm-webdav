@@ -25,8 +25,8 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.boot.jetty.JettyServerCustomizer;
+import org.springframework.boot.jetty.autoconfigure.JettyServerProperties;
 import org.springframework.util.StringUtils;
 
 public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
@@ -38,7 +38,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
   final ServiceConfiguration configuration;
   final StorageAreaConfiguration saConf;
-  final ServerProperties serverProperties;
+  final JettyServerProperties serverProperties;
   final MetricRegistry metricRegistry;
   final ConfigurationLogger confLogger;
   final X509CertChainValidatorExt certChainValidator;
@@ -48,7 +48,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
       ServiceConfigurationProperties serviceConfig,
       ServiceConfiguration configuration,
       StorageAreaConfiguration saConf,
-      ServerProperties serverProperties,
+      JettyServerProperties serverProperties,
       MetricRegistry registry,
       ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
@@ -139,8 +139,8 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
             .withHttp2(configuration.enableHttp2())
             .withDisableJsseHostnameVerification(true)
             .withTlsProtocol(configuration.getTlsProtocol())
-            .withAcceptors(serverProperties.getJetty().getThreads().getAcceptors())
-            .withSelectors(serverProperties.getJetty().getThreads().getSelectors())
+            .withAcceptors(serverProperties.getThreads().getAcceptors())
+            .withSelectors(serverProperties.getThreads().getSelectors())
             .build();
 
     connector.setName(HTTPS_CONNECTOR_NAME);

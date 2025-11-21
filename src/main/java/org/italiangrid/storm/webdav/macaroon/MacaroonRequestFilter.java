@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.macaroon;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +18,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class MacaroonRequestFilter implements Filter {
 
@@ -74,7 +75,7 @@ public class MacaroonRequestFilter implements Filter {
 
     } catch (AccessDeniedException e) {
       httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid macaroon request");
     }
   }

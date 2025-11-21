@@ -4,10 +4,9 @@
 
 package org.italiangrid.storm.webdav.spring.web;
 
-import static org.springframework.boot.autoconfigure.security.SecurityProperties.DEFAULT_FILTER_ORDER;
+import static org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterProperties.DEFAULT_FILTER_ORDER;
 
 import com.codahale.metrics.MetricRegistry;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.metrics.servlets.MetricsServlet;
 import java.time.Clock;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
@@ -46,6 +45,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.TemplateEngine;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 public class ServletConfiguration {

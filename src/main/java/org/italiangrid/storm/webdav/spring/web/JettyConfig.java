@@ -13,9 +13,9 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.server.DefaultJettyServerCustomizer;
 import org.italiangrid.storm.webdav.server.DefaultJettyServletWebServerFactory;
 import org.italiangrid.storm.webdav.server.DefaultWebServerFactory;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.jetty.JettyServerCustomizer;
+import org.springframework.boot.jetty.autoconfigure.JettyServerProperties;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ public class JettyConfig {
       ServiceConfigurationProperties serviceConfig,
       ServiceConfiguration configuration,
       StorageAreaConfiguration saConf,
-      ServerProperties serverProperties,
+      JettyServerProperties serverProperties,
       MetricRegistry registry,
       ConfigurationLogger confLogger,
       X509CertChainValidatorExt certChainValidator) {
@@ -46,11 +46,10 @@ public class JettyConfig {
   @Bean
   WebServerFactoryCustomizer<JettyServletWebServerFactory> defaultWebServerFactory(
       ServiceConfiguration configuration,
-      ServerProperties serverProperties,
       JettyServerCustomizer serverCustomizer,
       MetricRegistry registry) {
 
-    return new DefaultWebServerFactory(configuration, serverProperties, serverCustomizer, registry);
+    return new DefaultWebServerFactory(configuration, serverCustomizer, registry);
   }
 
   @Bean

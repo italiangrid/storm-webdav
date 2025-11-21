@@ -29,22 +29,9 @@ public final class UnanimousDelegatedManager
     this.managers = managers;
   }
 
-  /**
-   * @deprecated To be remove in Spring Security 7
-   */
-  @Deprecated(forRemoval = true)
-  @Override
-  public AuthorizationDecision check(
-      Supplier<Authentication> authentication, RequestAuthorizationContext filter) {
-    if (authorize(authentication, filter) instanceof AuthorizationDecision authorizationDecision) {
-      return authorizationDecision;
-    }
-    return null;
-  }
-
   @Override
   public AuthorizationResult authorize(
-      Supplier<Authentication> authentication, RequestAuthorizationContext filter) {
+      Supplier<? extends Authentication> authentication, RequestAuthorizationContext filter) {
     int grant = 0;
 
     for (AuthorizationManager<RequestAuthorizationContext> manager : managers) {

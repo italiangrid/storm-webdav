@@ -16,7 +16,7 @@ public class StormMethodSecurityExpressionHandler extends DefaultMethodSecurityE
 
   @Override
   public EvaluationContext createEvaluationContext(
-      Supplier<Authentication> authentication, MethodInvocation mi) {
+      Supplier<? extends Authentication> authentication, MethodInvocation mi) {
 
     EvaluationContext ec = super.createEvaluationContext(authentication, mi);
     ec.setVariable("storm", new StormSecurityExpressionMethods(authentication.get()));

@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.authz.pdp;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.Authentication;
 
 public final class PathAuthorizationRequest {

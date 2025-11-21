@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
-import org.eclipse.jetty.ee10.webapp.Configuration;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
-import org.springframework.boot.web.server.ErrorPage;
-import org.springframework.boot.web.servlet.ServletContextInitializer;
+import org.eclipse.jetty.ee11.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee11.webapp.AbstractConfiguration;
+import org.eclipse.jetty.ee11.webapp.Configuration;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
+import org.springframework.boot.web.error.ErrorPage;
+import org.springframework.boot.web.server.servlet.ServletContextInitializers;
 
 public class DefaultJettyServletWebServerFactory extends JettyServletWebServerFactory {
 
   @Override
   protected Configuration[] getWebAppContextConfigurations(
-      WebAppContext webAppContext, ServletContextInitializer... initializers) {
+      WebAppContext webAppContext, ServletContextInitializers initializers) {
 
     List<Configuration> configurations =
         new ArrayList<>(

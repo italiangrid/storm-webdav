@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.eclipse.jetty.ee10.servlet.ResourceServlet;
+import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.content.HttpContent;
