@@ -5,8 +5,8 @@
 package org.italiangrid.storm.webdav.oauth.utils;
 
 import java.util.concurrent.Callable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
-import org.springframework.lang.Nullable;
 
 public class NoExpirationStringCache extends AbstractValueAdaptingCache {
 

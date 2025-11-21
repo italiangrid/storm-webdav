@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.SignedJWT;
 import java.time.Clock;
 import java.time.Instant;
@@ -26,19 +25,17 @@ import org.italiangrid.storm.webdav.macaroon.MacaroonResponseDTO;
 import org.italiangrid.storm.webdav.test.utils.voms.WithMockVOMSUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -109,8 +106,7 @@ class MacaroonRequestIntegrationTests {
   @WithMockVOMSUser(acExpirationSecs = 43200)
   void validityEnforced() throws Exception {
 
-    MacaroonRequestDTO dto = new MacaroonRequestDTO();
-    dto.setValidity("PT2H");
+    MacaroonRequestDTO dto = new MacaroonRequestDTO("PT2H");
 
     String response =
         mvc.perform(
@@ -125,7 +121,7 @@ class MacaroonRequestIntegrationTests {
 
     MacaroonResponseDTO res = mapper.readValue(response, MacaroonResponseDTO.class);
 
-    SignedJWT signedJwt = SignedJWT.parse(res.getMacaroon());
+    SignedJWT signedJwt = SignedJWT.parse(res.macaroon());
 
     assertThat(signedJwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(NOW_PLUS_2H));
   }

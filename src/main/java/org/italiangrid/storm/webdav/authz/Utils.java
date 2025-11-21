@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 import javax.security.auth.x500.X500Principal;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+import org.eclipse.jetty.ee11.servlet.ServletContextRequest;
 
 public final class Utils {
 

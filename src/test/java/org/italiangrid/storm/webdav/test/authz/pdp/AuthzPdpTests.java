@@ -18,7 +18,7 @@ import jakarta.servlet.http.MappingMatch;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.eclipse.jetty.ee10.servlet.ServletPathMapping;
+import org.eclipse.jetty.ee11.servlet.ServletPathMapping;
 import org.italiangrid.storm.webdav.authz.VOMSFQANAuthority;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.pdp.DefaultPathAuthorizationPdp;

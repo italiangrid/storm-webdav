@@ -34,7 +34,7 @@ public class StoRMResourceHttpContentFactory extends ResourceHttpContentFactory 
       ServiceConfigurationProperties serviceConfig,
       PathResolver resolver,
       TemplateEngine engine) {
-    super(baseResource, mimeTypes);
+    super(baseResource, mimeTypes, null);
     this.mimeTypes = mimeTypes;
     pathResolver = resolver;
     oauthProperties = oauthP;

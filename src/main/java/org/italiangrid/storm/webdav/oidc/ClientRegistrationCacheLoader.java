@@ -12,9 +12,9 @@ import java.util.concurrent.ExecutorService;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties.Provider;
 import org.springframework.boot.context.properties.PropertyMapper;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties.Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration.Builder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
@@ -50,7 +50,7 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
     if (builder == null) {
       return null;
     }
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    PropertyMapper map = PropertyMapper.get();
     map.from(properties::getClientId).to(builder::clientId);
     map.from(properties::getClientSecret).to(builder::clientSecret);
     map.from(properties::getClientAuthenticationMethod)
@@ -81,7 +81,7 @@ public class ClientRegistrationCacheLoader extends CacheLoader<String, ClientReg
   }
 
   private static Builder getBuilder(Builder builder, Provider provider) {
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    PropertyMapper map = PropertyMapper.get();
     map.from(provider::getAuthorizationUri).to(builder::authorizationUri);
     map.from(provider::getTokenUri).to(builder::tokenUri);
     map.from(provider::getUserInfoUri).to(builder::userInfoUri);

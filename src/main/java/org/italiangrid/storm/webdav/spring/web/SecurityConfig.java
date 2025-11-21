@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.ErrorPage;
-import org.springframework.boot.web.server.ErrorPageRegistrar;
+import org.springframework.boot.web.error.ErrorPage;
+import org.springframework.boot.web.error.ErrorPageRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -126,8 +126,7 @@ public class SecurityConfig {
       VOMSAuthenticationProvider vomsProvider,
       StormJwtAuthenticationConverter authConverter,
       @Value("${storm.nginx.enabled}") boolean nginxEnabled,
-      PrincipalHelper helper)
-      throws Exception {
+      PrincipalHelper helper) {
 
     if (nginxEnabled) {
       // ForwardedByHeaderFilter must be ordered ahead of the ForwardedHeaderFilter because the
@@ -224,7 +223,7 @@ public class SecurityConfig {
     return new HttpMethodRequestRejectedHandler(ALLOWED_METHODS);
   }
 
-  protected void addAnonymousAccessRules(HttpSecurity http) throws Exception {
+  protected void addAnonymousAccessRules(HttpSecurity http) {
     final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
 
     for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
@@ -238,7 +237,7 @@ public class SecurityConfig {
     }
   }
 
-  protected void configureOidcAuthn(HttpSecurity http) throws Exception {
+  protected void configureOidcAuthn(HttpSecurity http) {
     if (oauthProperties.isEnableOidc()) {
       http.authorizeHttpRequests(
           authorize -> authorize.requestMatchers(PathConstants.OIDC_LOGIN_PATH).permitAll());
@@ -246,7 +245,7 @@ public class SecurityConfig {
     }
   }
 
-  protected void addAccessRules(HttpSecurity http) throws Exception {
+  protected void addAccessRules(HttpSecurity http) {
 
     Map<String, String> accessPoints = new TreeMap<>(Comparator.reverseOrder());
     saConfiguration

@@ -13,7 +13,6 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -40,24 +39,9 @@ public class LocalAuthzManager extends PathAuthzPdpManagerSupport {
         && StringUtils.hasText(token.getToken().getClaimAsString(DefaultJwtTokenIssuer.PATH_CLAIM));
   }
 
-  /**
-   * @deprecated To be remove in Spring Security 7
-   */
-  @Deprecated(forRemoval = true)
-  @Override
-  public AuthorizationDecision check(
-      Supplier<Authentication> authentication,
-      RequestAuthorizationContext requestAuthorizationContext) {
-    if (authorize(authentication, requestAuthorizationContext)
-        instanceof AuthorizationDecision authorizationDecision) {
-      return authorizationDecision;
-    }
-    return null;
-  }
-
   @Override
   public AuthorizationResult authorize(
-      Supplier<Authentication> authentication,
+      Supplier<? extends Authentication> authentication,
       RequestAuthorizationContext requestAuthorizationContext) {
 
     if (!(authentication.get() instanceof JwtAuthenticationToken)) {
