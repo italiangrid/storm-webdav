@@ -7,6 +7,7 @@ package org.italiangrid.storm.webdav.tpc.transfer;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.net.URI;
+import java.util.Optional;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 
 public abstract class RequestBuilder<T> {
@@ -19,7 +20,7 @@ public abstract class RequestBuilder<T> {
 
   SciTag scitag;
 
-  boolean verifyChecksum = true;
+  Optional<String> expectedChecksum = Optional.empty();
 
   boolean overwrite = true;
 
@@ -64,8 +65,8 @@ public abstract class RequestBuilder<T> {
     return this;
   }
 
-  public RequestBuilder<T> verifyChecksum(boolean v) {
-    verifyChecksum = v;
+  public RequestBuilder<T> expectedChecksum(Optional<String> c) {
+    expectedChecksum = c;
     return this;
   }
 }

@@ -19,6 +19,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -31,6 +33,9 @@ import org.italiangrid.storm.webdav.milton.util.ReplaceContentStrategy;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
+import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
+import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,18 +151,8 @@ public class MiltonFilter implements Filter {
         request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
       }
       miltonHTTPManager.process(miltonReq, miltonRes);
-      if (miltonReq.getMethod() == Method.PUT
-          && storageAreaInfo != null
-          && storageAreaInfo.tapeEnabled()) {
-        try {
-          attrsHelper.setPremigrateAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
-        } catch (IOException e) {
-          LOG.warn(
-              "Error setting premigrate extended attribute to {}: {}",
-              resolver.resolvePath(miltonReq.getAbsolutePath()),
-              e.getMessage(),
-              e);
-        }
+      if (miltonReq.getMethod() == Method.PUT) {
+        putRequestHandling(request, miltonReq, miltonRes, storageAreaInfo);
       }
 
     } finally {
@@ -177,6 +172,61 @@ public class MiltonFilter implements Filter {
       } catch (IOException e) {
         LOG.error(e.getMessage(), e);
         throw new RuntimeException(e.getMessage(), e);
+      }
+    }
+  }
+
+  public void putRequestHandling(
+      HttpServletRequest request,
+      Request miltonReq,
+      Response miltonRes,
+      StorageAreaInfo storageAreaInfo) {
+    try {
+      // The PASSIVE site is expected to verify that the provided checksum matches the one of the
+      // new saved file.
+      Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(
+              request.getHeader(TransferConstants.REPR_DIGEST_HEADER))
+          .ifPresent(
+              reprDigestChecksum -> {
+                Path filePath = resolver.getPath(miltonReq.getAbsolutePath());
+                String checksum;
+                try {
+                  checksum = attrsHelper.getChecksumAttribute(filePath);
+                } catch (IOException e) {
+                  throw new ChecksumVerificationError(
+                      "Error retrieving checksum from the file system");
+                }
+                if (!checksum.equals(reprDigestChecksum)) {
+                  try {
+                    Files.delete(filePath);
+                  } catch (IOException e) {
+                    LOG.warn(
+                        "Cannot delete file received with the wrong checksum {}: {}",
+                        resolver.resolvePath(miltonReq.getAbsolutePath()),
+                        e.getMessage(),
+                        e);
+                  }
+                  throw new ChecksumVerificationError("client/server checksum mismatch");
+                }
+              });
+    } catch (ChecksumVerificationError e) {
+      LOG.warn(
+          "Checksum validation error on file {}: {}",
+          resolver.resolvePath(miltonReq.getAbsolutePath()),
+          e.getMessage(),
+          e);
+      miltonRes.sendError(Response.Status.SC_PRECONDITION_FAILED, e.getMessage());
+      return;
+    }
+    if (storageAreaInfo != null && storageAreaInfo.tapeEnabled()) {
+      try {
+        attrsHelper.setPremigrateAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
+      } catch (IOException e) {
+        LOG.warn(
+            "Error setting premigrate extended attribute to {}: {}",
+            resolver.resolvePath(miltonReq.getAbsolutePath()),
+            e.getMessage(),
+            e);
       }
     }
   }

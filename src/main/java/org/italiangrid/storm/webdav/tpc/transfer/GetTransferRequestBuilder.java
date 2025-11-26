@@ -9,7 +9,8 @@ import org.italiangrid.storm.webdav.tpc.transfer.impl.GetTransferRequestImpl;
 public class GetTransferRequestBuilder extends RequestBuilder<GetTransferRequest> {
 
   public GetTransferRequest build() {
-    return new GetTransferRequestImpl(uuid, path, uri, headers, scitag, verifyChecksum, overwrite);
+    return new GetTransferRequestImpl(
+        uuid, path, uri, headers, scitag, expectedChecksum, overwrite);
   }
 
   public static GetTransferRequestBuilder create() {

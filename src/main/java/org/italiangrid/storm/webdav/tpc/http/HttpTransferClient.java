@@ -30,6 +30,7 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.ThirdPartyCopyProperties;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
@@ -135,7 +136,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     return CountingFileEntity.create(p.toFile());
   }
 
-  StormCountingOutputStream prepareOutputStream(Path path) {
+  Adler32ChecksumOutputStream prepareOutputStream(Path path) {
     Objects.requireNonNull(path, "Impossible path resolution error");
 
     try {
@@ -145,7 +146,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
         fos = new BufferedOutputStream(fos, localFileBufferSize);
       }
 
-      return StormCountingOutputStream.create(fos, path);
+      return new Adler32ChecksumOutputStream(StormCountingOutputStream.create(fos, path));
 
     } catch (IOException e) {
       throw new TransferError(e.getMessage(), e);
@@ -155,22 +156,22 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   @Override
   public void handle(GetTransferRequest request, TransferStatusCallback cb) {
     TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(false);
-    StormCountingOutputStream os = prepareOutputStream(resolver.getPath(request.path()));
     BasicClassicHttpRequest get = prepareRequest(request);
     HttpClientContext context = HttpClientContext.create();
     Observation observation = null;
     BytesCount bytesCount = new BytesCount();
+    ScheduledFuture<?> reportTask = null;
 
-    ScheduledFuture<?> reportTask =
-        executorService.scheduleAtFixedRate(
-            () -> {
-              reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
-              bytesCount.updateMetrics(context);
-            },
-            reportDelaySec,
-            reportDelaySec,
-            TimeUnit.SECONDS);
-    try {
+    try (Adler32ChecksumOutputStream os = prepareOutputStream(resolver.getPath(request.path()))) {
+      reportTask =
+          executorService.scheduleAtFixedRate(
+              () -> {
+                reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
+                bytesCount.updateMetrics(context);
+              },
+              reportDelaySec,
+              reportDelaySec,
+              TimeUnit.SECONDS);
       context.setAttribute(SciTag.SCITAG_ATTRIBUTE, request.scitag());
       context.setAttribute(TransferStatus.Builder.TRANSFER_STATUS_BUILDER_ATTRIBUTE, statusBuilder);
       ApacheHttpClientContext observationContext = new ApacheHttpClientContext(get, context);
@@ -191,7 +192,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               attributesHelper,
               MDC.getCopyOfContextMap(),
               socketBufferSize,
-              true,
               resolver.resolveStorageArea(request.path()).tapeEnabled(),
               observationContext));
       reportTask.cancel(true);
@@ -229,7 +229,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
       observation.error(e);
 
     } finally {
-      if (!reportTask.isCancelled()) {
+      if (reportTask != null && !reportTask.isCancelled()) {
         reportTask.cancel(true);
       }
       SciTagTransfer scitagTransfer =
@@ -269,12 +269,35 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   @Override
   public void handle(PutTransferRequest request, TransferStatusCallback cb) {
     TransferStatus.Builder statusBuilder = TransferStatus.builder(clock).withIsPushMode(true);
-    CountingFileEntity cfe = prepareFileEntity(resolver.resolvePath(request.path()));
+    String pathResolved = resolver.resolvePath(request.path());
+    CountingFileEntity cfe = prepareFileEntity(pathResolved);
 
     BasicClassicHttpRequest put = prepareRequest(request, cfe);
     HttpClientContext context = HttpClientContext.create();
     Observation observation = null;
     BytesCount bytesCount = new BytesCount();
+
+    request
+        .expectedChecksum()
+        .ifPresent(
+            expectedChecksum -> {
+              try {
+                String fileChecksum =
+                    attributesHelper.getChecksumAttribute(resolver.getPath(request.path()));
+                if (!expectedChecksum.equals(fileChecksum)) {
+                  LOG.warn(
+                      "Checksum mismatch in push-mode TPC: expected checksum '{}', file checksum '{}'",
+                      expectedChecksum,
+                      fileChecksum);
+                }
+              } catch (IOException e) {
+                LOG.warn(
+                    "Error retrieving checksum value for path '{}': {}",
+                    pathResolved,
+                    e.getMessage(),
+                    e);
+              }
+            });
 
     ScheduledFuture<?> reportTask =
         executorService.scheduleAtFixedRate(

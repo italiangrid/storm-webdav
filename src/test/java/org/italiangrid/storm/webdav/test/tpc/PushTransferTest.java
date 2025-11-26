@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.CLIENT_INFO_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
+    lenient().when(request.getHeader(TransferConstants.REPR_DIGEST_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn(null);
   }
 
@@ -53,7 +54,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat(putXferRequest.getValue().overwrite(), is(true));
-    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+    assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
     assertTrue(
         "Expected empty xfer headers", putXferRequest.getValue().transferHeaders().isEmpty());
 
@@ -68,25 +69,28 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat("Overwrite header not recognized", putXferRequest.getValue().overwrite(), is(false));
-    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+    assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
     assertTrue(
         "Expected empty xfer headers", putXferRequest.getValue().transferHeaders().isEmpty());
   }
 
   @Test
   void checksumRecognized() throws IOException, ServletException {
-    when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn("false");
+    when(request.getHeaderNames())
+        .thenReturn(Collections.enumeration(Arrays.asList(TransferConstants.REPR_DIGEST_HEADER)));
+    when(request.getHeader(TransferConstants.REPR_DIGEST_HEADER))
+        .thenReturn("adler=:MDNmYzAxOWQ=:");
     filter.doFilter(request, response, chain);
     verify(client).handle(putXferRequest.capture(), Mockito.any());
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat(putXferRequest.getValue().overwrite(), is(true));
+    Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
+    assertThat(xferHeaders.size(), is(1));
+    assertThat(xferHeaders.containsKey(TransferConstants.REPR_DIGEST_HEADER), is(true));
     assertThat(
-        "RequireChecksumVerification header not recognized",
-        putXferRequest.getValue().verifyChecksum(),
-        is(false));
-    assertTrue(
-        "Expected empty xfer headers", putXferRequest.getValue().transferHeaders().isEmpty());
+        xferHeaders.get(TransferConstants.REPR_DIGEST_HEADER).iterator().next(),
+        is("adler=:MDNmYzAxOWQ=:"));
   }
 
   @Test
@@ -110,7 +114,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat(putXferRequest.getValue().overwrite(), is(true));
-    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+    assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
 
     Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(2));
@@ -138,7 +142,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat(putXferRequest.getValue().overwrite(), is(true));
-    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+    assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
 
     Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(1));
@@ -207,7 +211,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
     assertThat(putXferRequest.getValue().remoteURI(), is(HTTPS_URL_URI));
     assertThat(putXferRequest.getValue().overwrite(), is(true));
-    assertThat(putXferRequest.getValue().verifyChecksum(), is(true));
+    assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
 
     Multimap<String, String> xferHeaders = putXferRequest.getValue().transferHeaders();
     assertThat(xferHeaders.size(), is(0));

@@ -14,10 +14,12 @@ public final class TransferConstants {
   public static final String SOURCE_HEADER = "Source";
   public static final String DESTINATION_HEADER = "Destination";
   public static final String OVERWRITE_HEADER = "Overwrite";
-  public static final String REQUIRE_CHECKSUM_HEADER = "RequireChecksumVerification";
+  public static final String REPR_DIGEST_HEADER = "Repr-Digest";
+  public static final String WANT_REPR_DIGEST_HEADER = "Want-Repr-Digest";
   public static final String CREDENTIAL_HEADER = "Credential";
 
   public static final String CREDENTIAL_HEADER_NONE_VALUE = "none";
+  public static final String WANT_REPR_DIGEST_HEADER_VALUE = "adler=9";
 
   public static final String TRANSFER_HEADER = "TransferHeader";
   public static final String TRANSFER_HEADER_LC = TRANSFER_HEADER.toLowerCase();

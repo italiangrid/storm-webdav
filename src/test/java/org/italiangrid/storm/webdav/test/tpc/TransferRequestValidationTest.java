@@ -41,7 +41,6 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
     lenient().when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.CLIENT_INFO_HEADER)).thenReturn(null);
     lenient().when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn(null);
-    lenient().when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(null);
   }
 
   @Test
@@ -92,21 +91,6 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       verify(response).sendError(httpStatus.capture(), error.capture());
       assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
       assertThat(error.getValue(), containsString("Invalid Overwrite header"));
-      reset(response);
-    }
-  }
-
-  @Test
-  void invalidRequireChecksumHeader() throws IOException, ServletException {
-    String[] invalidValues = {"t", "F", ""};
-
-    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
-    for (String s : invalidValues) {
-      when(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER)).thenReturn(s);
-      filter.doFilter(request, response, chain);
-      verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-      assertThat(error.getValue(), containsString("Invalid RequireChecksumVerification header"));
       reset(response);
     }
   }

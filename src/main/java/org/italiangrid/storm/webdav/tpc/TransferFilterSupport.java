@@ -37,20 +37,14 @@ public class TransferFilterSupport implements TpcUtils {
   protected final Clock clock;
   protected final PathResolver resolver;
   protected final LocalURLService localURLService;
-  protected final boolean verifyChecksum;
   protected final TransferStatus.Builder status;
   protected long enableExpectContinueThreshold;
 
   protected TransferFilterSupport(
-      Clock clock,
-      PathResolver resolver,
-      LocalURLService lus,
-      boolean verifyChecksum,
-      long enableExpectContinueThreshold) {
+      Clock clock, PathResolver resolver, LocalURLService lus, long enableExpectContinueThreshold) {
     this.clock = clock;
     this.resolver = resolver;
     this.localURLService = lus;
-    this.verifyChecksum = verifyChecksum;
     this.enableExpectContinueThreshold = enableExpectContinueThreshold;
     status = TransferStatus.builder(clock);
   }
@@ -82,6 +76,18 @@ public class TransferFilterSupport implements TpcUtils {
           continue;
         }
         xferHeaders.put(xferHeaderName.trim(), request.getHeader(headerName));
+      } else if (headerName.trim().equalsIgnoreCase(TransferConstants.REPR_DIGEST_HEADER)) {
+        if (isPushTpc(request, localURLService)) {
+          // The ACTIVE site will issue a PUT request with the same header (Repr-Digest:
+          // adler=:1234:) to the PASSIVE site.
+          xferHeaders.put(headerName.trim(), request.getHeader(headerName));
+        } else {
+          // The ACTIVE site will issue a GET request with the header Want-Repr-Digest (example:
+          // Want-Repr-Digest: adler=9) to the PASSIVE site.
+          xferHeaders.put(
+              TransferConstants.WANT_REPR_DIGEST_HEADER,
+              TransferConstants.WANT_REPR_DIGEST_HEADER_VALUE);
+        }
       }
     }
 
@@ -91,17 +97,6 @@ public class TransferFilterSupport implements TpcUtils {
     }
 
     return xferHeaders;
-  }
-
-  protected boolean verifyChecksumRequested(HttpServletRequest request) {
-    Optional<String> verifyChecksumFromHeader =
-        Optional.ofNullable(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER));
-
-    if (verifyChecksumFromHeader.isPresent()) {
-      return "true".equals(verifyChecksumFromHeader.get());
-    }
-    // FIXME: take default from configuration
-    return true;
   }
 
   protected boolean overwriteRequested(HttpServletRequest request) {
@@ -228,8 +223,6 @@ public class TransferFilterSupport implements TpcUtils {
         Optional.ofNullable(request.getHeader(TransferConstants.DESTINATION_HEADER));
     Optional<String> overwrite =
         Optional.ofNullable(request.getHeader(TransferConstants.OVERWRITE_HEADER));
-    Optional<String> checksum =
-        Optional.ofNullable(request.getHeader(TransferConstants.REQUIRE_CHECKSUM_HEADER));
     Optional<String> credential =
         Optional.ofNullable(request.getHeader(TransferConstants.CREDENTIAL_HEADER));
 
@@ -282,25 +275,6 @@ public class TransferFilterSupport implements TpcUtils {
         invalidRequest(
             response,
             String.format("Invalid %s header value: %s", TransferConstants.OVERWRITE_HEADER, val));
-        return false;
-      }
-    }
-
-    if (checksum.isPresent()) {
-
-      boolean invalidChecksum = false;
-
-      String val = checksum.get();
-
-      if (val.isBlank() || (!"true".equals(val) && !"false".equals(val))) {
-        invalidChecksum = true;
-      }
-
-      if (invalidChecksum) {
-        invalidRequest(
-            response,
-            String.format(
-                "Invalid %s header value: %s", TransferConstants.REQUIRE_CHECKSUM_HEADER, val));
         return false;
       }
     }

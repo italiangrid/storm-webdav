@@ -15,6 +15,7 @@ import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -97,7 +98,7 @@ class TpcClientRedirectionTest {
             URI.create(mockHttpsUrl("/test/example")),
             headers,
             null,
-            false,
+            Optional.empty(),
             false);
 
     wiremock.stubFor(

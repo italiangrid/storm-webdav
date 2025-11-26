@@ -10,14 +10,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
-import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
+import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
+import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,20 +33,18 @@ public class GetResponseHandler extends ResponseHandlerSupport
   public static final Logger LOG = LoggerFactory.getLogger(GetResponseHandler.class);
 
   final GetTransferRequest request;
-  final StormCountingOutputStream fileStream;
+  final Adler32ChecksumOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
   final int bufferSize;
-  final boolean computeChecksum;
   final boolean tapeEnabledStorageArea;
   final ApacheHttpClientContext observationContext;
 
   public GetResponseHandler(
       GetTransferRequest req,
-      StormCountingOutputStream fs,
+      Adler32ChecksumOutputStream fs,
       ExtendedAttributesHelper ah,
       Map<String, String> mdcContextMap,
       int bufSiz,
-      boolean computeChecksum,
       boolean tapeEnabledStorageArea,
       ApacheHttpClientContext observationContext) {
 
@@ -51,14 +53,13 @@ public class GetResponseHandler extends ResponseHandlerSupport
     fileStream = fs;
     attributesHelper = ah;
     bufferSize = bufSiz;
-    this.computeChecksum = computeChecksum;
     this.tapeEnabledStorageArea = tapeEnabledStorageArea;
     this.observationContext = observationContext;
   }
 
   public GetResponseHandler(
-      GetTransferRequest req, StormCountingOutputStream fs, ExtendedAttributesHelper ah) {
-    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, true, false, null);
+      GetTransferRequest req, Adler32ChecksumOutputStream fs, ExtendedAttributesHelper ah) {
+    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, false, null);
   }
 
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
@@ -89,24 +90,44 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     checkResponseStatus(response);
 
-    Adler32ChecksumOutputStream checkedStream = null;
-
-    OutputStream os = fileStream;
-
-    if (computeChecksum) {
-      checkedStream = new Adler32ChecksumOutputStream(fileStream);
-      os = checkedStream;
-    }
-
     try {
 
       if (entity != null) {
 
-        writeEntityToStream(entity, os);
-        if (computeChecksum) {
-          attributesHelper.setChecksumAttribute(
-              fileStream.getPath(), checkedStream.getChecksumValue());
-        }
+        // If the PASSIVE site answers with a digest that does not match the one provided by the
+        // client, the ACTIVE site can short-cut and avoid performing a digest computation on the
+        // data and fail the transfer.
+        Optional.ofNullable(response.getFirstHeader(TransferConstants.REPR_DIGEST_HEADER))
+            .map(Header::getValue)
+            .flatMap(Adler32DigestHeaderHelper::extractAdler32DigestFromHeaderValue)
+            .ifPresent(
+                passiveSiteChecksum ->
+                    request
+                        .expectedChecksum()
+                        .ifPresent(
+                            expectedChecksum -> {
+                              if (!expectedChecksum.equals(passiveSiteChecksum)) {
+                                throw new ChecksumVerificationError(
+                                    "client/server checksum mismatch (checksum received from remote server mismatch)");
+                              }
+                            }));
+
+        writeEntityToStream(entity, fileStream);
+
+        String checksum = fileStream.getChecksumValue();
+        // The ACTIVE site MUST compute a digest based on the received data from the PASSIVE site
+        // and check it against the one provided by the client. This is necessary to avoid
+        // corruption during traffic.
+        request
+            .expectedChecksum()
+            .ifPresent(
+                expectedChecksum -> {
+                  if (!expectedChecksum.equals(checksum)) {
+                    throw new ChecksumVerificationError(
+                        "client/server checksum mismatch (checksum of the received file mismatch)");
+                  }
+                });
+        attributesHelper.setChecksumAttribute(fileStream.getPath(), checksum);
         if (tapeEnabledStorageArea) {
           try {
             attributesHelper.setPremigrateAttribute(fileStream.getPath());
@@ -123,7 +144,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
       return true;
 
     } finally {
-      fileStream.close();
       EntityUtils.consumeQuietly(entity);
     }
   }
