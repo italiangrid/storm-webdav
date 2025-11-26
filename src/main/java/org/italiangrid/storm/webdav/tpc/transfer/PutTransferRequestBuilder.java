@@ -14,7 +14,8 @@ public final class PutTransferRequestBuilder extends RequestBuilder<PutTransferR
 
   @Override
   public PutTransferRequest build() {
-    return new PutTransferRequestImpl(uuid, path, uri, headers, scitag, verifyChecksum, overwrite);
+    return new PutTransferRequestImpl(
+        uuid, path, uri, headers, scitag, expectedChecksum, overwrite);
   }
 
   public static PutTransferRequestBuilder create() {

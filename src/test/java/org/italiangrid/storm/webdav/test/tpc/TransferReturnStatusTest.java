@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
@@ -23,12 +25,15 @@ import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class TransferReturnStatusTest extends TransferFilterTestSupport {
+
+  @TempDir Path directory;
 
   @Override
   @BeforeEach
@@ -77,6 +82,9 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
   @Test
   void filterAnswers412ForChecksumVerificationError() throws IOException, ServletException {
+    Path fileToDelete = directory.resolve("tmpFile");
+    Files.createFile(fileToDelete);
+    when(resolver.getPath(FULL_LOCAL_PATH)).thenReturn(fileToDelete);
     Mockito.doThrow(new ChecksumVerificationError("Checksum verification error"))
         .when(client)
         .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
@@ -85,6 +93,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_PRECONDITION_FAILED));
     assertThat(error.getValue(), is("Checksum verification error"));
+    assertThat(Files.exists(fileToDelete), is(false));
   }
 
   @Test

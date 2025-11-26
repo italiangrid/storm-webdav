@@ -14,8 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,5 +113,8 @@ public class ChecksumFilter implements Filter {
 
     final String checksumHeaderContent = "adler32=" + checksumValue;
     response.setHeader("Digest", checksumHeaderContent);
+    final String reprDigestHeaderContent =
+        "adler=:" + Base64.getEncoder().encodeToString(checksumValue.getBytes()) + ":";
+    response.setHeader(TransferConstants.REPR_DIGEST_HEADER, reprDigestHeaderContent);
   }
 }

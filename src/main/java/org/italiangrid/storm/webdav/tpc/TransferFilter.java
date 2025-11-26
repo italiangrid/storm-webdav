@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.time.Clock;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +34,7 @@ import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
+import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
 import org.italiangrid.storm.webdav.tpc.utils.ClientInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +54,8 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       TransferClient c,
       PathResolver resolver,
       LocalURLService lus,
-      boolean verifyChecksum,
       long enableExpectContinueThreshold) {
-    super(clock, resolver, lus, verifyChecksum, enableExpectContinueThreshold);
+    super(clock, resolver, lus, enableExpectContinueThreshold);
     client = c;
   }
 
@@ -242,7 +243,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
             .path(path)
             .headers(getTransferHeaders(request))
             .scitag(scitag)
-            .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
+            .expectedChecksum(
+                Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(
+                    request.getHeader(TransferConstants.REPR_DIGEST_HEADER)))
             .overwrite(overwriteRequested(request))
             .build();
 
@@ -254,6 +257,7 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       client.handle(xferRequest, (r, s) -> reportProgress(s, response));
 
     } catch (ChecksumVerificationError e) {
+      Files.delete(resolver.getPath(path));
       logTransferException(xferRequest, e);
       handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {
@@ -282,7 +286,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
             .path(path)
             .headers(getTransferHeaders(request))
             .scitag(scitag)
-            .verifyChecksum(verifyChecksum && verifyChecksumRequested(request))
+            .expectedChecksum(
+                Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(
+                    request.getHeader(TransferConstants.REPR_DIGEST_HEADER)))
             .overwrite(overwriteRequested(request))
             .build();
 

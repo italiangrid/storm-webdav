@@ -36,6 +36,7 @@ Get checksum works
     Davix Put Success  ${TEMPDIR}/checksum_works  ${url}
     ${rc}  ${out}  Curl Voms GET Success  ${url}
     Should Contain  ${out}  Digest: adler32=091e01de
+    Should Contain  ${out}  Repr-Digest: adler=:MDkxZTAxZGU=:
     [Teardown]  Teardown file for checksum   checksum_works
 
 Head checksum works
@@ -45,4 +46,5 @@ Head checksum works
     Davix Put Success  ${TEMPDIR}/checksum_works  ${url}
     ${rc}  ${out}  Curl Voms HEAD Success  ${url}
     Should Contain  ${out}  Digest: adler32=1d3b039e
+    Should Contain  ${out}  Repr-Digest: adler=:MWQzYjAzOWU=:
     [Teardown]  Teardown file for checksum   checksum_works

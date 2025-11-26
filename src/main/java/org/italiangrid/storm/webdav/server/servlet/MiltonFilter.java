@@ -77,7 +77,7 @@ public class MiltonFilter implements Filter {
 
   private void initMiltonHTTPManager() {
 
-    final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder();
+    final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder(attrsHelper, resolver);
 
     final StoRMResourceFactory resourceFactory =
         new StoRMResourceFactory(filesystemAccess, attrsHelper, resolver, rcs);

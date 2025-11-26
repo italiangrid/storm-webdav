@@ -4,16 +4,23 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
-import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
+import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +35,7 @@ class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock ClassicHttpResponse response;
 
-  @Mock StormCountingOutputStream os;
+  @Mock Adler32ChecksumOutputStream os;
 
   GetResponseHandler handler;
 
@@ -36,12 +43,63 @@ class GetResponseHandlerTest extends ClientTestSupport {
   @BeforeEach
   public void setup() {
 
-    handler = new GetResponseHandler(null, os, eah);
+    handler = new GetResponseHandler(req, os, eah);
     lenient().when(response.getEntity()).thenReturn(entity);
   }
 
   @Test
   void handlerWritesToStream() throws IOException {
+    lenient().when(response.getFirstHeader(TransferConstants.REPR_DIGEST_HEADER)).thenReturn(null);
+    handler.handleResponse(response);
+
+    verify(entity).getContent();
+    verify(eah).setChecksumAttribute(ArgumentMatchers.<Path>any(), any());
+  }
+
+  @Test
+  void handlerErrorInCaseOfMismatchedChecksumFromPassive() {
+    lenient().when(req.expectedChecksum()).thenReturn(Optional.of("045d01c1"));
+    lenient()
+        .when(response.getFirstHeader(TransferConstants.REPR_DIGEST_HEADER))
+        .thenReturn(new BasicHeader(TransferConstants.REPR_DIGEST_HEADER, "adler=:MDNmYzAxOWQ=:"));
+
+    ChecksumVerificationError checksumVerificationError =
+        assertThrows(
+            ChecksumVerificationError.class,
+            () -> {
+              handler.handleResponse(response);
+            });
+    assertThat(
+        checksumVerificationError.getMessage(),
+        is("client/server checksum mismatch (checksum received from remote server mismatch)"));
+  }
+
+  @Test
+  void handlerErrorInCaseOfMismatchedChecksumFromStream() {
+    lenient().when(req.expectedChecksum()).thenReturn(Optional.of("03fc019d"));
+    lenient()
+        .when(response.getFirstHeader(TransferConstants.REPR_DIGEST_HEADER))
+        .thenReturn(new BasicHeader(TransferConstants.REPR_DIGEST_HEADER, "adler=:MDNmYzAxOWQ=:"));
+    lenient().when(os.getChecksumValue()).thenReturn("045d01c1");
+
+    ChecksumVerificationError checksumVerificationError =
+        assertThrows(
+            ChecksumVerificationError.class,
+            () -> {
+              handler.handleResponse(response);
+            });
+    assertThat(
+        checksumVerificationError.getMessage(),
+        is("client/server checksum mismatch (checksum of the received file mismatch)"));
+  }
+
+  @Test
+  void handlerChecksumCorrect() throws IOException {
+    lenient().when(req.expectedChecksum()).thenReturn(Optional.of("03fc019d"));
+    lenient()
+        .when(response.getFirstHeader(TransferConstants.REPR_DIGEST_HEADER))
+        .thenReturn(new BasicHeader(TransferConstants.REPR_DIGEST_HEADER, "adler=:MDNmYzAxOWQ=:"));
+    lenient().when(os.getChecksumValue()).thenReturn("03fc019d");
     handler.handleResponse(response);
 
     verify(entity).getContent();

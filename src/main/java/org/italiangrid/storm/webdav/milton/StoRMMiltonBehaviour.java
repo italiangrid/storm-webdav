@@ -9,6 +9,7 @@ import io.milton.http.FilterChain;
 import io.milton.http.Handler;
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
+import io.milton.http.Request.Method;
 import io.milton.http.Response;
 import io.milton.http.Response.Status;
 import io.milton.http.exceptions.BadRequestException;
@@ -16,10 +17,17 @@ import io.milton.http.exceptions.ConflictException;
 import io.milton.http.exceptions.NotAuthorizedException;
 import io.milton.http.http11.Http11ResponseHandler;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.InsufficientStorage;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
 import org.italiangrid.storm.webdav.error.SameFileError;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.server.PathResolver;
+import org.italiangrid.storm.webdav.tpc.TransferConstants;
+import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
+import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.MethodNotAllowedException;
@@ -27,6 +35,15 @@ import org.springframework.web.server.MethodNotAllowedException;
 public class StoRMMiltonBehaviour implements Filter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StoRMMiltonBehaviour.class);
+
+  private final ExtendedAttributesHelper attrsHelper;
+
+  private final PathResolver resolver;
+
+  public StoRMMiltonBehaviour(ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
+    this.attrsHelper = attrsHelper;
+    this.resolver = resolver;
+  }
 
   @Override
   public void process(FilterChain chain, Request request, Response response) {
@@ -46,6 +63,9 @@ public class StoRMMiltonBehaviour implements Filter {
       }
 
       handler.process(manager, request, response);
+      if (request.getMethod() == Method.PUT) {
+        putRequestHandling(request);
+      }
       if (response.getEntity() != null) {
         manager.sendResponseEntity(response);
       }
@@ -64,7 +84,7 @@ public class StoRMMiltonBehaviour implements Filter {
       responseHandler.respondConflict(e.getResource(), response, request, e.getMessage());
     } catch (BadRequestException e) {
       responseHandler.respondBadRequest(e.getResource(), response, request);
-    } catch (DirectoryNotEmpty e) {
+    } catch (DirectoryNotEmpty | ChecksumVerificationError e) {
       sendError(response, Status.SC_PRECONDITION_FAILED, e.getMessage());
     } catch (NotAuthorizedException e) {
       // Message is vague to avoid leaking information on why the request was forbidden.
@@ -86,5 +106,36 @@ public class StoRMMiltonBehaviour implements Filter {
     } catch (IOException e) {
 
     }
+  }
+
+  public void putRequestHandling(Request request) throws ChecksumVerificationError {
+    // The PASSIVE site is expected to verify that the provided checksum matches the one of the
+    // new saved file.
+    // Milton headers are lowercase
+    Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(
+            request.getHeaders().get(TransferConstants.REPR_DIGEST_HEADER.toLowerCase()))
+        .ifPresent(
+            reprDigestChecksum -> {
+              Path filePath = resolver.getPath(request.getAbsolutePath());
+              String checksum;
+              try {
+                checksum = attrsHelper.getChecksumAttribute(filePath);
+              } catch (IOException e) {
+                throw new ChecksumVerificationError(
+                    "Error retrieving checksum from the file system");
+              }
+              if (!checksum.equals(reprDigestChecksum)) {
+                try {
+                  Files.delete(filePath);
+                } catch (IOException e) {
+                  LOG.warn(
+                      "Cannot delete file received with the wrong checksum {}: {}",
+                      resolver.resolvePath(request.getAbsolutePath()),
+                      e.getMessage(),
+                      e);
+                }
+                throw new ChecksumVerificationError("client/server checksum mismatch");
+              }
+            });
   }
 }

@@ -32,6 +32,24 @@ class DigestTest {
     "adler32=8a23d4f8", "adler32 =8a23d4f8", "adler32 =   8a23d4f8", "  adler32=8a23d4f8  "
   };
 
+  public static final String[] REPR_DIGEST_INVALID_HEADERS = {
+    "", "adler32=", "adler32=::", "sha256=:123456:", null
+  };
+
+  public static final String[] REPR_DIGEST_VALID_HEADERS = {
+    "adler32=:OGEyM2Q0Zjg=:",
+    "adler32 =:OGEyM2Q0Zjg=:",
+    "adler32 =   :OGEyM2Q0Zjg=:",
+    "  adler32=:OGEyM2Q0Zjg=:  ",
+    "adler=:OGEyM2Q0Zjg=:",
+    "adler =:OGEyM2Q0Zjg=:",
+    "adler=   :OGEyM2Q0Zjg=:",
+    "  adler=:OGEyM2Q0Zjg=:  ",
+    "adler=:OGEyM2Q0Zjg=:,adler32=:OGEyM2Q0Zjg=:",
+    "adler =:OGEyM2Q0Zjg=:, adler32 = :OGEyM2Q0Zjg=:",
+    "adler32= :OGEyM2Q0Zjg=:, adler    = :OGEyM2Q0Zjg=:"
+  };
+
   protected void instrumentResponse(String headerValue) {
     lenient()
         .when(response.getFirstHeader(Adler32DigestHeaderHelper.DIGEST_HEADER))
@@ -52,6 +70,22 @@ class DigestTest {
       instrumentResponse(s);
       assertThat(extractAdler32DigestFromResponse(response).isPresent(), is(true));
       assertThat(extractAdler32DigestFromResponse(response).get(), is("8a23d4f8"));
+    }
+  }
+
+  @Test
+  void testReprDigestHeader() {
+
+    for (String s : REPR_DIGEST_INVALID_HEADERS) {
+      assertThat(
+          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent(), is(false));
+    }
+
+    for (String s : REPR_DIGEST_VALID_HEADERS) {
+      assertThat(
+          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent(), is(true));
+      assertThat(
+          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).get(), is("8a23d4f8"));
     }
   }
 }

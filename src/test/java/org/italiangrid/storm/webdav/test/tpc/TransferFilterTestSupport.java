@@ -96,7 +96,7 @@ public class TransferFilterTestSupport {
   LocalURLService lus = new StaticHostListLocalURLService(Arrays.asList("localhost"));
 
   protected void setup() throws IOException {
-    filter = new TransferFilter(clock, client, resolver, lus, true, 1024L * 1024L);
+    filter = new TransferFilter(clock, client, resolver, lus, 1024L * 1024L);
     lenient().when(request.getHeaderNames()).thenReturn(requestHeaderNames);
   }
 }

@@ -29,7 +29,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
 
   final SciTag scitag;
 
-  final boolean verifyChecksum;
+  final Optional<String> expectedChecksum;
 
   final boolean overwrite;
 
@@ -45,7 +45,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
       URI uri,
       Multimap<String, String> xferHeaders,
       SciTag scitag,
-      boolean verifyChecksum,
+      Optional<String> expectedChecksum,
       boolean overwrite) {
 
     this.uuid = uuid;
@@ -53,7 +53,7 @@ public abstract class TransferRequestImpl implements TransferRequest {
     this.uri = uri;
     this.xferHeaders = xferHeaders;
     this.scitag = scitag;
-    this.verifyChecksum = verifyChecksum;
+    this.expectedChecksum = expectedChecksum;
     this.overwrite = overwrite;
   }
 
@@ -78,8 +78,8 @@ public abstract class TransferRequestImpl implements TransferRequest {
   }
 
   @Override
-  public boolean verifyChecksum() {
-    return verifyChecksum;
+  public Optional<String> expectedChecksum() {
+    return expectedChecksum;
   }
 
   @Override

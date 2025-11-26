@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.tpc.utils;
 
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -17,6 +18,10 @@ public final class Adler32DigestHeaderHelper {
   public static final String DIGEST_HEADER = "Digest";
   public static final String DIGEST_HEADER_REGEX = "^\\s*adler32\\s*=\\s*([0-9a-zA-Z]{8})\\s*";
   public static final Pattern DIGEST_HEADER_PATTERN = Pattern.compile(DIGEST_HEADER_REGEX);
+  public static final String REPR_DIGEST_HEADER_REGEX =
+      ".*adler(?:32)?\\s*=\\s*:([0-9a-zA-Z+/]+=*):.*";
+  public static final Pattern REPR_DIGEST_HEADER_PATTERN =
+      Pattern.compile(REPR_DIGEST_HEADER_REGEX);
 
   private Adler32DigestHeaderHelper() {}
 
@@ -39,5 +44,14 @@ public final class Adler32DigestHeaderHelper {
       }
     }
     return Optional.empty();
+  }
+
+  public static Optional<String> extractAdler32DigestFromHeaderValue(String headerValue) {
+    return Optional.ofNullable(headerValue)
+        .map(REPR_DIGEST_HEADER_PATTERN::matcher)
+        .filter(Matcher::matches)
+        .map(m -> m.group(1))
+        .map(Base64.getDecoder()::decode)
+        .map(String::new);
   }
 }

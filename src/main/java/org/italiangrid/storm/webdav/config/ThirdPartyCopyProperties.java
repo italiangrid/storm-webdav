@@ -25,8 +25,6 @@ public class ThirdPartyCopyProperties {
   @Positive(message = "tpc.maxConnectionsPerRoute must be a positive integer (i.e. > 0)")
   int maxConnectionsPerRoute;
 
-  boolean verifyChecksum;
-
   @Positive(message = "tpc.reportDelaySecs must be a positive integer (i.e. > 0)")
   int reportDelaySecs;
 
@@ -62,14 +60,6 @@ public class ThirdPartyCopyProperties {
 
   public void setMaxConnections(int maxConnections) {
     this.maxConnections = maxConnections;
-  }
-
-  public boolean isVerifyChecksum() {
-    return verifyChecksum;
-  }
-
-  public void setVerifyChecksum(boolean verifyChecksum) {
-    this.verifyChecksum = verifyChecksum;
   }
 
   public int getReportDelaySecs() {

@@ -14,6 +14,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.http.HttpTransferClient;
@@ -59,7 +60,7 @@ class TpcIntegrationTest {
             URI.create(mockUrl("/test/example")),
             emptyHeaders,
             new SciTag(1, 2, true),
-            false,
+            Optional.empty(),
             true);
 
     wiremock.stubFor(
@@ -93,7 +94,7 @@ class TpcIntegrationTest {
             URI.create(mockUrl("/test/example")),
             headers,
             null,
-            false,
+            Optional.empty(),
             true);
 
     wiremock.stubFor(
@@ -130,7 +131,7 @@ class TpcIntegrationTest {
             URI.create(mockUrl("/test/example")),
             headers,
             null,
-            false,
+            Optional.empty(),
             false);
 
     wiremock.stubFor(

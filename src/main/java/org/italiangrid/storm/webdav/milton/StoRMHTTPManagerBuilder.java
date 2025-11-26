@@ -10,12 +10,14 @@ import io.milton.http.Handler;
 import io.milton.http.http11.DefaultHttp11ResponseHandler.BUFFERING;
 import io.milton.http.webdav.MoveHandler;
 import java.util.List;
+import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
+import org.italiangrid.storm.webdav.server.PathResolver;
 
 public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
 
-  public StoRMHTTPManagerBuilder() {
+  public StoRMHTTPManagerBuilder(ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
 
-    setDefaultStandardFilter(new StoRMMiltonBehaviour());
+    setDefaultStandardFilter(new StoRMMiltonBehaviour(attrsHelper, resolver));
     setEnabledJson(false);
 
     setBuffering(BUFFERING.never);

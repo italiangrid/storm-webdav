@@ -23,7 +23,7 @@ public interface TransferRequest {
 
   SciTag scitag();
 
-  boolean verifyChecksum();
+  Optional<String> expectedChecksum();
 
   boolean overwrite();
 

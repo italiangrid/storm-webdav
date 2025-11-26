@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.tpc.transfer.impl;
 
 import com.google.common.collect.Multimap;
 import java.net.URI;
+import java.util.Optional;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.tpc.transfer.PutTransferRequest;
 
@@ -17,9 +18,9 @@ public class PutTransferRequestImpl extends TransferRequestImpl implements PutTr
       URI uri,
       Multimap<String, String> xferHeaders,
       SciTag scitag,
-      boolean verifyChecksum,
+      Optional<String> expectedChecksum,
       boolean overwrite) {
-    super(uuid, path, uri, xferHeaders, scitag, verifyChecksum, overwrite);
+    super(uuid, path, uri, xferHeaders, scitag, expectedChecksum, overwrite);
   }
 
   @Override
@@ -32,8 +33,8 @@ public class PutTransferRequestImpl extends TransferRequestImpl implements PutTr
         + uri
         + ", xferHeaders="
         + xferHeaders
-        + ", verifyChecksum="
-        + verifyChecksum
+        + ", expectedChecksum="
+        + expectedChecksum
         + ", overwrite="
         + overwrite
         + "]";
