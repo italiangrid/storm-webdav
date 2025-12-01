@@ -7,7 +7,7 @@ package org.italiangrid.storm.webdav.test.tpc.http.integration;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
+import com.github.tomakehurst.wiremock.http.client.apache5.TrustSelfSignedStrategy;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
