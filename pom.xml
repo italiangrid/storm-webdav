@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <jna.version>5.18.1</jna.version>
 
-    <wiremock.version>3.13.2</wiremock.version>
+    <wiremock.version>4.0.0-beta.24</wiremock.version>
   </properties>
 
   <repositories>
@@ -413,7 +413,21 @@ SPDX-License-Identifier: Apache-2.0
 
     <dependency>
       <groupId>org.wiremock</groupId>
-      <artifactId>wiremock-jetty12</artifactId>
+      <artifactId>wiremock-jetty</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-junit5</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-httpclient-apache5</artifactId>
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
