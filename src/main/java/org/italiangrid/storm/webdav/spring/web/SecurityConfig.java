@@ -34,7 +34,6 @@ import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthenticationConverter;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.italiangrid.storm.webdav.server.servlet.ForwardedByHeaderFilter;
 import org.italiangrid.storm.webdav.server.servlet.PreAuthenticatedFilter;
 import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
@@ -129,10 +128,7 @@ public class SecurityConfig {
       PrincipalHelper helper) {
 
     if (nginxEnabled) {
-      // ForwardedByHeaderFilter must be ordered ahead of the ForwardedHeaderFilter because the
-      // latter removes the Forwarded header partially parsed by the former
-      http.addFilterBefore(new ForwardedByHeaderFilter(), LogoutFilter.class)
-          .addFilterAfter(new ForwardedHeaderFilter(), ForwardedByHeaderFilter.class);
+      http.addFilterBefore(new ForwardedHeaderFilter(), LogoutFilter.class);
     }
     http.addFilterAfter(
         new PreAuthenticatedFilter(nginxEnabled, helper), AnonymousAuthenticationFilter.class);
