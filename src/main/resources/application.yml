@@ -67,6 +67,9 @@ storm:
   nginx:
     enabled: ${STORM_WEBDAV_NGINX_ENABLED:false}
 
+  rfc9530:
+    delete-files-with-mismatched-checksums: ${RFC9530_DELETE_FILES_WITH_MISMATCHED_CHECKSUMS:false}
+
   checksum-strategy: early
 
   redirector:

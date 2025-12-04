@@ -51,7 +51,7 @@ class PutRequestChecksumTest {
 
   @BeforeEach
   void setup() {
-    miltonBehaviour = new StoRMMiltonBehaviour(eah, resolver);
+    miltonBehaviour = new StoRMMiltonBehaviour(eah, resolver, true);
     lenient().when(request.getAbsolutePath()).thenReturn(FULL_LOCAL_PATH);
   }
 

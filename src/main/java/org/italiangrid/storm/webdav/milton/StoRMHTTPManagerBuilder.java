@@ -15,9 +15,13 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 
 public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
 
-  public StoRMHTTPManagerBuilder(ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
+  public StoRMHTTPManagerBuilder(
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      boolean deleteFilesWithMismatchedChecksums) {
 
-    setDefaultStandardFilter(new StoRMMiltonBehaviour(attrsHelper, resolver));
+    setDefaultStandardFilter(
+        new StoRMMiltonBehaviour(attrsHelper, resolver, deleteFilesWithMismatchedChecksums));
     setEnabledJson(false);
 
     setBuffering(BUFFERING.never);

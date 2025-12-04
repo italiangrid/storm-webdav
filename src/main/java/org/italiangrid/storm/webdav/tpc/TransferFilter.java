@@ -49,14 +49,18 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   final TransferClient client;
 
+  private final boolean deleteFilesWithMismatchedChecksums;
+
   public TransferFilter(
       Clock clock,
       TransferClient c,
       PathResolver resolver,
       LocalURLService lus,
-      long enableExpectContinueThreshold) {
+      long enableExpectContinueThreshold,
+      boolean deleteFilesWithMismatchedChecksums) {
     super(clock, resolver, lus, enableExpectContinueThreshold);
     client = c;
+    this.deleteFilesWithMismatchedChecksums = deleteFilesWithMismatchedChecksums;
   }
 
   private void localCopySanityChecks(HttpServletRequest req) throws URISyntaxException {
@@ -257,7 +261,9 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
       client.handle(xferRequest, (r, s) -> reportProgress(s, response));
 
     } catch (ChecksumVerificationError e) {
-      Files.delete(resolver.getPath(path));
+      if (deleteFilesWithMismatchedChecksums) {
+        Files.delete(resolver.getPath(path));
+      }
       logTransferException(xferRequest, e);
       handleChecksumVerificationError(xferRequest, e, response);
     } catch (TransferError e) {

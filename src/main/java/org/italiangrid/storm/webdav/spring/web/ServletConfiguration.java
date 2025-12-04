@@ -38,6 +38,7 @@ import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -62,6 +63,9 @@ public class ServletConfiguration {
   static final int MILTON_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1010;
   static final int SERVER_FILTER_ORDER = DEFAULT_FILTER_ORDER - 100;
   static final int STATS_FILTER_ORDER = DEFAULT_FILTER_ORDER - 200;
+
+  @Value("${storm.rfc9530.delete-files-with-mismatched-checksums}")
+  boolean deleteFilesWithMismatchedChecksums;
 
   @Bean
   FilterRegistrationBean<LogRequestFilter> logRequestFilter() {
@@ -127,7 +131,9 @@ public class ServletConfiguration {
       PathResolver resolver,
       ReplaceContentStrategy rcs) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
-        new FilterRegistrationBean<>(new MiltonFilter(fsAccess, attrsHelper, resolver, rcs));
+        new FilterRegistrationBean<>(
+            new MiltonFilter(
+                fsAccess, attrsHelper, resolver, rcs, deleteFilesWithMismatchedChecksums));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;
@@ -169,7 +175,12 @@ public class ServletConfiguration {
     FilterRegistrationBean<TransferFilter> tpcFilter =
         new FilterRegistrationBean<>(
             new TransferFilter(
-                clock, metricsClient, resolver, lus, props.getEnableExpectContinueThreshold()));
+                clock,
+                metricsClient,
+                resolver,
+                lus,
+                props.getEnableExpectContinueThreshold(),
+                deleteFilesWithMismatchedChecksums));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
