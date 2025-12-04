@@ -63,21 +63,26 @@ public class MiltonFilter implements Filter {
 
   private final ReplaceContentStrategy rcs;
 
+  private boolean deleteFilesWithMismatchedChecksums;
+
   public MiltonFilter(
       FilesystemAccess fsAccess,
       ExtendedAttributesHelper attrsHelper,
       PathResolver resolver,
-      ReplaceContentStrategy rcs) {
+      ReplaceContentStrategy rcs,
+      boolean deleteFilesWithMismatchedChecksums) {
 
     this.filesystemAccess = fsAccess;
     this.attrsHelper = attrsHelper;
     this.resolver = resolver;
     this.rcs = rcs;
+    this.deleteFilesWithMismatchedChecksums = deleteFilesWithMismatchedChecksums;
   }
 
   private void initMiltonHTTPManager() {
 
-    final StoRMHTTPManagerBuilder builder = new StoRMHTTPManagerBuilder(attrsHelper, resolver);
+    final StoRMHTTPManagerBuilder builder =
+        new StoRMHTTPManagerBuilder(attrsHelper, resolver, deleteFilesWithMismatchedChecksums);
 
     final StoRMResourceFactory resourceFactory =
         new StoRMResourceFactory(filesystemAccess, attrsHelper, resolver, rcs);

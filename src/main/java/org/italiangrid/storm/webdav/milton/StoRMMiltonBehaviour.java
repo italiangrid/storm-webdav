@@ -40,9 +40,15 @@ public class StoRMMiltonBehaviour implements Filter {
 
   private final PathResolver resolver;
 
-  public StoRMMiltonBehaviour(ExtendedAttributesHelper attrsHelper, PathResolver resolver) {
+  private final boolean deleteFilesWithMismatchedChecksums;
+
+  public StoRMMiltonBehaviour(
+      ExtendedAttributesHelper attrsHelper,
+      PathResolver resolver,
+      boolean deleteFilesWithMismatchedChecksums) {
     this.attrsHelper = attrsHelper;
     this.resolver = resolver;
+    this.deleteFilesWithMismatchedChecksums = deleteFilesWithMismatchedChecksums;
   }
 
   @Override
@@ -125,14 +131,16 @@ public class StoRMMiltonBehaviour implements Filter {
                     "Error retrieving checksum from the file system");
               }
               if (!checksum.equals(reprDigestChecksum)) {
-                try {
-                  Files.delete(filePath);
-                } catch (IOException e) {
-                  LOG.warn(
-                      "Cannot delete file received with the wrong checksum {}: {}",
-                      resolver.resolvePath(request.getAbsolutePath()),
-                      e.getMessage(),
-                      e);
+                if (deleteFilesWithMismatchedChecksums) {
+                  try {
+                    Files.delete(filePath);
+                  } catch (IOException e) {
+                    LOG.warn(
+                        "Cannot delete file received with the wrong checksum {}: {}",
+                        resolver.resolvePath(request.getAbsolutePath()),
+                        e.getMessage(),
+                        e);
+                  }
                 }
                 throw new ChecksumVerificationError("client/server checksum mismatch");
               }

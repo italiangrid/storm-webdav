@@ -38,6 +38,7 @@ import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -125,9 +126,13 @@ public class ServletConfiguration {
       FilesystemAccess fsAccess,
       ExtendedAttributesHelper attrsHelper,
       PathResolver resolver,
-      ReplaceContentStrategy rcs) {
+      ReplaceContentStrategy rcs,
+      @Value("${storm.rfc9530.delete-files-with-mismatched-checksums}")
+          boolean deleteFilesWithMismatchedChecksums) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
-        new FilterRegistrationBean<>(new MiltonFilter(fsAccess, attrsHelper, resolver, rcs));
+        new FilterRegistrationBean<>(
+            new MiltonFilter(
+                fsAccess, attrsHelper, resolver, rcs, deleteFilesWithMismatchedChecksums));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;
@@ -162,14 +167,21 @@ public class ServletConfiguration {
       TransferClient client,
       ThirdPartyCopyProperties props,
       LocalURLService lus,
-      MetricRegistry registry) {
+      MetricRegistry registry,
+      @Value("${storm.rfc9530.delete-files-with-mismatched-checksums}")
+          boolean deleteFilesWithMismatchedChecksums) {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
     FilterRegistrationBean<TransferFilter> tpcFilter =
         new FilterRegistrationBean<>(
             new TransferFilter(
-                clock, metricsClient, resolver, lus, props.getEnableExpectContinueThreshold()));
+                clock,
+                metricsClient,
+                resolver,
+                lus,
+                props.getEnableExpectContinueThreshold(),
+                deleteFilesWithMismatchedChecksums));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;
