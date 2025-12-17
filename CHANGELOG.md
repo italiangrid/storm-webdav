@@ -6,6 +6,23 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.11.0 (2025-12-17)
+
+### Added
+
+* Add support to virtual threads
+* [GH-149](https://github.com/italiangrid/storm-webdav/issues/149) - Add support to RFC 9530 Digest Fields for WCLG TPC Data Integrity
+* Sign RPMs for AlmaLinux 9 and 10
+
+### Changed
+
+* Upgrade to Java 21
+* Update dependencies, in particular Spring Boot to 3.5.8
+
+### Fixed
+
+* Return 507 when No space left on device
+
 ## 1.10.0 (2025-08-21)
 
 ### Added
