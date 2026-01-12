@@ -6,6 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.12.0 (2026-01-12)
+
+### Changed
+
+* Upgrade to Spring Boot 4
+
 ## 1.11.0 (2025-12-17)
 
 ### Added
