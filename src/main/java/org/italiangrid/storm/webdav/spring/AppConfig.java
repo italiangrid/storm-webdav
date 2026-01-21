@@ -17,7 +17,8 @@ import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
 import eu.emi.security.authn.x509.OCSPCheckingMode;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
+import eu.emi.security.authn.x509.helpers.ssl.EnforcingNameMismatchCallback;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
@@ -257,7 +258,8 @@ public class AppConfig {
 
     X509CertChainValidatorExt validator =
         canlCertChainCustomValidator(conf, b -> b.namespaceChecks(NamespaceCheckingMode.IGNORE));
-    SSLTrustManager tm = new SSLTrustManager(validator);
+    SSLTrustManagerWithHostnameChecking tm =
+        new SSLTrustManagerWithHostnameChecking(validator, new EnforcingNameMismatchCallback());
 
     SSLContext ctx;
 
