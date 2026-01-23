@@ -70,6 +70,16 @@ class AudienceValidatorTests {
   }
 
   @Test
+  void testEmptyAudienceInTokenIsErrorIfRequired() {
+    when(jwt.getAudience()).thenReturn(Collections.emptyList());
+    validator = new AudienceValidator(server, true);
+    assertThat(validator.validate(jwt).hasErrors(), is(true));
+    assertThat(
+        validator.validate(jwt).getErrors().stream().findFirst().get().getErrorCode(),
+        is("invalid_audience"));
+  }
+
+  @Test
   void testInvalidAudienceIsError() {
     when(jwt.getAudience()).thenReturn(List.of("testAudience"));
     validator = new AudienceValidator(server);

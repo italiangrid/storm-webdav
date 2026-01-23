@@ -26,7 +26,7 @@ public class OAuthProperties {
 
     @URL String jwkUri;
 
-    boolean enforceAudienceChecks = false;
+    boolean enforceAudienceChecks;
 
     List<String> audiences = new ArrayList<>();
 
