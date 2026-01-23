@@ -22,6 +22,8 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
   private final Set<String> requiredAudiences = new HashSet<>();
 
+  private boolean audienceRequired = false;
+
   private static final OAuth2Error INVALID_AUDIENCE_ERROR =
       new OAuth2Error(
           "invalid_audience",
@@ -39,11 +41,16 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
     requiredAudiences.addAll(server.getAudiences());
   }
 
+  public AudienceValidator(AuthorizationServer server, boolean audienceRequired) {
+    this(server);
+    this.audienceRequired = audienceRequired;
+  }
+
   @Override
   public OAuth2TokenValidatorResult validate(Jwt jwt) {
 
     if (jwt.getAudience() == null || jwt.getAudience().isEmpty()) {
-      return SUCCESS;
+      return audienceRequired ? INVALID_AUDIENCE : SUCCESS;
     }
 
     for (String audience : requiredAudiences) {

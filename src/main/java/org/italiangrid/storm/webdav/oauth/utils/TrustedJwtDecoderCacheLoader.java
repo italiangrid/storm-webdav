@@ -19,6 +19,7 @@ import org.italiangrid.storm.webdav.config.OAuthProperties.AuthorizationServer;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.oauth.UnknownTokenIssuerError;
 import org.italiangrid.storm.webdav.oauth.validator.AudienceValidator;
+import org.italiangrid.storm.webdav.oauth.validator.TypValidator;
 import org.italiangrid.storm.webdav.oauth.validator.WlcgProfileValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder> {
@@ -72,7 +72,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
             .cache(noExpirationCache)
             .build();
 
-    OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
+    OAuth2TokenValidator<Jwt> jwtValidator = new TypValidator(as);
     OAuth2TokenValidator<Jwt> wlcgProfileValidator = new WlcgProfileValidator();
 
     List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
