@@ -47,11 +47,8 @@ public class DefaultTokenIssuerService implements TokenIssuerService {
 
     SignedJWT jwt = tokenIssuer.createAccessToken(tokenRequest, authentication);
 
-    TokenResponseDTO response = new TokenResponseDTO();
-
-    response.setExpiresIn(getTokenValidityInSeconds(jwt));
-    response.setTokenType(BEARER_TOKEN_TYPE);
-    response.setAccessToken(jwt.serialize());
+    TokenResponseDTO response =
+        new TokenResponseDTO(jwt.serialize(), BEARER_TOKEN_TYPE, getTokenValidityInSeconds(jwt));
 
     return response;
   }

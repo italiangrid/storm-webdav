@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.MDC;
 import org.springframework.util.Assert;
 
-public final class ClientInfo {
+public final record ClientInfo(String jobId, String fileId, int retryCount) {
 
   private static final String INVALID_CLIENTINFO_HEADER_MESSAGE = "Invalid ClientInfo header: %s";
 
@@ -19,28 +19,6 @@ public final class ClientInfo {
   public static final String JOB_ID_KEY = "job-id";
   public static final String FILE_ID_KEY = "file-id";
   public static final String RETRY_COUNT_KEY = "retry";
-
-  final String jobId;
-  final String fileId;
-  final int retryCount;
-
-  private ClientInfo(String jobId, String fileId, int retryCount) {
-    this.jobId = jobId;
-    this.fileId = fileId;
-    this.retryCount = retryCount;
-  }
-
-  public String getJobId() {
-    return jobId;
-  }
-
-  public String getFileId() {
-    return fileId;
-  }
-
-  public int getRetryCount() {
-    return retryCount;
-  }
 
   public static ClientInfo fromHeaderString(String headerString) {
     Assert.hasText(headerString, String.format(INVALID_CLIENTINFO_HEADER_MESSAGE, headerString));

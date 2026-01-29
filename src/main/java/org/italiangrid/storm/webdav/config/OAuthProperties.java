@@ -18,56 +18,16 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class OAuthProperties {
 
-  public static class AuthorizationServer {
-
-    @NotBlank String name;
-
-    @URL String issuer;
-
-    @URL String jwkUri;
-
-    boolean enforceAudienceChecks;
-
-    List<String> audiences = new ArrayList<>();
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getJwkUri() {
-      return jwkUri;
-    }
-
-    public void setJwkUri(String jwkUri) {
-      this.jwkUri = jwkUri;
-    }
-
-    public String getIssuer() {
-      return issuer;
-    }
-
-    public void setIssuer(String issuer) {
-      this.issuer = issuer;
-    }
-
-    public void setAudiences(List<String> audiences) {
-      this.audiences = audiences;
-    }
-
-    public List<String> getAudiences() {
-      return audiences;
-    }
-
-    public void setEnforceAudienceChecks(boolean enforceAudienceChecks) {
-      this.enforceAudienceChecks = enforceAudienceChecks;
-    }
-
-    public boolean isEnforceAudienceChecks() {
-      return enforceAudienceChecks;
+  public static record AuthorizationServer(
+      @NotBlank String name,
+      @URL String issuer,
+      @URL String jwkUri,
+      boolean enforceAudienceChecks,
+      List<String> audiences) {
+    public AuthorizationServer {
+      if (audiences == null) {
+        audiences = new ArrayList<>();
+      }
     }
   }
 

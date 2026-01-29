@@ -134,7 +134,7 @@ public class SecurityConfig {
         new PreAuthenticatedFilter(nginxEnabled, helper), AnonymousAuthenticationFilter.class);
     http.authenticationProvider(vomsProvider).addFilter(vomsFilter);
 
-    if (serviceConfigurationProperties.getAuthz().isDisabled()) {
+    if (serviceConfigurationProperties.getAuthz().disabled()) {
       LOG.warn("AUTHORIZATION DISABLED: this shouldn't be used in production!");
       http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
     } else {
@@ -168,7 +168,7 @@ public class SecurityConfig {
 
     configureOidcAuthn(http);
 
-    if (!serviceConfigurationProperties.getAuthz().isDisabled()) {
+    if (!serviceConfigurationProperties.getAuthz().disabled()) {
       http.authorizeHttpRequests(
           authorize -> authorize.anyRequest().access(fineGrainedAuthorizationManager(null)));
     }

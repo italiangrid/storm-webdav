@@ -32,12 +32,12 @@ class AudienceValidatorTests {
 
   @BeforeEach
   void setup() {
-    lenient().when(server.getAudiences()).thenReturn(List.of("https://storm.example:8443", "any"));
+    lenient().when(server.audiences()).thenReturn(List.of("https://storm.example:8443", "any"));
   }
 
   @Test
   void testNullAudiences() {
-    when(server.getAudiences()).thenReturn(null);
+    when(server.audiences()).thenReturn(null);
     assertThrows(
         NullPointerException.class,
         () -> {
@@ -47,7 +47,7 @@ class AudienceValidatorTests {
 
   @Test
   void testEmptyAudiences() {
-    when(server.getAudiences()).thenReturn(Collections.emptyList());
+    when(server.audiences()).thenReturn(Collections.emptyList());
     assertThrows(
         IllegalArgumentException.class,
         () -> {

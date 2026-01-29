@@ -5,55 +5,15 @@
 package org.italiangrid.storm.webdav.oauth.authzserver.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Arrays;
 import java.util.List;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class AuthzServerMetadata {
-
-  private String issuer;
-  private String tokenEndpoint;
-
-  private final List<String> responseTypesSupported;
-
-  private final List<String> grantTypesSupported;
-
-  private final List<String> tokenEndpointAuthMethodsSupported;
-
-  public AuthzServerMetadata() {
-    responseTypesSupported = Arrays.asList("token");
-    grantTypesSupported = Arrays.asList("client_credentials");
-    tokenEndpointAuthMethodsSupported = Arrays.asList("gsi_voms");
-  }
-
-  public String getIssuer() {
-    return issuer;
-  }
-
-  public void setIssuer(String issuer) {
-    this.issuer = issuer;
-  }
-
-  public String getTokenEndpoint() {
-    return tokenEndpoint;
-  }
-
-  public void setTokenEndpoint(String tokenEndpoint) {
-    this.tokenEndpoint = tokenEndpoint;
-  }
-
-  public List<String> getResponseTypesSupported() {
-    return responseTypesSupported;
-  }
-
-  public List<String> getGrantTypesSupported() {
-    return grantTypesSupported;
-  }
-
-  public List<String> getTokenEndpointAuthMethodsSupported() {
-    return tokenEndpointAuthMethodsSupported;
-  }
-}
+public record AuthzServerMetadata(
+    String issuer,
+    String tokenEndpoint,
+    List<String> responseTypesSupported,
+    List<String> grantTypesSupported,
+    List<String> tokenEndpointAuthMethodsSupported) {}

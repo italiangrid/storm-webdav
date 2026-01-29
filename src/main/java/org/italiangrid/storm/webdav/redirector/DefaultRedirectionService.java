@@ -54,7 +54,7 @@ public class DefaultRedirectionService implements RedirectionService, TpcUtils {
   public String buildRedirect(
       Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
     ReplicaEndpointProperties replica = selector.selectReplica().orElseThrow(noReplicaFound());
-    URI endpointUri = replica.getEndpoint();
+    URI endpointUri = replica.endpoint();
     LOG.debug("Selected endpoint: {}", endpointUri);
 
     UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(endpointUri);

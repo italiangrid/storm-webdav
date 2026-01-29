@@ -28,6 +28,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -364,9 +365,9 @@ public class AppConfig {
             .build(loader);
 
     for (AuthorizationServer as : props.getIssuers()) {
-      LOG.info("Initializing OAuth trusted issuer: {}", as.getIssuer());
+      LOG.info("Initializing OAuth trusted issuer: {}", as.issuer());
       try {
-        decoders.put(as.getIssuer(), loader.load(as.getIssuer()));
+        decoders.put(as.issuer(), loader.load(as.issuer()));
       } catch (Exception e) {
         LOG.warn("Error initializing trusted issuer: {}", e.getMessage());
         if (LOG.isDebugEnabled()) {
@@ -397,9 +398,13 @@ public class AppConfig {
 
   @Bean
   AuthzServerMetadata metadata(ServiceConfigurationProperties props) {
-    AuthzServerMetadata md = new AuthzServerMetadata();
-    md.setIssuer(props.getAuthzServer().getIssuer());
-    md.setTokenEndpoint(props.getAuthzServer().getIssuer() + PathConstants.OAUTH_TOKEN_PATH);
+    AuthzServerMetadata md =
+        new AuthzServerMetadata(
+            props.getAuthzServer().getIssuer(),
+            props.getAuthzServer().getIssuer() + PathConstants.OAUTH_TOKEN_PATH,
+            Arrays.asList("token"),
+            Arrays.asList("client_credentials"),
+            Arrays.asList("gsi_voms"));
     return md;
   }
 

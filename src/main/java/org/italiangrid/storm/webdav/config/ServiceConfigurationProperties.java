@@ -25,31 +25,10 @@ import org.springframework.validation.annotation.Validated;
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   @Validated
-  public static class TapeProperties {
+  public static record TapeProperties(TapeWellKnownProperties wellKnown) {
 
     @Validated
-    public static class TapeWellKnownProperties {
-
-      @NotEmpty String source;
-
-      public String getSource() {
-        return source;
-      }
-
-      public void setSource(String source) {
-        this.source = source;
-      }
-    }
-
-    TapeWellKnownProperties wellKnown;
-
-    public TapeWellKnownProperties getWellKnown() {
-      return wellKnown;
-    }
-
-    public void setWellKnown(TapeWellKnownProperties wellKnown) {
-      this.wellKnown = wellKnown;
-    }
+    public static record TapeWellKnownProperties(@NotEmpty String source) {}
   }
 
   public enum ChecksumStrategy {
@@ -62,17 +41,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   public static class RedirectorProperties {
 
     @Validated
-    public static class ReplicaEndpointProperties {
-
-      URI endpoint;
-
-      public URI getEndpoint() {
-        return endpoint;
-      }
-
-      public void setEndpoint(URI endpoint) {
-        this.endpoint = endpoint;
-      }
+    public static record ReplicaEndpointProperties(URI endpoint) {
 
       @Override
       public String toString() {
@@ -209,26 +178,12 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   @Validated
-  public static class AuthorizationProperties {
-
-    boolean disabled = false;
-
-    @Valid List<FineGrainedAuthzPolicyProperties> policies = new ArrayList<>();
-
-    public boolean isDisabled() {
-      return disabled;
-    }
-
-    public void setDisabled(boolean disabled) {
-      this.disabled = disabled;
-    }
-
-    public List<FineGrainedAuthzPolicyProperties> getPolicies() {
-      return policies;
-    }
-
-    public void setPolicies(List<FineGrainedAuthzPolicyProperties> policies) {
-      this.policies = policies;
+  public static record AuthorizationProperties(
+      boolean disabled, @Valid List<FineGrainedAuthzPolicyProperties> policies) {
+    public AuthorizationProperties {
+      if (policies == null) {
+        policies = new ArrayList<>();
+      }
     }
   }
 
@@ -426,49 +381,12 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
-  public static class SaProperties {
+  public static record SaProperties(
+      @NotBlank(message = "Storage area configuration directory cannot be empty")
+          String configDir) {}
 
-    @NotBlank(message = "Storage area configuration directory cannot be empty")
-    String configDir;
-
-    public String getConfigDir() {
-      return configDir;
-    }
-
-    public void setConfigDir(String configDir) {
-      this.configDir = configDir;
-    }
-  }
-
-  public static class VoMapFilesProperties {
-    String configDir;
-    boolean enabled;
-    int refreshIntervalSec;
-
-    public String getConfigDir() {
-      return configDir;
-    }
-
-    public void setConfigDir(String configDir) {
-      this.configDir = configDir;
-    }
-
-    public boolean isEnabled() {
-      return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-    }
-
-    public int getRefreshIntervalSec() {
-      return refreshIntervalSec;
-    }
-
-    public void setRefreshIntervalSec(int refreshIntervalSec) {
-      this.refreshIntervalSec = refreshIntervalSec;
-    }
-  }
+  public static record VoMapFilesProperties(
+      String configDir, boolean enabled, int refreshIntervalSec) {}
 
   public static class AuthorizationServerProperties {
 
@@ -516,77 +434,19 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   @Valid
-  public static class VOMSProperties {
+  public static record VOMSProperties(
+      VOMSCacheProperties cache, VOMSTrustStoreProperties trustStore) {
 
-    public static class VOMSTrustStoreProperties {
-
-      String dir;
-
-      int refreshIntervalSec;
-
-      public String getDir() {
-        return dir;
-      }
-
-      public void setDir(String dir) {
-        this.dir = dir;
-      }
-
-      public int getRefreshIntervalSec() {
-        return refreshIntervalSec;
-      }
-
-      public void setRefreshIntervalSec(int refreshIntervalSec) {
-        this.refreshIntervalSec = refreshIntervalSec;
-      }
-    }
+    public static record VOMSTrustStoreProperties(String dir, int refreshIntervalSec) {}
 
     @Valid
-    public static class VOMSCacheProperties {
-
-      boolean enabled;
-
-      @Positive(message = "The VOMS cache entry lifetime must be a positive integer")
-      int entryLifetimeSec;
-
-      public boolean isEnabled() {
-        return enabled;
-      }
-
-      public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-      }
-
-      public int getEntryLifetimeSec() {
-        return entryLifetimeSec;
-      }
-
-      public void setEntryLifetimeSec(int entryLifetimeSec) {
-        this.entryLifetimeSec = entryLifetimeSec;
-      }
-    }
-
-    VOMSCacheProperties cache;
-    VOMSTrustStoreProperties trustStore;
-
-    public VOMSCacheProperties getCache() {
-      return cache;
-    }
-
-    public void setCache(VOMSCacheProperties cache) {
-      this.cache = cache;
-    }
-
-    public VOMSTrustStoreProperties getTrustStore() {
-      return trustStore;
-    }
-
-    public void setTrustStore(VOMSTrustStoreProperties trustStore) {
-      this.trustStore = trustStore;
-    }
+    public static record VOMSCacheProperties(
+        boolean enabled,
+        @Positive(message = "The VOMS cache entry lifetime must be a positive integer")
+            int entryLifetimeSec) {}
   }
 
-  private AuthorizationProperties authz = new AuthorizationProperties();
+  private AuthorizationProperties authz = new AuthorizationProperties(false, null);
 
   private ChecksumFilterProperties checksumFilter;
 
@@ -750,27 +610,27 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   @Override
   public String getSAConfigDir() {
-    return getSa().getConfigDir();
+    return getSa().configDir();
   }
 
   @Override
   public boolean enableVOMapFiles() {
-    return getVoMapFiles().isEnabled();
+    return getVoMapFiles().enabled();
   }
 
   @Override
   public String getVOMapFilesConfigDir() {
-    return getVoMapFiles().getConfigDir();
+    return getVoMapFiles().configDir();
   }
 
   @Override
   public long getVOMapFilesRefreshIntervalInSeconds() {
-    return getVoMapFiles().getRefreshIntervalSec();
+    return getVoMapFiles().refreshIntervalSec();
   }
 
   @Override
   public boolean isAuthorizationDisabled() {
-    return getAuthz().isDisabled();
+    return getAuthz().disabled();
   }
 
   @Override
@@ -873,15 +733,5 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.nginx = nginx;
   }
 
-  public static class NginxProperties {
-    boolean enabled = true;
-
-    public boolean getEnabled() {
-      return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-    }
-  }
+  public static record NginxProperties(boolean enabled) {}
 }

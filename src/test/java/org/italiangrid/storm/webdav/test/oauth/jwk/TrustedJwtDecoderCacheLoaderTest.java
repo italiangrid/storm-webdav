@@ -47,9 +47,7 @@ class TrustedJwtDecoderCacheLoaderTest {
   @BeforeEach
   void setup() throws IOException, KeySourceException {
 
-    AuthorizationServer as = new AuthorizationServer();
-    as.setIssuer(ISSUER);
-    as.setJwkUri(JWK_URI);
+    AuthorizationServer as = new AuthorizationServer("name", ISSUER, JWK_URI, false, null);
     List<AuthorizationServer> issuerServers = List.of(as);
     lenient().when(oauthProperties.getIssuers()).thenReturn(issuerServers);
 

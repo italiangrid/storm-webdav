@@ -19,6 +19,7 @@ import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.Action;
 import org.italiangrid.storm.webdav.config.FineGrainedAuthzPolicyProperties.PrincipalProperties.PrincipalType;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.AuthorizationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +68,7 @@ class PolicyParserTests {
     policy.setPrincipals(List.of(anonymous));
     policy.setActions(EnumSet.allOf(Action.class));
 
-    properties.getAuthz().setPolicies(List.of(policy));
+    properties.setAuthz(new AuthorizationProperties(false, List.of(policy)));
     List<PathAuthorizationPolicy> policies = parser.parsePolicies();
 
     assertThat(policies, hasSize(1));

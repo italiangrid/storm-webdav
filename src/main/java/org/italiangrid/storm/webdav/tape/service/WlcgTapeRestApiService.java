@@ -29,7 +29,7 @@ public class WlcgTapeRestApiService {
 
   public WlcgTapeRestApiService(ServiceConfigurationProperties props) {
 
-    File source = new File(props.getTape().getWellKnown().getSource());
+    File source = new File(props.getTape().wellKnown().source());
     if (source.exists()) {
       LOG.info(LOG_INFO_LOADING, source);
       try {
