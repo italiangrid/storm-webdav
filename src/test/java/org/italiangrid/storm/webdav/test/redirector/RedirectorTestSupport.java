@@ -39,14 +39,11 @@ public class RedirectorTestSupport implements TestUtils {
   public static final ReplicaEndpointProperties REPLICA_WITH_PREFIX;
 
   static {
-    REPLICA_0 = new ReplicaEndpointProperties();
-    REPLICA_0.setEndpoint(ENDPOINT_URI_0);
+    REPLICA_0 = new ReplicaEndpointProperties(ENDPOINT_URI_0);
 
-    REPLICA_1 = new ReplicaEndpointProperties();
-    REPLICA_1.setEndpoint(ENDPOINT_URI_1);
+    REPLICA_1 = new ReplicaEndpointProperties(ENDPOINT_URI_1);
 
-    REPLICA_WITH_PREFIX = new ReplicaEndpointProperties();
-    REPLICA_WITH_PREFIX.setEndpoint(ENDPOINT_URI_WITH_PREFIX);
+    REPLICA_WITH_PREFIX = new ReplicaEndpointProperties(ENDPOINT_URI_WITH_PREFIX);
   }
 
   protected ServiceConfigurationProperties buildConfigurationProperties() {

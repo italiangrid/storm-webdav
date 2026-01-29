@@ -67,8 +67,8 @@ class TokenServiceTest {
   void canGenerateTokenResponse() {
     TokenResponseDTO response = issuerService.createAccessToken(request, auth);
 
-    assertThat(response.getTokenType(), is(BEARER_TOKEN_TYPE));
-    assertThat(response.getExpiresIn(), is(100));
-    assertThat(response.getAccessToken(), is(JWT_SERIALIZED_FORM));
+    assertThat(response.tokenType(), is(BEARER_TOKEN_TYPE));
+    assertThat(response.expiresIn(), is(100));
+    assertThat(response.accessToken(), is(JWT_SERIALIZED_FORM));
   }
 }

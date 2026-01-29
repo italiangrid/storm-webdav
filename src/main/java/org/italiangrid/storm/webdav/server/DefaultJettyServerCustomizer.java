@@ -67,7 +67,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
 
     server.setConnectors(null);
     configurePlainConnector(server);
-    if (!serviceConfig.getNginx().getEnabled()) {
+    if (!serviceConfig.getNginx().enabled()) {
       configureTLSConnector(server);
     }
     configureRewriteHandler(server);
@@ -84,7 +84,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
     plainConnectorConfig.setSendDateHeader(false);
     plainConnectorConfig.setSendServerVersion(false);
 
-    if (serviceConfig.getNginx().getEnabled()) {
+    if (serviceConfig.getNginx().enabled()) {
       plainConnectorConfig.setIdleTimeout(0);
     } else {
       plainConnectorConfig.setIdleTimeout(configuration.getConnectorMaxIdleTimeInMsec());
@@ -99,7 +99,7 @@ public class DefaultJettyServerCustomizer implements JettyServerCustomizer {
         new NetworkTrafficServerConnector(server, connFactory);
 
     connector.setName(HTTP_CONNECTOR_NAME);
-    if (serviceConfig.getNginx().getEnabled()) {
+    if (serviceConfig.getNginx().enabled()) {
       connector.setHost("localhost");
       connector.setIdleTimeout(0);
     } else {

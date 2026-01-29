@@ -70,18 +70,18 @@ public class AuthzServerController {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(UnsupportedGrantTypeError.class)
   public ErrorResponseDTO unsupportedGrantType(HttpServletRequest req, Exception ex) {
-    return ErrorResponseDTO.from(UNSUPPORTED_GRANT_TYPE, ex.getMessage());
+    return new ErrorResponseDTO(UNSUPPORTED_GRANT_TYPE, ex.getMessage());
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(InvalidTokenRequestError.class)
   public ErrorResponseDTO invalidTokenRequestError(HttpServletRequest req, Exception ex) {
-    return ErrorResponseDTO.from(INVALID_REQUEST, ex.getMessage());
+    return new ErrorResponseDTO(INVALID_REQUEST, ex.getMessage());
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(InvalidScopeError.class)
   public ErrorResponseDTO invalidScopeError(HttpServletRequest req, Exception ex) {
-    return ErrorResponseDTO.from(INVALID_SCOPE, ex.getMessage());
+    return new ErrorResponseDTO(INVALID_SCOPE, ex.getMessage());
   }
 }

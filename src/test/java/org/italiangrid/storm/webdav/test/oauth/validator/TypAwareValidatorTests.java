@@ -47,8 +47,8 @@ class TypAwareValidatorTests {
 
   @BeforeEach
   void setup() {
-    lenient().when(server.getIssuer()).thenReturn(ISSUER);
-    lenient().when(server.getAudiences()).thenReturn(List.of("https://storm.example:8443", "any"));
+    lenient().when(server.issuer()).thenReturn(ISSUER);
+    lenient().when(server.audiences()).thenReturn(List.of("https://storm.example:8443", "any"));
     lenient().when(atJwtBuilder.issuer(ISSUER)).thenReturn(atJwtBuilder);
     lenient().when(atJwtBuilder.validators(any())).thenReturn(atJwtBuilder);
     lenient().when(atJwtBuilder.build()).thenReturn(atJwtValidator);
@@ -56,7 +56,7 @@ class TypAwareValidatorTests {
 
   @Test
   void testWithoutAudiencesJwtValidatorIsAlwaysUsed() {
-    when(server.getAudiences()).thenReturn(List.of());
+    when(server.audiences()).thenReturn(List.of());
     try (MockedStatic<JwtValidators> jwtValidators = Mockito.mockStatic(JwtValidators.class)) {
       jwtValidators
           .when(() -> JwtValidators.createDefaultWithIssuer(ISSUER))

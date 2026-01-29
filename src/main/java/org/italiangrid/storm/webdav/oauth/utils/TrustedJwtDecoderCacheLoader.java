@@ -59,7 +59,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
   public JwtDecoder load(String issuer) throws Exception {
     AuthorizationServer as =
         oauthProperties.getIssuers().stream()
-            .filter(i -> issuer.equals(i.getIssuer()))
+            .filter(i -> issuer.equals(i.issuer()))
             .findAny()
             .orElseThrow(unknownTokenIssuer(issuer));
 
@@ -79,7 +79,7 @@ public class TrustedJwtDecoderCacheLoader extends CacheLoader<String, JwtDecoder
     validators.add(jwtValidator);
     validators.add(wlcgProfileValidator);
 
-    if (as.isEnforceAudienceChecks()) {
+    if (as.enforceAudienceChecks()) {
       validators.add(new AudienceValidator(as));
     }
 

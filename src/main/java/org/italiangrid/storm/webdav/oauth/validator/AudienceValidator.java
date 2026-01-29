@@ -36,9 +36,9 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
       OAuth2TokenValidatorResult.failure(INVALID_AUDIENCE_ERROR);
 
   public AudienceValidator(AuthorizationServer server) {
-    Objects.requireNonNull(server.getAudiences(), "null audiences");
-    Assert.notEmpty(server.getAudiences(), "empty audiences");
-    requiredAudiences.addAll(server.getAudiences());
+    Objects.requireNonNull(server.audiences(), "null audiences");
+    Assert.notEmpty(server.audiences(), "empty audiences");
+    requiredAudiences.addAll(server.audiences());
   }
 
   public AudienceValidator(AuthorizationServer server, boolean audienceRequired) {

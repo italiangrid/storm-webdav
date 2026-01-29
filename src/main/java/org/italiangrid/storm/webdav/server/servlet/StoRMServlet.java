@@ -123,7 +123,7 @@ public class StoRMServlet extends ResourceServlet {
               request.getRemotePort());
       scitagTransfer.writeStart();
     }
-    if (serviceConfig.getNginx().getEnabled()) {
+    if (serviceConfig.getNginx().enabled()) {
       String resolvedPath = pathResolver.resolvePath(pathInContext);
       File f = new File(resolvedPath);
       if (f.isFile()) {

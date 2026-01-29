@@ -10,37 +10,9 @@ import tools.jackson.databind.annotation.JsonNaming;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ErrorResponseDTO {
+public record ErrorResponseDTO(String error, String errorDescription) {
 
   public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
   public static final String INVALID_REQUEST = "invalid_request";
   public static final String INVALID_SCOPE = "invalid_scope";
-
-  String error;
-  String errorDescription;
-
-  public ErrorResponseDTO(String error, String description) {
-    this.error = error;
-    this.errorDescription = description;
-  }
-
-  public String getError() {
-    return error;
-  }
-
-  public void setError(String error) {
-    this.error = error;
-  }
-
-  public String getErrorDescription() {
-    return errorDescription;
-  }
-
-  public void setErrorDescription(String errorDescription) {
-    this.errorDescription = errorDescription;
-  }
-
-  public static ErrorResponseDTO from(String error, String errorDescription) {
-    return new ErrorResponseDTO(error, errorDescription);
-  }
 }

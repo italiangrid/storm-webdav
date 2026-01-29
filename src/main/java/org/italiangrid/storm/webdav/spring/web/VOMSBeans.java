@@ -35,19 +35,19 @@ public class VOMSBeans {
 
     X509CertChainValidatorExt certVal = certificateValidator;
 
-    if (props.getVoms().getCache().isEnabled()) {
+    if (props.getVoms().cache().enabled()) {
       certVal =
           new CachingCertificateValidator(
               certificateValidator,
-              TimeUnit.SECONDS.toMillis(props.getVoms().getCache().getEntryLifetimeSec()));
+              TimeUnit.SECONDS.toMillis(props.getVoms().cache().entryLifetimeSec()));
     }
 
     VOMSListener listener = new VOMSListener();
 
     VOMSTrustStore trustStore =
         VOMSTrustStores.newTrustStore(
-            Arrays.asList(props.getVoms().getTrustStore().getDir()),
-            TimeUnit.SECONDS.toMillis(props.getVoms().getTrustStore().getRefreshIntervalSec()),
+            Arrays.asList(props.getVoms().trustStore().dir()),
+            TimeUnit.SECONDS.toMillis(props.getVoms().trustStore().refreshIntervalSec()),
             listener);
 
     return new DefaultVOMSValidator.Builder()

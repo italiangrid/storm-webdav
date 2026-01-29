@@ -166,6 +166,6 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   @Override
   public List<PathAuthorizationPolicy> parsePolicies() {
 
-    return properties.getAuthz().getPolicies().stream().map(this::parsePolicy).toList();
+    return properties.getAuthz().policies().stream().map(this::parsePolicy).toList();
   }
 }

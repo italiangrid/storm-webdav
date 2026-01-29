@@ -22,11 +22,11 @@ public class TypAwareValidator implements OAuth2TokenValidator<Jwt> {
   OAuth2TokenValidator<Jwt> atJwtValidator;
 
   public TypAwareValidator(AuthorizationServer as) {
-    jwtValidator = JwtValidators.createDefaultWithIssuer(as.getIssuer());
-    if (!as.getAudiences().isEmpty()) {
+    jwtValidator = JwtValidators.createDefaultWithIssuer(as.issuer());
+    if (!as.audiences().isEmpty()) {
       atJwtValidator =
           JwtValidators.createAtJwtValidator()
-              .issuer(as.getIssuer())
+              .issuer(as.issuer())
               .validators(v -> v.put(JwtClaimNames.AUD, new AudienceValidator(as, true)))
               .validators(v -> v.put("client_id", new RequireClaimValidator("client_id")))
               .build();

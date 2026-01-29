@@ -39,23 +39,20 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
   @Test
   void testSingleEndpointList() {
 
-    ReplicaEndpointProperties replica = new ReplicaEndpointProperties();
-    replica.setEndpoint(ENDPOINT_URI_0);
+    ReplicaEndpointProperties replica = new ReplicaEndpointProperties(ENDPOINT_URI_0);
 
     config.getRedirector().getPool().getEndpoints().add(replica);
 
     assertThat(selector.selectReplica().isPresent(), is(true));
-    assertThat(selector.selectReplica().get().getEndpoint(), is(ENDPOINT_URI_0));
+    assertThat(selector.selectReplica().get().endpoint(), is(ENDPOINT_URI_0));
   }
 
   @Test
   void testDoubleEndpointList() {
 
-    ReplicaEndpointProperties replica0 = new ReplicaEndpointProperties();
-    replica0.setEndpoint(ENDPOINT_URI_0);
+    ReplicaEndpointProperties replica0 = new ReplicaEndpointProperties(ENDPOINT_URI_0);
 
-    ReplicaEndpointProperties replica1 = new ReplicaEndpointProperties();
-    replica1.setEndpoint(ENDPOINT_URI_1);
+    ReplicaEndpointProperties replica1 = new ReplicaEndpointProperties(ENDPOINT_URI_1);
 
     config.getRedirector().getPool().getEndpoints().add(replica0);
     config.getRedirector().getPool().getEndpoints().add(replica1);
