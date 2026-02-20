@@ -29,6 +29,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -319,7 +320,7 @@ public class AppConfig {
 
     LoadingCache<String, ClientRegistration> clients =
         CacheBuilder.newBuilder()
-            .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+            .refreshAfterWrite(Duration.ofMinutes(props.getRefreshPeriodMinutes()))
             .build(loader);
 
     clientProperties
@@ -363,7 +364,7 @@ public class AppConfig {
 
     LoadingCache<String, JwtDecoder> decoders =
         CacheBuilder.newBuilder()
-            .refreshAfterWrite(props.getRefreshPeriodMinutes(), TimeUnit.MINUTES)
+            .refreshAfterWrite(Duration.ofMinutes(props.getRefreshPeriodMinutes()))
             .build(loader);
 
     for (AuthorizationServer as : props.getIssuers()) {

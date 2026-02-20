@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.6</version>
     <relativePath />
   </parent>
 
@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <plugin.jacoco.version>0.8.14</plugin.jacoco.version>
-    <plugin.spotless.version>3.1.0</plugin.spotless.version>
+    <plugin.spotless.version>3.4.0</plugin.spotless.version>
 
     <java.version>21</java.version>
 
@@ -36,22 +36,22 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/fs/Stat.java,src/main/java/org/italiangrid/storm/webdav/fs/Timespec.java</sonar.exclusions>
 
-    <voms-api-java.version>3.3.6</voms-api-java.version>
-    <milton.version>4.1.0.2601</milton.version>
+    <voms-api-java.version>3.3.8</voms-api-java.version>
+    <milton.version>4.1.1.2676</milton.version>
 
     <commons-csv.version>1.14.1</commons-csv.version>
 
-    <metrics.version>4.2.30</metrics.version>
+    <metrics.version>4.2.38</metrics.version>
 
-    <logback-access.version>2.0.7</logback-access.version>
+    <logback-access.version>2.0.12</logback-access.version>
 
-    <guava.version>33.5.0-jre</guava.version>
+    <guava.version>33.6.0-jre</guava.version>
 
     <owner-config.version>1.0.12</owner-config.version>
 
     <jna.version>5.18.1</jna.version>
 
-    <wiremock.version>4.0.0-beta.24</wiremock.version>
+    <wiremock.version>4.0.0-beta.32</wiremock.version>
   </properties>
 
   <repositories>
