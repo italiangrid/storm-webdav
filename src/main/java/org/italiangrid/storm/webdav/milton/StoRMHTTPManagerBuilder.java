@@ -6,9 +6,7 @@ package org.italiangrid.storm.webdav.milton;
 
 import io.milton.config.HttpManagerBuilder;
 import io.milton.http.AuthenticationHandler;
-import io.milton.http.Handler;
 import io.milton.http.http11.DefaultHttp11ResponseHandler.BUFFERING;
-import io.milton.http.webdav.MoveHandler;
 import java.util.List;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -37,21 +35,5 @@ public class StoRMHTTPManagerBuilder extends HttpManagerBuilder {
     setEnableFormAuth(false);
     setEnableCookieAuth(false);
     setEnableDigestAuth(false);
-  }
-
-  @Override
-  protected void afterInit() {
-
-    super.afterInit();
-    disableDeleteExistingBeforeMoveInMoveHandler();
-  }
-
-  private void disableDeleteExistingBeforeMoveInMoveHandler() {
-
-    for (Handler h : getWebDavProtocol().getHandlers()) {
-      if (h instanceof MoveHandler moveHandler) {
-        moveHandler.setDeleteExistingBeforeMove(false);
-      }
-    }
   }
 }

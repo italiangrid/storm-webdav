@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.InsufficientStorage;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
-import org.italiangrid.storm.webdav.error.SameFileError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
@@ -80,8 +79,6 @@ public class StoRMMiltonBehaviour implements Filter {
       response.sendError(Status.SC_INSUFFICIENT_STORAGE, e.getMessage());
     } catch (ResourceNotFound e) {
       responseHandler.respondNotFound(response, request);
-    } catch (SameFileError e) {
-      responseHandler.respondForbidden(null, response, request);
     } catch (MethodNotAllowedException e) {
       response.setAllowHeader(e.getSupportedMethods().stream().map(Object::toString).toList());
       responseHandler.respondMethodNotAllowed(
