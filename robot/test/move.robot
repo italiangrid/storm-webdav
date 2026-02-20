@@ -55,6 +55,7 @@ Move override works
     ${overwriteHeader}  Set variable  --header "Overwrite: T"
     ${rc}  ${out}  Curl Voms MOVE Success  ${dest}  ${source}  ${curl.opts.default} ${overwriteHeader}
     Davix Get Success   ${dest}  ${davix.opts.voms}
+    Should Contain  ${out}  204 No Content
     [Teardown]   Teardown file  move_works
 
 Move override fails

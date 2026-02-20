@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
-import org.italiangrid.storm.webdav.error.SameFileError;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
 import org.slf4j.Logger;
@@ -62,10 +61,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
     try {
 
-      if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
-        throw new SameFileError("Source and destination files are the same");
-      }
-
       // Overwrites the destination, if it exists
       Files.move(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
@@ -87,10 +82,6 @@ public class DefaultFSStrategy implements FilesystemAccess {
     LOG.debug("cp: source={} target={}", source.getAbsolutePath(), dest.getAbsolutePath());
 
     try {
-
-      if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
-        throw new SameFileError("Source and destination files are the same");
-      }
 
       if (source.isDirectory()) {
 
