@@ -1,11 +1,7 @@
 <!doctype html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}">
-<head>
-<title>Access denied!</title>
-</head>
+<html lang="en" th:replace="~{layout.html :: layout('Access denied!', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <section layout:fragment="page-content">
+  <section>
     <h3>Forbidden!</h3>
     <p>You do not have the rights to access the requested resources!</p>
     <a href="/">Go back to the storage area index page</a>
