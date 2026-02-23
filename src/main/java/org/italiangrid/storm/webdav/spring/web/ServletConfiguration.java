@@ -8,6 +8,7 @@ import static org.springframework.boot.security.autoconfigure.web.servlet.Securi
 
 import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.metrics.servlets.MetricsServlet;
+import io.micrometer.observation.ObservationRegistry;
 import java.time.Clock;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -37,6 +38,7 @@ import org.italiangrid.storm.webdav.tpc.http.HttpTransferClientMetricsWrapper;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -51,6 +53,7 @@ import tools.jackson.databind.ObjectMapper;
 public class ServletConfiguration {
 
   public static final Logger LOG = LoggerFactory.getLogger(ServletConfiguration.class);
+  @Autowired ObservationRegistry observationRegistry;
 
   static final int LOG_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1002;
   static final int REDIRECT_REQ_FILTER_ORDER = DEFAULT_FILTER_ORDER + 1003;
@@ -110,7 +113,8 @@ public class ServletConfiguration {
       ObjectMapper mapper, MacaroonIssuerService service) {
     LOG.info("Macaroon request filter enabled");
     FilterRegistrationBean<MacaroonRequestFilter> filter =
-        new FilterRegistrationBean<>(new MacaroonRequestFilter(mapper, service));
+        new FilterRegistrationBean<>(
+            new MacaroonRequestFilter(mapper, service, observationRegistry));
     filter.setOrder(MACAROON_REQ_FILTER_ORDER);
     return filter;
   }
@@ -133,7 +137,12 @@ public class ServletConfiguration {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
         new FilterRegistrationBean<>(
             new MiltonFilter(
-                fsAccess, attrsHelper, resolver, rcs, deleteFilesWithMismatchedChecksums));
+                fsAccess,
+                attrsHelper,
+                resolver,
+                rcs,
+                deleteFilesWithMismatchedChecksums,
+                observationRegistry));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;
@@ -180,7 +189,8 @@ public class ServletConfiguration {
                 resolver,
                 lus,
                 props.getEnableExpectContinueThreshold(),
-                deleteFilesWithMismatchedChecksums));
+                deleteFilesWithMismatchedChecksums,
+                observationRegistry));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

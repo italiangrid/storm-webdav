@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.macaroon;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,10 +31,13 @@ public class MacaroonRequestFilter implements Filter {
 
   private final ObjectMapper mapper;
   private final MacaroonIssuerService service;
+  private final ObservationRegistry observationRegistry;
 
-  public MacaroonRequestFilter(ObjectMapper mapper, MacaroonIssuerService service) {
+  public MacaroonRequestFilter(
+      ObjectMapper mapper, MacaroonIssuerService service, ObservationRegistry observationRegistry) {
     this.mapper = mapper;
     this.service = service;
+    this.observationRegistry = observationRegistry;
   }
 
   public static boolean isMacaroonRequest(HttpServletRequest request) {
@@ -47,7 +52,12 @@ public class MacaroonRequestFilter implements Filter {
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
     if (isMacaroonRequest(httpRequest)) {
-      processMacaroonRequest(httpRequest, httpResponse);
+      Observation observation =
+          Observation.createNotStarted("process-macaroon-request", this.observationRegistry);
+      observation.observeChecked(
+          () -> {
+            processMacaroonRequest(httpRequest, httpResponse);
+          });
     } else {
       chain.doFilter(request, response);
     }

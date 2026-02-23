@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.tpc;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -51,16 +53,20 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
 
   private final boolean deleteFilesWithMismatchedChecksums;
 
+  private final ObservationRegistry observationRegistry;
+
   public TransferFilter(
       Clock clock,
       TransferClient c,
       PathResolver resolver,
       LocalURLService lus,
       long enableExpectContinueThreshold,
-      boolean deleteFilesWithMismatchedChecksums) {
+      boolean deleteFilesWithMismatchedChecksums,
+      ObservationRegistry observationRegistry) {
     super(clock, resolver, lus, enableExpectContinueThreshold);
     client = c;
     this.deleteFilesWithMismatchedChecksums = deleteFilesWithMismatchedChecksums;
+    this.observationRegistry = observationRegistry;
   }
 
   private void localCopySanityChecks(HttpServletRequest req) throws URISyntaxException {
@@ -77,7 +83,12 @@ public class TransferFilter extends TransferFilterSupport implements Filter {
     HttpServletResponse res = (HttpServletResponse) response;
 
     if (isTpc(req, localURLService)) {
-      handleTpc(req, res);
+      Observation observation =
+          Observation.createNotStarted("handle-tpc", this.observationRegistry);
+      observation.observeChecked(
+          () -> {
+            handleTpc(req, res);
+          });
     } else if (isCopy(req) && requestHasLocalDestinationHeader(req, localURLService)) {
       try {
         localCopySanityChecks(req);

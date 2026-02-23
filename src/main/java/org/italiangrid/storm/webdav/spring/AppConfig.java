@@ -20,6 +20,7 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -99,6 +100,7 @@ import org.italiangrid.storm.webdav.web.PathConstants;
 import org.italiangrid.voms.util.CertificateValidatorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -117,6 +119,8 @@ import org.springframework.session.SessionRepository;
 
 @Configuration
 public class AppConfig {
+
+  @Autowired ObservationRegistry observationRegistry;
 
   public static final Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
@@ -162,7 +166,7 @@ public class AppConfig {
   @Bean
   ExtendedAttributesHelper extendedAttributesHelper() {
 
-    return new DefaultExtendedFileAttributesHelper();
+    return new DefaultExtendedFileAttributesHelper(observationRegistry);
   }
 
   @Bean
@@ -170,7 +174,7 @@ public class AppConfig {
   FilesystemAccess filesystemAccess() {
 
     return new MetricsFSStrategyWrapper(
-        new DefaultFSStrategy(extendedAttributesHelper()), metricRegistry());
+        new DefaultFSStrategy(extendedAttributesHelper(), observationRegistry), metricRegistry());
   }
 
   @Bean
@@ -413,7 +417,8 @@ public class AppConfig {
   ReplaceContentStrategy earlyChecksumStrategy(
       MetricRegistry registry, ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: early");
-    return new MetricsReplaceContentStrategy(registry, new EarlyChecksumStrategy(ah));
+    return new MetricsReplaceContentStrategy(
+        registry, new EarlyChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
@@ -421,14 +426,16 @@ public class AppConfig {
   ReplaceContentStrategy lateChecksumStrategy(
       MetricRegistry registry, ExtendedAttributesHelper ah) {
     LOG.info("Checksum strategy: late");
-    return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
+    return new MetricsReplaceContentStrategy(
+        registry, new LateChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
   ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
     LOG.warn("Checksum strategy: no checksum");
-    return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
+    return new MetricsReplaceContentStrategy(
+        registry, new NoChecksumStrategy(), observationRegistry);
   }
 
   @Bean
