@@ -1,11 +1,7 @@
 <!doctype html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}">
-<head>
-<title>Access denied!</title>
-</head>
+<html lang="en" th:replace="~{layout.html :: layout('Access denied!', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <section layout:fragment="page-content">
+  <section>
     <h3>Unsupported Media Type!</h3>
     <p>This can be caused by an invalid operation over a stub file; recall the file and retry.</p>
     <a href="/">Go back to the storage area index page</a>

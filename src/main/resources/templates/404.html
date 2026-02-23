@@ -1,11 +1,7 @@
 <!doctype html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}">
-<head>
-<title>Not found!</title>
-</head>
+<html lang="en" th:replace="~{layout.html :: layout('Not found!', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <section layout:fragment="page-content">
+  <section>
     <h3>Not found!</h3>
     <p>We could not find the resource you're looking for...</p>
     <a href="/">Go back to the storage area index page</a>

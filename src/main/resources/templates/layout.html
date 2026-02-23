@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="en" class="h-100" th:fragment="layout(title, content)" xmlns:th="http://www.thymeleaf.org">
 <head>
-<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">StoRM WebDAV</title>
+<title th:text="${title} + ' - StoRM WebDAV'">StoRM WebDAV</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,7 @@
     <header>
       <h1 class="h3 mb-3 text-center text-muted" th:text="${storm}">storm.example</h1>
     </header>
-    <section layout:fragment="page-content">
+    <section th:fragment="page-content(content)" th:replace="${content}">
       <p>Content goes here</p>
     </section>
   </div>

@@ -1,11 +1,7 @@
 <!doctype html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layout.html}">
-<head>
-<title>Authentication info</title>
-</head>
+<html lang="en" th:replace="~{layout.html :: layout('Authentication info', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <section layout:fragment="page-content">
+  <section>
     <p>This page shows information about the authenticated user:</p>
     <dl class="row">
       <dt class="col-sm-3">Principal</dt>
