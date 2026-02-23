@@ -20,6 +20,7 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManager;
 import eu.emi.security.authn.x509.impl.PEMCredential;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -160,17 +161,18 @@ public class AppConfig {
   }
 
   @Bean
-  ExtendedAttributesHelper extendedAttributesHelper() {
+  ExtendedAttributesHelper extendedAttributesHelper(ObservationRegistry observationRegistry) {
 
-    return new DefaultExtendedFileAttributesHelper();
+    return new DefaultExtendedFileAttributesHelper(observationRegistry);
   }
 
   @Bean
   @Primary
-  FilesystemAccess filesystemAccess() {
+  FilesystemAccess filesystemAccess(ObservationRegistry observationRegistry) {
 
     return new MetricsFSStrategyWrapper(
-        new DefaultFSStrategy(extendedAttributesHelper()), metricRegistry());
+        new DefaultFSStrategy(extendedAttributesHelper(observationRegistry), observationRegistry),
+        metricRegistry());
   }
 
   @Bean
@@ -409,24 +411,32 @@ public class AppConfig {
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "EARLY")
   ReplaceContentStrategy earlyChecksumStrategy(
-      MetricRegistry registry, ExtendedAttributesHelper ah) {
+      MetricRegistry registry,
+      ExtendedAttributesHelper ah,
+      ObservationRegistry observationRegistry) {
     LOG.info("Checksum strategy: early");
-    return new MetricsReplaceContentStrategy(registry, new EarlyChecksumStrategy(ah));
+    return new MetricsReplaceContentStrategy(
+        registry, new EarlyChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "LATE")
   ReplaceContentStrategy lateChecksumStrategy(
-      MetricRegistry registry, ExtendedAttributesHelper ah) {
+      MetricRegistry registry,
+      ExtendedAttributesHelper ah,
+      ObservationRegistry observationRegistry) {
     LOG.info("Checksum strategy: late");
-    return new MetricsReplaceContentStrategy(registry, new LateChecksumStrategy(ah));
+    return new MetricsReplaceContentStrategy(
+        registry, new LateChecksumStrategy(ah), observationRegistry);
   }
 
   @Bean
   @ConditionalOnProperty(name = "storm.checksum-strategy", havingValue = "NO_CHECKSUM")
-  ReplaceContentStrategy noChecksumStrategy(MetricRegistry registry) {
+  ReplaceContentStrategy noChecksumStrategy(
+      MetricRegistry registry, ObservationRegistry observationRegistry) {
     LOG.warn("Checksum strategy: no checksum");
-    return new MetricsReplaceContentStrategy(registry, new NoChecksumStrategy());
+    return new MetricsReplaceContentStrategy(
+        registry, new NoChecksumStrategy(), observationRegistry);
   }
 
   @Bean

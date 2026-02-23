@@ -65,7 +65,7 @@ class PathResolverTests {
     saConfig = mock(StorageAreaConfiguration.class);
     when(saConfig.getStorageAreaInfo()).thenReturn(saInfoList);
 
-    ExtendedAttributesHelper attributesHelper = new DefaultExtendedFileAttributesHelper();
+    ExtendedAttributesHelper attributesHelper = new DefaultExtendedFileAttributesHelper(null);
 
     pathResolver = new DefaultPathResolver(saConfig, attributesHelper);
   }

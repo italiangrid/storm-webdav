@@ -8,6 +8,7 @@ import static org.springframework.boot.security.autoconfigure.web.servlet.Securi
 
 import com.codahale.metrics.MetricRegistry;
 import io.dropwizard.metrics.servlets.MetricsServlet;
+import io.micrometer.observation.ObservationRegistry;
 import java.time.Clock;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
@@ -107,10 +108,11 @@ public class ServletConfiguration {
   @Bean
   @ConditionalOnExpression("${storm.macaroon-filter.enabled} && ${storm.authz-server.enabled}")
   FilterRegistrationBean<MacaroonRequestFilter> macaroonRequestFilter(
-      ObjectMapper mapper, MacaroonIssuerService service) {
+      ObjectMapper mapper, MacaroonIssuerService service, ObservationRegistry observationRegistry) {
     LOG.info("Macaroon request filter enabled");
     FilterRegistrationBean<MacaroonRequestFilter> filter =
-        new FilterRegistrationBean<>(new MacaroonRequestFilter(mapper, service));
+        new FilterRegistrationBean<>(
+            new MacaroonRequestFilter(mapper, service, observationRegistry));
     filter.setOrder(MACAROON_REQ_FILTER_ORDER);
     return filter;
   }
@@ -129,11 +131,17 @@ public class ServletConfiguration {
       FilesystemAccess fsAccess,
       ExtendedAttributesHelper attrsHelper,
       PathResolver resolver,
-      ReplaceContentStrategy rcs) {
+      ReplaceContentStrategy rcs,
+      ObservationRegistry observationRegistry) {
     FilterRegistrationBean<MiltonFilter> miltonFilter =
         new FilterRegistrationBean<>(
             new MiltonFilter(
-                fsAccess, attrsHelper, resolver, rcs, deleteFilesWithMismatchedChecksums));
+                fsAccess,
+                attrsHelper,
+                resolver,
+                rcs,
+                deleteFilesWithMismatchedChecksums,
+                observationRegistry));
     miltonFilter.addUrlPatterns("/*");
     miltonFilter.setOrder(MILTON_FILTER_ORDER);
     return miltonFilter;
@@ -168,7 +176,8 @@ public class ServletConfiguration {
       TransferClient client,
       ThirdPartyCopyProperties props,
       LocalURLService lus,
-      MetricRegistry registry) {
+      MetricRegistry registry,
+      ObservationRegistry observationRegistry) {
 
     TransferClient metricsClient = new HttpTransferClientMetricsWrapper(registry, client);
 
@@ -180,7 +189,8 @@ public class ServletConfiguration {
                 resolver,
                 lus,
                 props.getEnableExpectContinueThreshold(),
-                deleteFilesWithMismatchedChecksums));
+                deleteFilesWithMismatchedChecksums,
+                observationRegistry));
     tpcFilter.addUrlPatterns("/*");
     tpcFilter.setOrder(TPC_FILTER_ORDER);
     return tpcFilter;

@@ -5,6 +5,8 @@
 package org.italiangrid.storm.webdav.fs.attrs;
 
 import com.sun.jna.platform.linux.XAttrUtil;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +18,8 @@ import java.util.Objects;
 import org.springframework.util.Assert;
 
 public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHelper {
+
+  private final ObservationRegistry observationRegistry;
 
   private static final String USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE =
       "UserDefinedFileAttributeView not supported on file ";
@@ -29,34 +33,49 @@ public class DefaultExtendedFileAttributesHelper implements ExtendedAttributesHe
 
   public static final String STORM_PREMIGRATE_ATTR_NAME = "storm.premigrate";
 
+  public DefaultExtendedFileAttributesHelper(ObservationRegistry observationRegistry) {
+    this.observationRegistry = observationRegistry;
+  }
+
   protected String getAttributeValue(File f, String attributeName) throws IOException {
-    String userAttributeName = USER_NAMESPACE + attributeName;
-    String path = f.toPath().toString();
-    Collection<String> attrNames = getExtendedFileAttributeNames(f);
-    if (attrNames.contains(userAttributeName)) {
-      // XAttrUtil is used because UserDefinedFileAttributeView do an openat potentially triggering
-      // a transparent recall
-      return XAttrUtil.getXAttr(path, userAttributeName);
-    }
-    return null;
+    Observation observation =
+        Observation.createNotStarted("extended-file-attribute-get-value", this.observationRegistry);
+    return observation.observeChecked(
+        () -> {
+          String userAttributeName = USER_NAMESPACE + attributeName;
+          String path = f.toPath().toString();
+          Collection<String> attrNames = getExtendedFileAttributeNames(f);
+          if (attrNames.contains(userAttributeName)) {
+            // XAttrUtil is used because UserDefinedFileAttributeView do an openat potentially
+            // triggering
+            // a transparent recall
+            return XAttrUtil.getXAttr(path, userAttributeName);
+          }
+          return null;
+        });
   }
 
   @Override
   public void setExtendedFileAttribute(File f, String attributeName, String attributeValue)
       throws IOException {
 
-    Objects.requireNonNull(f);
-    Assert.hasText(attributeName, "Attribute name must not be empty");
+    Observation observation =
+        Observation.createNotStarted("extended-file-attribute-set-value", this.observationRegistry);
+    observation.observeChecked(
+        () -> {
+          Objects.requireNonNull(f);
+          Assert.hasText(attributeName, "Attribute name must not be empty");
 
-    UserDefinedFileAttributeView faView =
-        Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
+          UserDefinedFileAttributeView faView =
+              Files.getFileAttributeView(f.toPath(), UserDefinedFileAttributeView.class);
 
-    if (faView == null) {
-      throw new IOException(
-          USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
-    }
+          if (faView == null) {
+            throw new IOException(
+                USERDEFINEDFILEATTRIBUTEVIEW_NOT_SUPPORTED_MESSAGE + f.getAbsolutePath());
+          }
 
-    faView.write(attributeName, StandardCharsets.UTF_8.encode(attributeValue));
+          faView.write(attributeName, StandardCharsets.UTF_8.encode(attributeValue));
+        });
   }
 
   @Override

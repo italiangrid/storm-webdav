@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.server.servlet;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import io.milton.http.HttpManager;
 import io.milton.http.Request;
 import io.milton.http.Request.Method;
@@ -65,18 +67,22 @@ public class MiltonFilter implements Filter {
 
   private boolean deleteFilesWithMismatchedChecksums;
 
+  private final ObservationRegistry observationRegistry;
+
   public MiltonFilter(
       FilesystemAccess fsAccess,
       ExtendedAttributesHelper attrsHelper,
       PathResolver resolver,
       ReplaceContentStrategy rcs,
-      boolean deleteFilesWithMismatchedChecksums) {
+      boolean deleteFilesWithMismatchedChecksums,
+      ObservationRegistry observationRegistry) {
 
     this.filesystemAccess = fsAccess;
     this.attrsHelper = attrsHelper;
     this.resolver = resolver;
     this.rcs = rcs;
     this.deleteFilesWithMismatchedChecksums = deleteFilesWithMismatchedChecksums;
+    this.observationRegistry = observationRegistry;
   }
 
   private void initMiltonHTTPManager() {
@@ -112,7 +118,10 @@ public class MiltonFilter implements Filter {
       throws IOException, ServletException {
 
     if (isWebDAVMethod(request)) {
-      doMilton((HttpServletRequest) request, (HttpServletResponse) response);
+
+      Observation observation = Observation.createNotStarted("do-milton", this.observationRegistry);
+      observation.observe(
+          () -> doMilton((HttpServletRequest) request, (HttpServletResponse) response));
     } else {
       chain.doFilter(request, response);
     }
