@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.test.authz.vomap;
 
 import java.io.File;
 import org.italiangrid.storm.webdav.authz.vomap.MapfileVOMembershipSource;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class VOMSMapTests {
@@ -27,11 +27,11 @@ class VOMSMapTests {
         new MapfileVOMembershipSource(
             "testers", new File("src/test/resources/vomsmap/testers.map"));
 
-    Assert.assertEquals("testers", m.getVOName());
-    Assert.assertTrue(m.getVOMembers().contains(AC_SUBJECT));
-    Assert.assertFalse(m.getVOMembers().contains(EV_SUBJECT));
-    Assert.assertFalse(m.getVOMembers().contains(COMMA_SUBJECT));
-    Assert.assertTrue(m.getVOMembers().contains(RM_SUBJECT));
-    Assert.assertFalse(m.getVOMembers().contains("CN=I am not Real, L=CNAF"));
+    Assertions.assertEquals("testers", m.getVOName());
+    Assertions.assertTrue(m.getVOMembers().contains(AC_SUBJECT));
+    Assertions.assertFalse(m.getVOMembers().contains(EV_SUBJECT));
+    Assertions.assertFalse(m.getVOMembers().contains(COMMA_SUBJECT));
+    Assertions.assertTrue(m.getVOMembers().contains(RM_SUBJECT));
+    Assertions.assertFalse(m.getVOMembers().contains("CN=I am not Real, L=CNAF"));
   }
 }

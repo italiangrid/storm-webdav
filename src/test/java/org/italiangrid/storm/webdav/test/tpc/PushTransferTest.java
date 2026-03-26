@@ -6,7 +6,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat(putXferRequest.getValue().overwrite(), is(true));
     assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
     assertTrue(
-        "Expected empty xfer headers", putXferRequest.getValue().transferHeaders().isEmpty());
+        putXferRequest.getValue().transferHeaders().isEmpty(), "Expected empty xfer headers");
 
     verify(response).setStatus(HttpServletResponse.SC_ACCEPTED);
   }
@@ -71,7 +71,7 @@ class PushTransferTest extends TransferFilterTestSupport {
     assertThat("Overwrite header not recognized", putXferRequest.getValue().overwrite(), is(false));
     assertThat(putXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
     assertTrue(
-        "Expected empty xfer headers", putXferRequest.getValue().transferHeaders().isEmpty());
+        putXferRequest.getValue().transferHeaders().isEmpty(), "Expected empty xfer headers");
   }
 
   @Test

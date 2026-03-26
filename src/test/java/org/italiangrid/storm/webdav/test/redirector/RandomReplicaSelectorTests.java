@@ -15,10 +15,7 @@ import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties.Redire
 import org.italiangrid.storm.webdav.redirector.RandomReplicaSelector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
   ServiceConfigurationProperties config;

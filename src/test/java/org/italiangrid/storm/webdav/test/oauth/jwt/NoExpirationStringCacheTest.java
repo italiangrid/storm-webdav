@@ -4,7 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.italiangrid.storm.webdav.oauth.utils.NoExpirationStringCache;
 import org.junit.jupiter.api.Test;

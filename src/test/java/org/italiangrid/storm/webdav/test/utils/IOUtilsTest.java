@@ -15,10 +15,7 @@ import java.nio.file.Files;
 import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
 class IOUtilsTest {
 
   @TempDir public File testFolder;

@@ -4,7 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwk;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 
 import com.google.common.util.concurrent.ListenableFuture;

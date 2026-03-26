@@ -20,7 +20,7 @@ import org.italiangrid.storm.webdav.fs.attrs.DefaultExtendedFileAttributesHelper
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.server.DefaultPathResolver;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,7 +94,7 @@ class PathResolverTests {
       String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name)).concat("/testdir");
 
       String rootPath = pathResolver.resolvePath(pathToTest);
-      Assert.assertEquals(expectedRootPath, rootPath);
+      Assertions.assertEquals(expectedRootPath, rootPath);
     }
   }
 
@@ -107,13 +107,13 @@ class PathResolverTests {
       String expectedRootPath = ROOTDIR.concat("/").concat(input.get(name)).concat("/testdir");
 
       StorageAreaInfo sa = pathResolver.resolveStorageArea(pathToTest);
-      Assert.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
+      Assertions.assertEquals(expectedRootPath, sa.rootPath() + "/testdir");
     }
   }
 
   @Test
   void checkFileLocality() {
     Locality locality = pathResolver.getLocality("/test1/notATapeStorageArea/normalFile.txt");
-    Assert.assertEquals(Locality.DISK, locality);
+    Assertions.assertEquals(Locality.DISK, locality);
   }
 }
