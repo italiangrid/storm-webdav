@@ -17,7 +17,7 @@ public final class IOExceptionHelper {
   private IOExceptionHelper() {}
 
   public static StoRMWebDAVError getStoRMWebDAVError(IOException e) {
-    if (INSUFFICIENT_STORAGE_MESSAGES.contains(e.getMessage())) {
+    if (e.getMessage() != null && INSUFFICIENT_STORAGE_MESSAGES.contains(e.getMessage())) {
       return new InsufficientStorage(e.getMessage(), e);
     }
     return new StoRMWebDAVError(e.getMessage(), e);
