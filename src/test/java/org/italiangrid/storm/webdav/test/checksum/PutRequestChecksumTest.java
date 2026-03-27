@@ -4,9 +4,10 @@
 
 package org.italiangrid.storm.webdav.test.checksum;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -63,7 +64,7 @@ class PutRequestChecksumTest {
     miltonBehaviour.putRequestHandling(request);
 
     verify(resolver, never()).getPath(request.getAbsolutePath());
-    assertThat(Files.exists(filePath), is(true));
+    assertTrue(Files.exists(filePath));
   }
 
   @Test
@@ -78,7 +79,7 @@ class PutRequestChecksumTest {
 
     miltonBehaviour.putRequestHandling(request);
 
-    assertThat(Files.exists(filePath), is(true));
+    assertTrue(Files.exists(filePath));
   }
 
   @Test
@@ -98,8 +99,8 @@ class PutRequestChecksumTest {
               miltonBehaviour.putRequestHandling(request);
             });
 
-    assertThat(checksumVerificationError.getMessage(), is("client/server checksum mismatch"));
-    assertThat(Files.exists(filePath), is(false));
+    assertEquals("client/server checksum mismatch", checksumVerificationError.getMessage());
+    assertFalse(Files.exists(filePath));
   }
 
   @Test
@@ -121,9 +122,8 @@ class PutRequestChecksumTest {
               miltonBehaviour.putRequestHandling(request);
             });
 
-    assertThat(
-        checksumVerificationError.getMessage(),
-        is("Error retrieving checksum from the file system"));
-    assertThat(Files.exists(filePath), is(true));
+    assertEquals(
+        "Error retrieving checksum from the file system", checksumVerificationError.getMessage());
+    assertTrue(Files.exists(filePath));
   }
 }

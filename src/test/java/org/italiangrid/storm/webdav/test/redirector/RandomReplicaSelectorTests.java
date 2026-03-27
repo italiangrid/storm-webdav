@@ -4,9 +4,9 @@
 
 package org.italiangrid.storm.webdav.test.redirector;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +30,7 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
   @Test
   void testEmptyOptionalOnEmptyEndpointList() {
 
-    assertThat(selector.selectReplica().isPresent(), is(false));
+    assertFalse(selector.selectReplica().isPresent());
   }
 
   @Test
@@ -40,8 +40,8 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
 
     config.getRedirector().getPool().getEndpoints().add(replica);
 
-    assertThat(selector.selectReplica().isPresent(), is(true));
-    assertThat(selector.selectReplica().get().endpoint(), is(ENDPOINT_URI_0));
+    assertTrue(selector.selectReplica().isPresent());
+    assertEquals(ENDPOINT_URI_0, selector.selectReplica().get().endpoint());
   }
 
   @Test
@@ -61,7 +61,7 @@ class RandomReplicaSelectorTests extends RedirectorTestSupport {
       results.add(selector.selectReplica().orElseThrow(assertionError("Replica selection failed")));
     }
 
-    assertThat(results, hasItem(replica0));
-    assertThat(results, hasItem(replica1));
+    assertTrue(results.contains(replica0));
+    assertTrue(results.contains(replica1));
   }
 }

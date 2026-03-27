@@ -4,9 +4,10 @@
 
 package org.italiangrid.storm.webdav.test.oauth.validator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -59,37 +60,37 @@ class AudienceValidatorTests {
   void testNoAudienceInTokenYeldsSuccess() {
     when(jwt.getAudience()).thenReturn(null);
     validator = new AudienceValidator(server);
-    assertThat(validator.validate(jwt).hasErrors(), is(false));
+    assertFalse(validator.validate(jwt).hasErrors());
   }
 
   @Test
   void testEmptyAudienceInTokenYeldsSuccess() {
     when(jwt.getAudience()).thenReturn(Collections.emptyList());
     validator = new AudienceValidator(server);
-    assertThat(validator.validate(jwt).hasErrors(), is(false));
+    assertFalse(validator.validate(jwt).hasErrors());
   }
 
   @Test
   void testEmptyAudienceInTokenIsErrorIfRequired() {
     when(jwt.getAudience()).thenReturn(Collections.emptyList());
     validator = new AudienceValidator(server, true);
-    assertThat(validator.validate(jwt).hasErrors(), is(true));
-    assertThat(
-        validator.validate(jwt).getErrors().stream().findFirst().get().getErrorCode(),
-        is("invalid_audience"));
+    assertTrue(validator.validate(jwt).hasErrors());
+    assertEquals(
+        "invalid_audience",
+        validator.validate(jwt).getErrors().stream().findFirst().get().getErrorCode());
   }
 
   @Test
   void testInvalidAudienceIsError() {
     when(jwt.getAudience()).thenReturn(List.of("testAudience"));
     validator = new AudienceValidator(server);
-    assertThat(validator.validate(jwt).hasErrors(), is(true));
+    assertTrue(validator.validate(jwt).hasErrors());
   }
 
   @Test
   void testAudienceValidationSuccess() {
     when(jwt.getAudience()).thenReturn(List.of("any"));
     validator = new AudienceValidator(server);
-    assertThat(validator.validate(jwt).hasErrors(), is(false));
+    assertFalse(validator.validate(jwt).hasErrors());
   }
 }

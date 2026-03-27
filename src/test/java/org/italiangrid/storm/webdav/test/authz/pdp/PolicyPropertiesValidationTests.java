@@ -4,10 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -61,7 +59,7 @@ class PolicyPropertiesValidationTests {
     Set<ConstraintViolation<FineGrainedAuthzPolicyProperties>> violations =
         validator.validate(props);
 
-    assertThat(violations, empty());
+    assertTrue(violations.isEmpty());
   }
 
   @Test
@@ -73,9 +71,9 @@ class PolicyPropertiesValidationTests {
     Set<ConstraintViolation<FineGrainedAuthzPolicyProperties>> violations =
         validator.validate(props);
 
-    assertThat(violations, hasSize(1));
-    assertThat(violations.iterator().next().getPropertyPath().toString(), is("description"));
-    assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
+    assertEquals(1, violations.size());
+    assertEquals("description", violations.iterator().next().getPropertyPath().toString());
+    assertEquals("must not be blank", violations.iterator().next().getMessage());
   }
 
   @Test
@@ -87,9 +85,9 @@ class PolicyPropertiesValidationTests {
     Set<ConstraintViolation<FineGrainedAuthzPolicyProperties>> violations =
         validator.validate(props);
 
-    assertThat(violations, hasSize(1));
-    assertThat(violations.iterator().next().getPropertyPath().toString(), is("sa"));
-    assertThat(violations.iterator().next().getMessage(), is("must not be blank"));
+    assertEquals(1, violations.size());
+    assertEquals("sa", violations.iterator().next().getPropertyPath().toString());
+    assertEquals("must not be blank", violations.iterator().next().getMessage());
   }
 
   @Test
@@ -101,8 +99,8 @@ class PolicyPropertiesValidationTests {
     Set<ConstraintViolation<FineGrainedAuthzPolicyProperties>> violations =
         validator.validate(props);
 
-    assertThat(violations, hasSize(1));
-    assertThat(violations.iterator().next().getPropertyPath().toString(), is("principals"));
-    assertThat(violations.iterator().next().getMessage(), is("must not be empty"));
+    assertEquals(1, violations.size());
+    assertEquals("principals", violations.iterator().next().getPropertyPath().toString());
+    assertEquals("must not be empty", violations.iterator().next().getMessage());
   }
 }

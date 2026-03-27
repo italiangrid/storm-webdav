@@ -4,9 +4,9 @@
 
 package org.italiangrid.storm.webdav.test.tpc.urlservice;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,13 +48,13 @@ class URLServiceTest {
     StaticHostListLocalURLService service =
         new StaticHostListLocalURLService(Arrays.asList(SERVICE_ALIASES));
 
-    assertThat(service.isLocalURL("https://remote.org:833"), is(false));
-    assertThat(service.isLocalURL("http://152.158.1.1"), is(false));
-    assertThat(service.isLocalURL("file://storm.example"), is(true));
-    assertThat(service.isLocalURL("https://storm.example"), is(true));
-    assertThat(service.isLocalURL("file://alias.storm.example"), is(true));
-    assertThat(service.isLocalURL("https://localhost"), is(true));
-    assertThat(service.isLocalURL("/storage/f"), is(true));
+    assertFalse(service.isLocalURL("https://remote.org:833"));
+    assertFalse(service.isLocalURL("http://152.158.1.1"));
+    assertTrue(service.isLocalURL("file://storm.example"));
+    assertTrue(service.isLocalURL("https://storm.example"));
+    assertTrue(service.isLocalURL("file://alias.storm.example"));
+    assertTrue(service.isLocalURL("https://localhost"));
+    assertTrue(service.isLocalURL("/storage/f"));
   }
 
   @Test

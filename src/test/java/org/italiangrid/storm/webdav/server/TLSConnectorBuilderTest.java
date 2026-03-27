@@ -4,10 +4,10 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.emi.security.authn.x509.CrlCheckingMode;
 import eu.emi.security.authn.x509.NamespaceCheckingMode;
@@ -33,12 +33,12 @@ class TLSConnectorBuilderTest {
   void tlsConnectorBuilderErrorTests() {
 
     TLSConnectorBuilderError e = new TLSConnectorBuilderError("This is an error!");
-    assertThat(e.getMessage(), is("This is an error!"));
+    assertEquals("This is an error!", e.getMessage());
     e = new TLSConnectorBuilderError("This is an error!", new RuntimeException());
-    assertThat(e.getMessage(), is("This is an error!"));
+    assertEquals("This is an error!", e.getMessage());
     e = new TLSConnectorBuilderError(new RuntimeException("This is an error!"));
-    assertThat(e.getCause() instanceof RuntimeException, is(true));
-    assertThat(e.getMessage(), containsString("This is an error!"));
+    assertInstanceOf(RuntimeException.class, e.getCause());
+    assertTrue(e.getMessage().contains("This is an error!"));
   }
 
   @Test
@@ -106,6 +106,6 @@ class TLSConnectorBuilderTest {
         .withConscrypt(false);
 
     ServerConnector c = builder.build();
-    assertThat(c.getPort(), is(1234));
+    assertEquals(1234, c.getPort());
   }
 }

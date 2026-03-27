@@ -4,8 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -85,7 +84,7 @@ class TransferFilterActivationTest extends TransferFilterTestSupport {
         .thenReturn("https://localhost/other/file");
     filter.doFilter(request, response, chain);
     verify(responseWriter).print(error.capture());
-    assertThat(error.getValue(), is("Local copy across storage areas is not supported"));
+    assertEquals("Local copy across storage areas is not supported", error.getValue());
     verifyNoInteractions(chain);
   }
 

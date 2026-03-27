@@ -4,10 +4,9 @@
 
 package org.italiangrid.storm.webdav.test.redirector;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,7 +77,7 @@ class RedirectionServiceTests extends RedirectorTestSupport {
             () -> {
               service.buildRedirect(authentication, request, response);
             });
-    assertThat(e.getMessage(), containsString("No replica found"));
+    assertTrue(e.getMessage().contains("No replica found"));
   }
 
   @Test
@@ -90,15 +89,15 @@ class RedirectionServiceTests extends RedirectorTestSupport {
 
     URI uri = URI.create(uriString);
 
-    assertThat(uri.getHost(), is(URI_0_HOST));
-    assertThat(uri.getScheme(), is(URI_0_SCHEME));
-    assertThat(uri.getPath(), is(PATH));
-    assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
-    assertThat(tokenRequest.getValue().getPath(), is(PATH));
-    assertThat(tokenRequest.getValue().getPermission(), is(Permission.r));
-    assertThat(
-        tokenRequest.getValue().getLifetimeSecs(),
-        is(config.getRedirector().getMaxTokenLifetimeSecs()));
+    assertEquals(URI_0_HOST, uri.getHost());
+    assertEquals(URI_0_SCHEME, uri.getScheme());
+    assertEquals(PATH, uri.getPath());
+    assertEquals(ACCESS_TOKEN_QUERY_STRING, uri.getQuery());
+    assertEquals(PATH, tokenRequest.getValue().getPath());
+    assertEquals(Permission.r, tokenRequest.getValue().getPermission());
+    assertEquals(
+        config.getRedirector().getMaxTokenLifetimeSecs(),
+        tokenRequest.getValue().getLifetimeSecs());
   }
 
   @Test
@@ -111,15 +110,15 @@ class RedirectionServiceTests extends RedirectorTestSupport {
 
     URI uri = URI.create(uriString);
 
-    assertThat(uri.getHost(), is(URI_0_HOST));
-    assertThat(uri.getScheme(), is(URI_0_SCHEME));
-    assertThat(uri.getPath(), is(PATH));
-    assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
-    assertThat(tokenRequest.getValue().getPath(), is(PATH));
-    assertThat(tokenRequest.getValue().getPermission(), is(Permission.rw));
-    assertThat(
-        tokenRequest.getValue().getLifetimeSecs(),
-        is(config.getRedirector().getMaxTokenLifetimeSecs()));
+    assertEquals(URI_0_HOST, uri.getHost());
+    assertEquals(URI_0_SCHEME, uri.getScheme());
+    assertEquals(PATH, uri.getPath());
+    assertEquals(ACCESS_TOKEN_QUERY_STRING, uri.getQuery());
+    assertEquals(PATH, tokenRequest.getValue().getPath());
+    assertEquals(Permission.rw, tokenRequest.getValue().getPermission());
+    assertEquals(
+        config.getRedirector().getMaxTokenLifetimeSecs(),
+        tokenRequest.getValue().getLifetimeSecs());
   }
 
   @Test
@@ -130,9 +129,9 @@ class RedirectionServiceTests extends RedirectorTestSupport {
 
     URI uri = URI.create(uriString);
 
-    assertThat(uri.getHost(), is(URI_WITH_PREFIX_HOST));
-    assertThat(uri.getScheme(), is(URI_WITH_PREFIX_SCHEME));
-    assertThat(uri.getPath(), is(PATH_WITH_PREFIX));
-    assertThat(uri.getQuery(), is(ACCESS_TOKEN_QUERY_STRING));
+    assertEquals(URI_WITH_PREFIX_HOST, uri.getHost());
+    assertEquals(URI_WITH_PREFIX_SCHEME, uri.getScheme());
+    assertEquals(PATH_WITH_PREFIX, uri.getPath());
+    assertEquals(ACCESS_TOKEN_QUERY_STRING, uri.getQuery());
   }
 }

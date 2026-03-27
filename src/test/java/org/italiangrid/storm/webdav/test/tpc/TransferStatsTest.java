@@ -4,9 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
@@ -46,9 +45,9 @@ class TransferStatsTest {
     status.withClock(Clock.offset(clock, Duration.ofSeconds(2)));
     req.setTransferStatus(status.done(1000));
 
-    assertThat(req.bytesTransferred(), is(1000L));
-    assertThat(req.duration().getSeconds(), is(2L));
-    assertThat(req.transferThroughputBytesPerSec().get(), is(500.0));
+    assertEquals(1000L, req.bytesTransferred());
+    assertEquals(2L, req.duration().getSeconds());
+    assertEquals(500.0, req.transferThroughputBytesPerSec().get());
   }
 
   @Test
@@ -59,10 +58,10 @@ class TransferStatsTest {
     status.withClock(Clock.offset(clock, Duration.ofMillis(1)));
     req.setTransferStatus(status.done(1000));
 
-    assertThat(req.bytesTransferred(), is(1000L));
-    assertThat(req.duration().toMillis(), is(1L));
+    assertEquals(1000L, req.bytesTransferred());
+    assertEquals(1L, req.duration().toMillis());
 
-    assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
+    assertEquals(1000000.0, req.transferThroughputBytesPerSec().get());
   }
 
   @Test
@@ -73,15 +72,15 @@ class TransferStatsTest {
     status.withClock(Clock.offset(clock, Duration.ofNanos(1000)));
     req.setTransferStatus(status.done(1000));
 
-    assertThat(req.bytesTransferred(), is(1000L));
-    assertThat(req.duration().toMillis(), is(0L));
+    assertEquals(1000L, req.bytesTransferred());
+    assertEquals(0L, req.duration().toMillis());
 
-    assertThat(req.transferThroughputBytesPerSec().get(), is(1000000.0));
+    assertEquals(1000000.0, req.transferThroughputBytesPerSec().get());
   }
 
   @Test
   void testDonePerfMarker() {
-    assertThat(status.done(0).asPerfMarker(), containsString("success: Created"));
+    assertTrue(status.done(0).asPerfMarker().contains("success: Created"));
   }
 
   @Test
@@ -94,15 +93,13 @@ class TransferStatsTest {
 
     status.withIsPushMode(false);
     String perfMarkerPullMode = status.inProgress(0).asPerfMarker();
-    assertThat(perfMarkerPullMode, containsString("RemoteConnections: tcp:10.10.10.2:8443"));
-    assertThat(
-        perfMarkerPullMode, containsString("Connection: tcp:10.10.10.2:8443:10.10.10.1:12345"));
+    assertTrue(perfMarkerPullMode.contains("RemoteConnections: tcp:10.10.10.2:8443"));
+    assertTrue(perfMarkerPullMode.contains("Connection: tcp:10.10.10.2:8443:10.10.10.1:12345"));
 
     status.withIsPushMode(true);
     String perfMarkerPushMode = status.inProgress(0).asPerfMarker();
-    assertThat(perfMarkerPushMode, containsString("RemoteConnections: tcp:10.10.10.2:8443"));
-    assertThat(
-        perfMarkerPushMode, containsString("Connection: tcp:10.10.10.1:12345:10.10.10.2:8443"));
+    assertTrue(perfMarkerPushMode.contains("RemoteConnections: tcp:10.10.10.2:8443"));
+    assertTrue(perfMarkerPushMode.contains("Connection: tcp:10.10.10.1:12345:10.10.10.2:8443"));
   }
 
   @Test
@@ -115,18 +112,16 @@ class TransferStatsTest {
 
     status.withIsPushMode(false);
     String perfMarkerPullMode = status.inProgress(0).asPerfMarker();
-    assertThat(
-        perfMarkerPullMode, containsString("RemoteConnections: tcp:[fc00:0:0:0:0:0:0:2]:8443"));
-    assertThat(
-        perfMarkerPullMode,
-        containsString("Connection: tcp:[fc00:0:0:0:0:0:0:2]:8443:[fc00:0:0:0:0:0:0:1]:12345"));
+    assertTrue(perfMarkerPullMode.contains("RemoteConnections: tcp:[fc00:0:0:0:0:0:0:2]:8443"));
+    assertTrue(
+        perfMarkerPullMode.contains(
+            "Connection: tcp:[fc00:0:0:0:0:0:0:2]:8443:[fc00:0:0:0:0:0:0:1]:12345"));
 
     status.withIsPushMode(true);
     String perfMarkerPushMode = status.inProgress(0).asPerfMarker();
-    assertThat(
-        perfMarkerPushMode, containsString("RemoteConnections: tcp:[fc00:0:0:0:0:0:0:2]:8443"));
-    assertThat(
-        perfMarkerPushMode,
-        containsString("Connection: tcp:[fc00:0:0:0:0:0:0:1]:12345:[fc00:0:0:0:0:0:0:2]:8443"));
+    assertTrue(perfMarkerPushMode.contains("RemoteConnections: tcp:[fc00:0:0:0:0:0:0:2]:8443"));
+    assertTrue(
+        perfMarkerPushMode.contains(
+            "Connection: tcp:[fc00:0:0:0:0:0:0:1]:12345:[fc00:0:0:0:0:0:0:2]:8443"));
   }
 }

@@ -4,8 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.macaroon;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -123,6 +122,6 @@ class MacaroonRequestIntegrationTests {
 
     SignedJWT signedJwt = SignedJWT.parse(res.macaroon());
 
-    assertThat(signedJwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(NOW_PLUS_2H));
+    assertEquals(NOW_PLUS_2H, signedJwt.getJWTClaimsSet().getExpirationTime().toInstant());
   }
 }

@@ -4,8 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -72,9 +72,9 @@ class SciTagFilterActivationTest extends TransferFilterTestSupport {
   @Test
   void testSciTagWrite() {
     SciTag scitag = new SciTag(1, 2, false);
-    assertThat(scitag.experimentId(), is(1));
-    assertThat(scitag.activityId(), is(2));
-    assertThat(scitag.remoteAddressIsSource(), is(false));
+    assertEquals(1, scitag.experimentId());
+    assertEquals(2, scitag.activityId());
+    assertFalse(scitag.remoteAddressIsSource());
     File mockFile = new File(tempDir, "flowd");
     SciTagTransfer scitagTransfer =
         new SciTagTransfer(scitag, "10.10.10.10", 8443, "10.10.10.11", 12345, mockFile);

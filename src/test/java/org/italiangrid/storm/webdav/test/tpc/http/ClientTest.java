@@ -4,9 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayWithSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,8 +74,8 @@ class ClientTest extends ClientTestSupport {
 
     BasicClassicHttpRequest httpGetReq = getRequest.getValue();
 
-    assertThat(httpGetReq.getUri(), is(HTTP_URI_URI));
-    assertThat(httpGetReq.getHeaders(), arrayWithSize(0));
+    assertEquals(HTTP_URI_URI, httpGetReq.getUri());
+    assertEquals(0, httpGetReq.getHeaders().length);
   }
 
   @Test
@@ -95,9 +93,9 @@ class ClientTest extends ClientTestSupport {
 
     BasicClassicHttpRequest httpGetReq = getRequest.getValue();
 
-    assertThat(httpGetReq.getUri(), is(HTTP_URI_URI));
-    assertThat(httpGetReq.getHeaders(), arrayWithSize(1));
-    assertThat(
-        httpGetReq.getHeaders(AUTHORIZATION_HEADER)[0].getValue(), is(AUTHORIZATION_HEADER_VALUE));
+    assertEquals(HTTP_URI_URI, httpGetReq.getUri());
+    assertEquals(1, httpGetReq.getHeaders().length);
+    assertEquals(
+        AUTHORIZATION_HEADER_VALUE, httpGetReq.getHeaders(AUTHORIZATION_HEADER)[0].getValue());
   }
 }

@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.oauth.integration;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.italiangrid.storm.webdav.oauth.authzserver.ErrorResponseDTO.UNSUPPORTED_GRANT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -103,8 +102,8 @@ class OAuthAuthzServerIntegrationTests {
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
-        .andExpect(jsonPath("$.expires_in", is(200)))
-        .andExpect(jsonPath("$.token_type", is("Bearer")));
+        .andExpect(jsonPath("$.expires_in").value(200))
+        .andExpect(jsonPath("$.token_type").value("Bearer"));
   }
 
   @Test
@@ -115,8 +114,9 @@ class OAuthAuthzServerIntegrationTests {
                 .content(CONTENT_CUSTOM)
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error", is(UNSUPPORTED_GRANT_TYPE)))
-        .andExpect(jsonPath("$.error_description", is("Invalid grant type: " + CUSTOM_GRANT_TYPE)))
+        .andExpect(jsonPath("$.error").value(UNSUPPORTED_GRANT_TYPE))
+        .andExpect(
+            jsonPath("$.error_description").value("Invalid grant type: " + CUSTOM_GRANT_TYPE))
         .andDo(print());
   }
 
@@ -129,8 +129,8 @@ class OAuthAuthzServerIntegrationTests {
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
-        .andExpect(jsonPath("$.expires_in", is(50)))
-        .andExpect(jsonPath("$.token_type", is("Bearer")));
+        .andExpect(jsonPath("$.expires_in").value(50))
+        .andExpect(jsonPath("$.token_type").value("Bearer"));
   }
 
   @Test
@@ -142,8 +142,8 @@ class OAuthAuthzServerIntegrationTests {
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
-        .andExpect(jsonPath("$.expires_in", is(200)))
-        .andExpect(jsonPath("$.token_type", is("Bearer")));
+        .andExpect(jsonPath("$.expires_in").value(200))
+        .andExpect(jsonPath("$.token_type").value("Bearer"));
   }
 
   @Test
@@ -168,7 +168,7 @@ class OAuthAuthzServerIntegrationTests {
                 .content(String.format("%s&scope=%s", CONTENT, randomAlphabetic))
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error", is("invalid_scope")))
-        .andExpect(jsonPath("$.error_description", is(AccessTokenRequest.SCOPE_TOO_LONG)));
+        .andExpect(jsonPath("$.error").value("invalid_scope"))
+        .andExpect(jsonPath("$.error_description").value(AccessTokenRequest.SCOPE_TOO_LONG));
   }
 }

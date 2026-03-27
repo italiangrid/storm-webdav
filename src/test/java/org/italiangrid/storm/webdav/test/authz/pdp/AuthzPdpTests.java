@@ -4,12 +4,12 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.DENY;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.NOT_APPLICABLE;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationResult.Decision.PERMIT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -77,7 +77,7 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+    assertEquals(NOT_APPLICABLE, result.getDecision());
   }
 
   @Test
@@ -95,9 +95,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(DENY));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(denyAllPolicy));
+    assertEquals(DENY, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(denyAllPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -122,9 +122,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(permitAllPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(permitAllPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -151,9 +151,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(DENY));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(denyAllPolicy));
+    assertEquals(DENY, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(denyAllPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -188,9 +188,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(DENY));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(denyAllPolicy));
+    assertEquals(DENY, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(denyAllPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -223,9 +223,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(DENY));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(denyAllPolicy));
+    assertEquals(DENY, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(denyAllPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -258,9 +258,9 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(oauthTestPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(oauthTestPolicy, result.getPolicy().get());
   }
 
   @Test
@@ -294,15 +294,15 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(oauthTestPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(oauthTestPolicy, result.getPolicy().get());
 
     when(authentication.getAuthorities())
         .thenReturn(authorities(new JwtClientAuthority(TEST_ISSUER, UNAUTHORIZED_JWT_CLIENT_ID)));
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(DENY));
+    assertEquals(DENY, result.getDecision());
   }
 
   @Test
@@ -330,15 +330,15 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(multiplePrincipalsPolicy, result.getPolicy().get());
 
     when(authentication.getAuthorities())
         .thenReturn(authorities(new JwtGroupAuthority(TEST_ISSUER, "/other")));
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+    assertEquals(NOT_APPLICABLE, result.getDecision());
 
     when(authentication.getAuthorities())
         .thenReturn(
@@ -349,16 +349,16 @@ class AuthzPdpTests {
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
 
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(multiplePrincipalsPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(multiplePrincipalsPolicy, result.getPolicy().get());
 
     when(authentication.getAuthorities())
         .thenReturn(authorities(new SimpleGrantedAuthority("ANONYMOUS")));
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
 
-    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+    assertEquals(NOT_APPLICABLE, result.getDecision());
   }
 
   @Test
@@ -388,20 +388,20 @@ class AuthzPdpTests {
 
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(multiplePathsPolicy, result.getPolicy().get());
 
     when(request.getRequestURI()).thenReturn("/other/file0");
 
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
-    assertThat(result.getDecision(), is(PERMIT));
-    assertThat(result.getPolicy().isPresent(), is(true));
-    assertThat(result.getPolicy().get(), is(multiplePathsPolicy));
+    assertEquals(PERMIT, result.getDecision());
+    assertTrue(result.getPolicy().isPresent());
+    assertEquals(multiplePathsPolicy, result.getPolicy().get());
 
     when(request.getRequestURI()).thenReturn("/yet-another");
     result = pdp.authorizeRequest(newAuthorizationRequest(request, authentication));
 
-    assertThat(result.getDecision(), is(NOT_APPLICABLE));
+    assertEquals(NOT_APPLICABLE, result.getDecision());
   }
 }

@@ -4,8 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -69,9 +68,9 @@ class GetResponseHandlerTest extends ClientTestSupport {
             () -> {
               handler.handleResponse(response);
             });
-    assertThat(
-        checksumVerificationError.getMessage(),
-        is("client/server checksum mismatch (checksum received from remote server mismatch)"));
+    assertEquals(
+        "client/server checksum mismatch (checksum received from remote server mismatch)",
+        checksumVerificationError.getMessage());
   }
 
   @Test
@@ -88,9 +87,9 @@ class GetResponseHandlerTest extends ClientTestSupport {
             () -> {
               handler.handleResponse(response);
             });
-    assertThat(
-        checksumVerificationError.getMessage(),
-        is("client/server checksum mismatch (checksum of the received file mismatch)"));
+    assertEquals(
+        "client/server checksum mismatch (checksum of the received file mismatch)",
+        checksumVerificationError.getMessage());
   }
 
   @Test

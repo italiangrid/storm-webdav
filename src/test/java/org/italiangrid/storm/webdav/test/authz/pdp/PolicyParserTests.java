@@ -4,10 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 
 import java.util.EnumSet;
@@ -50,7 +48,7 @@ class PolicyParserTests {
 
   @Test
   void testNoPolicyParsing() {
-    assertThat(parser.parsePolicies(), empty());
+    assertTrue(parser.parsePolicies().isEmpty());
   }
 
   @Test
@@ -71,11 +69,11 @@ class PolicyParserTests {
     properties.setAuthz(new AuthorizationProperties(false, List.of(policy)));
     List<PathAuthorizationPolicy> policies = parser.parsePolicies();
 
-    assertThat(policies, hasSize(1));
+    assertEquals(1, policies.size());
     PathAuthorizationPolicy parsedPolicy = policies.get(0);
-    assertThat(parsedPolicy.getEffect(), is(PolicyEffect.DENY));
-    assertThat(parsedPolicy.getDecription(), is("desc"));
-    assertThat(parsedPolicy.getPrincipalMatchers(), hasSize(1));
-    assertThat(parsedPolicy.getRequestMatchers(), hasSize(5));
+    assertEquals(PolicyEffect.DENY, parsedPolicy.getEffect());
+    assertEquals("desc", parsedPolicy.getDecription());
+    assertEquals(1, parsedPolicy.getPrincipalMatchers().size());
+    assertEquals(5, parsedPolicy.getRequestMatchers().size());
   }
 }

@@ -4,9 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.oauth.authzserver.DefaultTokenIssuerService.BEARER_TOKEN_TYPE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -67,8 +66,8 @@ class TokenServiceTest {
   void canGenerateTokenResponse() {
     TokenResponseDTO response = issuerService.createAccessToken(request, auth);
 
-    assertThat(response.tokenType(), is(BEARER_TOKEN_TYPE));
-    assertThat(response.expiresIn(), is(100));
-    assertThat(response.accessToken(), is(JWT_SERIALIZED_FORM));
+    assertEquals(BEARER_TOKEN_TYPE, response.tokenType());
+    assertEquals(100, response.expiresIn());
+    assertEquals(JWT_SERIALIZED_FORM, response.accessToken());
   }
 }

@@ -4,8 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwk;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.oauth.utils.DefaultOidcConfigurationFetcher.ISSUER_MISMATCH_ERROR_TEMPLATE;
 import static org.italiangrid.storm.webdav.oauth.utils.DefaultOidcConfigurationFetcher.NO_JWKS_URI_ERROR_TEMPLATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -204,8 +202,8 @@ class OidcConfigurationFetcherTest {
     OidcConfigurationFetcher fetcher = getSuccessfulFetcher();
     Map<String, Object> conf = fetcher.loadConfigurationForIssuer(ISSUER);
     assertNotNull(conf);
-    assertThat(conf.get("issuer"), is(ISSUER));
-    assertThat(conf.get("jwks_uri"), is(JWK_URI));
+    assertEquals(ISSUER, conf.get("issuer"));
+    assertEquals(JWK_URI, conf.get("jwks_uri"));
   }
 
   @Test
@@ -275,7 +273,7 @@ class OidcConfigurationFetcherTest {
     JWKSet key = JWKSet.parse(fetcher.loadJWKSourceForURL(URI.create(JWK_URI)));
 
     assertNotNull(key.getKeyByKeyId(KID));
-    assertThat(key.getKeyByKeyId(KID).getKeyType(), is(KeyType.RSA));
+    assertEquals(KeyType.RSA, key.getKeyByKeyId(KID).getKeyType());
   }
 
   @Test

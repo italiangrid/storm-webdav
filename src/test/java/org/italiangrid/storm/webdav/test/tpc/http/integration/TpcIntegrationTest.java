@@ -6,9 +6,8 @@ package org.italiangrid.storm.webdav.test.tpc.http.integration;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.ArrayListMultimap;
@@ -68,11 +67,10 @@ class TpcIntegrationTest {
     client.handle(
         putRequest,
         (r, s) -> {
-          assertThat(s.getStatus(), is(TransferStatus.Status.ERROR));
-          assertThat(s.getErrorMessage().isPresent(), is(true));
-          assertThat(
-              s.getErrorMessage().get(),
-              containsString("status code: 401, reason phrase: Unauthorized"));
+          assertEquals(TransferStatus.Status.ERROR, s.getStatus());
+          assertTrue(s.getErrorMessage().isPresent());
+          assertTrue(
+              s.getErrorMessage().get().contains("status code: 401, reason phrase: Unauthorized"));
         });
 
     wiremock.verify(1, putRequestedFor(urlEqualTo("/test/example")));

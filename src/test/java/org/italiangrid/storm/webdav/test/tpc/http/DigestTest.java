@@ -4,9 +4,10 @@
 
 package org.italiangrid.storm.webdav.test.tpc.http;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper.extractAdler32DigestFromResponse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 
 import org.apache.hc.core5.http.Header;
@@ -63,13 +64,13 @@ class DigestTest {
 
     for (String s : INVALID_HEADERS) {
       instrumentResponse(s);
-      assertThat(extractAdler32DigestFromResponse(response).isPresent(), is(false));
+      assertFalse(extractAdler32DigestFromResponse(response).isPresent());
     }
 
     for (String s : VALID_HEADERS) {
       instrumentResponse(s);
-      assertThat(extractAdler32DigestFromResponse(response).isPresent(), is(true));
-      assertThat(extractAdler32DigestFromResponse(response).get(), is("8a23d4f8"));
+      assertTrue(extractAdler32DigestFromResponse(response).isPresent());
+      assertEquals("8a23d4f8", extractAdler32DigestFromResponse(response).get());
     }
   }
 
@@ -77,15 +78,13 @@ class DigestTest {
   void testReprDigestHeader() {
 
     for (String s : REPR_DIGEST_INVALID_HEADERS) {
-      assertThat(
-          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent(), is(false));
+      assertFalse(Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent());
     }
 
     for (String s : REPR_DIGEST_VALID_HEADERS) {
-      assertThat(
-          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent(), is(true));
-      assertThat(
-          Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).get(), is("8a23d4f8"));
+      assertTrue(Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).isPresent());
+      assertEquals(
+          "8a23d4f8", Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(s).get());
     }
   }
 }

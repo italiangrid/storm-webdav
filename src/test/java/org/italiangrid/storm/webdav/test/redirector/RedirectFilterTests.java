@@ -4,8 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.redirector;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -139,7 +138,7 @@ class RedirectFilterTests extends RedirectorTestSupport {
     verify(response).setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
     verify(response).setHeader(Mockito.eq("Location"), redirectUrl.capture());
 
-    assertThat(redirectUrl.getValue(), is(REDIRECTED_URL));
+    assertEquals(REDIRECTED_URL, redirectUrl.getValue());
     verifyNoInteractions(filterChain);
   }
 }

@@ -4,8 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -50,10 +50,10 @@ class PullTransferTest extends TransferFilterTestSupport {
   void pullEmptyTransferHeaders() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertTrue(getXferRequest.getValue().overwrite());
+    assertEquals(Optional.empty(), getXferRequest.getValue().expectedChecksum());
     assertTrue(
         getXferRequest.getValue().transferHeaders().isEmpty(), "Expected empty xfer headers");
   }
@@ -63,10 +63,10 @@ class PullTransferTest extends TransferFilterTestSupport {
     when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn("F");
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat("Overwrite header not recognized", getXferRequest.getValue().overwrite(), is(false));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertFalse(getXferRequest.getValue().overwrite(), "Overwrite header not recognized");
+    assertEquals(Optional.empty(), getXferRequest.getValue().expectedChecksum());
     assertTrue(
         getXferRequest.getValue().transferHeaders().isEmpty(), "Expected empty xfer headers");
   }
@@ -79,16 +79,16 @@ class PullTransferTest extends TransferFilterTestSupport {
         .thenReturn(Collections.enumeration(Arrays.asList(TransferConstants.REPR_DIGEST_HEADER)));
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.of("03fc019d")));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertTrue(getXferRequest.getValue().overwrite());
+    assertEquals(Optional.of("03fc019d"), getXferRequest.getValue().expectedChecksum());
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(1));
-    assertThat(xferHeaders.containsKey(TransferConstants.WANT_REPR_DIGEST_HEADER), is(true));
-    assertThat(
-        xferHeaders.get(TransferConstants.WANT_REPR_DIGEST_HEADER).iterator().next(),
-        is(TransferConstants.WANT_REPR_DIGEST_HEADER_VALUE));
+    assertEquals(1, xferHeaders.size());
+    assertTrue(xferHeaders.containsKey(TransferConstants.WANT_REPR_DIGEST_HEADER));
+    assertEquals(
+        TransferConstants.WANT_REPR_DIGEST_HEADER_VALUE,
+        xferHeaders.get(TransferConstants.WANT_REPR_DIGEST_HEADER).iterator().next());
   }
 
   @Test
@@ -111,21 +111,20 @@ class PullTransferTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
 
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertTrue(getXferRequest.getValue().overwrite());
+    assertEquals(Optional.empty(), getXferRequest.getValue().expectedChecksum());
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(3));
-    assertThat(xferHeaders.containsKey("Authorization"), is(true));
-    assertThat(
-        xferHeaders.get("Authorization").iterator().next(),
-        is(TRANSFER_HEADER_AUTHORIZATION_VALUE));
-    assertThat(xferHeaders.containsKey("Whatever"), is(true));
-    assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
-    assertThat(xferHeaders.containsKey("SciTag"), is(true));
-    assertThat(xferHeaders.get("SciTag").iterator().next(), is(SCITAG_HEADER_VALUE));
+    assertEquals(3, xferHeaders.size());
+    assertTrue(xferHeaders.containsKey("Authorization"));
+    assertEquals(
+        TRANSFER_HEADER_AUTHORIZATION_VALUE, xferHeaders.get("Authorization").iterator().next());
+    assertTrue(xferHeaders.containsKey("Whatever"));
+    assertEquals(TRANSFER_HEADER_WHATEVER_VALUE, xferHeaders.get("Whatever").iterator().next());
+    assertTrue(xferHeaders.containsKey("SciTag"));
+    assertEquals(SCITAG_HEADER_VALUE, xferHeaders.get("SciTag").iterator().next());
   }
 
   @Test
@@ -140,16 +139,16 @@ class PullTransferTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
 
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertTrue(getXferRequest.getValue().overwrite());
+    assertEquals(Optional.empty(), getXferRequest.getValue().expectedChecksum());
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(1));
+    assertEquals(1, xferHeaders.size());
 
-    assertThat(xferHeaders.containsKey("Whatever"), is(true));
-    assertThat(xferHeaders.get("Whatever").iterator().next(), is(TRANSFER_HEADER_WHATEVER_VALUE));
+    assertTrue(xferHeaders.containsKey("Whatever"));
+    assertEquals(TRANSFER_HEADER_WHATEVER_VALUE, xferHeaders.get("Whatever").iterator().next());
   }
 
   @Test
@@ -162,14 +161,14 @@ class PullTransferTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(client).handle(getXferRequest.capture(), Mockito.any());
 
-    assertThat(getXferRequest.getValue().path(), is(FULL_LOCAL_PATH));
-    assertThat(getXferRequest.getValue().remoteURI(), is(HTTP_URL_URI));
-    assertThat(getXferRequest.getValue().overwrite(), is(true));
-    assertThat(getXferRequest.getValue().expectedChecksum(), is(Optional.empty()));
+    assertEquals(FULL_LOCAL_PATH, getXferRequest.getValue().path());
+    assertEquals(HTTP_URL_URI, getXferRequest.getValue().remoteURI());
+    assertTrue(getXferRequest.getValue().overwrite());
+    assertEquals(Optional.empty(), getXferRequest.getValue().expectedChecksum());
 
     Multimap<String, String> xferHeaders = getXferRequest.getValue().transferHeaders();
-    assertThat(xferHeaders.size(), is(0));
+    assertEquals(0, xferHeaders.size());
 
-    assertThat(xferHeaders.containsKey("SciTag"), is(false));
+    assertFalse(xferHeaders.containsKey("SciTag"));
   }
 }

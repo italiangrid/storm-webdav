@@ -4,8 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +51,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
   void filterAnswers202() throws IOException, ServletException {
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED));
+    assertEquals(HttpServletResponse.SC_ACCEPTED, httpStatus.getValue());
   }
 
   @Test
@@ -62,8 +62,8 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(), is("Third party transfer error: Connection error"));
+    assertEquals(HttpServletResponse.SC_PRECONDITION_FAILED, httpStatus.getValue());
+    assertEquals("Third party transfer error: Connection error", error.getValue());
   }
 
   @Test
@@ -74,10 +74,10 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_PRECONDITION_FAILED));
-    assertThat(
-        error.getValue(),
-        is("Third party transfer error: 403 status code: 403, reason phrase: Access denied"));
+    assertEquals(HttpServletResponse.SC_PRECONDITION_FAILED, httpStatus.getValue());
+    assertEquals(
+        "Third party transfer error: 403 status code: 403, reason phrase: Access denied",
+        error.getValue());
   }
 
   @Test
@@ -91,9 +91,9 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(), is("Checksum verification error"));
-    assertThat(Files.exists(fileToDelete), is(false));
+    assertEquals(HttpServletResponse.SC_PRECONDITION_FAILED, httpStatus.getValue());
+    assertEquals("Checksum verification error", error.getValue());
+    assertFalse(Files.exists(fileToDelete));
   }
 
   @Test
@@ -104,7 +104,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_PRECONDITION_FAILED));
-    assertThat(error.getValue(), is("Error"));
+    assertEquals(HttpServletResponse.SC_PRECONDITION_FAILED, httpStatus.getValue());
+    assertEquals("Error", error.getValue());
   }
 }

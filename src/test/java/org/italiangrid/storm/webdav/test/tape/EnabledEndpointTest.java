@@ -4,7 +4,6 @@
 
 package org.italiangrid.storm.webdav.test.tape;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,18 +29,18 @@ class EnabledEndpointTest {
     mvc.perform(get("/.well-known/wlcg-tape-rest-api"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sitename").exists())
-        .andExpect(jsonPath("$.sitename").value(is("StoRM@CNAF")))
+        .andExpect(jsonPath("$.sitename").value("StoRM@CNAF"))
         .andExpect(jsonPath("$.description").exists())
         .andExpect(
-            jsonPath("$.description").value(is("This is the tape REST API endpoint for CNAF-T1")))
+            jsonPath("$.description").value("This is the tape REST API endpoint for CNAF-T1"))
         .andExpect(jsonPath("$.endpoints").exists())
         .andExpect(jsonPath("$.endpoints").isArray())
         .andExpect(jsonPath("$.endpoints").isNotEmpty())
         .andExpect(
-            jsonPath("$.endpoints[0].uri").value(is("https://storm-tape.example.org:8443/api/v1")))
-        .andExpect(jsonPath("$.endpoints[0].version").value(is("v1")))
+            jsonPath("$.endpoints[0].uri").value("https://storm-tape.example.org:8443/api/v1"))
+        .andExpect(jsonPath("$.endpoints[0].version").value("v1"))
         .andExpect(jsonPath("$.endpoints[0].metadata").isMap())
         .andExpect(jsonPath("$.endpoints[0].metadata['test']").exists())
-        .andExpect(jsonPath("$.endpoints[0].metadata['test']").value(is("test")));
+        .andExpect(jsonPath("$.endpoints[0].metadata['test']").value("test"));
   }
 }

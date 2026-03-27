@@ -4,12 +4,11 @@
 
 package org.italiangrid.storm.webdav.test.authz.pdp;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.italiangrid.storm.webdav.authz.pdp.PathAuthorizationRequest.newAuthorizationRequest;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.ORIGIN_CLAIM;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -88,7 +87,7 @@ class LocalAuthzPdpTests {
             () -> {
               pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
             });
-    assertThat(e.getMessage(), containsString("'path' claim not found"));
+    assertTrue(e.getMessage().contains("'path' claim not found"));
   }
 
   @Test
@@ -101,7 +100,7 @@ class LocalAuthzPdpTests {
             () -> {
               pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
             });
-    assertThat(e.getMessage(), containsString("'perms' claim not found"));
+    assertTrue(e.getMessage().contains("'perms' claim not found"));
   }
 
   @Test
@@ -111,7 +110,7 @@ class LocalAuthzPdpTests {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.DENY));
+    assertEquals(Decision.DENY, result.getDecision());
   }
 
   @Test
@@ -121,7 +120,7 @@ class LocalAuthzPdpTests {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.DENY));
+    assertEquals(Decision.DENY, result.getDecision());
   }
 
   @Test
@@ -132,7 +131,7 @@ class LocalAuthzPdpTests {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.DENY));
+    assertEquals(Decision.DENY, result.getDecision());
   }
 
   @Test
@@ -140,6 +139,6 @@ class LocalAuthzPdpTests {
     PathAuthorizationResult result =
         pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
 
-    assertThat(result.getDecision(), is(Decision.PERMIT));
+    assertEquals(Decision.PERMIT, result.getDecision());
   }
 }

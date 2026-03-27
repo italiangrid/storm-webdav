@@ -4,9 +4,8 @@
 
 package org.italiangrid.storm.webdav.test.tpc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -50,8 +49,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
 
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-    assertThat(error.getValue(), containsString("both present"));
+    assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+    assertTrue(error.getValue().contains("both present"));
   }
 
   @Test
@@ -60,8 +59,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.DESTINATION_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-      assertThat(error.getValue(), containsString("Invalid Destination header"));
+      assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+      assertTrue(error.getValue().contains("Invalid Destination header"));
       reset(response);
     }
   }
@@ -72,8 +71,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(u);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-      assertThat(error.getValue(), containsString("Invalid Source header"));
+      assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+      assertTrue(error.getValue().contains("Invalid Source header"));
       reset(response);
     }
   }
@@ -89,8 +88,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
       when(request.getHeader(TransferConstants.OVERWRITE_HEADER)).thenReturn(s);
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-      assertThat(error.getValue(), containsString("Invalid Overwrite header"));
+      assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+      assertTrue(error.getValue().contains("Invalid Overwrite header"));
       reset(response);
     }
   }
@@ -107,8 +106,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
 
       filter.doFilter(request, response, chain);
       verify(response).sendError(httpStatus.capture(), error.capture());
-      assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-      assertThat(error.getValue(), containsString(expectedErrorMsgs[i]));
+      assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+      assertTrue(error.getValue().contains(expectedErrorMsgs[i]));
       reset(response);
     }
   }
@@ -119,8 +118,8 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
     when(request.getHeader(TransferConstants.CREDENTIAL_HEADER)).thenReturn("gridsite");
     filter.doFilter(request, response, chain);
     verify(response).sendError(httpStatus.capture(), error.capture());
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_BAD_REQUEST));
-    assertThat(error.getValue(), is("Unsupported Credential header value: gridsite"));
+    assertEquals(HttpServletResponse.SC_BAD_REQUEST, httpStatus.getValue());
+    assertEquals("Unsupported Credential header value: gridsite", error.getValue());
   }
 
   @Test
@@ -130,6 +129,6 @@ class TransferRequestValidationTest extends TransferFilterTestSupport {
     filter.doFilter(request, response, chain);
     verify(response).setStatus(httpStatus.capture());
 
-    assertThat(httpStatus.getValue(), is(HttpServletResponse.SC_ACCEPTED));
+    assertEquals(HttpServletResponse.SC_ACCEPTED, httpStatus.getValue());
   }
 }

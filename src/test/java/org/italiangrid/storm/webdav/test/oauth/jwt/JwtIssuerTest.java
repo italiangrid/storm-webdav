@@ -4,14 +4,11 @@
 
 package org.italiangrid.storm.webdav.test.oauth.jwt;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasKey;
 import static org.italiangrid.storm.webdav.oauth.authzserver.jwt.DefaultJwtTokenIssuer.CLAIM_AUTHORITIES;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -125,19 +122,20 @@ class JwtIssuerTest {
   void canCreateSignedJWT() throws ParseException, JOSEException {
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getAudience().get(0), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
-    assertThat(
-        jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
-        hasItems(VO_TEST_AUTHORITY.toString(), FQAN_TEST_AUTHORITY.toString()));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getAudience().get(0));
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertTrue(jwt.getJWTClaimsSet().getClaims().containsKey(CLAIM_AUTHORITIES));
+    assertTrue(
+        jwt.getJWTClaimsSet()
+            .getStringListClaim(CLAIM_AUTHORITIES)
+            .containsAll(List.of(VO_TEST_AUTHORITY.toString(), FQAN_TEST_AUTHORITY.toString())));
 
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
+    assertEquals(EXPIRATION_INSTANT, jwt.getJWTClaimsSet().getExpirationTime().toInstant());
 
     JWSVerifier verifier = new MACVerifier(SECRET);
-    assertThat(jwt.verify(verifier), is(true));
+    assertTrue(jwt.verify(verifier));
   }
 
   @Test
@@ -150,19 +148,21 @@ class JwtIssuerTest {
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(EXPIRATION_INSTANT));
-    assertThat(jwt.getJWTClaimsSet().getClaims(), hasKey(CLAIM_AUTHORITIES));
-    assertThat(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES), not(empty()));
-    assertThat(
-        jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES),
-        hasItems(
-            canReadTest.toString(),
-            canWriteTest.toString(),
-            VO_TEST_AUTHORITY.toString(),
-            FQAN_TEST_AUTHORITY.toString()));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertEquals(EXPIRATION_INSTANT, jwt.getJWTClaimsSet().getExpirationTime().toInstant());
+    assertTrue(jwt.getJWTClaimsSet().getClaims().containsKey(CLAIM_AUTHORITIES));
+    assertFalse(jwt.getJWTClaimsSet().getStringListClaim(CLAIM_AUTHORITIES).isEmpty());
+    assertTrue(
+        jwt.getJWTClaimsSet()
+            .getStringListClaim(CLAIM_AUTHORITIES)
+            .containsAll(
+                List.of(
+                    canReadTest.toString(),
+                    canWriteTest.toString(),
+                    VO_TEST_AUTHORITY.toString(),
+                    FQAN_TEST_AUTHORITY.toString())));
   }
 
   @Test
@@ -175,11 +175,11 @@ class JwtIssuerTest {
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
 
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(
-        jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertEquals(
+        VOMS_EXPIRATION_INSTANT_EARLY, jwt.getJWTClaimsSet().getExpirationTime().toInstant());
   }
 
   @Test
@@ -191,12 +191,11 @@ class JwtIssuerTest {
     when(req.getLifetime()).thenReturn(50L);
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(
-        jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
-        is(REQUESTED_EXPIRATION_INSTANT_EARLY));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertEquals(
+        REQUESTED_EXPIRATION_INSTANT_EARLY, jwt.getJWTClaimsSet().getExpirationTime().toInstant());
   }
 
   @Test
@@ -208,11 +207,11 @@ class JwtIssuerTest {
     when(req.getLifetime()).thenReturn(TimeUnit.DAYS.toSeconds(10));
 
     SignedJWT jwt = issuer.createAccessToken(req, authn);
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(
-        jwt.getJWTClaimsSet().getExpirationTime().toInstant(), is(VOMS_EXPIRATION_INSTANT_EARLY));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertEquals(
+        VOMS_EXPIRATION_INSTANT_EARLY, jwt.getJWTClaimsSet().getExpirationTime().toInstant());
   }
 
   @Test
@@ -224,17 +223,16 @@ class JwtIssuerTest {
     when(resourceAtRequest.getOrigin()).thenReturn("192.168.1.1");
 
     SignedJWT jwt = issuer.createResourceAccessToken(resourceAtRequest, authn);
-    assertThat(jwt, notNullValue());
-    assertThat(jwt.getJWTClaimsSet().getIssuer(), is(ISSUER));
-    assertThat(jwt.getJWTClaimsSet().getSubject(), is(AUTHN_SUBJECT));
-    assertThat(
-        jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM),
-        is("192.168.1.1"));
-    assertThat(
-        jwt.getJWTClaimsSet().getExpirationTime().toInstant(),
-        is(NOW.plusSeconds(TimeUnit.MINUTES.toSeconds(10)).truncatedTo(ChronoUnit.SECONDS)));
-    assertThat(
-        jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM), is("/example/resource"));
-    assertThat(jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PERMS_CLAIM), is("r"));
+    assertNotNull(jwt);
+    assertEquals(ISSUER, jwt.getJWTClaimsSet().getIssuer());
+    assertEquals(AUTHN_SUBJECT, jwt.getJWTClaimsSet().getSubject());
+    assertEquals(
+        "192.168.1.1", jwt.getJWTClaimsSet().getStringClaim(DefaultJwtTokenIssuer.ORIGIN_CLAIM));
+    assertEquals(
+        NOW.plusSeconds(TimeUnit.MINUTES.toSeconds(10)).truncatedTo(ChronoUnit.SECONDS),
+        jwt.getJWTClaimsSet().getExpirationTime().toInstant());
+    assertEquals(
+        "/example/resource", jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PATH_CLAIM));
+    assertEquals("r", jwt.getJWTClaimsSet().getClaim(DefaultJwtTokenIssuer.PERMS_CLAIM));
   }
 }

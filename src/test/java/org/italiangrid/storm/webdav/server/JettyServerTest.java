@@ -4,8 +4,7 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.Test;
@@ -29,11 +28,11 @@ class JettyServerTest {
   void startJettyServer() throws Exception {
     JettyWebServer jettyServer = (JettyWebServer) factory.getWebServer();
     jettyServer.start();
-    assertThat(jettyServer.getServer().getConnectors().length, is(2));
+    assertEquals(2, jettyServer.getServer().getConnectors().length);
     ServerConnector c1 = (ServerConnector) jettyServer.getServer().getConnectors()[0];
-    assertThat(c1.getPort(), is(8086));
+    assertEquals(8086, c1.getPort());
     ServerConnector c2 = (ServerConnector) jettyServer.getServer().getConnectors()[1];
-    assertThat(c2.getPort(), is(9443));
+    assertEquals(9443, c2.getPort());
     jettyServer.stop();
   }
 }
