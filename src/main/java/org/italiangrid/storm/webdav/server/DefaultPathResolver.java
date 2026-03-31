@@ -149,7 +149,7 @@ public class DefaultPathResolver implements PathResolver {
         if (osName.startsWith("Linux")) {
           Stat stat = new Stat();
           Libc.INSTANCE.stat(resolvedPath, stat);
-          return stat.st_blocks.longValue() * 512 < f.length();
+          return stat.st_blocks.longValue() <= 1 || stat.st_blocks.longValue() * 512 < f.length();
         } else if (osName.startsWith("Mac")) {
           try {
             Process process =
@@ -159,7 +159,7 @@ public class DefaultPathResolver implements PathResolver {
                 new BufferedReader(new InputStreamReader(process.getInputStream()))) {
               statBlockSize = Long.parseLong(reader.readLine());
             }
-            return statBlockSize * 512 < f.length();
+            return statBlockSize <= 1 || statBlockSize * 512 < f.length();
           } catch (IOException e) {
             LOG.warn("Error getting block size: {}", e.getMessage());
           }
