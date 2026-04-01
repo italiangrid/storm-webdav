@@ -6,6 +6,24 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.13.0 (2026-04-01)
+
+### Added
+
+* Add OpenTelemetry support
+* [GH-158](https://github.com/italiangrid/storm-webdav/issues/158) - Add support to RFC 9068: JWT with typ at+jwt
+
+### Changed
+
+* Use vanilla Thymeleaf instead of Thymeleaf Layout Dialect
+* Update dependencies, in particular Spring Boot to 4.0.5 and voms-api-java to 3.3.7
+
+### Fixed
+
+* [STOR-822](https://issues.infn.it/jira/browse/STOR-822) - Return 204 when resource successfully moved to already mapped URL
+* Check for null detail message in IOExceptionHelper
+* Stub files can also have 1 block
+
 ## 1.12.0 (2026-01-12)
 
 ### Changed
