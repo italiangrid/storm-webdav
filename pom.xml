@@ -47,8 +47,6 @@ SPDX-License-Identifier: Apache-2.0
 
     <guava.version>33.6.0-jre</guava.version>
 
-    <owner-config.version>1.0.12</owner-config.version>
-
     <jna.version>5.18.1</jna.version>
 
     <wiremock.version>4.0.0-beta.32</wiremock.version>
@@ -282,12 +280,6 @@ SPDX-License-Identifier: Apache-2.0
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.aeonbits.owner</groupId>
-      <artifactId>owner</artifactId>
-      <version>${owner-config.version}</version>
     </dependency>
 
     <dependency>
