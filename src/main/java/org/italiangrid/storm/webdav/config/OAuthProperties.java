@@ -18,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class OAuthProperties {
 
-  public static record AuthorizationServer(
+  public record AuthorizationServer(
       @NotBlank String name,
       @URL String issuer,
       @URL String jwkUri,
