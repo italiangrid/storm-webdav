@@ -25,10 +25,10 @@ import org.springframework.validation.annotation.Validated;
 public class ServiceConfigurationProperties implements ServiceConfiguration {
 
   @Validated
-  public static record TapeProperties(TapeWellKnownProperties wellKnown) {
+  public record TapeProperties(TapeWellKnownProperties wellKnown) {
 
     @Validated
-    public static record TapeWellKnownProperties(@NotEmpty String source) {}
+    public record TapeWellKnownProperties(@NotEmpty String source) {}
   }
 
   public enum ChecksumStrategy {
@@ -41,7 +41,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   public static class RedirectorProperties {
 
     @Validated
-    public static record ReplicaEndpointProperties(URI endpoint) {
+    public record ReplicaEndpointProperties(URI endpoint) {
 
       @Override
       public String toString() {
@@ -178,7 +178,7 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   @Validated
-  public static record AuthorizationProperties(
+  public record AuthorizationProperties(
       boolean disabled, @Valid List<FineGrainedAuthzPolicyProperties> policies) {
     public AuthorizationProperties {
       if (policies == null) {
@@ -318,12 +318,11 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     }
   }
 
-  public static record SaProperties(
+  public record SaProperties(
       @NotBlank(message = "Storage area configuration directory cannot be empty")
           String configDir) {}
 
-  public static record VoMapFilesProperties(
-      String configDir, boolean enabled, int refreshIntervalSec) {}
+  public record VoMapFilesProperties(String configDir, boolean enabled, int refreshIntervalSec) {}
 
   public static class AuthorizationServerProperties {
 
@@ -371,13 +370,12 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
   }
 
   @Valid
-  public static record VOMSProperties(
-      VOMSCacheProperties cache, VOMSTrustStoreProperties trustStore) {
+  public record VOMSProperties(VOMSCacheProperties cache, VOMSTrustStoreProperties trustStore) {
 
-    public static record VOMSTrustStoreProperties(String dir, int refreshIntervalSec) {}
+    public record VOMSTrustStoreProperties(String dir, int refreshIntervalSec) {}
 
     @Valid
-    public static record VOMSCacheProperties(
+    public record VOMSCacheProperties(
         boolean enabled,
         @Positive(message = "The VOMS cache entry lifetime must be a positive integer")
             int entryLifetimeSec) {}
@@ -640,5 +638,5 @@ public class ServiceConfigurationProperties implements ServiceConfiguration {
     this.nginx = nginx;
   }
 
-  public static record NginxProperties(boolean enabled) {}
+  public record NginxProperties(boolean enabled) {}
 }
