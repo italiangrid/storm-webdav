@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import org.aeonbits.owner.ConfigFactory;
 import org.italiangrid.storm.webdav.error.StoRMIntializationError;
 import org.italiangrid.storm.webdav.fs.Libc;
 import org.italiangrid.storm.webdav.fs.Stat;
@@ -73,7 +72,7 @@ public class SAConfigurationParser implements StorageAreaConfiguration {
         throw new StoRMIntializationError("Error reading properties: " + e.getMessage(), e);
       }
 
-      OwnerStorageAreaInfo saInfo = ConfigFactory.create(OwnerStorageAreaInfo.class, p);
+      StorageAreaInfo saInfo = new StorageAreaInfo(p);
       if (!statAlreadyChecked && saInfo.tapeEnabled()) {
         checkStat(f);
         statAlreadyChecked = true;
