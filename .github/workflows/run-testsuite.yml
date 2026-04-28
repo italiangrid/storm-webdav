@@ -12,6 +12,7 @@ jobs:
     name: WebDAV test suite
 
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
 
     env:
       ARTIFACTS: ${HOME}/artifacts
