@@ -4,10 +4,8 @@
 
 package org.italiangrid.storm.webdav.server;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -145,25 +143,10 @@ public class DefaultPathResolver implements PathResolver {
     String resolvedPath = resolvePath(pathInContext);
     if (resolvedPath != null) {
       File f = new File(resolvedPath);
-      if (f.isFile()) {
-        if (osName.startsWith("Linux")) {
-          Stat stat = new Stat();
-          Libc.INSTANCE.stat(resolvedPath, stat);
-          return stat.st_blocks.longValue() <= 1 || stat.st_blocks.longValue() * 512 < f.length();
-        } else if (osName.startsWith("Mac")) {
-          try {
-            Process process =
-                Runtime.getRuntime().exec(new String[] {"stat", "-f", "%b", resolvedPath});
-            long statBlockSize;
-            try (BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-              statBlockSize = Long.parseLong(reader.readLine());
-            }
-            return statBlockSize <= 1 || statBlockSize * 512 < f.length();
-          } catch (IOException e) {
-            LOG.warn("Error getting block size: {}", e.getMessage());
-          }
-        }
+      if (f.isFile() && osName.startsWith("Linux")) {
+        Stat stat = new Stat();
+        Libc.INSTANCE.stat(resolvedPath, stat);
+        return stat.st_blocks.longValue() <= 1 || stat.st_blocks.longValue() * 512 < f.length();
       }
     }
     return false;
