@@ -20,7 +20,7 @@ public final class VOMSConstants {
   public static final String VOMS_GENERIC_ATTRIBUTES_HEADER = "X-VOMS-voms_generic_attributes";
   public static final String VOMS_SERIAL_HEADER = "X-VOMS-voms_serial";
 
-  public static final String VOMS_DATE_FORMAT = "yyyyMMddHHmmss'Z'";
+  public static final String VOMS_DATE_FORMAT = "yyyyMMddHHmmssX";
 
   public static final String VOMS_GENERIC_ATTRIBUTES_REGEX = "n=(\\S*) v=(\\S*) q=(\\S*)";
   public static final Pattern VOMS_GENERIC_ATTRIBUTES_PATTERN =
