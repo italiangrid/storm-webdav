@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.milton.http.Request;
+import io.milton.http.exceptions.BadRequestException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,18 +58,18 @@ class PutRequestChecksumTest {
   }
 
   @Test
-  void reprDigestHeaderNotSended() throws IOException {
+  void reprDigestHeaderNotSended() throws IOException, BadRequestException {
     Path filePath = directory.resolve("tmpFile");
     Files.createFile(filePath);
 
     miltonBehaviour.putRequestHandling(request);
 
-    verify(resolver, never()).getPath(request.getAbsolutePath());
+    verify(eah, never()).getChecksumAttribute(resolver.getPath(request.getAbsolutePath()));
     assertTrue(Files.exists(filePath));
   }
 
   @Test
-  void checksumsMatchSoFileIsNotDeleted() throws IOException {
+  void checksumsMatchSoFileIsNotDeleted() throws IOException, BadRequestException {
     when(request.getHeaders())
         .thenReturn(
             Map.of(TransferConstants.REPR_DIGEST_HEADER.toLowerCase(), "adler=:MDNmYzAxOWQ:"));

@@ -24,7 +24,8 @@ public record StorageAreaInfo(
     boolean orgsGrantWritePermission,
     boolean wlcgScopeAuthzEnabled,
     boolean fineGrainedAuthzEnabled,
-    boolean tapeEnabled) {
+    boolean tapeEnabled,
+    long minFileSize) {
   public StorageAreaInfo {
     Assert.hasText(name, "SA name must not be empty");
     Assert.hasText(rootPath, "SA rootPath must not be empty");
@@ -53,6 +54,7 @@ public record StorageAreaInfo(
         Boolean.parseBoolean(p.getProperty("orgsGrantWritePermission", Boolean.TRUE.toString())),
         Boolean.parseBoolean(p.getProperty("wlcgScopeAuthzEnabled", Boolean.FALSE.toString())),
         Boolean.parseBoolean(p.getProperty("fineGrainedAuthzEnabled", Boolean.FALSE.toString())),
-        Boolean.parseBoolean(p.getProperty("tapeEnabled", Boolean.FALSE.toString())));
+        Boolean.parseBoolean(p.getProperty("tapeEnabled", Boolean.FALSE.toString())),
+        Long.parseLong(p.getProperty("minFileSize", "0")));
   }
 }
