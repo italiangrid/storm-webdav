@@ -43,6 +43,7 @@ import org.italiangrid.storm.webdav.tpc.transfer.TransferClient;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatus;
 import org.italiangrid.storm.webdav.tpc.transfer.TransferStatusCallback;
+import org.italiangrid.storm.webdav.tpc.transfer.error.FileTooSmall;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.italiangrid.storm.webdav.tpc.utils.CountingFileEntity;
 import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
@@ -192,7 +193,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               attributesHelper,
               MDC.getCopyOfContextMap(),
               socketBufferSize,
-              resolver.resolveStorageArea(request.path()).tapeEnabled(),
+              resolver.resolveStorageArea(request.path()),
               observationContext));
       reportTask.cancel(true);
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
@@ -207,7 +208,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
                   request.remoteURI().toString(), e.getStatusCode(), e.getMessage())));
       observation.error(e);
 
-    } catch (ClientProtocolException e) {
+    } catch (ClientProtocolException | FileTooSmall e) {
       logException(e);
       reportStatus(
           cb,

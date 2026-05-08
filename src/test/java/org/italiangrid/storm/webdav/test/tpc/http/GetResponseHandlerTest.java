@@ -17,6 +17,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.http.GetResponseHandler;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
@@ -36,14 +37,18 @@ class GetResponseHandlerTest extends ClientTestSupport {
 
   @Mock Adler32ChecksumOutputStream os;
 
+  @Mock StorageAreaInfo storageAreaInfo;
+
   GetResponseHandler handler;
 
   @Override
   @BeforeEach
   public void setup() {
 
-    handler = new GetResponseHandler(req, os, eah);
+    handler = new GetResponseHandler(req, os, eah, storageAreaInfo);
     lenient().when(response.getEntity()).thenReturn(entity);
+    lenient().when(storageAreaInfo.tapeEnabled()).thenReturn(false);
+    lenient().when(storageAreaInfo.minFileSize()).thenReturn(0L);
   }
 
   @Test

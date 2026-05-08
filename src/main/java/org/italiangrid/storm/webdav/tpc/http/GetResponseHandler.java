@@ -4,10 +4,12 @@
 
 package org.italiangrid.storm.webdav.tpc.http;
 
+import com.google.common.net.HttpHeaders;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -17,10 +19,12 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumOutputStream;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.tpc.TransferConstants;
 import org.italiangrid.storm.webdav.tpc.transfer.GetTransferRequest;
 import org.italiangrid.storm.webdav.tpc.transfer.error.ChecksumVerificationError;
+import org.italiangrid.storm.webdav.tpc.transfer.error.FileTooSmall;
 import org.italiangrid.storm.webdav.tpc.utils.Adler32DigestHeaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +40,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
   final Adler32ChecksumOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
   final int bufferSize;
-  final boolean tapeEnabledStorageArea;
+  final StorageAreaInfo storageAreaInfo;
   final ApacheHttpClientContext observationContext;
 
   public GetResponseHandler(
@@ -45,7 +49,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
       ExtendedAttributesHelper ah,
       Map<String, String> mdcContextMap,
       int bufSiz,
-      boolean tapeEnabledStorageArea,
+      StorageAreaInfo storageAreaInfo,
       ApacheHttpClientContext observationContext) {
 
     super(mdcContextMap);
@@ -53,13 +57,16 @@ public class GetResponseHandler extends ResponseHandlerSupport
     fileStream = fs;
     attributesHelper = ah;
     bufferSize = bufSiz;
-    this.tapeEnabledStorageArea = tapeEnabledStorageArea;
+    this.storageAreaInfo = storageAreaInfo;
     this.observationContext = observationContext;
   }
 
   public GetResponseHandler(
-      GetTransferRequest req, Adler32ChecksumOutputStream fs, ExtendedAttributesHelper ah) {
-    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, false, null);
+      GetTransferRequest req,
+      Adler32ChecksumOutputStream fs,
+      ExtendedAttributesHelper ah,
+      StorageAreaInfo storageAreaInfo) {
+    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, storageAreaInfo, null);
   }
 
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
@@ -94,6 +101,17 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
       if (entity != null) {
 
+        Optional<Long> contentLenght =
+            Optional.ofNullable(response.getFirstHeader(HttpHeaders.CONTENT_LENGTH))
+                .map(Header::getValue)
+                .map(Long::parseLong);
+        contentLenght.ifPresent(
+            contentLenghtValue -> {
+              if (contentLenghtValue < storageAreaInfo.minFileSize()) {
+                throw new FileTooSmall(
+                    "File too small: minimum size " + storageAreaInfo.minFileSize() + " bytes");
+              }
+            });
         // If the PASSIVE site answers with a digest that does not match the one provided by the
         // client, the ACTIVE site can short-cut and avoid performing a digest computation on the
         // data and fail the transfer.
@@ -114,6 +132,21 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
         writeEntityToStream(entity, fileStream);
 
+        if (contentLenght.isEmpty() && fileStream.getCount() < storageAreaInfo.minFileSize()) {
+          LOG.info(
+              "File too small: minimum size {} bytes ({} will be deleted)",
+              storageAreaInfo.minFileSize(),
+              fileStream.getPath());
+          try {
+            Files.delete(fileStream.getPath());
+          } catch (IOException e) {
+            LOG.warn(
+                "Cannot delete file too small {}: {}", fileStream.getPath(), e.getMessage(), e);
+          }
+          throw new FileTooSmall(
+              "File too small: minimum size " + storageAreaInfo.minFileSize() + " bytes");
+        }
+
         String checksum = fileStream.getChecksumValue();
         // The ACTIVE site MUST compute a digest based on the received data from the PASSIVE site
         // and check it against the one provided by the client. This is necessary to avoid
@@ -128,7 +161,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
                   }
                 });
         attributesHelper.setChecksumAttribute(fileStream.getPath(), checksum);
-        if (tapeEnabledStorageArea) {
+        if (storageAreaInfo.tapeEnabled()) {
           try {
             attributesHelper.setPremigrateAttribute(fileStream.getPath());
           } catch (IOException e) {
