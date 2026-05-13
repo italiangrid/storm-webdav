@@ -18,6 +18,8 @@ import org.eclipse.jetty.http.content.HttpContent;
 import org.eclipse.jetty.util.URIUtil;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
+import org.italiangrid.storm.webdav.fs.Libc;
+import org.italiangrid.storm.webdav.fs.Stat;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -106,10 +108,18 @@ public class StoRMServlet extends ResourceServlet {
       throws ServletException, IOException {
     final boolean included = request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
     final String pathInContext = getEncodedPathInContext(request, included);
-    if (pathResolver.resolveStorageArea(pathInContext).tapeEnabled()
-        && pathResolver.isStub(pathInContext)) {
-      response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-      return;
+    if (pathResolver.resolveStorageArea(pathInContext).tapeEnabled()) {
+      String resolvedPath = pathResolver.resolvePath(pathInContext);
+      File f = new File(resolvedPath);
+      Stat stat = new Stat();
+      Libc.INSTANCE.stat(resolvedPath, stat);
+      if (stat.st_blocks.longValue() == 1 && f.length() < 512) {
+        LOG.warn("GET on 1 block file found (potentially a stub): {}", resolvedPath);
+      }
+      if (pathResolver.isStub(pathInContext)) {
+        response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+        return;
+      }
     }
     SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
     SciTagTransfer scitagTransfer = null;

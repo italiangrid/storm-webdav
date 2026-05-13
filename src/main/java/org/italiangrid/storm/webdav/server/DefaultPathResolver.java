@@ -146,9 +146,6 @@ public class DefaultPathResolver implements PathResolver {
       if (f.isFile() && osName.startsWith("Linux")) {
         Stat stat = new Stat();
         Libc.INSTANCE.stat(resolvedPath, stat);
-        if (stat.st_blocks.longValue() == 1) {
-          LOG.warn("1 block file found (potentially a stub): {}", resolvedPath);
-        }
         return stat.st_blocks.longValue() * 512 < f.length();
       }
     }
