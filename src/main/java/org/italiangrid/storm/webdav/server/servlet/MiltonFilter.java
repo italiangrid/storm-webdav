@@ -21,6 +21,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
@@ -147,6 +148,19 @@ public class MiltonFilter implements Filter {
             Response.Status.SC_UNSUPPORTED_MEDIA_TYPE, "Called a WebDAV method on a stub file");
         return;
       }
+      if (storageAreaInfo != null
+          && miltonReq.getMethod() == Method.PUT
+          && miltonReq.getContentLengthHeader() != null
+          && miltonReq.getContentLengthHeader() < storageAreaInfo.minFileSize()) {
+        LOG.info(
+            "File too small: minimum size {} bytes, Content-Length {}",
+            storageAreaInfo.minFileSize(),
+            miltonReq.getContentLengthHeader());
+        miltonRes.sendError(
+            Response.Status.SC_BAD_REQUEST,
+            "File too small: minimum size " + storageAreaInfo.minFileSize() + " bytes");
+        return;
+      }
       SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
       if (scitag != null) {
         SciTagTransfer scitagTransfer =
@@ -163,14 +177,17 @@ public class MiltonFilter implements Filter {
       if (miltonReq.getMethod() == Method.PUT
           && storageAreaInfo != null
           && storageAreaInfo.tapeEnabled()) {
-        try {
-          attrsHelper.setPremigrateAttribute(resolver.getPath(miltonReq.getAbsolutePath()));
-        } catch (IOException e) {
-          LOG.warn(
-              "Error setting premigrate extended attribute to {}: {}",
-              resolver.resolvePath(miltonReq.getAbsolutePath()),
-              e.getMessage(),
-              e);
+        Path resolvedPath = resolver.getPath(miltonReq.getAbsolutePath());
+        if (resolvedPath.toFile().exists()) {
+          try {
+            attrsHelper.setPremigrateAttribute(resolvedPath);
+          } catch (IOException e) {
+            LOG.warn(
+                "Error setting premigrate extended attribute to {}: {}",
+                resolver.resolvePath(miltonReq.getAbsolutePath()),
+                e.getMessage(),
+                e);
+          }
         }
       }
 

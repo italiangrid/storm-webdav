@@ -19,6 +19,7 @@ import io.milton.http.http11.Http11ResponseHandler;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.error.DirectoryNotEmpty;
 import org.italiangrid.storm.webdav.error.InsufficientStorage;
 import org.italiangrid.storm.webdav.error.ResourceNotFound;
@@ -111,15 +112,32 @@ public class StoRMMiltonBehaviour implements Filter {
     }
   }
 
-  public void putRequestHandling(Request request) throws ChecksumVerificationError {
+  public void putRequestHandling(Request request)
+      throws ChecksumVerificationError, BadRequestException {
     // The PASSIVE site is expected to verify that the provided checksum matches the one of the
     // new saved file.
     // Milton headers are lowercase
+    StorageAreaInfo storageAreaInfo = resolver.resolveStorageArea(request.getAbsolutePath());
+    Path filePath = resolver.getPath(request.getAbsolutePath());
+    if (storageAreaInfo != null
+        && request.getContentLengthHeader() == null
+        && filePath.toFile().length() < storageAreaInfo.minFileSize()) {
+      LOG.info(
+          "File too small: minimum size {} bytes ({} will be deleted)",
+          storageAreaInfo.minFileSize(),
+          filePath);
+      try {
+        Files.delete(filePath);
+      } catch (IOException e) {
+        LOG.warn("Cannot delete file too small {}: {}", filePath, e.getMessage(), e);
+      }
+      throw new BadRequestException(
+          "File too small: minimum size " + storageAreaInfo.minFileSize() + " bytes");
+    }
     Adler32DigestHeaderHelper.extractAdler32DigestFromHeaderValue(
             request.getHeaders().get(TransferConstants.REPR_DIGEST_HEADER.toLowerCase()))
         .ifPresent(
             reprDigestChecksum -> {
-              Path filePath = resolver.getPath(request.getAbsolutePath());
               String checksum;
               try {
                 checksum = attrsHelper.getChecksumAttribute(filePath);
