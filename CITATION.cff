@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2014 Istituto Nazionale di Fisica Nucleare
+#
+# SPDX-License-Identifier: Apache-2.0
+
+cff-version: 1.2.0
+title: StoRM WebDAV
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: INFN-CNAF
+    city: Bologna
+    country: IT
+    website: 'https://www.cnaf.infn.it'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.2581037
+repository-code: 'https://github.com/italiangrid/storm-webdav'
+license: Apache-2.0
