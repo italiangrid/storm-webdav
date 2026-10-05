@@ -185,7 +185,6 @@ public class MiltonFilter implements Filter {
 
       try {
 
-        response.getOutputStream().flush();
         response.flushBuffer();
 
       } catch (IOException e) {
