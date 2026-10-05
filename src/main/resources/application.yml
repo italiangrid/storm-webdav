@@ -5,6 +5,10 @@
 spring:
   main:
     banner-mode: "off"
+  web:
+    error:
+      whitelabel:
+        enabled: false
   security:
     oauth2:
       client:
@@ -25,9 +29,6 @@ server:
   # StoRM WebDAV server should support graceful shutdown, allowing active requests time to complete, or shut down immediately
   # Values: graceful, immediate
   shutdown: ${STORM_WEBDAV_SERVER_SHUTDOWN:graceful}
-  error:
-    whitelabel:
-      enabled: false
   jetty:
     threads:
       max: ${storm.connector.max-connections}
