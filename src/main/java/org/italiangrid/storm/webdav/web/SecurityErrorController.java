@@ -49,6 +49,13 @@ public class SecurityErrorController {
     return "405";
   }
 
+  @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+  @RequestMapping("/412")
+  String preconditionFailed(HttpServletRequest request, Model model) {
+    model.addAttribute("errorMessage", request.getAttribute(RequestDispatcher.ERROR_MESSAGE));
+    return "412";
+  }
+
   @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   @RequestMapping("/415")
   String unsupportedMediaType() {

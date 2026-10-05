@@ -209,6 +209,8 @@ public class SecurityConfig {
       r.addErrorPages(
           new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, PathConstants.ERRORS_PATH + "/405"));
       r.addErrorPages(
+          new ErrorPage(HttpStatus.PRECONDITION_FAILED, PathConstants.ERRORS_PATH + "/412"));
+      r.addErrorPages(
           new ErrorPage(HttpStatus.UNSUPPORTED_MEDIA_TYPE, PathConstants.ERRORS_PATH + "/415"));
     };
   }
