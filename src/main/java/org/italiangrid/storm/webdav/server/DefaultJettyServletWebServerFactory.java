@@ -35,7 +35,13 @@ public class DefaultJettyServletWebServerFactory extends JettyServletWebServerFa
 
       @Override
       public void configure(WebAppContext context) throws Exception {
-        ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
+        ErrorPageErrorHandler errorHandler =
+            new ErrorPageErrorHandler() {
+              @Override
+              public boolean errorPageForMethod(String method) {
+                return true;
+              }
+            };
         context.setErrorHandler(errorHandler);
         addErrorPages(errorHandler, getErrorPages());
         errorHandler.setShowStacks(false);
