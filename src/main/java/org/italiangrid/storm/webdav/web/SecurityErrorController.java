@@ -4,6 +4,8 @@
 
 package org.italiangrid.storm.webdav.web;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -18,7 +20,8 @@ public class SecurityErrorController {
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @RequestMapping("/400")
-  String badRequestError(RequestRejectedException e) {
+  String badRequestError(RequestRejectedException e, HttpServletRequest request, Model model) {
+    model.addAttribute("errorMessage", request.getAttribute(RequestDispatcher.ERROR_MESSAGE));
     return "400";
   }
 
