@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.italiangrid.storm.webdav.checksum.Adler32ChecksumInputStream;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
@@ -142,7 +141,7 @@ public class DefaultFSStrategy implements FilesystemAccess {
 
             Adler32ChecksumInputStream cis = new Adler32ChecksumInputStream(in);
 
-            IOUtils.copy(cis, fos);
+            cis.transferTo(fos);
             attrsHelper.setChecksumAttribute(file, cis.getChecksumValue());
 
             return file;
