@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +56,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
   @Test
   void filterAnswers412ForClientProtocolException() throws IOException, ServletException {
-    Mockito.doThrow(new ClientProtocolException("Connection error"))
+    doThrow(new ClientProtocolException("Connection error"))
         .when(client)
         .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
@@ -68,7 +68,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
   @Test
   void filterAnswers412ForHttpExceptionError() throws IOException, ServletException {
-    Mockito.doThrow(new HttpResponseException(HttpServletResponse.SC_FORBIDDEN, "Access denied"))
+    doThrow(new HttpResponseException(HttpServletResponse.SC_FORBIDDEN, "Access denied"))
         .when(client)
         .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
@@ -85,7 +85,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
     Path fileToDelete = directory.resolve("tmpFile");
     Files.createFile(fileToDelete);
     when(resolver.getPath(FULL_LOCAL_PATH)).thenReturn(fileToDelete);
-    Mockito.doThrow(new ChecksumVerificationError("Checksum verification error"))
+    doThrow(new ChecksumVerificationError("Checksum verification error"))
         .when(client)
         .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 
@@ -98,7 +98,7 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
 
   @Test
   void filterAnswers412ForGenericTransferError() throws IOException, ServletException {
-    Mockito.doThrow(new TransferError("Error"))
+    doThrow(new TransferError("Error"))
         .when(client)
         .handle(ArgumentMatchers.<GetTransferRequest>any(), ArgumentMatchers.any());
 

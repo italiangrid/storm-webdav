@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.RemoteKeySourceException;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -72,7 +72,7 @@ class OidcConfigurationFetcherTest {
       HttpStatus status, Map<String, Object> map) {
 
     ResponseEntity<Map<String, Object>> mockedEntity =
-        (ResponseEntity<Map<String, Object>>) Mockito.mock(ResponseEntity.class);
+        (ResponseEntity<Map<String, Object>>) mock(ResponseEntity.class);
     lenient().when(mockedEntity.getStatusCode()).thenReturn(HttpStatusCode.valueOf(status.value()));
     lenient().when(mockedEntity.getBody()).thenReturn(map);
     return mockedEntity;
@@ -88,8 +88,7 @@ class OidcConfigurationFetcherTest {
   @SuppressWarnings("unchecked")
   private ResponseEntity<String> getJWKURIResponse(HttpStatus status, String data) {
 
-    ResponseEntity<String> mockedEntity =
-        (ResponseEntity<String>) Mockito.mock(ResponseEntity.class);
+    ResponseEntity<String> mockedEntity = (ResponseEntity<String>) mock(ResponseEntity.class);
     lenient().when(mockedEntity.getBody()).thenReturn(data);
     lenient().when(mockedEntity.getStatusCode()).thenReturn(HttpStatusCode.valueOf(status.value()));
     return mockedEntity;

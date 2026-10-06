@@ -126,7 +126,7 @@ public interface TpcUtils {
     Matcher m = TransferConstants.WEBDAV_PATH_PATTERN.matcher(path);
 
     if (m.matches()) {
-      return String.format("/%s", m.group(1));
+      return "/" + m.group(1);
     }
 
     return path;

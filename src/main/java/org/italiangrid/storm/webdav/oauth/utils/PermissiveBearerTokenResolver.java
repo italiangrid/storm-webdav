@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 public class PermissiveBearerTokenResolver implements BearerTokenResolver {
 
   private static final Pattern AUTHORIZATION_PATTERN =
-      Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$", Pattern.CASE_INSENSITIVE);
+      Pattern.compile("^Bearer (?<token>[A-Z0-9-._~+/]+)=*$", Pattern.CASE_INSENSITIVE);
 
   private static String resolveFromRequestParameters(HttpServletRequest request) {
     String[] values = request.getParameterValues("access_token");

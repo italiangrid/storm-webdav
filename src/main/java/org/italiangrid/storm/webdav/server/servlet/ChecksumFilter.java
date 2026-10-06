@@ -69,7 +69,7 @@ public class ChecksumFilter implements Filter {
     }
 
     LOG.debug("Retrieving checksum value ...");
-    String requestPath = String.format("%s%s", request.getServletPath(), request.getPathInfo());
+    String requestPath = request.getServletPath() + request.getPathInfo();
 
     String pathResolved = resolver.resolvePath(requestPath);
 

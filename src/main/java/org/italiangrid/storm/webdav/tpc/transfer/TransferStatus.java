@@ -67,30 +67,33 @@ public final class TransferStatus {
 
     StringBuilder builder = new StringBuilder();
 
-    if (status == Status.DONE) {
-      builder.append("success: Created");
-    } else if (status == Status.ERROR) {
-      builder.append(String.format("failure: %s", getErrorMessage().orElse("")));
-    } else {
-      builder
-          .append("Perf Marker\n")
-          .append(String.format("Timestamp: %d%n", instant.getEpochSecond()))
-          .append("Stripe Index: 0\n")
-          .append(String.format("Stripe Bytes Transferred: %d%n", getTransferByteCount()))
-          .append("Total Stripe Count: 1\n");
-      if (remoteIp != null) {
-        builder.append("RemoteConnections: tcp:").append(remoteIp).append("\n");
-        if (localIp != null) {
-          builder.append("Connection: tcp:");
-          if (isPushMode) {
-            builder.append(localIp).append(":").append(remoteIp);
-          } else {
-            builder.append(remoteIp).append(":").append(localIp);
+    switch (status) {
+      case Status.DONE:
+        builder.append("success: Created");
+        break;
+      case Status.ERROR:
+        builder.append("failure: " + getErrorMessage().orElse(""));
+        break;
+      default:
+        builder
+            .append("Perf Marker\n")
+            .append(String.format("Timestamp: %d%n", instant.getEpochSecond()))
+            .append("Stripe Index: 0\n")
+            .append(String.format("Stripe Bytes Transferred: %d%n", getTransferByteCount()))
+            .append("Total Stripe Count: 1\n");
+        if (remoteIp != null) {
+          builder.append("RemoteConnections: tcp:").append(remoteIp).append("\n");
+          if (localIp != null) {
+            builder.append("Connection: tcp:");
+            if (isPushMode) {
+              builder.append(localIp).append(":").append(remoteIp);
+            } else {
+              builder.append(remoteIp).append(":").append(localIp);
+            }
+            builder.append("\n");
           }
-          builder.append("\n");
         }
-      }
-      builder.append("End\n");
+        builder.append("End\n");
     }
 
     return builder.toString();

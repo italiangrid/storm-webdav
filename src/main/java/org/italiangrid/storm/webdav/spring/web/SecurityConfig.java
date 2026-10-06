@@ -31,7 +31,6 @@ import org.italiangrid.storm.webdav.authz.util.ReadonlyHttpMethodMatcher;
 import org.italiangrid.storm.webdav.config.OAuthProperties;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaConfiguration;
-import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.oauth.StormJwtAuthenticationConverter;
 import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.server.servlet.PreAuthenticatedFilter;
@@ -222,11 +221,10 @@ public class SecurityConfig {
   protected void addAnonymousAccessRules(HttpSecurity http) {
     final List<GrantedAuthority> anonymousAccessPermissions = new ArrayList<>();
 
-    for (StorageAreaInfo sa : saConfiguration.getStorageAreaInfo()) {
-      if (sa.anonymousReadEnabled()) {
-        anonymousAccessPermissions.add(SAPermission.canRead(sa.name()));
-      }
-    }
+    saConfiguration.getStorageAreaInfo().stream()
+        .filter(sa -> sa.anonymousReadEnabled())
+        .map(sa -> SAPermission.canRead(sa.name()))
+        .forEach(anonymousAccessPermissions::add);
 
     if (!anonymousAccessPermissions.isEmpty()) {
       http.anonymous(anonymous -> anonymous.authorities(anonymousAccessPermissions));

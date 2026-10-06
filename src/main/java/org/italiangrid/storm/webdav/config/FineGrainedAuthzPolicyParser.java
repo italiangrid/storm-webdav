@@ -63,7 +63,7 @@ public class FineGrainedAuthzPolicyParser implements PathAuthzPolicyParser {
   }
 
   String matcherPath(String accessPoint, String path) {
-    String jointPath = String.format("%s/%s", accessPoint, path);
+    String jointPath = accessPoint + "/" + path;
     return jointPath.replaceAll("\\/+", "/");
   }
 

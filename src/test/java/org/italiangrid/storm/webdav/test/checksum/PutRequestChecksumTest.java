@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,9 +110,7 @@ class PutRequestChecksumTest {
             Map.of(TransferConstants.REPR_DIGEST_HEADER.toLowerCase(), "adler=:MDNmYzAxOWQ:"));
     Path filePath = directory.resolve("tmpFile");
     Files.createFile(filePath);
-    Mockito.doThrow(new IOException(""))
-        .when(eah)
-        .getChecksumAttribute(ArgumentMatchers.<Path>any());
+    doThrow(new IOException("")).when(eah).getChecksumAttribute(ArgumentMatchers.<Path>any());
     when(resolver.getPath(FULL_LOCAL_PATH)).thenReturn(filePath);
 
     ChecksumVerificationError checksumVerificationError =

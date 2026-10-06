@@ -135,18 +135,20 @@ public class StormDirectoryResourceWrapper extends Resource {
 
     List<StormFsResourceView> resources = new ArrayList<>();
 
-    for (Resource r : rawListing) {
-      resources.add(
-          StormFsResourceView.builder()
-              .withName(r.getFileName())
-              .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
-              .withIsDirectory(r.isDirectory())
-              .withLastModificationTime(Date.from(r.lastModified()))
-              .withSizeInBytes(r.length())
-              .withLocality(
-                  pathResolver.getLocality(URIUtil.addEncodedPaths(encodedBase, r.getFileName())))
-              .build());
-    }
+    rawListing.stream()
+        .map(
+            r ->
+                StormFsResourceView.builder()
+                    .withName(r.getFileName())
+                    .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
+                    .withIsDirectory(r.isDirectory())
+                    .withLastModificationTime(Date.from(r.lastModified()))
+                    .withSizeInBytes(r.length())
+                    .withLocality(
+                        pathResolver.getLocality(
+                            URIUtil.addEncodedPaths(encodedBase, r.getFileName())))
+                    .build())
+        .forEach(resources::add);
 
     context.setVariable("parentDir", parentDir);
     context.setVariable("resources", resources);

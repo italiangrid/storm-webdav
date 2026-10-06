@@ -80,9 +80,9 @@ public class VOMSPreAuthDetailsSource
 
     Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 
-    for (String voName : voMapDetailsService.getPrincipalVOs(principal.get())) {
-      authorities.add(new VOMSVOMapAuthority(voName));
-    }
+    voMapDetailsService.getPrincipalVOs(principal.get()).stream()
+        .map(VOMSVOMapAuthority::new)
+        .forEach(authorities::add);
 
     return authorities;
   }

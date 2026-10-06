@@ -26,13 +26,11 @@ public class RedirectorTestSupport implements TestUtils {
   public static final String URI_1_HOST = "another";
   public static final String URI_WITH_PREFIX_HOST = "yetanother";
 
-  public static final URI ENDPOINT_URI_0 =
-      URI.create(String.format("%s://%s", URI_0_SCHEME, URI_0_HOST));
-  public static final URI ENDPOINT_URI_1 =
-      URI.create(String.format("%s://%s", URI_1_SCHEME, URI_1_HOST));
+  public static final URI ENDPOINT_URI_0 = URI.create(URI_0_SCHEME + "://" + URI_0_HOST);
+  public static final URI ENDPOINT_URI_1 = URI.create(URI_1_SCHEME + "://" + URI_1_HOST);
 
   public static final URI ENDPOINT_URI_WITH_PREFIX =
-      URI.create(String.format("%s://%s/prefix", URI_WITH_PREFIX_SCHEME, URI_WITH_PREFIX_HOST));
+      URI.create(URI_WITH_PREFIX_SCHEME + "://" + URI_WITH_PREFIX_HOST + "/prefix");
 
   public static final ReplicaEndpointProperties REPLICA_0;
   public static final ReplicaEndpointProperties REPLICA_1;

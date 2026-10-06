@@ -44,8 +44,7 @@ public class AuthzServerController {
       throw new InvalidTokenRequestError(e.getDefaultMessage());
     }
     if (INVALID_GRANT_TYPE.equals(e.getDefaultMessage())) {
-      throw new UnsupportedGrantTypeError(
-          String.format("%s: %s", e.getDefaultMessage(), e.getRejectedValue()));
+      throw new UnsupportedGrantTypeError(e.getDefaultMessage() + ": " + e.getRejectedValue());
     }
     throw new InvalidScopeError(e.getDefaultMessage() != null ? e.getDefaultMessage() : "");
   }

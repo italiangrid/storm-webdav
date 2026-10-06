@@ -46,8 +46,8 @@ class OAuthAuthzServerIntegrationTests {
   public static final String GRANT_TYPE = "grant_type";
   public static final String CLIENT_CREDENTIALS = "client_credentials";
   public static final String CUSTOM_GRANT_TYPE = "my_own_grant_type";
-  public static final String CONTENT = String.format("%s=%s", GRANT_TYPE, CLIENT_CREDENTIALS);
-  public static final String CONTENT_CUSTOM = String.format("%s=%s", GRANT_TYPE, CUSTOM_GRANT_TYPE);
+  public static final String CONTENT = GRANT_TYPE + "=" + CLIENT_CREDENTIALS;
+  public static final String CONTENT_CUSTOM = GRANT_TYPE + "=" + CUSTOM_GRANT_TYPE;
 
   @TestConfiguration
   static class Configuration {
@@ -125,7 +125,7 @@ class OAuthAuthzServerIntegrationTests {
   void requestedLifetimeHonoured() throws Exception {
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(String.format("%s&lifetime=50", CONTENT))
+                .content(CONTENT + "&lifetime=50")
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists())
@@ -156,7 +156,7 @@ class OAuthAuthzServerIntegrationTests {
 
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(String.format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .content(CONTENT + "&scope=" + randomAlphabetic)
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.access_token").exists());
@@ -165,7 +165,7 @@ class OAuthAuthzServerIntegrationTests {
 
     mvc.perform(
             post(PathConstants.OAUTH_TOKEN_PATH)
-                .content(String.format("%s&scope=%s", CONTENT, randomAlphabetic))
+                .content(CONTENT + "&scope=" + randomAlphabetic)
                 .contentType(APPLICATION_FORM_URLENCODED))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error").value("invalid_scope"))
