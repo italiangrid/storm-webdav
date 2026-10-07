@@ -7,114 +7,16 @@ package org.italiangrid.storm.webdav.server.servlet.resource;
 import java.util.Date;
 import org.italiangrid.storm.webdav.fs.Locality;
 
-public final class StormFsResourceView {
-
-  final String name;
-
-  final boolean isDirectory;
-
-  final String path;
-
-  final long sizeInBytes;
-
-  final Date lastModificationTime;
-
-  final Date creationTime;
-
-  final Locality locality;
-
-  private StormFsResourceView(Builder b) {
-    if (b.isDirectory && !b.name.endsWith("/")) {
-      this.name = b.name + "/";
-    } else {
-      this.name = b.name;
-    }
-    this.isDirectory = b.isDirectory;
-    this.path = b.path;
-    this.sizeInBytes = b.sizeInBytes;
-    this.lastModificationTime = b.lastModificationTime;
-    this.creationTime = b.creationTime;
-    this.locality = b.locality;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public boolean isDirectory() {
-    return isDirectory;
-  }
-
-  public String getPath() {
-    return path;
-  }
-
-  public long getSizeInBytes() {
-    return sizeInBytes;
-  }
-
-  public Date getLastModificationTime() {
-    return lastModificationTime;
-  }
-
-  public Date getCreationTime() {
-    return creationTime;
-  }
-
-  public Locality getLocality() {
-    return locality;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-    String name;
-    boolean isDirectory;
-    String path;
-    long sizeInBytes;
-    Date lastModificationTime;
-    Date creationTime;
-    Locality locality;
-
-    public Builder withName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder withIsDirectory(boolean isDirectory) {
-      this.isDirectory = isDirectory;
-      return this;
-    }
-
-    public Builder withPath(String path) {
-      this.path = path;
-      return this;
-    }
-
-    public Builder withSizeInBytes(long syzeInBytes) {
-      this.sizeInBytes = syzeInBytes;
-      return this;
-    }
-
-    public Builder withLastModificationTime(Date lastModificationTime) {
-      this.lastModificationTime = lastModificationTime;
-      return this;
-    }
-
-    public Builder withCreationTime(Date creationTime) {
-      this.creationTime = creationTime;
-      return this;
-    }
-
-    public Builder withLocality(Locality locality) {
-      this.locality = locality;
-      return this;
-    }
-
-    public StormFsResourceView build() {
-      return new StormFsResourceView(this);
+public record StormFsResourceView(
+    String name,
+    boolean isDirectory,
+    String path,
+    long sizeInBytes,
+    Date lastModificationTime,
+    Locality locality) {
+  public StormFsResourceView {
+    if (isDirectory && !name.endsWith("/")) {
+      name = name + "/";
     }
   }
 }

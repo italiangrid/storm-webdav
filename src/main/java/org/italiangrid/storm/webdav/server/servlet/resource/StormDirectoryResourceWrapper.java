@@ -138,16 +138,14 @@ public class StormDirectoryResourceWrapper extends Resource {
     rawListing.stream()
         .map(
             r ->
-                StormFsResourceView.builder()
-                    .withName(r.getFileName())
-                    .withPath(URIUtil.addEncodedPaths(encodedBase, r.getFileName()))
-                    .withIsDirectory(r.isDirectory())
-                    .withLastModificationTime(Date.from(r.lastModified()))
-                    .withSizeInBytes(r.length())
-                    .withLocality(
-                        pathResolver.getLocality(
-                            URIUtil.addEncodedPaths(encodedBase, r.getFileName())))
-                    .build())
+                new StormFsResourceView(
+                    r.getFileName(),
+                    r.isDirectory(),
+                    URIUtil.addEncodedPaths(encodedBase, r.getFileName()),
+                    r.length(),
+                    Date.from(r.lastModified()),
+                    pathResolver.getLocality(
+                        URIUtil.addEncodedPaths(encodedBase, r.getFileName()))))
         .forEach(resources::add);
 
     context.setVariable("parentDir", parentDir);
