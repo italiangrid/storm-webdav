@@ -36,7 +36,7 @@ SPDX-License-Identifier: Apache-2.0
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.exclusions>src/main/java/org/italiangrid/storm/webdav/fs/Stat.java,src/main/java/org/italiangrid/storm/webdav/fs/Timespec.java</sonar.exclusions>
 
-    <voms-api-java.version>3.3.8</voms-api-java.version>
+    <voms-api-java.version>3.4.0</voms-api-java.version>
     <milton.version>4.1.1.2676</milton.version>
 
     <commons-csv.version>1.14.1</commons-csv.version>
