@@ -5,6 +5,7 @@
 package org.italiangrid.storm.webdav.test.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,5 +130,23 @@ class IOUtilsTest {
         assertEquals(1, fis.read(), "Expected 1");
       }
     }
+  }
+
+  @Test
+  void testNegativeRangeStart() throws IOException {
+    File source = tempFileOfChar("source", 0, 1);
+    File dest = tempFileOfChar("dest", 0, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RangeCopyHelper.rangeCopy(Files.newInputStream(source.toPath()), dest, -1, 1));
+  }
+
+  @Test
+  void testNonPositiveRangeCount() throws IOException {
+    File source = tempFileOfChar("source", 0, 1);
+    File dest = tempFileOfChar("dest", 0, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RangeCopyHelper.rangeCopy(Files.newInputStream(source.toPath()), dest, 0, 0));
   }
 }
