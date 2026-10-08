@@ -29,10 +29,14 @@ public class MoveRequestSanityChecksFilter implements Filter, TpcUtils {
   }
 
   private void moveSanityChecks(HttpServletRequest req) throws URISyntaxException {
-    if (WebDAVMethod.MOVE.name().equals(req.getMethod())
-        && requestHasDestinationHeader(req)
-        && !requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
-      throw new BadRequest("Move across storage areas is not supported");
+    if (WebDAVMethod.MOVE.name().equals(req.getMethod())) {
+      if (requestHasDestinationHeader(req)
+          && !requestPathAndDestinationHeaderAreInSameStorageArea(req, resolver)) {
+        throw new BadRequest("Move across storage areas is not supported");
+      }
+      if (resolver.resolveStorageArea(getSerlvetRequestPath(req)).tapeEnabled()) {
+        throw new BadRequest("Move inside tape enabled storage areas is not supported");
+      }
     }
   }
 
