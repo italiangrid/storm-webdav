@@ -4,9 +4,13 @@
 
 package org.italiangrid.storm.webdav.test.authz.vomap;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,10 +52,12 @@ class PathResolverTests {
     input.put("12", "test.vo");
     input.put(".", "testers.eu-emi.eu");
     input.put(".1", "test.vo");
+    input.put("tape", "tape.vo");
   }
 
   PathResolver pathResolver;
   StorageAreaConfiguration saConfig;
+  ExtendedAttributesHelper attributesHelper;
   List<StorageAreaInfo> saInfoList;
 
   @BeforeEach
@@ -65,9 +71,9 @@ class PathResolverTests {
     saConfig = mock(StorageAreaConfiguration.class);
     when(saConfig.getStorageAreaInfo()).thenReturn(saInfoList);
 
-    ExtendedAttributesHelper attributesHelper = new DefaultExtendedFileAttributesHelper(null);
+    attributesHelper = spy(new DefaultExtendedFileAttributesHelper(null));
 
-    pathResolver = new DefaultPathResolver(saConfig, attributesHelper);
+    pathResolver = spy(new DefaultPathResolver(saConfig, attributesHelper));
   }
 
   private StorageAreaInfo getMockSAInfo(String name, String voname) {
@@ -81,6 +87,7 @@ class PathResolverTests {
     when(saInfo.accessPoints()).thenReturn(Arrays.asList(ap));
     when(saInfo.rootPath()).thenReturn(rootPath);
     when(saInfo.vos()).thenReturn(new HashSet<String>(Arrays.asList(voname)));
+    when(saInfo.tapeEnabled()).thenReturn(name.contains("tape"));
 
     return saInfo;
   }
@@ -115,5 +122,32 @@ class PathResolverTests {
   void checkFileLocality() {
     Locality locality = pathResolver.getLocality("/test1/notATapeStorageArea/normalFile.txt");
     Assertions.assertEquals(Locality.DISK, locality);
+  }
+
+  @Test
+  void checkGetLocality() throws IOException {
+    final String commonPath = "/storageArea/normalFile.txt";
+    final String name = "tape";
+    final String vo = "tape.vo";
+    final String pathInContext = "/" + name + commonPath;
+    final String storagePath = "/storage/" + vo + commonPath;
+
+    // Use doReturn the first time so that real methods are not invoked
+    doReturn(null).when(attributesHelper).getMigratedAttribute(Path.of(storagePath));
+    doReturn(true).when(pathResolver).isStub(pathInContext);
+
+    Assertions.assertEquals(Locality.UNAVAILABLE, pathResolver.getLocality(pathInContext));
+
+    when(attributesHelper.getMigratedAttribute(Path.of(storagePath))).thenReturn("");
+
+    Assertions.assertEquals(Locality.TAPE, pathResolver.getLocality(pathInContext));
+
+    when(pathResolver.isStub(pathInContext)).thenReturn(false);
+
+    Assertions.assertEquals(Locality.DISK_AND_TAPE, pathResolver.getLocality(pathInContext));
+
+    when(attributesHelper.getMigratedAttribute(Path.of(storagePath))).thenReturn(null);
+
+    Assertions.assertEquals(Locality.DISK, pathResolver.getLocality(pathInContext));
   }
 }
