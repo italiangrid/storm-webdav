@@ -141,4 +141,18 @@ class RedirectFilterTests extends RedirectorTestSupport {
     assertEquals(REDIRECTED_URL, redirectUrl.getValue());
     verifyNoInteractions(filterChain);
   }
+
+  @Test
+  void filterNotFoundError() {
+    final String filePath = "/path/to/file";
+    assertEquals(
+        "No storage area found matching path: " + filePath,
+        filter.resourceNotFoundError(filePath).get().getMessage());
+  }
+
+  @Test
+  void filterSanitizePath() {
+    final String filePath = "/path/to/file";
+    assertEquals(filePath, filter.dropSlashWebdavFromPath("/webdav" + filePath));
+  }
 }
