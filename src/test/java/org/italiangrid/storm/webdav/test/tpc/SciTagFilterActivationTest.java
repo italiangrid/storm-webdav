@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -78,6 +79,14 @@ class SciTagFilterActivationTest extends TransferFilterTestSupport {
     File mockFile = new File(tempDir, "flowd");
     SciTagTransfer scitagTransfer =
         new SciTagTransfer(scitag, "10.10.10.10", 8443, "10.10.10.11", 12345, mockFile);
+    scitagTransfer.writeStart();
+    scitagTransfer.writeEnd();
+
+    scitag = new SciTag(2, 3, true);
+    assertEquals(2, scitag.experimentId());
+    assertEquals(3, scitag.activityId());
+    assertTrue(scitag.remoteAddressIsSource());
+    scitagTransfer = new SciTagTransfer(scitag, "10.10.10.10", 8444, "10.10.10.12", 12346);
     scitagTransfer.writeStart();
     scitagTransfer.writeEnd();
   }
