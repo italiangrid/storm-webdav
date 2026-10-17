@@ -5,12 +5,17 @@
 package org.italiangrid.storm.webdav.test.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import org.italiangrid.storm.webdav.error.InsufficientStorage;
+import org.italiangrid.storm.webdav.error.StoRMWebDAVError;
+import org.italiangrid.storm.webdav.utils.IOExceptionHelper;
 import org.italiangrid.storm.webdav.utils.RangeCopyHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -129,5 +134,35 @@ class IOUtilsTest {
         assertEquals(1, fis.read(), "Expected 1");
       }
     }
+  }
+
+  @Test
+  void testNegativeRangeStart() throws IOException {
+    File source = tempFileOfChar("source", 0, 1);
+    File dest = tempFileOfChar("dest", 0, 1);
+    InputStream inputStream = Files.newInputStream(source.toPath());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> RangeCopyHelper.rangeCopy(inputStream, dest, -1, 1));
+  }
+
+  @Test
+  void testNonPositiveRangeCount() throws IOException {
+    File source = tempFileOfChar("source", 0, 1);
+    File dest = tempFileOfChar("dest", 0, 1);
+    InputStream inputStream = Files.newInputStream(source.toPath());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> RangeCopyHelper.rangeCopy(inputStream, dest, 0, 0));
+  }
+
+  @Test
+  void testIOExceptionHelper() {
+    IOException errStorage = new IOException("Disk quota exceeded");
+    assertTrue(IOExceptionHelper.getStoRMWebDAVError(errStorage) instanceof InsufficientStorage);
+    IOException errOther = new IOException("Another error");
+    assertTrue(IOExceptionHelper.getStoRMWebDAVError(errOther) instanceof StoRMWebDAVError);
+    IOException errNull = new IOException();
+    assertTrue(IOExceptionHelper.getStoRMWebDAVError(errNull) instanceof StoRMWebDAVError);
   }
 }
