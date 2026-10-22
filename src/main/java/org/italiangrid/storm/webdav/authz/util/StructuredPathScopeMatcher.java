@@ -64,7 +64,10 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
 
   public boolean matchesPathIncludingParents(String path) {
     Path targetPath = Path.of(path);
-    return this.path.startsWith(targetPath) || matchesPath(path);
+    return this.path.startsWith(targetPath)
+        || matchesPath(
+            path); // matchesPath can be removed as startsWith is true whenever matchesPath is (and
+    // false whenever it is false)
   }
 
   public static StructuredPathScopeMatcher fromString(String scope) {
@@ -93,8 +96,9 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((path == null) ? 0 : path.hashCode());
-    result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+    result = prime * result + ((path == null) ? 0 : path.hashCode()); // Can path ever be null?
+    result =
+        prime * result + ((prefix == null) ? 0 : prefix.hashCode()); // Can prefix ever be null?
     return result;
   }
 
@@ -109,14 +113,18 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
       return false;
     }
     StructuredPathScopeMatcher other = (StructuredPathScopeMatcher) obj;
-    if (path == null) {
+    if (path
+        == null) { // Is it actually possible to get a null path, given the private constructor +
+      // builder methods checks?
       if (other.path != null) {
         return false;
       }
     } else if (!path.equals(other.path)) {
       return false;
     }
-    if (prefix == null) {
+    if (prefix
+        == null) { // Is it actually possible to get a null prefix, given the private constructor +
+      // builder methods checks?
       if (other.prefix != null) {
         return false;
       }
