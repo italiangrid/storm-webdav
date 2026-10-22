@@ -28,7 +28,11 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
   private final Pattern prefixMatchPattern;
   private final Pattern pathMatchPattern;
 
-  private StructuredPathScopeMatcher(String prefix, String path) {
+  public StructuredPathScopeMatcher(String prefix, String path) {
+    Assert.hasText(prefix, "empty or null prefix");
+    Assert.doesNotContain(prefix, SEP_STR, "prefix must not contain context separator");
+    Assert.hasText(path, "empty or null path");
+    Assert.isTrue(path.startsWith("/"), "path must start with a /");
 
     this.prefix = prefix;
     this.path = Path.of(path);
@@ -71,15 +75,6 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
     final int sepIndex = scope.indexOf(SEP);
     final String prefix = scope.substring(0, sepIndex);
     final String path = scope.substring(sepIndex + 1, scope.length());
-    return new StructuredPathScopeMatcher(prefix, path);
-  }
-
-  public static StructuredPathScopeMatcher structuredPathMatcher(String prefix, String path) {
-    Assert.hasText(prefix, "empty or null prefix");
-    Assert.doesNotContain(prefix, SEP_STR, "prefix must not contain context separator");
-    Assert.hasText(path, "empty or null path");
-    Assert.isTrue(path.startsWith("/"), "path must start with a /");
-
     return new StructuredPathScopeMatcher(prefix, path);
   }
 
