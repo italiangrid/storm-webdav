@@ -60,21 +60,41 @@ class AuthzUtilsTest {
   }
 
   @Test
+  void testMatchesPathIncludingParents() {
+    StructuredPathScopeMatcher scopeMatcher =
+        StructuredPathScopeMatcher.fromString("storage.create:/dir/subdir");
+    assertTrue(scopeMatcher.matchesPathIncludingParents("/dir"));
+    assertTrue(scopeMatcher.matchesPathIncludingParents("/dir/subdir"));
+    assertTrue(scopeMatcher.matchesPathIncludingParents("/dir/subdir/file"));
+
+    assertFalse(scopeMatcher.matchesPathIncludingParents("/other"));
+    assertFalse(scopeMatcher.matchesPathIncludingParents("/dir/subdir_sibling"));
+  }
+
+  @Test
+  void testMatchesPath() {
+    StructuredPathScopeMatcher scopeMatcher =
+        StructuredPathScopeMatcher.fromString("storage.write:/dir/subdir");
+    assertTrue(scopeMatcher.matchesPath("/dir/subdir/file"));
+    assertTrue(scopeMatcher.matchesPath("/dir/subdir"));
+    assertFalse(scopeMatcher.matchesPath("/dir/subdir2"));
+  }
+
+  @Test
   void testStructuredPathScopeMatcherConstruction() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> StructuredPathScopeMatcher.structuredPathMatcher(null, "/path"));
+        IllegalArgumentException.class, () -> StructuredPathScopeMatcher.fromString(":/path"));
     assertThrows(
         IllegalArgumentException.class,
-        () -> StructuredPathScopeMatcher.structuredPathMatcher("storage.read:", "/path"));
+        () -> new StructuredPathScopeMatcher("storage.read:", "/path"));
     assertThrows(
         IllegalArgumentException.class,
-        () -> StructuredPathScopeMatcher.structuredPathMatcher("storage.read", null));
+        () -> StructuredPathScopeMatcher.fromString("storage.read:"));
     assertThrows(
         IllegalArgumentException.class,
-        () -> StructuredPathScopeMatcher.structuredPathMatcher("storage.read", "path"));
+        () -> StructuredPathScopeMatcher.fromString("storage.read:path"));
     StructuredPathScopeMatcher scopeMatcher =
-        StructuredPathScopeMatcher.structuredPathMatcher("storage.read", "/path/file");
+        StructuredPathScopeMatcher.fromString("storage.read:/path/file");
     assertTrue(scopeMatcher.matchesScope("storage.read:/path/file"));
     assertEquals("storage.read:/path/file", scopeMatcher.toString());
     assertEquals("/path/file", scopeMatcher.getPath());
