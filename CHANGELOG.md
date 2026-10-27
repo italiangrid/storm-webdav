@@ -6,6 +6,27 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 1.14.0 (2026-10-29)
+
+### Added
+
+* Add minimum file size storage area parameter
+
+### Changed
+
+* Include error message in 400 error page
+* Add error page for 412 Precondition Failed
+* Enable Jetty error page for all HTTP methods
+* Use transferTo instead of IOUtils.copy
+* Update dependencies, in particular Spring Boot to 4.0.9 and voms-api-java to 3.4.1
+* Block move inside tape enabled storage areas
+
+### Fixed
+
+* Use correct Spring Boot Starter for Session with Redis
+* Migrate error.whitelabel property
+* Do not flush response output stream in MiltonFilter
+
 ## 1.13.0 (2026-05-18)
 
 ### Added
