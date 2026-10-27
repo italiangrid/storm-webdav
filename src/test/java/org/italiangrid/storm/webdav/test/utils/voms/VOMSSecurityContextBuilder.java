@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.test.utils.voms;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -17,7 +18,6 @@ import org.italiangrid.storm.webdav.authz.VOMSAuthenticationDetails;
 import org.italiangrid.storm.webdav.authz.VOMSVOAuthority;
 import org.italiangrid.storm.webdav.authz.X509SubjectAuthority;
 import org.italiangrid.voms.VOMSAttribute;
-import org.mockito.Mockito;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,8 +88,8 @@ public class VOMSSecurityContextBuilder {
     Instant expirationTime =
         clock.instant().plusSeconds(acExpirationSecs).truncatedTo(ChronoUnit.SECONDS);
 
-    VOMSAttribute attrs = Mockito.mock(VOMSAttribute.class);
-    VOMSAuthenticationDetails details = Mockito.mock(VOMSAuthenticationDetails.class);
+    VOMSAttribute attrs = mock(VOMSAttribute.class);
+    VOMSAuthenticationDetails details = mock(VOMSAuthenticationDetails.class);
 
     when(details.getVomsAttributes()).thenReturn(List.of(attrs));
     when(attrs.getNotAfter()).thenReturn(Date.from(expirationTime));

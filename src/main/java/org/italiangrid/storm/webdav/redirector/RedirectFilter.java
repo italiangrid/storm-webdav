@@ -17,7 +17,6 @@ import org.italiangrid.storm.webdav.server.PathResolver;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
@@ -42,26 +41,16 @@ public class RedirectFilter implements Filter, TpcUtils {
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;
 
-    SecurityContext context = resolveSecurityContext();
-
     if (isRedirectable(req)) {
 
-      res.setHeader(LOCATION, service.buildRedirect(context.getAuthentication(), req, res));
+      res.setHeader(
+          LOCATION,
+          service.buildRedirect(SecurityContextHolder.getContext().getAuthentication(), req, res));
       res.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
 
     } else {
       chain.doFilter(request, response);
     }
-  }
-
-  private SecurityContext resolveSecurityContext() {
-    SecurityContext context = SecurityContextHolder.getContext();
-
-    if (context == null) {
-      throw new RedirectError("Failed to enstabilish a valid security context");
-    }
-
-    return context;
   }
 
   private boolean isNoRedirectRequest(HttpServletRequest req) {

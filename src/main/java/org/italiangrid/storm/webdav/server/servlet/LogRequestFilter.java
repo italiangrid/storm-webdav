@@ -19,7 +19,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class LogRequestFilter implements Filter {
@@ -43,12 +42,8 @@ public class LogRequestFilter implements Filter {
 
     chain.doFilter(request, response);
 
-    Optional<SecurityContext> ctxt = Optional.ofNullable(SecurityContextHolder.getContext());
-    Optional<Authentication> authn = Optional.empty();
-
-    if (ctxt.isPresent()) {
-      authn = Optional.ofNullable(ctxt.get().getAuthentication());
-    }
+    Optional<Authentication> authn =
+        Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
 
     HttpServletRequest req = (HttpServletRequest) request;
     HttpServletResponse res = (HttpServletResponse) response;

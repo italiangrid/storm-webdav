@@ -66,7 +66,7 @@ public class MiltonFilter implements Filter {
 
   private final ReplaceContentStrategy rcs;
 
-  private boolean deleteFilesWithMismatchedChecksums;
+  private final boolean deleteFilesWithMismatchedChecksums;
 
   private final ObservationRegistry observationRegistry;
 

@@ -25,14 +25,13 @@ public class SuperLaxRedirectStrategy extends DefaultRedirectStrategy {
 
   public static final SuperLaxRedirectStrategy INSTANCE = new SuperLaxRedirectStrategy();
 
-  private static final String[] REDIRECT_METHODS =
-      new String[] {
-        HttpGet.METHOD_NAME,
-        HttpPost.METHOD_NAME,
-        HttpPut.METHOD_NAME,
-        HttpHead.METHOD_NAME,
-        HttpDelete.METHOD_NAME
-      };
+  private static final String[] REDIRECT_METHODS = {
+    HttpGet.METHOD_NAME,
+    HttpPost.METHOD_NAME,
+    HttpPut.METHOD_NAME,
+    HttpHead.METHOD_NAME,
+    HttpDelete.METHOD_NAME
+  };
 
   @Override
   public boolean isRedirected(
