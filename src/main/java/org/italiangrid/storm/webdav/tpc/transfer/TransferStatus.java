@@ -111,10 +111,6 @@ public final class TransferStatus {
     return builder.toString();
   }
 
-  public long epochSecond() {
-    return instant.getEpochSecond();
-  }
-
   public Instant getInstant() {
     return instant;
   }

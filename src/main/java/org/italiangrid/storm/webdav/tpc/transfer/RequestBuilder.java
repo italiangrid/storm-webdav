@@ -50,11 +50,6 @@ public abstract class RequestBuilder<T> {
     return this;
   }
 
-  public RequestBuilder<T> addHeader(String header, String value) {
-    headers.put(header, value);
-    return this;
-  }
-
   public RequestBuilder<T> scitag(SciTag scitag) {
     this.scitag = scitag;
     return this;
