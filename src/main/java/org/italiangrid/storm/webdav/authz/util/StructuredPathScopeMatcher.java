@@ -28,7 +28,11 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
   private final Pattern prefixMatchPattern;
   private final Pattern pathMatchPattern;
 
-  private StructuredPathScopeMatcher(String prefix, String path) {
+  public StructuredPathScopeMatcher(String prefix, String path) {
+    Assert.hasText(prefix, "empty or null prefix");
+    Assert.doesNotContain(prefix, SEP_STR, "prefix must not contain context separator");
+    Assert.hasText(path, "empty or null path");
+    Assert.isTrue(path.startsWith("/"), "path must start with a /");
 
     this.prefix = prefix;
     this.path = Path.of(path);
@@ -59,27 +63,19 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
   }
 
   public boolean matchesPath(String path) {
-    return pathMatchPattern.matcher(path).matches();
+    Path targetPath = Path.of(path);
+    return targetPath.startsWith(this.path);
   }
 
   public boolean matchesPathIncludingParents(String path) {
     Path targetPath = Path.of(path);
-    return this.path.startsWith(targetPath) || matchesPath(path);
+    return this.path.startsWith(targetPath) || targetPath.startsWith(this.path);
   }
 
   public static StructuredPathScopeMatcher fromString(String scope) {
     final int sepIndex = scope.indexOf(SEP);
     final String prefix = scope.substring(0, sepIndex);
     final String path = scope.substring(sepIndex + 1, scope.length());
-    return new StructuredPathScopeMatcher(prefix, path);
-  }
-
-  public static StructuredPathScopeMatcher structuredPathMatcher(String prefix, String path) {
-    Assert.hasText(prefix, "empty or null prefix");
-    Assert.doesNotContain(prefix, SEP_STR, "prefix must not contain context separator");
-    Assert.hasText(path, "empty or null path");
-    Assert.isTrue(path.startsWith("/"), "path must start with a /");
-
     return new StructuredPathScopeMatcher(prefix, path);
   }
 
@@ -93,8 +89,8 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((path == null) ? 0 : path.hashCode());
-    result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+    result = prime * result + path.hashCode();
+    result = prime * result + prefix.hashCode();
     return result;
   }
 
@@ -109,18 +105,10 @@ public final class StructuredPathScopeMatcher implements ScopeMatcher {
       return false;
     }
     StructuredPathScopeMatcher other = (StructuredPathScopeMatcher) obj;
-    if (path == null) {
-      if (other.path != null) {
-        return false;
-      }
-    } else if (!path.equals(other.path)) {
+    if (!path.equals(other.path)) {
       return false;
     }
-    if (prefix == null) {
-      if (other.prefix != null) {
-        return false;
-      }
-    } else if (!prefix.equals(other.prefix)) {
+    if (!prefix.equals(other.prefix)) {
       return false;
     }
     return true;
