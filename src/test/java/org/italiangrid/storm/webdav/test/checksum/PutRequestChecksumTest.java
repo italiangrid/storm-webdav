@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.fs.attrs.ExtendedAttributesHelper;
 import org.italiangrid.storm.webdav.milton.StoRMMiltonBehaviour;
 import org.italiangrid.storm.webdav.server.PathResolver;
@@ -58,7 +60,7 @@ class PutRequestChecksumTest {
   }
 
   @Test
-  void reprDigestHeaderNotSended() throws IOException, BadRequestException {
+  void reprDigestHeaderNotSent() throws IOException, BadRequestException {
     Path filePath = directory.resolve("tmpFile");
     Files.createFile(filePath);
 
@@ -124,5 +126,24 @@ class PutRequestChecksumTest {
     assertEquals(
         "Error retrieving checksum from the file system", checksumVerificationError.getMessage());
     assertTrue(Files.exists(filePath));
+  }
+
+  @Test
+  void fileTooSmall() throws IOException {
+    Path filePath = directory.resolve("tmpFile");
+    Files.createFile(filePath);
+    StorageAreaInfo sa = mock(StorageAreaInfo.class);
+    when(sa.minFileSize()).thenReturn((long) 128);
+    when(resolver.resolveStorageArea(FULL_LOCAL_PATH)).thenReturn(sa);
+    when(resolver.getPath(FULL_LOCAL_PATH)).thenReturn(filePath);
+    when(request.getContentLengthHeader()).thenReturn(null);
+
+    BadRequestException e =
+        assertThrows(
+            BadRequestException.class,
+            () -> {
+              miltonBehaviour.putRequestHandling(request);
+            });
+    assertEquals("File too small: minimum size 128 bytes", e.getReason());
   }
 }
