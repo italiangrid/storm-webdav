@@ -306,6 +306,7 @@ public class AppConfig {
     return HttpClients.custom()
         .setConnectionManager(cm)
         .setDefaultRequestConfig(config)
+        .setConnectionReuseStrategy((request, response, context) -> false)
         .setRedirectStrategy(SuperLaxRedirectStrategy.INSTANCE)
         .build();
   }
