@@ -196,6 +196,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               resolver.resolveStorageArea(request.path()),
               observationContext));
       reportTask.cancel(true);
+      reportStatus(cb, request, statusBuilder.inProgress(os.getCount()));
       reportStatus(cb, request, statusBuilder.done(os.getCount()));
     } catch (HttpResponseException e) {
       logException(e);
@@ -326,6 +327,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
       httpClient.execute(
           put, context, new PutResponseHandler(MDC.getCopyOfContextMap(), observationContext));
       reportTask.cancel(true);
+      reportStatus(cb, request, statusBuilder.inProgress(cfe.getCount()));
       reportStatus(cb, request, statusBuilder.done(cfe.getCount()));
     } catch (HttpResponseException e) {
       logException(e);
