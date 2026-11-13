@@ -21,6 +21,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
@@ -164,15 +166,19 @@ public class MiltonFilter implements Filter {
       }
       SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
       if (scitag != null) {
-        SciTagTransfer scitagTransfer =
-            new SciTagTransfer(
-                scitag,
-                request.getLocalAddr(),
-                request.getLocalPort(),
-                request.getRemoteAddr(),
-                request.getRemotePort());
-        scitagTransfer.writeStart();
-        request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
+        try {
+          SciTagTransfer scitagTransfer =
+              new SciTagTransfer(
+                  scitag,
+                  InetAddress.getByName(request.getLocalAddr()).getHostAddress(),
+                  request.getLocalPort(),
+                  InetAddress.getByName(request.getRemoteAddr()).getHostAddress(),
+                  request.getRemotePort());
+          scitagTransfer.writeStart();
+          request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
+        } catch (UnknownHostException e) {
+          LOG.info("Invalid address for SciTag", e);
+        }
       }
       miltonHTTPManager.process(miltonReq, miltonRes);
       if (miltonReq.getMethod() == Method.PUT
