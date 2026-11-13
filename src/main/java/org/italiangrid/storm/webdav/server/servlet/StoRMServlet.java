@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
 import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.MimeTypes;
@@ -127,9 +128,9 @@ public class StoRMServlet extends ResourceServlet {
       scitagTransfer =
           new SciTagTransfer(
               scitag,
-              request.getLocalAddr(),
+              InetAddress.getByName(request.getLocalAddr()).getHostAddress(),
               request.getLocalPort(),
-              request.getRemoteAddr(),
+              InetAddress.getByName(request.getRemoteAddr()).getHostAddress(),
               request.getRemotePort());
       scitagTransfer.writeStart();
     }
