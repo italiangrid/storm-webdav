@@ -29,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -47,7 +46,7 @@ class LocalAuthzPdpTests {
 
   @Mock Enumeration<String> requestHeaderNames;
 
-  @Spy ServiceConfigurationProperties config = new ServiceConfigurationProperties();
+  ServiceConfigurationProperties config = new ServiceConfigurationProperties();
 
   @Mock HttpServletRequest request;
 

@@ -33,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -55,7 +54,7 @@ class ScopePathAuthzPdpTests {
 
   @Mock Enumeration<String> requestHeaderNames;
 
-  @Spy ServiceConfigurationProperties config = new ServiceConfigurationProperties();
+  ServiceConfigurationProperties config = new ServiceConfigurationProperties();
 
   @Mock HttpServletRequest request;
 
