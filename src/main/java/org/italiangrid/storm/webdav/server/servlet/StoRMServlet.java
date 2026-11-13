@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.MimeTypes;
@@ -124,14 +126,18 @@ public class StoRMServlet extends ResourceServlet {
     SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
     SciTagTransfer scitagTransfer = null;
     if (scitag != null) {
-      scitagTransfer =
-          new SciTagTransfer(
-              scitag,
-              request.getLocalAddr(),
-              request.getLocalPort(),
-              request.getRemoteAddr(),
-              request.getRemotePort());
-      scitagTransfer.writeStart();
+      try {
+        scitagTransfer =
+            new SciTagTransfer(
+                scitag,
+                InetAddress.getByName(request.getLocalAddr()).getHostAddress(),
+                request.getLocalPort(),
+                InetAddress.getByName(request.getRemoteAddr()).getHostAddress(),
+                request.getRemotePort());
+        scitagTransfer.writeStart();
+      } catch (UnknownHostException e) {
+        LOG.info("Invalid address for SciTag", e);
+      }
     }
     if (serviceConfig.getNginx().enabled()) {
       String resolvedPath = pathResolver.resolvePath(pathInContext);
