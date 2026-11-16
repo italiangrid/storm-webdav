@@ -20,7 +20,6 @@ import org.italiangrid.storm.webdav.authz.util.StructuredPathScopeMatcher;
 import org.italiangrid.storm.webdav.config.ServiceConfigurationProperties;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.server.PathResolver;
-import org.italiangrid.storm.webdav.server.servlet.WebDAVMethod;
 import org.italiangrid.storm.webdav.tpc.LocalURLService;
 import org.italiangrid.storm.webdav.tpc.TpcUtils;
 import org.springframework.security.core.Authentication;
@@ -61,6 +60,8 @@ public class WlcgStructuredPathAuthorizationPdp
   protected static final Set<String> REPLACE_METHODS = Set.of("PUT", "MKCOL");
   protected static final Set<String> MODIFY_METHODS = Set.of("PATCH", "DELETE");
   protected static final Set<String> CATCHALL_METHODS = Set.of("HEAD", "OPTIONS");
+
+  protected static final Set<String> ALLOW_PARENT_DIRS_METHODS = Set.of("HEAD", "MKCOL");
 
   public static final String COPY_METHOD = "COPY";
   public static final String MOVE_METHOD = "MOVE";
@@ -202,7 +203,7 @@ public class WlcgStructuredPathAuthorizationPdp
     final boolean requestedResourceExists = pathResolver.pathExists(requestPath);
     final String saPath = getStorageAreaPath(requestPath, sa);
 
-    if (WebDAVMethod.MKCOL.name().equals(method)) {
+    if (ALLOW_PARENT_DIRS_METHODS.contains(method)) {
       scopeMatchers =
           scopeMatchers.stream()
               .filter(m -> filterMatcherByRequest(request, method, m, requestedResourceExists))
