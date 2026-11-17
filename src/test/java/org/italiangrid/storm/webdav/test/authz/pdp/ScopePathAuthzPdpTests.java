@@ -470,4 +470,63 @@ class ScopePathAuthzPdpTests {
     result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
     assertEquals(Decision.DENY, result.getDecision());
   }
+
+  @Test
+  void parentDirStatIsAllowedWithStorageCreateModifyReadOrStage() {
+
+    when(pathResolver.resolveStorageArea(anyString())).thenReturn(sa);
+    when(request.getPathInfo()).thenReturn("test/dir/subdir");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.create:/dir/subdir");
+    when(request.getMethod()).thenReturn("HEAD");
+    PathAuthorizationResult result =
+        pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/anotherdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.DENY, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir/subdir");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.modify:/dir/subdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/anotherdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.DENY, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir/subdir");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.read:/dir/subdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/anotherdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.DENY, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir/subdir");
+    when(jwt.getClaimAsString(SCOPE_CLAIM)).thenReturn("openid storage.stage:/dir/subdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/dir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.PERMIT, result.getDecision());
+
+    when(request.getPathInfo()).thenReturn("test/anotherdir");
+    result = pdp.authorizeRequest(newAuthorizationRequest(request, jwtAuth));
+    assertEquals(Decision.DENY, result.getDecision());
+  }
 }
