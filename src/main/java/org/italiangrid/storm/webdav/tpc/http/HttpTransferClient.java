@@ -4,6 +4,7 @@
 
 package org.italiangrid.storm.webdav.tpc.http;
 
+import com.google.common.io.CountingOutputStream;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientContext;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.ApacheHttpClientObservationDocumentation;
 import io.micrometer.core.instrument.binder.httpcomponents.hc5.DefaultApacheHttpClientObservationConvention;
@@ -46,7 +47,6 @@ import org.italiangrid.storm.webdav.tpc.transfer.TransferStatusCallback;
 import org.italiangrid.storm.webdav.tpc.transfer.error.FileTooSmall;
 import org.italiangrid.storm.webdav.tpc.transfer.error.TransferError;
 import org.italiangrid.storm.webdav.tpc.utils.CountingFileEntity;
-import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -147,7 +147,7 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
         fos = new BufferedOutputStream(fos, localFileBufferSize);
       }
 
-      return new Adler32ChecksumOutputStream(StormCountingOutputStream.create(fos, path));
+      return new Adler32ChecksumOutputStream(new CountingOutputStream(fos), path);
 
     } catch (IOException e) {
       throw new TransferError(e.getMessage(), e);
