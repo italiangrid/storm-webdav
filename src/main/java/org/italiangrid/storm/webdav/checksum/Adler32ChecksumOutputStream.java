@@ -4,20 +4,23 @@
 
 package org.italiangrid.storm.webdav.checksum;
 
+import com.google.common.io.CountingOutputStream;
 import java.nio.file.Path;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 import org.italiangrid.storm.webdav.tpc.utils.Countable;
-import org.italiangrid.storm.webdav.tpc.utils.StormCountingOutputStream;
 import org.italiangrid.storm.webdav.utils.ChecksumHelper;
 
 public class Adler32ChecksumOutputStream extends CheckedOutputStream implements Countable {
 
-  final StormCountingOutputStream delegate;
+  final CountingOutputStream delegate;
 
-  public Adler32ChecksumOutputStream(StormCountingOutputStream out) {
+  final Path path;
+
+  public Adler32ChecksumOutputStream(CountingOutputStream out, Path path) {
     super(out, new Adler32());
     delegate = out;
+    this.path = path;
   }
 
   public String getChecksumValue() {
@@ -30,6 +33,6 @@ public class Adler32ChecksumOutputStream extends CheckedOutputStream implements 
   }
 
   public Path getPath() {
-    return delegate.getPath();
+    return path;
   }
 }
