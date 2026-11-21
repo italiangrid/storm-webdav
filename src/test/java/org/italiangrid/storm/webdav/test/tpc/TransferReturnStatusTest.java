@@ -7,6 +7,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,12 +40,12 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
   @BeforeEach
   public void setup() throws IOException {
     super.setup();
-    when(request.getMethod()).thenReturn(WebDAVMethod.COPY.name());
-    when(request.getServletPath()).thenReturn(SERVLET_PATH);
-    when(request.getPathInfo()).thenReturn(LOCAL_PATH);
-    when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
-    when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
-    when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
+    lenient().when(request.getMethod()).thenReturn(WebDAVMethod.COPY.name());
+    lenient().when(request.getServletPath()).thenReturn(SERVLET_PATH);
+    lenient().when(request.getPathInfo()).thenReturn(LOCAL_PATH);
+    lenient().when(request.getHeader(TransferConstants.SOURCE_HEADER)).thenReturn(HTTP_URL);
+    lenient().when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
+    lenient().when(resolver.pathExists(FULL_LOCAL_PATH_PARENT)).thenReturn(true);
   }
 
   @Test
@@ -106,5 +107,14 @@ class TransferReturnStatusTest extends TransferFilterTestSupport {
     verify(response).sendError(httpStatus.capture(), error.capture());
     assertEquals(HttpServletResponse.SC_PRECONDITION_FAILED, httpStatus.getValue());
     assertEquals("Error", error.getValue());
+  }
+
+  @Test
+  void testTransferError() {
+    TransferError error = new TransferError("Error", new RuntimeException());
+    assertEquals("Error", error.getMessage());
+    Throwable cause = error.getCause();
+    assertEquals(RuntimeException.class, cause.getClass());
+    assertEquals(null, ((RuntimeException) cause).getMessage());
   }
 }
