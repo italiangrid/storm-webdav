@@ -6,6 +6,7 @@ package org.italiangrid.storm.webdav.test.tpc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -14,8 +15,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.ServletException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.italiangrid.storm.webdav.config.StorageAreaInfo;
 import org.italiangrid.storm.webdav.scitag.SciTag;
 import org.italiangrid.storm.webdav.scitag.SciTagTransfer;
@@ -30,7 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SciTagFilterActivationTest extends TransferFilterTestSupport {
-  @TempDir File tempDir;
+  @TempDir Path tempDir;
 
   SciTagFilter sciTagFilter;
 
@@ -70,15 +72,56 @@ class SciTagFilterActivationTest extends TransferFilterTestSupport {
   }
 
   @Test
-  void testSciTagWrite() {
+  void testSciTagWrite() throws IOException {
     SciTag scitag = new SciTag(1, 2, false);
     assertEquals(1, scitag.experimentId());
     assertEquals(2, scitag.activityId());
     assertFalse(scitag.remoteAddressIsSource());
-    File mockFile = new File(tempDir, "flowd");
+    Path flowdPipePath = tempDir.resolve("flowd");
     SciTagTransfer scitagTransfer =
-        new SciTagTransfer(scitag, "10.10.10.10", 8443, "10.10.10.11", 12345, mockFile);
+        new SciTagTransfer(scitag, "10.10.10.10", 8443, "10.10.10.11", 12345, flowdPipePath);
     scitagTransfer.writeStart();
+    assertEquals(
+        "start tcp 10.10.10.10 8443 10.10.10.11 12345 1 2\n", Files.readString(flowdPipePath));
     scitagTransfer.writeEnd();
+    assertEquals(
+        "end tcp 10.10.10.10 8443 10.10.10.11 12345 1 2\n", Files.readString(flowdPipePath));
+  }
+
+  @Test
+  void testSciTagRemoteAddressIsSourceWrite() throws IOException {
+    SciTag scitag = new SciTag(1, 2, true);
+    assertEquals(1, scitag.experimentId());
+    assertEquals(2, scitag.activityId());
+    assertTrue(scitag.remoteAddressIsSource());
+    Path flowdPipePath = tempDir.resolve("flowd");
+    SciTagTransfer scitagTransfer =
+        new SciTagTransfer(scitag, "10.10.10.10", 8443, "10.10.10.11", 12345, flowdPipePath);
+    scitagTransfer.writeStart();
+    assertEquals(
+        "start tcp 10.10.10.11 12345 10.10.10.10 8443 1 2\n", Files.readString(flowdPipePath));
+    scitagTransfer.writeEnd();
+    assertEquals(
+        "end tcp 10.10.10.11 12345 10.10.10.10 8443 1 2\n", Files.readString(flowdPipePath));
+  }
+
+  @Test
+  void testSciTagTransferFromHttpServletRequest() throws IOException {
+    when(request.getLocalAddr()).thenReturn("[fc00::1]");
+    when(request.getLocalPort()).thenReturn(8443);
+    when(request.getRemoteAddr()).thenReturn("[fc00::2]");
+    when(request.getRemotePort()).thenReturn(12345);
+    SciTag scitag = new SciTag(1, 2, false);
+    Path flowdPipePath = tempDir.resolve("flowd");
+    SciTagTransfer scitagTransfer =
+        SciTagTransfer.fromHttpServletRequest(request, scitag, flowdPipePath);
+    scitagTransfer.writeStart();
+    assertEquals(
+        "start tcp fc00:0:0:0:0:0:0:1 8443 fc00:0:0:0:0:0:0:2 12345 1 2\n",
+        Files.readString(flowdPipePath));
+    scitagTransfer.writeEnd();
+    assertEquals(
+        "end tcp fc00:0:0:0:0:0:0:1 8443 fc00:0:0:0:0:0:0:2 12345 1 2\n",
+        Files.readString(flowdPipePath));
   }
 }
