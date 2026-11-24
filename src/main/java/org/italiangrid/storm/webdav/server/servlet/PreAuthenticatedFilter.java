@@ -16,9 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-// ForwardedHeaderFilter does not parse the "by" part of the Forwarded header
-// This wraps the request so the local address/port are correct
-// https://github.com/spring-projects/spring-framework/issues/34654
 public class PreAuthenticatedFilter extends OncePerRequestFilter {
 
   public static final String REQUEST_ID_HEADER = "X-request-id";

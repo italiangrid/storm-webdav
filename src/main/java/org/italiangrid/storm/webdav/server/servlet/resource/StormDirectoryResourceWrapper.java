@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.eclipse.jetty.util.StringUtil;
@@ -131,7 +130,7 @@ public class StormDirectoryResourceWrapper extends Resource {
 
     String parentDir = URIUtil.addPaths(encodedBase, "../");
 
-    Collections.sort(rawListing, (a, b) -> a.getFileName().compareTo(b.getFileName()));
+    rawListing.sort((a, b) -> a.getFileName().compareTo(b.getFileName()));
 
     List<StormFsResourceView> resources = new ArrayList<>();
 

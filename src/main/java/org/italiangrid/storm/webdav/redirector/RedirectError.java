@@ -13,11 +13,9 @@ public class RedirectError extends StoRMWebDAVError {
 
   public RedirectError() {
     super();
-    // TODO Auto-generated constructor stub
   }
 
   public RedirectError(String message) {
     super(message);
-    // TODO Auto-generated constructor stub
   }
 }

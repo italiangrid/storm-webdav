@@ -12,7 +12,7 @@ public class VOMSFQANAuthority implements GrantedAuthority, Comparable<VOMSFQANA
   /** */
   private static final long serialVersionUID = 1L;
 
-  private String fqanAuthority;
+  private final String fqanAuthority;
 
   @Override
   public int hashCode() {

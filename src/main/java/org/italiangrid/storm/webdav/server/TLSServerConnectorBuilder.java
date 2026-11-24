@@ -459,7 +459,7 @@ public final class TLSServerConnectorBuilder {
 
     try {
 
-      KeyManager[] kms = new KeyManager[] {keyManager};
+      KeyManager[] kms = {keyManager};
       SSLTrustManager tm = new SSLTrustManager(certificateValidator);
 
       if (useConscrypt) {
