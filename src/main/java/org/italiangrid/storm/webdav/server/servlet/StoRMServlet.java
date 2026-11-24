@@ -122,15 +122,8 @@ public class StoRMServlet extends ResourceServlet {
       }
     }
     SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
-    SciTagTransfer scitagTransfer = null;
-    if (scitag != null) {
-      scitagTransfer =
-          new SciTagTransfer(
-              scitag,
-              request.getLocalAddr(),
-              request.getLocalPort(),
-              request.getRemoteAddr(),
-              request.getRemotePort());
+    SciTagTransfer scitagTransfer = SciTagTransfer.fromHttpServletRequest(request, scitag);
+    if (scitagTransfer != null) {
       scitagTransfer.writeStart();
     }
     if (serviceConfig.getNginx().enabled()) {

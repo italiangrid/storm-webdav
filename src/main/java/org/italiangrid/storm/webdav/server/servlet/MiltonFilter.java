@@ -163,14 +163,8 @@ public class MiltonFilter implements Filter {
         return;
       }
       SciTag scitag = (SciTag) request.getAttribute(SciTag.SCITAG_ATTRIBUTE);
-      if (scitag != null) {
-        SciTagTransfer scitagTransfer =
-            new SciTagTransfer(
-                scitag,
-                request.getLocalAddr(),
-                request.getLocalPort(),
-                request.getRemoteAddr(),
-                request.getRemotePort());
+      SciTagTransfer scitagTransfer = SciTagTransfer.fromHttpServletRequest(request, scitag);
+      if (scitagTransfer != null) {
         scitagTransfer.writeStart();
         request.setAttribute(SciTagTransfer.SCITAG_TRANSFER_ATTRIBUTE, scitagTransfer);
       }
