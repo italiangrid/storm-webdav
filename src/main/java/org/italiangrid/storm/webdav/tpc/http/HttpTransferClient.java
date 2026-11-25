@@ -68,7 +68,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
   final ScheduledExecutorService executorService;
   final int reportDelaySec;
   final int localFileBufferSize;
-  final int socketBufferSize;
 
   private void reportStatus(TransferStatusCallback cb, TransferRequest req, TransferStatus s) {
     req.setTransferStatus(s);
@@ -94,7 +93,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
     executorService = es;
     reportDelaySec = properties.getReportDelaySecs();
     localFileBufferSize = config.getBuffer().getFileBufferSizeBytes();
-    socketBufferSize = properties.getHttpClientSocketBufferSize();
   }
 
   @Override
@@ -192,7 +190,6 @@ public final class HttpTransferClient implements TransferClient, DisposableBean 
               os,
               attributesHelper,
               MDC.getCopyOfContextMap(),
-              socketBufferSize,
               resolver.resolveStorageArea(request.path()),
               observationContext));
       reportTask.cancel(true);

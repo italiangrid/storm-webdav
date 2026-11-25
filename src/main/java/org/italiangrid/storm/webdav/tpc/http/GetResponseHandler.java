@@ -32,14 +32,11 @@ import org.slf4j.LoggerFactory;
 public class GetResponseHandler extends ResponseHandlerSupport
     implements HttpClientResponseHandler<Boolean> {
 
-  public static final int DEFAULT_BUFFER_SIZE = 4096;
-
   public static final Logger LOG = LoggerFactory.getLogger(GetResponseHandler.class);
 
   final GetTransferRequest request;
   final Adler32ChecksumOutputStream fileStream;
   final ExtendedAttributesHelper attributesHelper;
-  final int bufferSize;
   final StorageAreaInfo storageAreaInfo;
   final ApacheHttpClientContext observationContext;
 
@@ -48,7 +45,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
       Adler32ChecksumOutputStream fs,
       ExtendedAttributesHelper ah,
       Map<String, String> mdcContextMap,
-      int bufSiz,
       StorageAreaInfo storageAreaInfo,
       ApacheHttpClientContext observationContext) {
 
@@ -56,7 +52,6 @@ public class GetResponseHandler extends ResponseHandlerSupport
     request = req;
     fileStream = fs;
     attributesHelper = ah;
-    bufferSize = bufSiz;
     this.storageAreaInfo = storageAreaInfo;
     this.observationContext = observationContext;
   }
@@ -66,7 +61,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
       Adler32ChecksumOutputStream fs,
       ExtendedAttributesHelper ah,
       StorageAreaInfo storageAreaInfo) {
-    this(req, fs, ah, Collections.emptyMap(), DEFAULT_BUFFER_SIZE, storageAreaInfo, null);
+    this(req, fs, ah, Collections.emptyMap(), storageAreaInfo, null);
   }
 
   private void writeEntityToStream(HttpEntity entity, OutputStream os)
@@ -74,11 +69,7 @@ public class GetResponseHandler extends ResponseHandlerSupport
 
     try (InputStream inStream = entity.getContent()) {
       if (inStream != null) {
-        int l;
-        final byte[] tmp = new byte[bufferSize];
-        while ((l = inStream.read(tmp)) != -1) {
-          os.write(tmp, 0, l);
-        }
+        inStream.transferTo(os);
       }
     }
   }
